@@ -11,6 +11,7 @@ import SkillDetail from './components/SkillDetail';
 import RateOfferTool from './components/tools/RateOfferTool';
 import AcceptanceCalculator from './components/tools/AcceptanceCalculator';
 import FeeDiscountTool from './components/tools/FeeDiscountTool';
+import NewsTypesettingAssistant from './components/tools/NewsTypesettingAssistant';
 
 const App: React.FC = () => {
   return (
@@ -24,6 +25,7 @@ const App: React.FC = () => {
           <Route path="/rate-offer" element={<RateOfferTool />} />
           <Route path="/acceptance-calculator" element={<AcceptanceCalculator />} />
           <Route path="/fee-discount" element={<FeeDiscountTool />} />
+          <Route path="/news-assistant" element={<NewsTypesettingAssistant />} />
           <Route path="/updates" element={<UpdateLog />} />
           <Route path="/instructions" element={<UsageInstructions />} />
           <Route path="/feedback" element={<Feedback />} />

@@ -63,5 +63,18 @@ export const SKILLS: Skill[] = [
     form: "本地 Python + 模板批量生成",
     status: "开发中/能力介绍",
     description: "针对大批量开票需求，通过模板引擎一键生成多份标准化文档，大幅减少重复录入工作。"
+  },
+  {
+    id: 'news-assistant',
+    name: "宣传稿排版助手",
+    category: "排版助手 Skill",
+    scene: "对中后台",
+    audience: ["客户经理", "中后台", "宣传员"],
+    input: ["标题方向", "栏目方向", "落款单位", "投稿人", "日期", "原始材料", "图片"],
+    output: ["成稿正文", "排版核对清单", "Word 文件"],
+    form: "网页",
+    status: "在线可用",
+    toolRoute: "/news-assistant",
+    description: "自动整理并排版《厦行信息》投稿新闻稿，支持图片插入和 Word 导出。"
   }
 ];
