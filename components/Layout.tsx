@@ -86,8 +86,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               A
             </div>
             <div className="hidden sm:block">
-              <h1 className="font-serif font-bold text-lg tracking-tight text-brand-dark leading-none">客户经理 Agent</h1>
-              <p className="text-[9px] text-brand-gold font-bold uppercase tracking-[0.25em] mt-1 opacity-80">Skills Portal</p>
+              <h1 className="font-serif font-bold text-lg tracking-tight text-brand-dark leading-none">客户经理 Agent + Skills</h1>
+              <p className="text-[9px] text-brand-gold font-bold uppercase tracking-[0.25em] mt-1 opacity-80">超级超级强</p>
             </div>
           </Link>
 
@@ -165,7 +165,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="md:col-span-5">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-8 h-8 bg-brand-dark rounded-lg flex items-center justify-center text-brand-gold font-serif font-bold text-lg shadow-lg">A</div>
-                <h2 className="font-serif font-bold text-xl text-brand-dark tracking-tight">客户经理 Agent + Skills</h2>
+                <h2 className="font-serif font-bold text-xl text-brand-dark tracking-tight">客户经理 Agent + Skills 超级超级强</h2>
               </div>
               <p className="max-w-md text-sm leading-relaxed mb-8 text-brand-gray/80">
                 将客户经理的实战经验沉淀为可复用的数字技能。

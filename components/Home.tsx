@@ -30,12 +30,12 @@ const Home: React.FC = () => {
 
         <div className="container mx-auto px-6 relative z-10 text-center max-w-5xl">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-light-gray border border-brand-border/30 text-brand-gray text-[10px] font-bold tracking-[0.3em] uppercase rounded-full mb-10 animate-fade-in-up">
-            <Sparkles size={12} className="text-brand-gold" /> 客户经理专属 Agent 门户
+            <Sparkles size={12} className="text-brand-gold" /> 客户经理 Agent + Skills
           </div>
           
           <h1 className="font-serif text-6xl md:text-8xl font-bold leading-[1.1] text-brand-dark mb-10 tracking-tight animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            赋能每一位 <br className="hidden md:block" />
-            <span className="text-brand-gold italic font-normal">卓越</span> 的客户经理
+            客户经理 Agent + Skills <br className="hidden md:block" />
+            <span className="text-brand-gold italic font-normal">超级超级强</span>
           </h1>
           
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-brand-gray font-medium leading-relaxed mb-16 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
@@ -146,7 +146,7 @@ const Home: React.FC = () => {
         <div className="container mx-auto px-6 text-center relative z-10 max-w-4xl">
           <h2 className="font-serif text-5xl md:text-7xl text-white mb-10 tracking-tight leading-tight">准备好提升你的 <br /> <span className="text-brand-gold italic font-normal">业务效率</span> 了吗？</h2>
           <p className="max-w-2xl mx-auto text-stone-400 mb-16 text-lg font-medium leading-relaxed">
-            加入我们的共创计划，提交你的业务痛点，让我们一起打造更懂客户经理的 Agent 门户。
+            加入我们的共创计划，提交你的业务痛点，让我们一起打造更懂客户经理的 Agent。
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-8">
             <Link to="/feedback" className="px-12 py-5 bg-brand-gold text-brand-dark rounded-full font-bold text-lg hover:bg-brand-gold/90 hover:scale-105 transition-all shadow-2xl shadow-brand-gold/20">

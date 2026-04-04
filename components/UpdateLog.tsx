@@ -44,10 +44,10 @@ const UpdateLog: React.FC = () => {
     {
       date: '2024-08-20',
       version: 'v1.0.0',
-      title: '客户经理 Agent + Skills 门户正式发布',
+      title: '客户经理 Agent + Skills 超级超级强正式发布',
       desc: '把客户经理每天反复转译的信息，沉淀成可复用的 Skills。',
       type: 'release',
-      items: ['发布门户首页、场景中心、工具库', '上线利率优惠签报智能生成 Skill', '开启反馈/共创通道']
+      items: ['发布首页、场景中心、工具库', '上线利率优惠签报智能生成 Skill', '开启反馈/共创通道']
     }
   ];
 
