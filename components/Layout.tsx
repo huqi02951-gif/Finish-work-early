@@ -159,65 +159,96 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-brand-light-gray text-brand-gray py-20 border-t border-brand-border/30">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-16">
-            <div className="md:col-span-5">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-8 h-8 bg-brand-dark rounded-lg flex items-center justify-center text-brand-gold font-serif font-bold text-lg shadow-lg">A</div>
-                <h2 className="font-serif font-bold text-xl text-brand-dark tracking-tight">客户经理 Agent + Skills 超级超级强</h2>
-              </div>
-              <p className="max-w-md text-sm leading-relaxed mb-8 text-brand-gray/80">
-                将客户经理的实战经验沉淀为可复用的数字技能。
-                通过场景化驱动，实现业务流程标准化与话术模板化，
-                让专业力量在每一次交互中精准释放。
+      <footer className="bg-brand-dark text-white pt-32 pb-20 border-t border-white/5 relative overflow-hidden">
+        {/* Decorative Background Element */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-gold/5 rounded-full blur-[120px] -mr-64 -mt-64 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-brand-gold/5 rounded-full blur-[100px] -ml-32 -mb-32 pointer-events-none"></div>
+
+        <div className="container mx-auto px-6 relative z-10">
+          {/* Manifesto Section */}
+          <div className="max-w-4xl mb-32 animate-fade-in">
+            <h2 className="text-[11px] font-bold text-brand-gold uppercase tracking-[0.4em] mb-10 opacity-80">
+              Original Intention / 最初衷
+            </h2>
+            <div className="space-y-8">
+              <p className="font-serif text-4xl md:text-6xl leading-[1.1] tracking-tight text-white">
+                让每一位客户经理，<br />
+                都拥有属于自己的<span className="text-brand-gold italic">超级大脑</span>。
               </p>
-              <div className="flex gap-4">
-                <div className="w-8 h-8 rounded-full bg-brand-border/20 flex items-center justify-center hover:bg-brand-dark hover:text-white transition-all cursor-pointer">
-                  <MessageSquare size={14} />
+              <p className="text-xl md:text-2xl text-white/40 leading-relaxed max-w-2xl font-medium">
+                将实战经验沉淀为可复用的数字技能，<br />
+                让专业不再是少数人的专利，而是每一次交互的标配。
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-32">
+            <div className="md:col-span-5">
+              <div className="flex items-center gap-4 mb-10">
+                <div className="w-10 h-10 bg-brand-gold rounded-xl flex items-center justify-center text-brand-dark font-serif font-bold text-2xl shadow-2xl">A</div>
+                <div className="h-px w-12 bg-white/10"></div>
+                <h2 className="font-serif font-bold text-xl text-white tracking-tight">Agent + Skills</h2>
+              </div>
+              <p className="max-w-xs text-sm leading-relaxed mb-10 text-white/40 font-medium">
+                基于真实业务场景构建的智能作业平台。<br />
+                为卓越而生，为效能而战。
+              </p>
+              <div className="flex gap-6">
+                <div className="group cursor-pointer">
+                  <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 group-hover:bg-brand-gold group-hover:text-brand-dark transition-all duration-500">
+                    <MessageSquare size={18} />
+                  </div>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-brand-border/20 flex items-center justify-center hover:bg-brand-dark hover:text-white transition-all cursor-pointer">
-                  <BookOpen size={14} />
+                <div className="group cursor-pointer">
+                  <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 group-hover:bg-brand-gold group-hover:text-brand-dark transition-all duration-500">
+                    <BookOpen size={18} />
+                  </div>
                 </div>
               </div>
             </div>
             
             <div className="md:col-span-2">
-              <h3 className="text-brand-dark font-serif font-bold mb-6 tracking-tight">探索</h3>
-              <ul className="space-y-4 text-[13px]">
-                <li><Link to="/scenarios" className="hover:text-brand-dark transition-colors">场景中心</Link></li>
-                <li><Link to="/skills" className="hover:text-brand-dark transition-colors">Skills 工具库</Link></li>
-                <li><Link to="/updates" className="hover:text-brand-dark transition-colors">更新记录</Link></li>
+              <h3 className="text-white font-serif font-bold mb-8 tracking-tight text-lg">探索</h3>
+              <ul className="space-y-5 text-[13px] font-medium text-white/40">
+                <li><Link to="/scenarios" className="hover:text-brand-gold transition-colors">场景中心</Link></li>
+                <li><Link to="/skills" className="hover:text-brand-gold transition-colors">Skills 工具库</Link></li>
+                <li><Link to="/updates" className="hover:text-brand-gold transition-colors">更新记录</Link></li>
               </ul>
             </div>
             
             <div className="md:col-span-2">
-              <h3 className="text-brand-dark font-serif font-bold mb-6 tracking-tight">支持</h3>
-              <ul className="space-y-4 text-[13px]">
-                <li><Link to="/instructions" className="hover:text-brand-dark transition-colors">使用说明</Link></li>
-                <li><Link to="/feedback" className="hover:text-brand-dark transition-colors">反馈/共创</Link></li>
+              <h3 className="text-white font-serif font-bold mb-8 tracking-tight text-lg">支持</h3>
+              <ul className="space-y-5 text-[13px] font-medium text-white/40">
+                <li><Link to="/instructions" className="hover:text-brand-gold transition-colors">使用说明</Link></li>
+                <li><Link to="/feedback" className="hover:text-brand-gold transition-colors">反馈/共创</Link></li>
               </ul>
             </div>
 
             <div className="md:col-span-3">
-              <h3 className="text-brand-dark font-serif font-bold mb-6 tracking-tight">系统状态</h3>
-              <div className="p-4 rounded-2xl bg-white border border-brand-border/20 shadow-sm">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-brand-dark">All Systems Operational</span>
+              <h3 className="text-white font-serif font-bold mb-8 tracking-tight text-lg">系统状态</h3>
+              <div className="p-6 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)] animate-pulse"></div>
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white">All Systems Operational</span>
                 </div>
-                <p className="text-[10px] text-brand-gray leading-tight">
-                  Last updated: 2024-04-04 08:53 UTC
-                </p>
+                <div className="space-y-2">
+                  <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div className="w-full h-full bg-emerald-500/40"></div>
+                  </div>
+                  <p className="text-[10px] text-white/20 font-bold uppercase tracking-widest">
+                    Uptime: 99.99%
+                  </p>
+                </div>
               </div>
             </div>
           </div>
           
-          <div className="pt-10 border-t border-brand-border/20 flex flex-col md:flex-row justify-between items-center gap-6 text-[11px] font-medium uppercase tracking-widest">
-            <p>© 2024 客户经理 Agent 项目组. Designed for Excellence.</p>
-            <div className="flex gap-8">
-              <span className="hover:text-brand-dark transition-colors cursor-pointer">Privacy Policy</span>
-              <span className="hover:text-brand-dark transition-colors cursor-pointer">Terms of Service</span>
+          <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-bold uppercase tracking-[0.3em] text-white/20">
+            <p>© 2024 客户经理 Agent 项目组. Crafted with Precision.</p>
+            <div className="flex gap-10">
+              <span className="hover:text-brand-gold transition-colors cursor-pointer">Privacy</span>
+              <span className="hover:text-brand-gold transition-colors cursor-pointer">Terms</span>
+              <span className="hover:text-brand-gold transition-colors cursor-pointer">Security</span>
             </div>
           </div>
         </div>
