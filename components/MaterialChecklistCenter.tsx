@@ -88,7 +88,8 @@ const MaterialChecklistCenter: React.FC = () => {
       customerName: info.customerName,
       managerName: info.managerName,
       phone: info.phone,
-      wechat: info.wechat
+      wechat: info.wechat,
+      businessName: selectedSubCategory.name
     });
   }, [selectedSubCategory, info]);
 
@@ -134,11 +135,11 @@ const MaterialChecklistCenter: React.FC = () => {
     if (!selectedSubCategory) return;
     
     const checklistData = [
-      ['厦门银行材料清单 - 客户版'],
+      ['厦门银行对公业务办理材料清单'],
       [`客户名称: ${info.customerName || '未填写'}`],
       [`业务类型: ${selectedSubCategory.name}`],
       [`客户经理: ${info.managerName || '未填写'}`, `联系电话: ${info.phone || '未填写'}`],
-      info.specialRemark ? [`特别说明: ${info.specialRemark}`] : [],
+      ...(info.specialRemark ? [[`特别说明: ${info.specialRemark}`]] : []),
       [],
       ['序号', '材料名称', '格式要求', '备注说明'],
       ...selectedSubCategory.checklist.map((item, index) => [
@@ -146,17 +147,6 @@ const MaterialChecklistCenter: React.FC = () => {
         item.name,
         item.format,
         item.note || ''
-      ])
-    ];
-
-    const reminderData = [
-      ['客户经理内部提醒 - 内部版'],
-      [`业务类型: ${selectedSubCategory.name}`],
-      [],
-      ['序号', '提醒事项'],
-      ...(selectedSubCategory.managerReminders || []).map((note, index) => [
-        index + 1,
-        note
       ])
     ];
 
@@ -183,14 +173,12 @@ const MaterialChecklistCenter: React.FC = () => {
 
     const wb = XLSX.utils.book_new();
     const wsChecklist = XLSX.utils.aoa_to_sheet(checklistData);
-    const wsReminders = XLSX.utils.aoa_to_sheet(reminderData);
     const wsRequiredInfo = XLSX.utils.aoa_to_sheet(requiredInfoData);
     
     XLSX.utils.book_append_sheet(wb, wsChecklist, "材料清单");
     XLSX.utils.book_append_sheet(wb, wsRequiredInfo, "需填写信息");
-    XLSX.utils.book_append_sheet(wb, wsReminders, "客户经理提醒");
     
-    XLSX.writeFile(wb, `${info.customerName || '客户'}_${selectedSubCategory.name}_业务包.xlsx`);
+    XLSX.writeFile(wb, `${info.customerName || '客户'}_${selectedSubCategory.name}_业务办理包.xlsx`);
   };
 
   const exportWord = async () => {
@@ -217,20 +205,10 @@ const MaterialChecklistCenter: React.FC = () => {
           new Paragraph({ children: [new TextRun({ text: `业务类型：${selectedSubCategory.name}` })] }),
           new Paragraph({ children: [new TextRun({ text: `客户经理：${info.managerName || '未填写'}    联系电话：${info.phone || '未填写'}` })] }),
           ...(info.specialRemark ? [new Paragraph({ children: [new TextRun({ text: `特别说明：${info.specialRemark}`, color: "B8860B", bold: true })] })] : []),
-          
-          // Section 2: Customer Script
-          new Paragraph({
-            children: [new TextRun({ text: "\n二、 对客沟通话术（微信/短信）", bold: true, size: 28 })],
-            spacing: { before: 400, after: 200 }
-          }),
-          new Paragraph({
-            children: [new TextRun({ text: generatedScript, italics: true, color: "666666" })],
-            spacing: { after: 200 }
-          }),
 
-          // Section 3: Checklist
+          // Section 2: Checklist
           new Paragraph({
-            children: [new TextRun({ text: "\n三、 材料清单明细", bold: true, size: 28 })],
+            children: [new TextRun({ text: "\n二、 材料清单明细", bold: true, size: 28 })],
             spacing: { before: 400, after: 200 }
           }),
           new Table({
@@ -253,9 +231,9 @@ const MaterialChecklistCenter: React.FC = () => {
             ]
           }),
 
-          // Section 4: Required Info
+          // Section 3: Required Info
           new Paragraph({
-            children: [new TextRun({ text: "\n四、 客户需补充填写的信息表", bold: true, size: 28 })],
+            children: [new TextRun({ text: "\n三、 客户需补充填写的信息表", bold: true, size: 28 })],
             spacing: { before: 400, after: 200 }
           }),
           ...(selectedSubCategory.requiredInfo || []).flatMap(section => [
@@ -291,17 +269,7 @@ const MaterialChecklistCenter: React.FC = () => {
                 })
               ];
             })
-          ]),
-
-          // Section 5: Manager Reminders
-          new Paragraph({
-            children: [new TextRun({ text: "\n五、 客户经理内部提醒（不发客户）", bold: true, size: 28, color: "C00000" })],
-            spacing: { before: 400, after: 200 }
-          }),
-          ...(selectedSubCategory.managerReminders || []).map(note => new Paragraph({
-            children: [new TextRun({ text: `· ${note}`, color: "C00000" })],
-            spacing: { before: 100 }
-          }))
+          ])
         ]
       }]
     });

@@ -25,7 +25,7 @@ export interface BusinessSubCategory {
   formsToFill?: string[];
   managerReminders?: string[];
   requiredInfo?: RequiredInfoSection[]; // New field for information customers need to fill
-  scriptTemplate: (params: { customerName: string; managerName: string; phone: string; wechat?: string }) => string;
+  scriptTemplate: (params: { customerName: string; managerName: string; phone: string; wechat?: string; businessName?: string }) => string;
 }
 
 export interface BusinessCategory {
@@ -100,8 +100,8 @@ const COMMON_REQUIRED_INFO: RequiredInfoSection[] = [
         fields: ['银行名称', '借款人', '授信品种', '授信余额(万元)', '利率', '到期日', '担保方式'],
         rows: 3
       },
-      { label: '房产资产情况（地址、权属人、面积、估值、抵押状态等）', type: 'textarea' },
-      { label: '其他抵押/担保情况说明', type: 'textarea' }
+      { label: '企业主要资产情况（如机器设备、车辆、存货等）', type: 'textarea' },
+      { label: '其他担保情况说明', type: 'textarea' }
     ]
   },
   {
@@ -144,8 +144,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【意愿核实】若小程序核实未通过，必须补录开户核实视频，确保真实意愿。',
           '【尽职调查】开户前必须完成实地走访，拍摄办公场地照片并留存。'
         ],
-        scriptTemplate: ({ customerName, managerName, wechat }) => 
-          `您好${customerName ? '，' + customerName : ''}。我是厦门银行的${managerName || '客户经理'}。关于您咨询的【基本户开户】业务，我为您整理了一份详细的材料清单。办理时需要提供原件核对，复印件麻烦帮我加盖下单位公章。为了保证后续办理顺畅，建议您提前核对下印章的清晰度。清单如下，如有任何疑问，随时微信联系我${wechat ? '（微信号：' + wechat + '）' : ''}。`
+        scriptTemplate: ({ customerName }) => 
+          `您好${customerName ? ' ' + customerName : ''}，关于您咨询的【基本户开户】业务，我为您整理了一份详细的材料清单。办理时需要提供原件核对，复印件麻烦帮我加盖下单位公章。清单如下，有任何疑问随时微信找我。`
       },
       {
         id: 'open-general',
@@ -164,8 +164,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【信息一致性】核对基本户信息表上的法人、地址是否与最新证照一致，不一致须先办基本户变更。',
           '【关联关系】询问客户开立一般户的用途（如贷款、代发工资等），做好系统维护。'
         ],
-        scriptTemplate: ({ customerName, managerName, wechat }) => 
-          `您好${customerName ? '，' + customerName : ''}。我是厦门银行的${managerName || '客户经理'}。为您整理了【一般户开户】的材料清单。办理时需要用到贵司的基本存款账户信息表原件，请您留意准备。清单已发在下方，您可以先核对一下，有需要随时找我${wechat ? '（微信号：' + wechat + '）' : ''}。`
+        scriptTemplate: ({ customerName }) => 
+          `您好${customerName ? ' ' + customerName : ''}，为您整理了【一般户开户】的材料清单。办理时需要用到贵司的基本存款账户信息表原件，请您留意准备。清单已发在下方，您可以先核对一下。`
       },
       {
         id: 'open-special',
@@ -183,8 +183,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【预算单位】若涉及预算单位，需额外核实财政审批手续。',
           '【资金封闭】明确资金用途，确保符合专款专用监管要求。'
         ],
-        scriptTemplate: ({ customerName, managerName, wechat }) => 
-          `您好${customerName ? '，' + customerName : ''}。我是厦门银行的${managerName || '客户经理'}。关于【专户开户】，除了基础证照外，最关键的是需要一份“开立专户的文件依据”。我已经把详细清单整理好了，您可以对照准备，有不确定的文件可以先拍给我看看${wechat ? '（微信号：' + wechat + '）' : ''}。`
+        scriptTemplate: ({ customerName, businessName }) => 
+          `您好${customerName ? ' ' + customerName : ''}，关于【${businessName || '专户开户'}】，除了基础证照外，最关键的是需要一份“开立专户的文件依据”。我已经把详细清单整理好了，您可以对照准备，有不确定的文件可以先拍给我看看。`
       }
     ]
   },
@@ -210,8 +210,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【余额处理】若账户有余额，须确认转出路径，且预留印鉴必须有效。',
           '【工商注销】若公司已注销，须提供工商部门出具的注销通知书。'
         ],
-        scriptTemplate: ({ customerName, managerName, wechat }) => 
-          `您好${customerName ? '，' + customerName : ''}。我是厦门银行的${managerName || '客户经理'}。办理【基本户销户】前，请您先确认公司名下在其他银行的账户是否已全部撤销。另外，办理时需要交回原有的开户许可证/信息表、印鉴卡以及未用完的支票。清单已整理如下，您看下是否方便准备${wechat ? '（微信号：' + wechat + '）' : ''}。`
+        scriptTemplate: ({ customerName }) => 
+          `您好${customerName ? ' ' + customerName : ''}，办理【基本户销户】前，请您先确认公司名下在其他银行的账户是否已全部撤销。另外，办理时需要交回原有的开户许可证/信息表、印鉴卡以及未用完的支票。清单已整理如下，您看下是否方便准备。`
       },
       {
         id: 'close-general',
@@ -228,8 +228,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【余额清零】销户前账户余额原则上应为零，或提供明确的资金划转指令。',
           '【凭证回收】务必回收所有未用重要空白凭证（支票等）。'
         ],
-        scriptTemplate: ({ customerName, managerName, wechat }) => 
-          `您好${customerName ? '，' + customerName : ''}。我是厦门银行的${managerName || '客户经理'}。为您整理了【一般户销户】的材料清单。办理前请确认贵司的基本户信息是否为最新，清单如下，请查收${wechat ? '（微信号：' + wechat + '）' : ''}。`
+        scriptTemplate: ({ customerName, businessName }) => 
+          `您好${customerName ? ' ' + customerName : ''}，为您整理了【${businessName || '一般户销户'}】的材料清单。办理前请确认贵司的基本户信息是否为最新，清单如下，请查收。`
       }
     ]
   },
@@ -254,8 +254,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【印章衔接】新旧章均需带至柜面，若旧章已销毁须提供销毁证明。',
           '【关联变更】网银、短信通、对账联系人等信息需同步更新。'
         ],
-        scriptTemplate: ({ customerName, managerName, wechat }) => 
-          `您好${customerName ? '，' + customerName : ''}。我是厦门银行的${managerName || '客户经理'}。关于贵司【基本户变更户名】业务，我已为您整理了清单。办理时需要带上工商部门出具的核准通知书原件，以及新旧两套印章。清单如下，您可以先对照准备${wechat ? '（微信号：' + wechat + '）' : ''}。`
+        scriptTemplate: ({ customerName }) => 
+          `您好${customerName ? ' ' + customerName : ''}，关于贵司【基本户变更户名】业务，我已为您整理了清单。办理时需要带上工商部门出具的核准通知书原件，以及新旧两套印章。清单如下，您可以先对照准备。`
       },
       {
         id: 'change-legal-basic',
@@ -272,8 +272,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【联网核查】新法人手机号需进行联网核查，建议法人本人到场或提供授权。',
           '【受益人更新】法人变更通常涉及受益人变化，需重新填写受益人登记表。'
         ],
-        scriptTemplate: ({ customerName, managerName, wechat }) => 
-          `您好${customerName ? '，' + customerName : ''}。我是厦门银行的${managerName || '客户经理'}。办理【基本户变更法人】业务，请您准备好新任法人的身份证原件，以及新旧两枚法人章。详细清单已为您整理好，请查收${wechat ? '（微信号：' + wechat + '）' : ''}。`
+        scriptTemplate: ({ customerName, businessName }) => 
+          `您好${customerName ? ' ' + customerName : ''}，办理【${businessName || '基本户变更法人'}】业务，请您准备好新任法人的身份证原件，以及新旧两枚法人章。详细清单已为您整理好，请查收。`
       }
     ]
   },
@@ -297,8 +297,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【视同新开】久悬返还流程等同于新开户，必须重新进行实地核实。',
           '【尽职调查】重点核实企业为何长期不使用账户，以及当前的经营真实性。'
         ],
-        scriptTemplate: ({ customerName, managerName, wechat }) => 
-          `您好${customerName ? '，' + customerName : ''}。我是厦门银行的${managerName || '客户经理'}。关于贵司账户的【久悬返还】业务，流程上视同新开户，我们需要重新进行上门核实。我已经把需要准备的材料清单整理好了，您可以先准备起来，咱们约个时间我过去一趟${wechat ? '（微信号：' + wechat + '）' : ''}。`
+        scriptTemplate: ({ customerName, businessName }) => 
+          `您好${customerName ? ' ' + customerName : ''}，关于贵司账户的【${businessName || '久悬返还'}】业务，流程上视同新开户，我们需要重新进行上门核实。我已经把需要准备的材料清单整理好了，您可以先准备起来，咱们约个时间我过去一趟。`
       }
     ]
   }
@@ -328,17 +328,11 @@ export const CREDIT_BUSINESS: BusinessCategory[] = [
           '【报表一致性】重点核对财务报表收入与纳税申报表收入是否匹配，差异较大需说明。',
           '【征信有效期】征信授权书签字日期必须在1个月内，否则需重新签署。',
           '【流水核查】关注流水中是否存在大额个人往来，识别潜在的关联借款。',
-          '【低风险特质】核实抵押物或质押物的权属是否清晰，评估值是否覆盖授信额度。'
+          '【低风险特质】核实质押物（如存单、票据）的权属是否清晰，确保足额质押。'
         ],
         requiredInfo: COMMON_REQUIRED_INFO,
-        scriptTemplate: ({ customerName, managerName, wechat }) => 
-          `您好${customerName ? '，' + customerName : ''}。关于贵司本次申请的【低风险授信业务】，我为您整理了详细的办理指南。
-
-附件包含两部分：
-1. 需要贵司提供的材料清单；
-2. 需要贵司补充填写的经营信息项。
-
-您可以按清单先行准备，其中“需填写信息”部分您可以直接在微信上回复我，或者填在文档里。如有暂缺或疑问请随时联系我${wechat ? '（微信号：' + wechat + '）' : ''}。期待您的回复！`
+        scriptTemplate: ({ customerName }) => 
+          `您好${customerName ? ' ' + customerName : ''}，关于刚才沟通的【低风险授信业务】，我已为您整理好所需的材料清单，您可以先对照准备。办理过程中有任何疑问，随时微信联系我。`
       }
     ]
   },
@@ -369,10 +363,8 @@ export const CREDIT_BUSINESS: BusinessCategory[] = [
           '【实控人背景】需深入调研实际控制人的行业背景、从业年限及个人资产负债情况。'
         ],
         requiredInfo: COMMON_REQUIRED_INFO,
-        scriptTemplate: ({ customerName, managerName, wechat }) => 
-          `您好${customerName ? '，' + customerName : ''}。为您整理了本次【工商类授信】的资料清单。
-
-为尽快开展尽职调查，请您协助准备相关经营及财务资料，并补充填写下方的经营信息项。您可以先看下清单，有不确定的地方（比如某些材料暂时拿不到）请随时跟我沟通${wechat ? '（微信号：' + wechat + '）' : ''}。辛苦了！`
+        scriptTemplate: ({ customerName }) => 
+          `您好${customerName ? ' ' + customerName : ''}，为您整理了本次【工商类授信】的资料清单。为尽快开展尽职调查，请您协助准备相关经营及财务资料，并补充填写下方的经营信息项。您可以先看下清单，有不确定的地方随时跟我沟通。`
       }
     ]
   },
@@ -392,9 +384,8 @@ export const CREDIT_BUSINESS: BusinessCategory[] = [
           { name: '购销合同（上下游各 5 份）', format: 'PDF', note: '合同金额建议≥贷款金额' },
           { name: `纳税申报表（${dates.lastTwoYears}及${dates.latestMonth}）`, format: 'PDF' },
           { name: '税务信用查询（评级+无欠税截图）', format: 'PDF' },
-          { name: '身份证+户口簿（法人、配偶、抵押人等）', format: 'PDF', note: '需本人签字' },
+          { name: '身份证+户口簿（法人、配偶、保证人等）', format: 'PDF', note: '需本人签字' },
           { name: '婚姻状况证明（结婚证或单身声明）', format: 'PDF' },
-          { name: '房产查询报告（i 厦门详细版产调）', format: 'PDF', note: '含抵押、历史信息' },
           { name: '企业征信查询授权书 + 个人征信查询授权书', format: '原件', note: '需邮寄，见模板' },
         ],
         managerReminders: [
@@ -409,10 +400,8 @@ export const CREDIT_BUSINESS: BusinessCategory[] = [
           '文件命名格式：[企业全称]-[材料名称].pdf。',
           '企业材料必须加盖公章，个人材料必须本人签字。',
         ],
-        scriptTemplate: ({ customerName, managerName, wechat }) => 
-          `您好${customerName ? '，' + customerName : ''}。关于本次【小企业授信】的申请，我已为您整理好所需材料清单及需补充填写的经营信息。
-
-为提高审批效率，建议您按清单准备并尽量一次性提供。其中个人部分的材料（如身份证、征信授权书）需要您本人签字。如有任何疑问，请随时联系我${wechat ? '（微信号：' + wechat + '）' : ''}。`
+        scriptTemplate: ({ customerName }) => 
+          `您好${customerName ? ' ' + customerName : ''}，关于本次【小企业授信】的申请，我已为您整理好所需材料清单及需补充填写的经营信息。建议您按清单准备，其中个人部分的材料（如身份证、征信授权书）需要您本人签字。有任何疑问随时微信联系我。`
       }
     ]
   }
