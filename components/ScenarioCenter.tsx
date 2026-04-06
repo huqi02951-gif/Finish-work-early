@@ -15,23 +15,25 @@ import MaterialChecklistCenter from './MaterialChecklistCenter';
 const FengShuiCalendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [direction, setDirection] = useState(0);
+  const [showDivination, setShowDivination] = useState(false);
+  const [divinationResult, setDivinationResult] = useState<any>(null);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
   const monthData = [
-    { name: 'JANUARY', quote: 'This month: you will receive an email. It will ruin your day.', animal: '🐱' },
-    { name: 'FEBRUARY', quote: 'Rest is important. You will not be allowed any.', animal: '🐶' },
-    { name: 'MARCH', quote: "I'll prioritise this immediately—right after I finish doing absolutely nothing.", animal: '🐱' },
-    { name: 'APRIL', quote: 'You’ll fix a problem you didn’t cause. Again.', animal: '🐶' },
-    { name: 'MAY', quote: 'We value your time. That’s why we’ll waste it efficiently.', animal: '🐱' },
-    { name: 'JUNE', quote: 'Drink water. Check your posture. Continue spiraling.', animal: '🐶' },
-    { name: 'JULY', quote: 'I’ve escalated this to my higher self - She declined.', animal: '🐶' },
-    { name: 'AUGUST', quote: 'I have read your urgent message. I have chosen peace instead.', animal: '🐱' },
-    { name: 'SEPTEMBER', quote: 'You are a vital part of the team. Much like the office plant.', animal: '🐱' },
-    { name: 'OCTOBER', quote: "A sudden urge to work hard? Don't worry, it passes quickly.", animal: '🐶' },
-    { name: 'NOVEMBER', quote: 'Your feedback is highly valued. It has been securely placed in the bin.', animal: '🐱' },
-    { name: 'DECEMBER', quote: 'Q4 is finally closing. My will to live closed weeks ago.', animal: '🐶' },
+    { name: '一月', en: 'January', quote: '本月预告：你会收到一封邮件，它会毁了你的一天。', quoteEn: 'This month: you will receive an email. It will ruin your day.', animal: '🐱', img: 'https://picsum.photos/seed/horse-money-rain-jan/600/400' },
+    { name: '二月', en: 'February', quote: '休息确实很重要，但公司觉得你可能并不需要。', quoteEn: 'Rest is important. You will not be allowed any.', animal: '🐶', img: 'https://picsum.photos/seed/horse-elevator-feb/600/400' },
+    { name: '三月', en: 'March', quote: '我会立刻处理——等我忙完这阵子“无所事事”再说。', quoteEn: 'I’ll prioritise this immediately—right after I finish doing absolutely nothing.', animal: '🐱', img: 'https://picsum.photos/seed/horse-construction-mar/600/400' },
+    { name: '四月', en: 'April', quote: '恭喜你，又要去给别人的烂摊子擦屁股了。第N次。', quoteEn: 'You’ll fix a problem you didn’t cause. Again.', animal: '🐶', img: 'https://picsum.photos/seed/horse-error-apr/600/400' },
+    { name: '五月', en: 'May', quote: '我们非常看重你的时间，所以决定开个会把它高效浪费掉。', quoteEn: 'We value your time. That’s why we’ll waste it efficiently.', animal: '🐱', img: 'https://picsum.photos/seed/horse-tea-may/600/400' },
+    { name: '六月', en: 'June', quote: '多喝热水，挺直腰杆，然后优雅地原地崩溃。', quoteEn: 'Drink water. Check your posture. Continue spiraling.', animal: '🐶', img: 'https://picsum.photos/seed/horse-lipstick-joker-jun/600/400' },
+    { name: '七月', en: 'July', quote: '这事儿我已经上报给“高我”了，她表示：别来沾边。', quoteEn: 'I’ve escalated this to my higher self - She declined.', animal: '🐶', img: 'https://picsum.photos/seed/horse-happy-papers-jul/600/400' },
+    { name: '八月', en: 'August', quote: '已读你的紧急消息，但我选择了内心平静。', quoteEn: 'I have read your urgent message. I have chosen peace instead.', animal: '🐱', img: 'https://picsum.photos/seed/horse-calculator-aug/600/400' },
+    { name: '九月', en: 'September', quote: '你是团队不可或缺的一部分，地位仅次于那盆发财树。', quoteEn: 'You are a vital part of the team. Much like the office plant.', animal: '🐱', img: 'https://picsum.photos/seed/horse-lying-desk-sep/600/400' },
+    { name: '十月', en: 'October', quote: '突然想努力工作？别怕，这种幻觉很快就会消失。', quoteEn: 'A sudden urge to work hard? Don\'t worry, it passes quickly.', animal: '🐶', img: 'https://picsum.photos/seed/horse-scolded-boss-oct/600/400' },
+    { name: '十一月', en: 'November', quote: '您的反馈非常重要，我们已经把它精准投递到垃圾桶了。', quoteEn: 'Your feedback is highly valued. It has been securely placed in the bin.', animal: '🐱', img: 'https://picsum.photos/seed/horse-crying-papers-nov/600/400' },
+    { name: '十二月', en: 'December', quote: 'Q4终于要结束了，我的求生欲早已提前下班。', quoteEn: 'Q4 is finally closing. My will to live closed weeks ago.', animal: '🐶', img: 'https://picsum.photos/seed/horse-beer-curb-dec/600/400' },
   ];
 
   const daysInMonth = (y: number, m: number) => new Date(y, m + 1, 0).getDate();
@@ -47,24 +49,76 @@ const FengShuiCalendar = () => {
   };
 
   const getFengShui = (day: number) => {
-    const solar = Solar.fromYmd(year, month + 1, day);
-    const lunar = solar.getLunar();
-    
-    const tips: Record<string, any> = {
-      '金': { color: '金色/白色', item: '金属边框眼镜', taboo: '与人争执' },
-      '木': { color: '绿色/青色', item: '绿植/木质挂件', taboo: '久坐不动' },
-      '水': { color: '蓝色/黑色', item: '水杯/加湿器', taboo: '过度焦虑' },
-      '火': { color: '红色/紫色', item: '红色工牌绳', taboo: '急躁行事' },
-      '土': { color: '黄色/咖啡色', item: '陶瓷杯/石头摆件', taboo: '言而无信' },
-    };
-    
-    const elements = ['金', '木', '水', '火', '土'];
-    const el = elements[day % 5];
-    return {
-      lunar: `${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`,
-      jieQi: lunar.getJieQi(),
-      ...tips[el]
-    };
+    try {
+      const solar = Solar.fromYmd(year, month + 1, day);
+      const lunar = solar.getLunar();
+      const dayGanZhi = lunar.getDayGanZhi();
+      const element = dayGanZhi && dayGanZhi.length >= 2 ? dayGanZhi.charAt(1) : '子';
+
+      const elementsMap: Record<string, string> = {
+        '子': '水', '亥': '水',
+        '寅': '木', '卯': '木',
+        '巳': '火', '午': '火',
+        '申': '金', '酉': '金',
+        '辰': '土', '戌': '土', '丑': '土', '未': '土'
+      };
+
+      const el = elementsMap[element] || '土';
+      
+      const tips: Record<string, any> = {
+        '金': { color: '金色/白色 (Gold/White)', item: '金属边框眼镜 (Metal Glasses)', taboo: '与人争执 (Conflict)' },
+        '木': { color: '绿色/青色 (Green/Cyan)', item: '绿植/木质挂件 (Plants/Wood)', taboo: '久坐不动 (Sedentary)' },
+        '水': { color: '蓝色/黑色 (Blue/Black)', item: '水杯/加湿器 (Water/Humidifier)', taboo: '过度焦虑 (Anxiety)' },
+        '火': { color: '红色/紫色 (Red/Purple)', item: '红色工牌绳 (Red Lanyard)', taboo: '急躁行事 (Impatience)' },
+        '土': { color: '黄色/咖啡色 (Yellow/Brown)', item: '陶瓷杯/石头摆件 (Ceramic/Stone)', taboo: '言而无信 (Breaking Promise)' },
+      };
+
+      // Worker Holidays
+      const workerHolidays: Record<string, string> = {
+        '1-1': '元旦 (New Year)',
+        '3-8': '女神节 (Goddess Day)',
+        '5-1': '劳动节 (Labor Day)',
+        '6-1': '儿童节 (Children\'s Day)',
+        '10-1': '国庆节 (National Day)',
+        '10-24': '程序员节 (Programmer Day)',
+        '11-11': '双十一 (Double 11)',
+        '12-25': '圣诞节 (Christmas)',
+      };
+      const holiday = workerHolidays[`${month + 1}-${day}`];
+      
+      return {
+        lunar: `${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`,
+        jieQi: lunar.getJieQi(),
+        holiday,
+        ...tips[el]
+      };
+    } catch (e) {
+      console.error('FengShui error:', e);
+      return {
+        lunar: '初一',
+        jieQi: '',
+        holiday: '',
+        color: '白色 (White)',
+        item: '水杯 (Water)',
+        taboo: '加班 (Overtime)'
+      };
+    }
+  };
+
+  const handleDivination = () => {
+    setShowDivination(true);
+    const hexagrams = [
+      { name: '乾 (The Creative)', desc: '大吉。事业如日中天，宜积极进取。 (Great fortune. Career is booming, be proactive.)' },
+      { name: '坤 (The Receptive)', desc: '顺遂。宜守不宜攻，保持耐心。 (Smooth. Better to stay steady than attack, be patient.)' },
+      { name: '屯 (Difficulty at the Beginning)', desc: '波折。万事开头难，宜寻求帮助。 (Obstacles. Everything is hard at first, seek help.)' },
+      { name: '蒙 (Youthful Folly)', desc: '迷茫。宜虚心学习，切忌盲目。 (Confused. Learn with an open mind, avoid blindness.)' },
+      { name: '需 (Waiting)', desc: '等待。时机未到，宜静观其变。 (Waiting. Timing is not right, observe quietly.)' },
+      { name: '讼 (Conflict)', desc: '口舌。宜和为贵，避免争执。 (Conflict. Peace is precious, avoid disputes.)' },
+      { name: '师 (The Army)', desc: '统帅。宜团队协作，严明纪律。 (Leadership. Teamwork and discipline are key.)' },
+      { name: '比 (Holding Together)', desc: '相亲。宜广结善缘，互利共赢。 (Unity. Build good relationships for win-win.)' }
+    ];
+    const result = hexagrams[Math.floor(Math.random() * hexagrams.length)];
+    setDivinationResult(result);
   };
 
   const calendarDays = [];
@@ -81,32 +135,64 @@ const FengShuiCalendar = () => {
   const currentMonthInfo = monthData[month];
 
   return (
-    <div className="bg-[#721c24] p-8 rounded-[2.5rem] border border-white/10 shadow-2xl flex flex-col h-[650px] relative overflow-hidden font-sans text-white col-span-full">
+    <div className="bg-[#721c24] p-6 md:p-8 rounded-[2.5rem] border border-white/10 shadow-2xl flex flex-col min-h-[800px] md:h-[750px] relative overflow-hidden font-sans text-white col-span-full">
       <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ 
         backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', 
         backgroundSize: '20px 20px' 
       }}></div>
 
       <div className="relative z-10 flex flex-col h-full">
-        <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-white/10 pb-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center shrink-0">
               <CalendarIcon size={24} className="text-[#D4AF37]" />
             </div>
             <div>
-              <h4 className="font-serif text-2xl tracking-tight">打工风水日历</h4>
-              <p className="text-[#D4AF37] text-[10px] uppercase tracking-[0.3em] font-bold opacity-80">Less Drama, More Snacks</p>
+              <h4 className="font-serif text-xl md:text-2xl tracking-tight uppercase">Worker's Feng Shui | 打工风水</h4>
+              <p className="text-[#D4AF37] text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-bold opacity-80">Less drama, more snacks! | 少点儿戏，多点好吃的！</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 self-end sm:self-auto">
             <button onClick={prevMonth} className="p-2 hover:bg-white/10 rounded-full transition-colors"><ChevronRight size={20} className="rotate-180" /></button>
-            <span className="font-serif text-xl min-w-[120px] text-center">{year} {currentMonthInfo.name}</span>
+            <span className="font-serif text-lg md:text-xl min-w-[160px] text-center">{year} {currentMonthInfo.name} ({currentMonthInfo.en})</span>
             <button onClick={nextMonth} className="p-2 hover:bg-white/10 rounded-full transition-colors"><ChevronRight size={20} /></button>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8 flex-grow overflow-hidden">
-          <div className="flex-1 bg-white/5 rounded-3xl p-6 border border-white/5 flex flex-col">
+        <div className="flex flex-col lg:flex-row gap-8 flex-grow overflow-y-auto lg:overflow-hidden pr-2 lg:pr-0 custom-scrollbar">
+          <div className="flex-1 bg-white/5 rounded-3xl p-6 border border-white/5 flex flex-col relative min-h-[400px]">
+            {/* Divination Overlay */}
+            <AnimatePresence>
+              {showDivination && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="absolute inset-0 z-50 bg-[#721c24]/95 backdrop-blur-sm rounded-3xl p-8 flex flex-col items-center justify-center text-center"
+                >
+                  <div className="w-20 h-20 bg-[#D4AF37] rounded-full flex items-center justify-center mb-6 shadow-2xl">
+                    <Compass size={40} className="text-[#721c24] animate-spin-slow" />
+                  </div>
+                  <h3 className="text-2xl font-serif mb-2 text-[#D4AF37]">卜一卦</h3>
+                  <div className="bg-white/10 p-6 rounded-2xl border border-white/10 mb-6 w-full flex flex-col items-center">
+                    <img 
+                      src="https://picsum.photos/seed/horse-money-rain/200/200" 
+                      alt="Divination" 
+                      className="w-24 h-24 rounded-full object-cover mb-4 border-2 border-[#D4AF37]"
+                      referrerPolicy="no-referrer"
+                    />
+                    <p className="text-xl font-bold mb-2">{divinationResult?.name}</p>
+                    <p className="text-sm leading-relaxed opacity-90">{divinationResult?.desc}</p>
+                  </div>
+                  <button 
+                    onClick={() => setShowDivination(false)}
+                    className="px-8 py-3 bg-[#D4AF37] text-[#721c24] rounded-xl font-bold hover:bg-[#D4AF37]/90 transition-all"
+                  >
+                    返回日历 | Back to Calendar
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
             <div className="grid grid-cols-7 mb-4 text-center">
               {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
                 <span key={d} className="text-[10px] font-bold text-[#D4AF37] opacity-60">{d}</span>
@@ -134,35 +220,63 @@ const FengShuiCalendar = () => {
                       )}
                     >
                       <span className="text-sm font-bold">{day}</span>
-                      <span className={cn("text-[8px] opacity-60", isToday ? "text-[#721c24]" : "text-white/60")}>
-                        {fs.jieQi || fs.lunar}
+                      <span className={cn("text-[8px] opacity-60 text-center", isToday ? "text-[#721c24]" : "text-white/60")}>
+                        {fs.holiday || fs.jieQi || fs.lunar}
                       </span>
-                      {fs.jieQi && (
-                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-400 rounded-full animate-pulse" />
+                      {(fs.jieQi || fs.holiday) && (
+                        <div className={cn("absolute -top-1 -right-1 w-2 h-2 rounded-full animate-pulse", fs.holiday ? "bg-yellow-400" : "bg-red-400")} />
                       )}
                     </div>
                   );
                 })}
               </motion.div>
             </AnimatePresence>
+            
+            <button 
+              onClick={handleDivination}
+              className="mt-4 w-full py-1.5 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 flex items-center justify-center gap-2 transition-all group text-[#D4AF37]"
+            >
+              <Sparkles size={12} className="group-hover:rotate-12 transition-transform" />
+              <span className="text-[10px] font-bold tracking-widest">卜一卦</span>
+            </button>
           </div>
 
-          <div className="w-full md:w-[320px] flex flex-col gap-6">
-            <div className="bg-white/10 rounded-3xl p-6 border border-white/10 relative overflow-hidden group">
-              <div className="absolute -right-4 -bottom-4 text-6xl opacity-10 group-hover:scale-110 transition-transform duration-500">
-                {currentMonthInfo.animal}
+          <div className="w-full lg:w-[320px] flex flex-col gap-6">
+            {/* Image Card */}
+            <div className="bg-white/10 rounded-3xl overflow-hidden border border-white/10 h-48 relative group">
+              <img 
+                src={currentMonthInfo.img} 
+                alt={currentMonthInfo.name}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#721c24] to-transparent opacity-60"></div>
+              <div className="absolute bottom-4 left-4 font-serif text-lg font-bold">
+                {currentMonthInfo.name}
               </div>
-              <p className="text-xs font-serif italic leading-relaxed mb-4 relative z-10">
+            </div>
+
+            {/* Quote Card */}
+            <div className="bg-white/10 rounded-3xl p-6 border border-white/10 relative overflow-hidden group">
+              {month === 11 && (
+                <div className="absolute -top-2 -right-8 bg-[#D4AF37] text-[#721c24] py-1 px-10 rotate-45 text-[8px] font-bold shadow-lg z-20">
+                  AWARD OF SURVIVAL
+                </div>
+              )}
+              <p className="text-xs font-serif italic leading-relaxed mb-2 relative z-10">
                 “{currentMonthInfo.quote}”
               </p>
+              <p className="text-[10px] opacity-60 italic mb-4 relative z-10">
+                “{currentMonthInfo.quoteEn}”
+              </p>
               <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-[#D4AF37]">
-                <Sparkles size={12} /> 2026 Survival Guide
+                <Sparkles size={12} /> 2026 打工人求生指南 | Survival Guide
               </div>
             </div>
 
             <div className="bg-white/5 rounded-3xl p-6 border border-white/5 flex-grow">
               <h5 className="text-xs font-bold uppercase tracking-widest text-[#D4AF37] mb-6 flex items-center gap-2">
-                <Compass size={14} /> 今日打工风水
+                <Compass size={14} /> 今日打工风水 | Daily Feng Shui
               </h5>
               <div className="space-y-6">
                 <div className="flex items-center gap-4">
@@ -170,8 +284,8 @@ const FengShuiCalendar = () => {
                     <Palette size={18} />
                   </div>
                   <div>
-                    <p className="text-[9px] text-white/40 uppercase font-bold">宜穿/带颜色</p>
-                    <p className="text-xs font-bold">{getFengShui(new Date().getDate()).color}</p>
+                    <p className="text-[9px] text-white/40 uppercase font-bold">Lucky Color | 宜穿/带颜色</p>
+                    <p className="text-xs font-bold">{getFengShui(Math.min(new Date().getDate(), totalDays)).color}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -179,8 +293,8 @@ const FengShuiCalendar = () => {
                     <Sun size={18} />
                   </div>
                   <div>
-                    <p className="text-[9px] text-white/40 uppercase font-bold">开运好物</p>
-                    <p className="text-xs font-bold">{getFengShui(new Date().getDate()).item}</p>
+                    <p className="text-[9px] text-white/40 uppercase font-bold">Lucky Item | 开运好物</p>
+                    <p className="text-xs font-bold">{getFengShui(Math.min(new Date().getDate(), totalDays)).item}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -188,16 +302,22 @@ const FengShuiCalendar = () => {
                     <Ban size={18} />
                   </div>
                   <div>
-                    <p className="text-[9px] text-white/40 uppercase font-bold">打工大忌</p>
-                    <p className="text-xs font-bold">{getFengShui(new Date().getDate()).taboo}</p>
+                    <p className="text-[9px] text-white/40 uppercase font-bold">Taboo | 打工大忌</p>
+                    <p className="text-xs font-bold">{getFengShui(Math.min(new Date().getDate(), totalDays)).taboo}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-auto flex justify-between items-center text-[9px] text-white/20 font-bold uppercase tracking-widest">
-              <span>宜: 摸鱼 / 忌: 内卷</span>
-              <span>V1.0_FENGSHUI</span>
+            <div className="mt-auto flex flex-col gap-2">
+              <div className="flex justify-between items-center text-[9px] text-white/20 font-bold uppercase tracking-widest">
+                <span>宜: 摸鱼 / 忌: 内卷 | Fish: Yes / Overwork: No</span>
+                <span>V1.3_PDF_SYNC</span>
+              </div>
+              <div className="p-3 bg-black/20 rounded-xl border border-white/5 text-[8px] leading-tight opacity-40 italic space-y-1">
+                <p>WARNING: The owner of this calendar operates strictly on caffeine, snacks, and spite. Please adjust your urgency accordingly.</p>
+                <p>WARRANTY: Zero guarantee that the "I SHOULD DO" list will actually be done.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -1013,11 +1133,11 @@ const ScenarioCenter: React.FC = () => {
 
                 {s.id === 'self' ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <FengShuiCalendar />
                     <FoodSelector />
                     <EfficientOffDutyGame />
                     <FocusTimer />
                     <GossipZone />
+                    <FengShuiCalendar />
                   </div>
                 ) : s.id === 'customer' ? (
                   <div className="space-y-16">
