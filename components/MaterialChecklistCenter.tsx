@@ -175,6 +175,19 @@ const MaterialChecklistCenter: React.FC = () => {
     const wsChecklist = XLSX.utils.aoa_to_sheet(checklistData);
     const wsRequiredInfo = XLSX.utils.aoa_to_sheet(requiredInfoData);
     
+    // Set column widths for Checklist
+    wsChecklist['!cols'] = [
+      { wch: 8 },  // 序号
+      { wch: 40 }, // 材料名称
+      { wch: 30 }, // 格式要求
+      { wch: 40 }  // 备注说明
+    ];
+
+    // Set column widths for Required Info
+    wsRequiredInfo['!cols'] = [
+      { wch: 25 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 20 }
+    ];
+
     XLSX.utils.book_append_sheet(wb, wsChecklist, "材料清单");
     XLSX.utils.book_append_sheet(wb, wsRequiredInfo, "需填写信息");
     
@@ -213,19 +226,52 @@ const MaterialChecklistCenter: React.FC = () => {
           }),
           new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
+            alignment: AlignmentType.CENTER,
+            borders: {
+              top: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              left: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              right: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              insideVertical: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+            },
             rows: [
               new TableRow({
                 children: [
-                  new TableCell({ width: { size: 10, type: WidthType.PERCENTAGE }, children: [new Paragraph({ children: [new TextRun({ text: "序号", bold: true })] })] }),
-                  new TableCell({ width: { size: 50, type: WidthType.PERCENTAGE }, children: [new Paragraph({ children: [new TextRun({ text: "材料名称", bold: true })] })] }),
-                  new TableCell({ width: { size: 40, type: WidthType.PERCENTAGE }, children: [new Paragraph({ children: [new TextRun({ text: "格式要求/备注", bold: true })] })] }),
+                  new TableCell({ 
+                    width: { size: 10, type: WidthType.PERCENTAGE }, 
+                    shading: { fill: "F2F2F2" },
+                    margins: { top: 100, bottom: 100, left: 100, right: 100 },
+                    children: [new Paragraph({ children: [new TextRun({ text: "序号", bold: true, size: 20 })], alignment: AlignmentType.CENTER })] 
+                  }),
+                  new TableCell({ 
+                    width: { size: 50, type: WidthType.PERCENTAGE }, 
+                    shading: { fill: "F2F2F2" },
+                    margins: { top: 100, bottom: 100, left: 100, right: 100 },
+                    children: [new Paragraph({ children: [new TextRun({ text: "材料名称", bold: true, size: 20 })], alignment: AlignmentType.CENTER })] 
+                  }),
+                  new TableCell({ 
+                    width: { size: 40, type: WidthType.PERCENTAGE }, 
+                    shading: { fill: "F2F2F2" },
+                    margins: { top: 100, bottom: 100, left: 100, right: 100 },
+                    children: [new Paragraph({ children: [new TextRun({ text: "格式要求/备注", bold: true, size: 20 })], alignment: AlignmentType.CENTER })] 
+                  }),
                 ]
               }),
               ...selectedSubCategory.checklist.map((item, index) => new TableRow({
                 children: [
-                  new TableCell({ children: [new Paragraph({ text: (index + 1).toString() })] }),
-                  new TableCell({ children: [new Paragraph({ text: item.name })] }),
-                  new TableCell({ children: [new Paragraph({ text: `${item.format}${item.note ? ' (' + item.note + ')' : ''}` })] }),
+                  new TableCell({ 
+                    margins: { top: 100, bottom: 100, left: 100, right: 100 },
+                    children: [new Paragraph({ children: [new TextRun({ text: (index + 1).toString(), size: 20 })], alignment: AlignmentType.CENTER })] 
+                  }),
+                  new TableCell({ 
+                    margins: { top: 100, bottom: 100, left: 100, right: 100 },
+                    children: [new Paragraph({ children: [new TextRun({ text: item.name, size: 20 })] })] 
+                  }),
+                  new TableCell({ 
+                    margins: { top: 100, bottom: 100, left: 100, right: 100 },
+                    children: [new Paragraph({ children: [new TextRun({ text: `${item.format}${item.note ? ' (' + item.note + ')' : ''}`, size: 20 })] })] 
+                  }),
                 ]
               }))
             ]
@@ -247,13 +293,29 @@ const MaterialChecklistCenter: React.FC = () => {
                   new Paragraph({ children: [new TextRun({ text: item.label, bold: true })], spacing: { before: 100, after: 100 } }),
                   new Table({
                     width: { size: 100, type: WidthType.PERCENTAGE },
+                    alignment: AlignmentType.CENTER,
+                    borders: {
+                      top: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+                      bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+                      left: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+                      right: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+                      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+                      insideVertical: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+                    },
                     rows: [
                       new TableRow({
-                        children: (item.fields || []).map(f => new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: f, bold: true, size: 20 })] })] }))
+                        children: (item.fields || []).map(f => new TableCell({ 
+                          shading: { fill: "F2F2F2" },
+                          margins: { top: 80, bottom: 80, left: 80, right: 80 },
+                          children: [new Paragraph({ children: [new TextRun({ text: f, bold: true, size: 20 })], alignment: AlignmentType.CENTER })] 
+                        }))
                       }),
                       ...Array(item.rows || 3).fill(0).map(() => new TableRow({
                         height: { value: 400, rule: "atLeast" },
-                        children: (item.fields || []).map(() => new TableCell({ children: [new Paragraph({ text: "" })] }))
+                        children: (item.fields || []).map(() => new TableCell({ 
+                          margins: { top: 80, bottom: 80, left: 80, right: 80 },
+                          children: [new Paragraph({ text: "" })] 
+                        }))
                       }))
                     ]
                   })

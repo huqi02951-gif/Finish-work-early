@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { 
   Users, ShieldCheck, Briefcase, UserCheck, ArrowRight, Utensils, Coffee, 
   Timer, RotateCcw, Sparkles, Send, Heart, Terminal, Lock, EyeOff, 
-  Activity, ChevronRight, Search, FileText, CheckCircle2, AlertCircle,
+  Activity, ChevronRight, Search, FileText, CheckCircle2, AlertCircle, X,
   Calendar as CalendarIcon, Moon, Sun, Palette, Compass, Ban
 } from 'lucide-react';
 import { Solar, Lunar } from 'lunar-javascript';
@@ -17,23 +17,25 @@ const FengShuiCalendar = () => {
   const [direction, setDirection] = useState(0);
   const [showDivination, setShowDivination] = useState(false);
   const [divinationResult, setDivinationResult] = useState<any>(null);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [showDayDetail, setShowDayDetail] = useState(false);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
   const monthData = [
-    { name: '一月', en: 'January', quote: '本月预告：你会收到一封邮件，它会毁了你的一天。', quoteEn: 'This month: you will receive an email. It will ruin your day.', animal: '🐱', img: 'https://picsum.photos/seed/horse-money-rain-jan/600/400' },
-    { name: '二月', en: 'February', quote: '休息确实很重要，但公司觉得你可能并不需要。', quoteEn: 'Rest is important. You will not be allowed any.', animal: '🐶', img: 'https://picsum.photos/seed/horse-elevator-feb/600/400' },
-    { name: '三月', en: 'March', quote: '我会立刻处理——等我忙完这阵子“无所事事”再说。', quoteEn: 'I’ll prioritise this immediately—right after I finish doing absolutely nothing.', animal: '🐱', img: 'https://picsum.photos/seed/horse-construction-mar/600/400' },
-    { name: '四月', en: 'April', quote: '恭喜你，又要去给别人的烂摊子擦屁股了。第N次。', quoteEn: 'You’ll fix a problem you didn’t cause. Again.', animal: '🐶', img: 'https://picsum.photos/seed/horse-error-apr/600/400' },
-    { name: '五月', en: 'May', quote: '我们非常看重你的时间，所以决定开个会把它高效浪费掉。', quoteEn: 'We value your time. That’s why we’ll waste it efficiently.', animal: '🐱', img: 'https://picsum.photos/seed/horse-tea-may/600/400' },
-    { name: '六月', en: 'June', quote: '多喝热水，挺直腰杆，然后优雅地原地崩溃。', quoteEn: 'Drink water. Check your posture. Continue spiraling.', animal: '🐶', img: 'https://picsum.photos/seed/horse-lipstick-joker-jun/600/400' },
-    { name: '七月', en: 'July', quote: '这事儿我已经上报给“高我”了，她表示：别来沾边。', quoteEn: 'I’ve escalated this to my higher self - She declined.', animal: '🐶', img: 'https://picsum.photos/seed/horse-happy-papers-jul/600/400' },
-    { name: '八月', en: 'August', quote: '已读你的紧急消息，但我选择了内心平静。', quoteEn: 'I have read your urgent message. I have chosen peace instead.', animal: '🐱', img: 'https://picsum.photos/seed/horse-calculator-aug/600/400' },
-    { name: '九月', en: 'September', quote: '你是团队不可或缺的一部分，地位仅次于那盆发财树。', quoteEn: 'You are a vital part of the team. Much like the office plant.', animal: '🐱', img: 'https://picsum.photos/seed/horse-lying-desk-sep/600/400' },
-    { name: '十月', en: 'October', quote: '突然想努力工作？别怕，这种幻觉很快就会消失。', quoteEn: 'A sudden urge to work hard? Don\'t worry, it passes quickly.', animal: '🐶', img: 'https://picsum.photos/seed/horse-scolded-boss-oct/600/400' },
-    { name: '十一月', en: 'November', quote: '您的反馈非常重要，我们已经把它精准投递到垃圾桶了。', quoteEn: 'Your feedback is highly valued. It has been securely placed in the bin.', animal: '🐱', img: 'https://picsum.photos/seed/horse-crying-papers-nov/600/400' },
-    { name: '十二月', en: 'December', quote: 'Q4终于要结束了，我的求生欲早已提前下班。', quoteEn: 'Q4 is finally closing. My will to live closed weeks ago.', animal: '🐶', img: 'https://picsum.photos/seed/horse-beer-curb-dec/600/400' },
+    { name: '一月', en: 'January', quote: '本月预告：你会收到一封邮件，它会毁了你的一天。', quoteEn: 'This month: you will receive an email. It will ruin your day.', animal: '🐴', img: 'https://picsum.photos/seed/worker-horse-rain/600/400' },
+    { name: '二月', en: 'February', quote: '休息确实很重要，但公司觉得你可能并不需要。', quoteEn: 'Rest is important. You will not be allowed any.', animal: '🐴', img: 'https://picsum.photos/seed/worker-horse-elevator/600/400' },
+    { name: '三月', en: 'March', quote: '我会立刻处理——等我忙完这阵子“无所事事”再说。', quoteEn: 'I’ll prioritise this immediately—right after I finish doing absolutely nothing.', animal: '🐴', img: 'https://picsum.photos/seed/worker-horse-construction/600/400' },
+    { name: '四月', en: 'April', quote: '恭喜你，又要去给别人的烂摊子擦屁股了。第N次。', quoteEn: 'You’ll fix a problem you didn’t cause. Again.', animal: '🐴', img: 'https://picsum.photos/seed/worker-horse-error/600/400' },
+    { name: '五月', en: 'May', quote: '我们非常看重你的时间，所以决定开个会把它高效浪费掉。', quoteEn: 'We value your time. That’s why we’ll waste it efficiently.', animal: '🐴', img: 'https://picsum.photos/seed/worker-horse-tea/600/400' },
+    { name: '六月', en: 'June', quote: '多喝热水，挺直腰杆，然后优雅地原地崩溃。', quoteEn: 'Drink water. Check your posture. Continue spiraling.', animal: '🐴', img: 'https://picsum.photos/seed/worker-horse-lipstick/600/400' },
+    { name: '七月', en: 'July', quote: '这事儿我已经上报给“高我”了，她表示：别来沾边。', quoteEn: 'I’ve escalated this to my higher self - She declined.', animal: '🐴', img: 'https://picsum.photos/seed/worker-horse-happy/600/400' },
+    { name: '八月', en: 'August', quote: '已读你的紧急消息，但我选择了内心平静。', quoteEn: 'I have read your urgent message. I have chosen peace instead.', animal: '🐴', img: 'https://picsum.photos/seed/worker-horse-calculator/600/400' },
+    { name: '九月', en: 'September', quote: '你是团队不可或缺的一部分，地位仅次于那盆发财树。', quoteEn: 'You are a vital part of the team. Much like the office plant.', animal: '🐴', img: 'https://picsum.photos/seed/worker-horse-lying/600/400' },
+    { name: '十月', en: 'October', quote: '突然想努力工作？别怕，这种幻觉很快就会消失。', quoteEn: 'A sudden urge to work hard? Don\'t worry, it passes quickly.', animal: '🐴', img: 'https://picsum.photos/seed/worker-horse-boss/600/400' },
+    { name: '十一月', en: 'November', quote: '您的反馈非常重要，我们已经把它精准投递到垃圾桶了。', quoteEn: 'Your feedback is highly valued. It has been securely placed in the bin.', animal: '🐴', img: 'https://picsum.photos/seed/worker-horse-crying/600/400' },
+    { name: '十二月', en: 'December', quote: 'Q4终于要结束了，我的求生欲早已提前下班。', quoteEn: 'Q4 is finally closing. My will to live closed weeks ago.', animal: '🐴', img: 'https://picsum.photos/seed/worker-horse-beer/600/400' },
   ];
 
   const daysInMonth = (y: number, m: number) => new Date(y, m + 1, 0).getDate();
@@ -53,7 +55,7 @@ const FengShuiCalendar = () => {
       const solar = Solar.fromYmd(year, month + 1, day);
       const lunar = solar.getLunar();
       const dayGanZhi = lunar.getDayGanZhi();
-      const element = dayGanZhi && dayGanZhi.length >= 2 ? dayGanZhi.charAt(1) : '子';
+      const elementStr = dayGanZhi && dayGanZhi.length >= 2 ? dayGanZhi.charAt(1) : '子';
 
       const elementsMap: Record<string, string> = {
         '子': '水', '亥': '水',
@@ -63,32 +65,75 @@ const FengShuiCalendar = () => {
         '辰': '土', '戌': '土', '丑': '土', '未': '土'
       };
 
-      const el = elementsMap[element] || '土';
+      const el = elementsMap[elementStr] || '土';
       
       const tips: Record<string, any> = {
-        '金': { color: '金色/白色 (Gold/White)', item: '金属边框眼镜 (Metal Glasses)', taboo: '与人争执 (Conflict)' },
-        '木': { color: '绿色/青色 (Green/Cyan)', item: '绿植/木质挂件 (Plants/Wood)', taboo: '久坐不动 (Sedentary)' },
-        '水': { color: '蓝色/黑色 (Blue/Black)', item: '水杯/加湿器 (Water/Humidifier)', taboo: '过度焦虑 (Anxiety)' },
-        '火': { color: '红色/紫色 (Red/Purple)', item: '红色工牌绳 (Red Lanyard)', taboo: '急躁行事 (Impatience)' },
-        '土': { color: '黄色/咖啡色 (Yellow/Brown)', item: '陶瓷杯/石头摆件 (Ceramic/Stone)', taboo: '言而无信 (Breaking Promise)' },
+        '金': { 
+          color: '金色/白色 (Gold/White)', 
+          hex: '#D4AF37',
+          item: '金属边框眼镜 (Metal Glasses)', 
+          taboo: '与人争执 (Conflict)',
+          suit: '整理文档 (Organizing Docs)'
+        },
+        '木': { 
+          color: '绿色/青色 (Green/Cyan)', 
+          hex: '#22c55e',
+          item: '绿植/木质挂件 (Plants/Wood)', 
+          taboo: '久坐不动 (Sedentary)',
+          suit: '头脑风暴 (Brainstorming)'
+        },
+        '水': { 
+          color: '蓝色/黑色 (Blue/Black)', 
+          hex: '#3b82f6',
+          item: '水杯/加湿器 (Water/Humidifier)', 
+          taboo: '过度焦虑 (Anxiety)',
+          suit: '深度沟通 (Deep Communication)'
+        },
+        '火': { 
+          color: '红色/紫色 (Red/Purple)', 
+          hex: '#ef4444',
+          item: '红色工牌绳 (Red Lanyard)', 
+          taboo: '急躁行事 (Impatience)',
+          suit: '项目上线 (Project Launch)'
+        },
+        '土': { 
+          color: '黄色/咖啡色 (Yellow/Brown)', 
+          hex: '#a855f7',
+          item: '陶瓷杯/石头摆件 (Ceramic/Stone)', 
+          taboo: '言而无信 (Breaking Promise)',
+          suit: '复盘总结 (Review & Summary)'
+        },
       };
 
       // Worker Holidays
       const workerHolidays: Record<string, string> = {
-        '1-1': '元旦 (New Year)',
-        '3-8': '女神节 (Goddess Day)',
-        '5-1': '劳动节 (Labor Day)',
-        '6-1': '儿童节 (Children\'s Day)',
-        '10-1': '国庆节 (National Day)',
-        '10-24': '程序员节 (Programmer Day)',
-        '11-11': '双十一 (Double 11)',
-        '12-25': '圣诞节 (Christmas)',
+        '1-1': '元旦',
+        '3-8': '女神节',
+        '5-1': '劳动节',
+        '6-1': '儿童节',
+        '10-1': '国庆节',
+        '10-24': '程序员节',
+        '11-11': '双十一',
+        '12-25': '圣诞节',
       };
-      const holiday = workerHolidays[`${month + 1}-${day}`];
+      
+      // Lunar Festivals
+      const lunarFestivals = lunar.getFestivals();
+      const otherFestivals = lunar.getOtherFestivals();
+      const solarFestivals = solar.getFestivals();
+      
+      let holiday = workerHolidays[`${month + 1}-${day}`] || '';
+      if (!holiday && lunarFestivals.length > 0) holiday = lunarFestivals[0];
+      if (!holiday && solarFestivals.length > 0) holiday = solarFestivals[0];
+      
+      const jieQi = lunar.getJieQi();
       
       return {
-        lunar: `${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`,
-        jieQi: lunar.getJieQi(),
+        lunar: lunar.getDayInChinese(),
+        lunarMonth: lunar.getMonthInChinese(),
+        ganZhi: dayGanZhi,
+        element: el,
+        jieQi,
         holiday,
         ...tips[el]
       };
@@ -96,26 +141,38 @@ const FengShuiCalendar = () => {
       console.error('FengShui error:', e);
       return {
         lunar: '初一',
+        lunarMonth: '正月',
+        ganZhi: '甲子',
+        element: '水',
         jieQi: '',
         holiday: '',
         color: '白色 (White)',
+        hex: '#ffffff',
         item: '水杯 (Water)',
-        taboo: '加班 (Overtime)'
+        taboo: '加班 (Overtime)',
+        suit: '摸鱼 (Slacking Off)'
       };
+    }
+  };
+
+  const handleDayClick = (day: number | null) => {
+    if (day) {
+      setSelectedDay(day);
+      setShowDayDetail(true);
     }
   };
 
   const handleDivination = () => {
     setShowDivination(true);
     const hexagrams = [
-      { name: '乾 (The Creative)', desc: '大吉。事业如日中天，宜积极进取。 (Great fortune. Career is booming, be proactive.)' },
-      { name: '坤 (The Receptive)', desc: '顺遂。宜守不宜攻，保持耐心。 (Smooth. Better to stay steady than attack, be patient.)' },
-      { name: '屯 (Difficulty at the Beginning)', desc: '波折。万事开头难，宜寻求帮助。 (Obstacles. Everything is hard at first, seek help.)' },
-      { name: '蒙 (Youthful Folly)', desc: '迷茫。宜虚心学习，切忌盲目。 (Confused. Learn with an open mind, avoid blindness.)' },
-      { name: '需 (Waiting)', desc: '等待。时机未到，宜静观其变。 (Waiting. Timing is not right, observe quietly.)' },
-      { name: '讼 (Conflict)', desc: '口舌。宜和为贵，避免争执。 (Conflict. Peace is precious, avoid disputes.)' },
-      { name: '师 (The Army)', desc: '统帅。宜团队协作，严明纪律。 (Leadership. Teamwork and discipline are key.)' },
-      { name: '比 (Holding Together)', desc: '相亲。宜广结善缘，互利共赢。 (Unity. Build good relationships for win-win.)' }
+      { name: '乾为天', desc: '大吉。事业如日中天，宜积极进取，老板可能会给你画个大饼。', quote: '天行健，君子以自强不息。' },
+      { name: '坤为地', desc: '顺遂。宜守不宜攻，保持耐心，适合在工位上静静摸鱼。', quote: '地势坤，君子以厚德载物。' },
+      { name: '水雷屯', desc: '波折。万事开头难，项目初期阻力大，宜寻求同事帮助。', quote: '云雷屯，君子以经纶。' },
+      { name: '山水蒙', desc: '迷茫。宜虚心学习，切忌盲目接需求，先搞清楚需求文档。', quote: '山下出泉，蒙；君子以果行育德。' },
+      { name: '水天需', desc: '等待。时机未到，宜静观其变，等下班时间到了再走。', quote: '云上于天，需；君子以饮食宴乐。' },
+      { name: '天水讼', desc: '口舌。宜和为贵，避免与产品经理争执，退一步海阔天空。', quote: '天与水违行，讼；君子以作事谋始。' },
+      { name: '地水师', desc: '统帅。宜团队协作，严明纪律，开会时不要迟到。', quote: '地中有水，师；君子以容民畜众。' },
+      { name: '水地比', desc: '相亲。宜广结善缘，互利共赢，多请同事喝下午茶。', quote: '地上有水，比；先王以建万国，亲诸侯。' }
     ];
     const result = hexagrams[Math.floor(Math.random() * hexagrams.length)];
     setDivinationResult(result);
@@ -162,37 +219,7 @@ const FengShuiCalendar = () => {
         <div className="flex flex-col lg:flex-row gap-8 flex-grow overflow-y-auto lg:overflow-hidden pr-2 lg:pr-0 custom-scrollbar">
           <div className="flex-1 bg-white/5 rounded-3xl p-6 border border-white/5 flex flex-col relative min-h-[400px]">
             {/* Divination Overlay */}
-            <AnimatePresence>
-              {showDivination && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="absolute inset-0 z-50 bg-[#721c24]/95 backdrop-blur-sm rounded-3xl p-8 flex flex-col items-center justify-center text-center"
-                >
-                  <div className="w-20 h-20 bg-[#D4AF37] rounded-full flex items-center justify-center mb-6 shadow-2xl">
-                    <Compass size={40} className="text-[#721c24] animate-spin-slow" />
-                  </div>
-                  <h3 className="text-2xl font-serif mb-2 text-[#D4AF37]">卜一卦</h3>
-                  <div className="bg-white/10 p-6 rounded-2xl border border-white/10 mb-6 w-full flex flex-col items-center">
-                    <img 
-                      src="https://picsum.photos/seed/horse-money-rain/200/200" 
-                      alt="Divination" 
-                      className="w-24 h-24 rounded-full object-cover mb-4 border-2 border-[#D4AF37]"
-                      referrerPolicy="no-referrer"
-                    />
-                    <p className="text-xl font-bold mb-2">{divinationResult?.name}</p>
-                    <p className="text-sm leading-relaxed opacity-90">{divinationResult?.desc}</p>
-                  </div>
-                  <button 
-                    onClick={() => setShowDivination(false)}
-                    className="px-8 py-3 bg-[#D4AF37] text-[#721c24] rounded-xl font-bold hover:bg-[#D4AF37]/90 transition-all"
-                  >
-                    返回日历 | Back to Calendar
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* Removed inline overlay, using modal instead */}
             <div className="grid grid-cols-7 mb-4 text-center">
               {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
                 <span key={d} className="text-[10px] font-bold text-[#D4AF37] opacity-60">{d}</span>
@@ -212,33 +239,33 @@ const FengShuiCalendar = () => {
                   const isToday = day === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear();
                   const fs = getFengShui(day);
                   return (
-                    <div 
+                    <motion.div 
                       key={day} 
+                      whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.1)' }}
+                      onClick={() => handleDayClick(day)}
                       className={cn(
-                        "relative flex flex-col items-center justify-center p-2 rounded-xl transition-all group cursor-default",
+                        "relative flex flex-col items-center justify-center p-2 rounded-xl transition-all group cursor-pointer",
                         isToday ? "bg-[#D4AF37] text-[#721c24] shadow-lg scale-105" : "hover:bg-white/10"
                       )}
                     >
                       <span className="text-sm font-bold">{day}</span>
-                      <span className={cn("text-[8px] opacity-60 text-center", isToday ? "text-[#721c24]" : "text-white/60")}>
+                      <span className={cn("text-[8px] opacity-60 text-center leading-none mt-0.5", isToday ? "text-[#721c24]" : "text-white/60")}>
                         {fs.holiday || fs.jieQi || fs.lunar}
                       </span>
-                      {(fs.jieQi || fs.holiday) && (
-                        <div className={cn("absolute -top-1 -right-1 w-2 h-2 rounded-full animate-pulse", fs.holiday ? "bg-yellow-400" : "bg-red-400")} />
+                      {fs.hex && (
+                        <div 
+                          className="absolute bottom-1 w-1 h-1 rounded-full" 
+                          style={{ backgroundColor: isToday ? '#721c24' : fs.hex }}
+                        />
                       )}
-                    </div>
+                      {(fs.jieQi || fs.holiday) && !isToday && (
+                        <div className={cn("absolute top-1 right-1 w-1.5 h-1.5 rounded-full animate-pulse", fs.holiday ? "bg-yellow-400" : "bg-red-400")} />
+                      )}
+                    </motion.div>
                   );
                 })}
               </motion.div>
             </AnimatePresence>
-            
-            <button 
-              onClick={handleDivination}
-              className="mt-4 w-full py-1.5 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 flex items-center justify-center gap-2 transition-all group text-[#D4AF37]"
-            >
-              <Sparkles size={12} className="group-hover:rotate-12 transition-transform" />
-              <span className="text-[10px] font-bold tracking-widest">卜一卦</span>
-            </button>
           </div>
 
           <div className="w-full lg:w-[320px] flex flex-col gap-6">
@@ -307,6 +334,14 @@ const FengShuiCalendar = () => {
                   </div>
                 </div>
               </div>
+
+              <button 
+                onClick={handleDivination}
+                className="mt-8 w-full py-3 bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-[#721c24] rounded-xl flex items-center justify-center gap-2 transition-all group font-bold shadow-lg"
+              >
+                <Sparkles size={16} className="group-hover:rotate-12 transition-transform" />
+                <span className="text-xs tracking-widest">卜一卦 | Divinate</span>
+              </button>
             </div>
 
             <div className="mt-auto flex flex-col gap-2">
@@ -322,6 +357,128 @@ const FengShuiCalendar = () => {
           </div>
         </div>
       </div>
+
+      {/* Day Detail Modal */}
+      <AnimatePresence>
+        {showDayDetail && selectedDay && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowDayDetail(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-[#1a1a1a] border border-[#D4AF37]/30 rounded-[2rem] p-8 max-w-md w-full relative overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="absolute top-0 right-0 p-4">
+                <button onClick={() => setShowDayDetail(false)} className="text-white/40 hover:text-white transition-colors">
+                  <X size={24} />
+                </button>
+              </div>
+
+              {(() => {
+                const fs = getFengShui(selectedDay);
+                return (
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6 border-4 border-[#D4AF37]/20" style={{ backgroundColor: `${fs.hex}20` }}>
+                      <span className="text-4xl" style={{ color: fs.hex }}>{fs.element}</span>
+                    </div>
+                    
+                    <h2 className="text-3xl font-serif text-[#D4AF37] mb-1">{year}年{month + 1}月{selectedDay}日</h2>
+                    <p className="text-white/60 mb-6">{fs.lunarMonth}月{fs.lunar} · {fs.ganZhi}年</p>
+
+                    <div className="grid grid-cols-2 gap-4 w-full mb-8">
+                      <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                        <p className="text-[10px] uppercase tracking-wider text-white/40 mb-1">五行属性</p>
+                        <p className="text-lg font-medium" style={{ color: fs.hex }}>{fs.element}</p>
+                      </div>
+                      <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                        <p className="text-[10px] uppercase tracking-wider text-white/40 mb-1">幸运色</p>
+                        <p className="text-sm font-medium text-white/90">{fs.color}</p>
+                      </div>
+                      <div className="bg-white/5 p-4 rounded-2xl border border-white/10 col-span-2">
+                        <p className="text-[10px] uppercase tracking-wider text-white/40 mb-1">幸运物品</p>
+                        <p className="text-sm font-medium text-white/90">{fs.item}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-4 w-full">
+                      <div className="flex items-center gap-4 bg-green-500/10 p-4 rounded-2xl border border-green-500/20">
+                        <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center shrink-0">
+                          <span className="text-xl">宜</span>
+                        </div>
+                        <p className="text-sm text-green-400 text-left font-medium">{fs.suit}</p>
+                      </div>
+                      <div className="flex items-center gap-4 bg-red-500/10 p-4 rounded-2xl border border-red-500/20">
+                        <div className="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center shrink-0">
+                          <span className="text-xl">忌</span>
+                        </div>
+                        <p className="text-sm text-red-400 text-left font-medium">{fs.taboo}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Divination Modal */}
+      <AnimatePresence>
+        {showDivination && divinationResult && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowDivination(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-[#1a1a1a] border border-[#D4AF37]/30 rounded-[2rem] p-8 max-w-md w-full relative overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="absolute top-0 right-0 p-4">
+                <button onClick={() => setShowDivination(false)} className="text-white/40 hover:text-white transition-colors">
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="flex flex-col items-center text-center">
+                <div className="w-24 h-24 bg-[#D4AF37]/10 rounded-full flex items-center justify-center mb-6 border-2 border-[#D4AF37]/30">
+                  <span className="text-5xl font-serif text-[#D4AF37]">{divinationResult.name.charAt(0)}</span>
+                </div>
+                
+                <h2 className="text-3xl font-serif text-[#D4AF37] mb-2">{divinationResult.name}</h2>
+                <div className="w-12 h-0.5 bg-[#D4AF37]/30 mb-6"></div>
+                
+                <p className="text-lg text-white/90 mb-4 leading-relaxed">
+                  {divinationResult.desc}
+                </p>
+                
+                <div className="bg-white/5 p-6 rounded-2xl border border-white/10 w-full italic text-white/60">
+                  "{divinationResult.quote}"
+                </div>
+
+                <button 
+                  onClick={() => setShowDivination(false)}
+                  className="mt-8 w-full py-4 bg-[#D4AF37] text-black font-bold rounded-xl hover:bg-[#B8860B] transition-colors"
+                >
+                  领旨谢恩
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
