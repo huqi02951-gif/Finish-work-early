@@ -1,9 +1,210 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Users, ShieldCheck, Briefcase, UserCheck, ArrowRight, Utensils, Coffee, Timer, RotateCcw, Sparkles, Send, Heart, Terminal, Lock, EyeOff, Activity, ChevronRight, Search, FileText } from 'lucide-react';
+import { 
+  Users, ShieldCheck, Briefcase, UserCheck, ArrowRight, Utensils, Coffee, 
+  Timer, RotateCcw, Sparkles, Send, Heart, Terminal, Lock, EyeOff, 
+  Activity, ChevronRight, Search, FileText, CheckCircle2, AlertCircle,
+  Calendar as CalendarIcon, Moon, Sun, Palette, Compass, Ban
+} from 'lucide-react';
+import { Solar, Lunar } from 'lunar-javascript';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SKILLS } from '../constants/skills';
 import { cn } from '../lib/utils';
 import MaterialChecklistCenter from './MaterialChecklistCenter';
+
+const FengShuiCalendar = () => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [direction, setDirection] = useState(0);
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  const monthData = [
+    { name: 'JANUARY', quote: 'This month: you will receive an email. It will ruin your day.', animal: '🐱' },
+    { name: 'FEBRUARY', quote: 'Rest is important. You will not be allowed any.', animal: '🐶' },
+    { name: 'MARCH', quote: "I'll prioritise this immediately—right after I finish doing absolutely nothing.", animal: '🐱' },
+    { name: 'APRIL', quote: 'You’ll fix a problem you didn’t cause. Again.', animal: '🐶' },
+    { name: 'MAY', quote: 'We value your time. That’s why we’ll waste it efficiently.', animal: '🐱' },
+    { name: 'JUNE', quote: 'Drink water. Check your posture. Continue spiraling.', animal: '🐶' },
+    { name: 'JULY', quote: 'I’ve escalated this to my higher self - She declined.', animal: '🐶' },
+    { name: 'AUGUST', quote: 'I have read your urgent message. I have chosen peace instead.', animal: '🐱' },
+    { name: 'SEPTEMBER', quote: 'You are a vital part of the team. Much like the office plant.', animal: '🐱' },
+    { name: 'OCTOBER', quote: "A sudden urge to work hard? Don't worry, it passes quickly.", animal: '🐶' },
+    { name: 'NOVEMBER', quote: 'Your feedback is highly valued. It has been securely placed in the bin.', animal: '🐱' },
+    { name: 'DECEMBER', quote: 'Q4 is finally closing. My will to live closed weeks ago.', animal: '🐶' },
+  ];
+
+  const daysInMonth = (y: number, m: number) => new Date(y, m + 1, 0).getDate();
+  const firstDayOfMonth = (y: number, m: number) => new Date(y, m, 1).getDay();
+
+  const prevMonth = () => {
+    setDirection(-1);
+    setCurrentDate(new Date(year, month - 1, 1));
+  };
+  const nextMonth = () => {
+    setDirection(1);
+    setCurrentDate(new Date(year, month + 1, 1));
+  };
+
+  const getFengShui = (day: number) => {
+    const solar = Solar.fromYmd(year, month + 1, day);
+    const lunar = solar.getLunar();
+    
+    const tips: Record<string, any> = {
+      '金': { color: '金色/白色', item: '金属边框眼镜', taboo: '与人争执' },
+      '木': { color: '绿色/青色', item: '绿植/木质挂件', taboo: '久坐不动' },
+      '水': { color: '蓝色/黑色', item: '水杯/加湿器', taboo: '过度焦虑' },
+      '火': { color: '红色/紫色', item: '红色工牌绳', taboo: '急躁行事' },
+      '土': { color: '黄色/咖啡色', item: '陶瓷杯/石头摆件', taboo: '言而无信' },
+    };
+    
+    const elements = ['金', '木', '水', '火', '土'];
+    const el = elements[day % 5];
+    return {
+      lunar: `${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`,
+      jieQi: lunar.getJieQi(),
+      ...tips[el]
+    };
+  };
+
+  const calendarDays = [];
+  const totalDays = daysInMonth(year, month);
+  const startDay = firstDayOfMonth(year, month);
+
+  for (let i = 0; i < startDay; i++) {
+    calendarDays.push(null);
+  }
+  for (let i = 1; i <= totalDays; i++) {
+    calendarDays.push(i);
+  }
+
+  const currentMonthInfo = monthData[month];
+
+  return (
+    <div className="bg-[#721c24] p-8 rounded-[2.5rem] border border-white/10 shadow-2xl flex flex-col h-[650px] relative overflow-hidden font-sans text-white col-span-full">
+      <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ 
+        backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', 
+        backgroundSize: '20px 20px' 
+      }}></div>
+
+      <div className="relative z-10 flex flex-col h-full">
+        <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+              <CalendarIcon size={24} className="text-[#D4AF37]" />
+            </div>
+            <div>
+              <h4 className="font-serif text-2xl tracking-tight">打工风水日历</h4>
+              <p className="text-[#D4AF37] text-[10px] uppercase tracking-[0.3em] font-bold opacity-80">Less Drama, More Snacks</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <button onClick={prevMonth} className="p-2 hover:bg-white/10 rounded-full transition-colors"><ChevronRight size={20} className="rotate-180" /></button>
+            <span className="font-serif text-xl min-w-[120px] text-center">{year} {currentMonthInfo.name}</span>
+            <button onClick={nextMonth} className="p-2 hover:bg-white/10 rounded-full transition-colors"><ChevronRight size={20} /></button>
+          </div>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-8 flex-grow overflow-hidden">
+          <div className="flex-1 bg-white/5 rounded-3xl p-6 border border-white/5 flex flex-col">
+            <div className="grid grid-cols-7 mb-4 text-center">
+              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
+                <span key={d} className="text-[10px] font-bold text-[#D4AF37] opacity-60">{d}</span>
+              ))}
+            </div>
+            <AnimatePresence mode="wait">
+              <motion.div 
+                key={`${year}-${month}`}
+                initial={{ x: direction * 50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -direction * 50, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="grid grid-cols-7 gap-2 flex-grow"
+              >
+                {calendarDays.map((day, idx) => {
+                  if (day === null) return <div key={`empty-${idx}`} />;
+                  const isToday = day === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear();
+                  const fs = getFengShui(day);
+                  return (
+                    <div 
+                      key={day} 
+                      className={cn(
+                        "relative flex flex-col items-center justify-center p-2 rounded-xl transition-all group cursor-default",
+                        isToday ? "bg-[#D4AF37] text-[#721c24] shadow-lg scale-105" : "hover:bg-white/10"
+                      )}
+                    >
+                      <span className="text-sm font-bold">{day}</span>
+                      <span className={cn("text-[8px] opacity-60", isToday ? "text-[#721c24]" : "text-white/60")}>
+                        {fs.jieQi || fs.lunar}
+                      </span>
+                      {fs.jieQi && (
+                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-400 rounded-full animate-pulse" />
+                      )}
+                    </div>
+                  );
+                })}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          <div className="w-full md:w-[320px] flex flex-col gap-6">
+            <div className="bg-white/10 rounded-3xl p-6 border border-white/10 relative overflow-hidden group">
+              <div className="absolute -right-4 -bottom-4 text-6xl opacity-10 group-hover:scale-110 transition-transform duration-500">
+                {currentMonthInfo.animal}
+              </div>
+              <p className="text-xs font-serif italic leading-relaxed mb-4 relative z-10">
+                “{currentMonthInfo.quote}”
+              </p>
+              <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-[#D4AF37]">
+                <Sparkles size={12} /> 2026 Survival Guide
+              </div>
+            </div>
+
+            <div className="bg-white/5 rounded-3xl p-6 border border-white/5 flex-grow">
+              <h5 className="text-xs font-bold uppercase tracking-widest text-[#D4AF37] mb-6 flex items-center gap-2">
+                <Compass size={14} /> 今日打工风水
+              </h5>
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-[#D4AF37]">
+                    <Palette size={18} />
+                  </div>
+                  <div>
+                    <p className="text-[9px] text-white/40 uppercase font-bold">宜穿/带颜色</p>
+                    <p className="text-xs font-bold">{getFengShui(new Date().getDate()).color}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-[#D4AF37]">
+                    <Sun size={18} />
+                  </div>
+                  <div>
+                    <p className="text-[9px] text-white/40 uppercase font-bold">开运好物</p>
+                    <p className="text-xs font-bold">{getFengShui(new Date().getDate()).item}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-red-400">
+                    <Ban size={18} />
+                  </div>
+                  <div>
+                    <p className="text-[9px] text-white/40 uppercase font-bold">打工大忌</p>
+                    <p className="text-xs font-bold">{getFengShui(new Date().getDate()).taboo}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-auto flex justify-between items-center text-[9px] text-white/20 font-bold uppercase tracking-widest">
+              <span>宜: 摸鱼 / 忌: 内卷</span>
+              <span>V1.0_FENGSHUI</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const FoodSelector = () => {
   const foodGroups = [
@@ -85,114 +286,360 @@ const FoodSelector = () => {
 };
 
 const EfficientOffDutyGame = () => {
-  const [sanity, setSanity] = useState(0);
-  const [currentPie, setCurrentPie] = useState(0);
-  const [isShattering, setIsShattering] = useState(false);
-  const [showTruth, setShowTruth] = useState(false);
+  const [step, setStep] = useState(-1); // -1 for setup
+  const [userName, setUserName] = useState('你');
+  const [monthlySalary, setMonthlySalary] = useState(6500);
+  const [overtimeMin, setOvertimeMin] = useState(0);
+  const [isAutoTime, setIsAutoTime] = useState(true);
+  const [freedomPoints, setFreedomPoints] = useState(0);
+  const [isRestDay, setIsRestDay] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
+  
+  // Random content state
+  const [randomA, setRandomA] = useState('');
+  const [randomB, setRandomB] = useState('');
+  const [randomC, setRandomC] = useState({ boss: '', truth: '' });
+  const [randomD, setRandomD] = useState('');
+  const [randomE, setRandomE] = useState('');
+  const [randomF, setRandomF] = useState('');
 
-  const pies = [
-    { lie: "你是公司的关键齿轮", truth: "春节没你地球也转，少演深情，赶紧下班。" },
-    { lie: "这个项目对你很重要", truth: "项目是老板的资产，加班是你的负债。清醒点。" },
-    { lie: "我们要有主人翁意识", truth: "工资是工资，股份你有吗？别拿命填别人的账本。" },
-    { lie: "年轻人要多磨炼", truth: "磨炼的是你，收益的是他。你只是个好用的耗材。" },
-    { lie: "大家再辛苦一下", truth: "辛苦的是你，买房的是他。每多加一小时，你就在稀释自己。" },
-    { lie: "这是为了你的成长", truth: "成长了压榨效率，降低了生存质量。这叫折旧。" },
-    { lie: "我们要看长远发展", truth: "长远是画饼，当下是白嫖。沉默默认能扛，以后更惨。" }
+  // Constants for calculation
+  const WORKING_DAYS = 21.75;
+  const DAILY_HOURS = 8;
+  const getHourlyRate = () => monthlySalary / (WORKING_DAYS * DAILY_HOURS);
+
+  // Content Pools
+  const POOL_A = [
+    "你以为你在尽责，领导以为你在加班表演。", "你做得再完美，也只是“好用”。", "你不走，就是在教他们：你可以被无限用。",
+    "你加班不是敬业，是给管理烂账兜底。", "你不是不可替代，你是不敢离开。", "你以为你在扛责任，其实你在扛别人的不作为。",
+    "你越拼，越像“默认可压榨”的那一类人。", "你不说做不完，他们就默认你永远做得完。", "你今天不下班，明天他们就给你安排“本来就该这样”。",
+    "你以为你在争口气，其实你在把自己卖便宜。", "你把命熬干了，公司只会说：辛苦了。", "你以为努力会被看见？更多时候只会被利用。",
+    "你不是效率低，你是任务超载；但背锅的是你。", "你加班的样子像在赎罪：赎完也没奖。", "你不是核心，你是补洞工具。",
+    "你不走，不是因为忙，是因为怕。", "你一沉默，任务就长在你身上。", "你的责任感，在资本面前是免费燃料。",
+    "你在公司多坐一小时，尊重不会多一克。", "你越“可靠”，越“难涨薪”。", "别把“能扛”当优点，那是被反复加码的入口。",
+    "你做完了又怎样？下一个锅已经在路上。", "你不反抗边界，边界就永远不存在。", "你以为你在建设团队，团队在消耗你。",
+    "你今天把自己榨干，明天还是你来补位。", "你把工作当命，工作把你当工具。", "你以为你在卷同事，其实你在卷自己的人生。",
+    "你不是“不够努力”，你是“被设计成永远不够”。", "你越想证明自己，越容易被抓来证明别人。", "你以为你在冲刺，领导以为你在待命。",
+    "你不下班，是在把“自愿加班”变成制度。", "你今天多做的，全是对自己边界的背叛。", "你不是在努力，你是在练习被消耗。",
+    "你把“辛苦”当荣耀，他们把你当成本。", "你不敢说不会，结果就是永远做不完。", "你以为你在撑起项目，其实你在撑起老板的KPI。",
+    "你以为你在忍，其实你在让别人更敢。", "你不是离不开工作，是离不开“被需要”的幻觉。", "你越拖到深夜，越证明他们安排得对：你能扛。",
+    "你的人生不是无限续航电池，别再免费供电。"
   ];
 
-  const handleShatter = () => {
-    setIsShattering(true);
-    setTimeout(() => {
-      setIsShattering(false);
-      setShowTruth(true);
-      if (sanity < 100) setSanity(prev => Math.min(100, prev + 20));
-    }, 600);
+  const POOL_B = [
+    "春节一停工，天没塌；你晚走一小时也不会立功。", "世界不会因为你下班而停转，只会因为你不下班而失控。",
+    "假期那么多人不干活，公司不也活着？", "少你一天，地球照转；多你一夜，你只会更疲惫。",
+    "你不是齿轮，你是人；齿轮坏了能换，人坏了要命。", "春节都能按下暂停键，你为啥不能？",
+    "天塌不了，塌的是你睡眠。", "你走了项目不死，你不走你先死机。", "你把自己当救世主，公司把你当替补席。",
+    "你不下班不是拯救世界，是拯救别人的懒。", "春节停摆叫“正常”，你准点下班也该叫正常。",
+    "少你一小时不会崩，多你一小时只会亏。", "你走了还有流程，你不走只有消耗。", "轮子会转，别拿自己当轴。",
+    "世界从不缺“能扛的人”，缺的是“敢走的人”。"
+  ];
+
+  const POOL_C = [
+    { boss: "“我也很辛苦”", truth: "“你也别想好过”" },
+    { boss: "“我就比你高一点”", truth: "“其它收益我不说”" },
+    { boss: "“再坚持一下”", truth: "“我先把压力转给你”" },
+    { boss: "“这是机会”", truth: "“这是免费加活”" },
+    { boss: "“你成长很快”", truth: "“你可以多干点还别涨钱”" },
+    { boss: "“大家都这样”", truth: "“我不准备改规则”" },
+    { boss: "“你是主力”", truth: "“你是耗材”" },
+    { boss: "“我相信你”", truth: "“我不想管细节”" },
+    { boss: "“先把项目拿下来”", truth: "“先把你拿下”" },
+    { boss: "“等结果出来再谈”", truth: "“等你忘了再谈”" },
+    { boss: "“别计较”", truth: "“我很计较成本”" },
+    { boss: "“格局大一点”", truth: "“你忍一下”" },
+    { boss: "“我们是一家人”", truth: "“你别谈钱”" },
+    { boss: "“公司不会亏待你”", truth: "“现在先亏待你”" },
+    { boss: "“你先顶一下”", truth: "“我先躲一下”" },
+    { boss: "“你要学会担当”", truth: "“你要学会背锅”" },
+    { boss: "“这个事很急”", truth: "“我没规划”" },
+    { boss: "“你先做出来”", truth: "“做错了你负责”" },
+    { boss: "“不要情绪化”", truth: "“我情绪更大但我有权”" },
+    { boss: "“你很有潜力”", truth: "“我很想压你”" }
+  ];
+
+  const POOL_D = [
+    "你每多加一小时，时薪就被稀释一次。", "通勤餐费情绪损耗都算进去，你是在倒贴上班。", "你以为你在拼命，其实你在做慈善。",
+    "加班不是产出，是成本上浮。成本谁承担？你。", "你的时间不是无限的，你的工资也没按分钟涨。", "你熬夜的那一小时，换不来一句“加薪”。",
+    "你越免费，越显得“你本来就值这么多”。", "你在用寿命对冲管理失误。", "你以为你在投资未来，其实你在消耗现在。",
+    "把“辛苦”折现，折不出一分钱。", "你把自己榨得越干，他们越觉得这是常态。", "你不是效率低，是任务量高；但算绩效时只记“你慢”。",
+    "你把健康亏进去，账面没人给你补。", "你加班换来的不是晋升，是“以后都交给你”。", "真正的结算：钱、资源、话语权。其余都是表演。"
+  ];
+
+  const POOL_E = [
+    "动作：关电脑。别解释。立刻。", "动作：起身离开工位，去洗把脸。", "动作：把未完成写成3条，明天继续。现在下班。",
+    "动作：发一句话：我今天做不完，明天几点交。", "动作：把“加班原因”写出来：真紧急还是不敢走？",
+    "动作：去运动20分钟。你欠的是身体，不是老板。", "动作：把手机开勿扰30分钟，先把自己救回来。",
+    "动作：把任务拆成1个番茄，做完就停。", "动作：把“我必须做完”改成“我只能做到这”。", "动作：点下班按钮。你的人生不需要审批。"
+  ];
+
+  const POOL_F = [
+    "我现在有A/B/C三项，今天只能完成A+B，C需要延后或分配，您希望怎么排？",
+    "这个我可以接，但会挤占原本X任务，质量会受影响。您确认优先级吗？",
+    "我评估过了，今天做不完。我今晚能推进到第X步，明天上午补完并提交。",
+    "这块我缺的是XX信息/权限/模板，没有会反复返工。能否补齐资源再推进？",
+    "我不会这部分，需要明确口径/示例，否则我做出来也可能不符合预期。",
+    "目前工作量超出单人可承载范围，需要拆分或延长周期，否则只能牺牲质量。",
+    "我可以今天先给阶段成果和风险点，完整交付需要到明天X点。",
+    "如果必须今晚完成，需要协调一位同事支持或减掉另外两项工作。",
+    "我理解紧急，但我现在的排期已满，您看是否调整截止时间或调整任务范围？",
+    "我不想做无效加班，先确认目标与验收标准，避免返工。"
+  ];
+
+  useEffect(() => {
+    const checkStatus = () => {
+      const now = new Date();
+      const day = now.getDay();
+      const isWeekend = day === 0 || day === 6;
+      setIsRestDay(isWeekend);
+
+      if (isAutoTime && !isWeekend) {
+        const hour = now.getHours();
+        const min = now.getMinutes();
+        if (hour >= 17) {
+          const diff = (hour - 17) * 60 + min;
+          setOvertimeMin(diff);
+        } else {
+          setOvertimeMin(0);
+        }
+      }
+    };
+    checkStatus();
+    const timer = setInterval(checkStatus, 60000);
+    
+    // Randomize content on mount
+    setRandomA(POOL_A[Math.floor(Math.random() * POOL_A.length)]);
+    setRandomB(POOL_B[Math.floor(Math.random() * POOL_B.length)]);
+    setRandomC(POOL_C[Math.floor(Math.random() * POOL_C.length)]);
+    setRandomD(POOL_D[Math.floor(Math.random() * POOL_D.length)]);
+    setRandomE(POOL_E[Math.floor(Math.random() * POOL_E.length)]);
+    setRandomF(POOL_F[Math.floor(Math.random() * POOL_F.length)]);
+
+    return () => clearInterval(timer);
+  }, [isAutoTime]);
+
+  const calculateLoss = () => {
+    const baseLoss = (overtimeMin / 60) * getHourlyRate();
+    return isRestDay ? baseLoss * 3 : baseLoss;
   };
 
-  const nextPie = () => {
-    setShowTruth(false);
-    setCurrentPie((currentPie + 1) % pies.length);
+  const renderFreedomTree = () => {
+    const stages = [
+      <div key="0" className="w-4 h-4 bg-brand-gold/20 rounded-full" />,
+      <div key="1" className="w-8 h-8 bg-brand-gold/40 rounded-full flex items-center justify-center"><div className="w-2 h-4 bg-brand-gold/60 rounded-t-full" /></div>,
+      <div key="2" className="w-12 h-12 bg-brand-gold/60 rounded-full flex items-center justify-center"><div className="w-4 h-8 bg-brand-gold/80 rounded-t-full" /></div>,
+      <div key="3" className="w-16 h-16 bg-brand-gold/80 rounded-full flex items-center justify-center"><Sparkles className="text-white" size={24} /></div>,
+      <div key="4" className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.3)]"><Heart className="text-white" size={40} /></div>
+    ];
+    return stages[Math.min(stages.length - 1, freedomPoints)];
   };
 
   return (
-    <div className="bg-white p-10 rounded-[2.5rem] border border-brand-border/10 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col h-full group relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-1 bg-brand-gold/20"></div>
-      
-      <div className="flex justify-between items-start mb-8">
+    <div className="bg-brand-dark p-8 rounded-[2.5rem] border border-white/10 shadow-2xl flex flex-col h-[650px] relative overflow-hidden font-sans">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8 relative z-10">
         <div>
-          <h4 className="font-serif text-2xl text-brand-dark mb-1 tracking-tight">高效下班</h4>
-          <p className="text-brand-gray text-[10px] uppercase tracking-[0.3em] font-bold opacity-60">职场画饼粉碎机</p>
+          <h4 className="font-serif text-2xl text-white tracking-tight flex items-center gap-2">
+            高效下班
+            {isRestDay && <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">今日休息</span>}
+          </h4>
+          <p className="text-brand-gold text-[10px] uppercase tracking-[0.2em] font-bold">强制下班·发疯清醒官</p>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-1">清醒值</span>
-          <div className="w-24 h-1.5 bg-brand-light-gray rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-brand-gold transition-all duration-1000 ease-out"
-              style={{ width: `${sanity}%` }}
-            ></div>
-          </div>
+          <div className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-1">自由之树</div>
+          {renderFreedomTree()}
         </div>
       </div>
 
-      <div className="flex-grow flex flex-col items-center justify-center py-6 relative">
-        {!showTruth ? (
-          <div className={cn(
-            "text-center transition-all duration-500",
-            isShattering ? "scale-150 opacity-0 blur-xl" : "scale-100 opacity-100"
-          )}>
-            <div className="w-20 h-20 bg-brand-light-gray rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner relative">
-              <span className="text-4xl">🥧</span>
-              <div className="absolute -top-2 -right-2 bg-brand-dark text-white text-[8px] px-2 py-1 rounded-full font-bold animate-bounce">BOSS PIE</div>
+      <div className="flex-grow flex flex-col relative z-10">
+        {step === -1 && (
+          <div className="space-y-8 animate-fade-in">
+            <div className="bg-white/5 p-6 rounded-3xl border border-white/10 space-y-6">
+              <h5 className="text-white font-bold">身份与价值初始化</h5>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-[10px] text-white/40 uppercase tracking-widest mb-2 block">你的称呼</label>
+                  <input 
+                    type="text" 
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-gold outline-none transition-colors"
+                    placeholder="默认：你"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-white/40 uppercase tracking-widest mb-2 block">月薪 (RMB)</label>
+                  <input 
+                    type="number" 
+                    value={monthlySalary}
+                    onChange={(e) => setMonthlySalary(parseInt(e.target.value) || 0)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-gold outline-none transition-colors"
+                  />
+                </div>
+              </div>
             </div>
-            <p className="text-brand-dark font-serif text-xl mb-8 leading-tight italic">“{pies[currentPie].lie}”</p>
             <button 
-              onClick={handleShatter}
-              disabled={isShattering}
-              className="px-8 py-3 bg-brand-dark text-white rounded-xl font-bold text-xs hover:bg-brand-dark/90 transition-all active:scale-95 flex items-center gap-2 mx-auto"
+              onClick={() => setStep(0)}
+              className="w-full py-5 bg-brand-gold text-brand-dark rounded-2xl font-black text-sm shadow-xl hover:scale-[1.02] transition-transform"
             >
-              <Sparkles size={14} className="text-brand-gold" /> 粉碎幻觉
+              进入清醒系统
             </button>
           </div>
-        ) : (
-          <div className="text-center animate-fade-in-up w-full">
-            <div className="w-20 h-20 bg-brand-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-4xl">🦔</span>
+        )}
+
+        {step === 0 && (
+          <div className="space-y-8 animate-fade-in">
+            <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
+              <h5 className="text-white font-bold mb-4">第一步：面对现实</h5>
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-white/60">下班追踪模式</span>
+                  <button 
+                    onClick={() => setIsAutoTime(!isAutoTime)}
+                    className={cn(
+                      "text-[10px] px-3 py-1 rounded-full border transition-all font-bold",
+                      isAutoTime ? "bg-brand-gold text-brand-dark border-brand-gold" : "bg-white/5 text-white/40 border-white/10"
+                    )}
+                  >
+                    {isAutoTime ? "自动 (17:00起)" : "手动"}
+                  </button>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-white/60">超时时长 (min)</span>
+                  <div className="flex items-center gap-4">
+                    <button disabled={isAutoTime} onClick={() => setOvertimeMin(Math.max(0, overtimeMin - 15))} className="w-8 h-8 rounded-full border border-white/10 text-white/40">-</button>
+                    <span className="text-2xl font-bold text-brand-gold w-12 text-center">{overtimeMin}</span>
+                    <button disabled={isAutoTime} onClick={() => setOvertimeMin(overtimeMin + 15)} className="w-8 h-8 rounded-full border border-white/10 text-white/40">+</button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="bg-brand-dark p-6 rounded-2xl mb-8 relative">
-              <div className="absolute -top-2 -left-2 bg-brand-gold text-brand-dark text-[8px] px-2 py-1 rounded-full font-bold">TRUTH</div>
-              <p className="text-white text-sm font-medium leading-relaxed">
-                {pies[currentPie].truth}
+            <div className="text-center p-6 border border-brand-gold/20 rounded-3xl bg-brand-gold/5">
+              <p className="text-brand-gold text-sm font-bold italic mb-2">“{randomA}”</p>
+              <p className="text-[10px] text-white/30">
+                {isRestDay ? "节假日加班损失 (3倍计算)：" : "超时折损："}
+                ¥{calculateLoss().toFixed(2)}
               </p>
             </div>
             <button 
-              onClick={nextPie}
-              className="text-brand-gold text-[11px] font-bold uppercase tracking-widest hover:gap-3 transition-all flex items-center gap-2 mx-auto"
+              onClick={() => { setStep(1); setFreedomPoints(1); }}
+              className="w-full py-5 bg-brand-gold text-brand-dark rounded-2xl font-black text-sm shadow-xl hover:scale-[1.02] transition-transform"
             >
-              Next Lie <ChevronRight size={14} />
+              开始清醒之旅
+            </button>
+          </div>
+        )}
+
+        {step === 1 && (
+          <div className="space-y-8 animate-fade-in text-center">
+            <h5 className="text-white font-bold">第二步：粉碎幻觉</h5>
+            <p className="text-xs text-white/60">你的屏幕上堆满了“紧急”任务。它们其实只是别人的焦虑。点击屏幕 10 次，粉碎它们。</p>
+            <div 
+              onClick={() => {
+                setClickCount(prev => prev + 1);
+                if (clickCount >= 9) { setStep(2); setFreedomPoints(2); setClickCount(0); }
+              }}
+              className="w-full h-48 bg-white/5 border border-white/10 rounded-3xl flex items-center justify-center relative cursor-pointer group"
+            >
+              <div className="absolute inset-0 flex items-center justify-center opacity-20 group-active:scale-95 transition-transform">
+                <Terminal size={80} className="text-brand-gold" />
+              </div>
+              <span className="text-4xl font-black text-white z-10">{10 - clickCount}</span>
+            </div>
+            <p className="text-brand-gold text-xs font-bold italic">“{randomB}”</p>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="space-y-8 animate-fade-in">
+            <h5 className="text-white font-bold text-center">第三步：识破画饼</h5>
+            <p className="text-xs text-white/60 text-center">老板又在喂“饼”了。选择那个最真实的翻译。</p>
+            <div className="space-y-3">
+              {[randomC, POOL_C[Math.floor(Math.random() * POOL_C.length)], POOL_C[Math.floor(Math.random() * POOL_C.length)]].map((item, idx) => (
+                <button 
+                  key={idx}
+                  onClick={() => { setStep(3); setFreedomPoints(3); }}
+                  className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl text-left hover:bg-brand-gold/10 hover:border-brand-gold/30 transition-all group"
+                >
+                  <p className="text-[10px] text-white/40 mb-1">{item.boss}</p>
+                  <p className="text-sm text-white font-bold group-hover:text-brand-gold">{item.truth}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-8 animate-fade-in text-center">
+            <h5 className="text-white font-bold">第四步：生命估值</h5>
+            <p className="text-xs text-white/60">你正在用生命对冲管理失误。拖动滑块，看看你把自己卖得有多便宜。</p>
+            <div className="bg-white/5 p-8 rounded-3xl border border-white/10">
+              <input 
+                type="range" 
+                min="0" max="300" 
+                value={overtimeMin}
+                onChange={(e) => setOvertimeMin(parseInt(e.target.value))}
+                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-brand-gold"
+              />
+              <div className="mt-6 flex justify-between items-end">
+                <div className="text-left">
+                  <p className="text-[10px] text-white/40 uppercase">当前时薪</p>
+                  <p className="text-xl font-bold text-white">¥{getHourlyRate().toFixed(2)}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-white/40 uppercase">{isRestDay ? "假期折损 (x3)" : "超时损失"}</p>
+                  <p className="text-xl font-bold text-red-500">-¥{calculateLoss().toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+            <div className="text-[10px] text-white/30 italic">“{randomD}”</div>
+            <button 
+              onClick={() => { setStep(4); setFreedomPoints(4); }}
+              className="w-full py-5 bg-brand-gold text-brand-dark rounded-2xl font-black text-sm shadow-xl"
+            >
+              我看清了，我要走
+            </button>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="space-y-6 animate-fade-in text-center flex flex-col items-center justify-center h-full">
+            <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mb-2">
+              <Heart className="text-emerald-500" size={48} />
+            </div>
+            <h5 className="text-xl font-black text-white">觉醒成功</h5>
+            <div className="space-y-4 w-full">
+              <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-left">
+                <p className="text-[9px] text-brand-gold font-bold uppercase tracking-widest mb-1">立刻执行</p>
+                <p className="text-xs text-white font-bold">{randomE}</p>
+              </div>
+              <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-left">
+                <p className="text-[9px] text-brand-gold font-bold uppercase tracking-widest mb-1">开口话术</p>
+                <p className="text-xs text-white italic">“{randomF}”</p>
+              </div>
+            </div>
+            <p className="text-brand-gold text-xs font-bold italic mt-2">“世界不会因为你下班停转，但你会因为不下班死机。”</p>
+            <button 
+              onClick={() => { setStep(-1); setFreedomPoints(0); setOvertimeMin(0); }}
+              className="mt-4 px-8 py-3 bg-white/5 border border-white/10 text-white/40 rounded-full text-[10px] font-bold uppercase tracking-widest hover:text-white transition-colors"
+            >
+              重新初始化
             </button>
           </div>
         )}
       </div>
 
-      <div className="mt-8 pt-8 border-t border-brand-border/10">
-        <button 
-          disabled={sanity < 60}
-          className={cn(
-            "w-full py-4 rounded-2xl font-bold text-sm transition-all duration-500 flex items-center justify-center gap-2 shadow-xl",
-            sanity >= 60 
-              ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-600/20" 
-              : "bg-brand-light-gray text-brand-gray cursor-not-allowed opacity-50"
-          )}
-        >
-          <Timer size={18} /> {sanity >= 60 ? "立刻下班，去过人生" : `清醒值不足 (${sanity}/60)`}
-        </button>
-        <p className="text-center mt-4 text-[9px] text-brand-gray font-medium opacity-40 uppercase tracking-widest">
-          {sanity >= 60 ? "检测到神智清醒，准许撤离" : "幻觉过重，请继续粉碎"}
-        </p>
+      {/* Footer Status */}
+      <div className="mt-8 pt-6 border-t border-white/5 flex justify-between items-center text-[9px] text-white/20 font-bold uppercase tracking-widest">
+        <span>状态: {step === 4 ? '完全觉醒' : '正在清醒中'}</span>
+        <span>版本: V2.1_AWAKEN</span>
       </div>
     </div>
   );
 };
+
+
 
 const FocusTimer = () => {
   const [timeLeft, setTimeLeft] = useState(25 * 60);
@@ -566,6 +1013,7 @@ const ScenarioCenter: React.FC = () => {
 
                 {s.id === 'self' ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <FengShuiCalendar />
                     <FoodSelector />
                     <EfficientOffDutyGame />
                     <FocusTimer />

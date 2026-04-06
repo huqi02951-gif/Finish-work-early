@@ -138,23 +138,86 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Section - Sophisticated Dark Mode */}
-      <section className="py-32 bg-brand-dark relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,#C5A059_0%,transparent_70%)]"></div>
+      {/* System Console / CTA */}
+      <section className="py-32 bg-brand-dark relative overflow-hidden font-mono">
+        {/* Technical Background */}
+        <div className="absolute inset-0 opacity-[0.05] pointer-events-none">
+          <div className="absolute top-0 left-0 w-full h-full bg-[repeating-linear-gradient(0deg,transparent,transparent_1px,rgba(255,255,255,0.1)_1px,rgba(255,255,255,0.1)_2px)] bg-[size:100%_3px]"></div>
         </div>
-        <div className="container mx-auto px-6 text-center relative z-10 max-w-4xl">
-          <h2 className="font-serif text-5xl md:text-7xl text-white mb-10 tracking-tight leading-tight">准备好提升你的 <br /> <span className="text-brand-gold italic font-normal">业务效率</span> 了吗？</h2>
-          <p className="max-w-2xl mx-auto text-stone-400 mb-16 text-lg font-medium leading-relaxed">
-            加入我们的共创计划，提交你的业务痛点，让我们一起打造更懂客户经理的 Agent。
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-8">
-            <Link to="/feedback" className="px-12 py-5 bg-brand-gold text-brand-dark rounded-full font-bold text-lg hover:bg-brand-gold/90 hover:scale-105 transition-all shadow-2xl shadow-brand-gold/20">
-              申请试用 / 共创
-            </Link>
-            <Link to="/instructions" className="px-12 py-5 border border-white/20 text-white rounded-full font-bold text-lg hover:bg-white/10 transition-all">
-              了解使用说明
-            </Link>
+
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="max-w-6xl mx-auto bg-white/[0.02] border border-white/10 rounded-[3rem] p-10 md:p-20 backdrop-blur-3xl relative">
+            {/* Corner Accents */}
+            <div className="absolute top-0 left-0 w-12 h-12 border-t-2 border-l-2 border-brand-gold/30 rounded-tl-[3rem]"></div>
+            <div className="absolute bottom-0 right-0 w-12 h-12 border-b-2 border-r-2 border-brand-gold/30 rounded-br-[3rem]"></div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+              <div>
+                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-brand-gold/10 border border-brand-gold/20 rounded-full mb-10">
+                  <div className="w-2 h-2 rounded-full bg-brand-gold animate-pulse"></div>
+                  <span className="text-[10px] font-bold text-brand-gold uppercase tracking-[0.3em]">System.Deployment.Active</span>
+                </div>
+                
+                <h2 className="text-4xl md:text-6xl font-bold text-white mb-10 tracking-tighter leading-[1.1]">
+                  开启你的 <br />
+                  <span className="text-brand-gold">智能作业</span> 时代
+                </h2>
+                
+                <p className="text-white/40 text-lg leading-relaxed mb-12 font-medium">
+                  不再是简单的工具堆砌，而是深度理解业务逻辑的数字伙伴。<br />
+                  加入共创，定义属于你的超级助手。
+                </p>
+
+                <div className="flex flex-wrap gap-6">
+                  <Link to="/feedback" className="px-10 py-4 bg-brand-gold text-brand-dark rounded-2xl font-bold text-sm hover:bg-brand-gold/90 transition-all shadow-[0_0_30px_rgba(197,160,89,0.2)]">
+                    申请试用 / 共创
+                  </Link>
+                  <Link to="/instructions" className="px-10 py-4 border border-white/10 text-white/60 rounded-2xl font-bold text-sm hover:bg-white/5 transition-all">
+                    技术文档
+                  </Link>
+                </div>
+              </div>
+
+              <div className="hidden lg:block">
+                <div className="bg-black/40 rounded-3xl border border-white/5 p-8 font-mono text-xs leading-relaxed text-white/60 shadow-2xl backdrop-blur-md">
+                  <div className="flex gap-2 mb-8">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/20"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500/20"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/20"></div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-brand-gold opacity-80">$</span>
+                      <span className="text-white/80">initialize agent_core --v1.0.4</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-emerald-500/80">&gt;</span>
+                      <span className="text-emerald-500/60">Loading scenario_matrix... [DONE]</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-emerald-500/80">&gt;</span>
+                      <span className="text-emerald-500/60">Connecting to skills_db... [OK]</span>
+                    </div>
+                    <div className="h-px w-full bg-white/5 my-4"></div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <p className="text-white/20 uppercase tracking-widest text-[9px]">Active Skills</p>
+                        <p className="text-white/60 text-lg font-bold">{SKILLS.length}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-white/20 uppercase tracking-widest text-[9px]">System Latency</p>
+                        <p className="text-white/60 text-lg font-bold">24ms</p>
+                      </div>
+                    </div>
+                    <div className="h-px w-full bg-white/5 my-4"></div>
+                    <div className="flex items-center gap-3">
+                      <span className="animate-pulse text-brand-gold">_</span>
+                      <span className="text-white/40">waiting for user input...</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
