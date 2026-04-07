@@ -153,15 +153,21 @@ const AcceptanceCalculator: React.FC = () => {
 
       const contractLine = `- 系统担保合同期限：${state.startDate} 至 ${state.endDate}；开票金额 ${billYuanText}（${toChineseUpper(state.maxBill365)}）；存单金额 ${depositYuanText}（${toChineseUpper(depositAmountYuan)}）；担保金额 ${fmt(pledgeAmountYuan)}（${toChineseUpper(pledgeAmountYuan)}）。`;
 
-      const clientText = `【票据信息】
+      const clientText = `您好！关于本次业务，初步测算的方案如下：
+【票据信息】
 - 拟开票金额：${billWanText} 万元；
 - 定期存单：${depositWanText} 万元，利率 ${rateText}，期限约 ${daysText} 天。
-【请在群里发送】
-- 购销合同、发票、发票清单、进款截图${formData.discountStatus === '是' ? '，如 1 周内已贴现请同步贴现流水' : ''}。
-【请在群里确认】
-1）是否缺发票？缺多少？是否涉及2-6个月发票？（不接受超6个月）；
-2）进款及提票时间；
-3）开票张数 ${formData.invoiceCount || '（请确认）'} 张、收款方 ${formData.invoiceTarget || '（请补充收款方）'} 。`;
+
+麻烦您在群里同步下相关材料：
+- 购销合同、发票、发票清单、进款截图${formData.discountStatus === '是' ? '（如1周内已贴现，请同步下贴现流水）' : ''}。
+
+另外，有几个细节也请您帮忙确认下：
+1）是否缺发票？缺口大概多少？是否涉及2-6个月的发票？（暂不接受超6个月的）；
+2）预计进款及提票的时间；
+3）开票张数：${formData.invoiceCount || '（请确认）'} 张；
+4）收款方：${formData.invoiceTarget || '（请补充）'} 。
+
+您先核对下，有疑问随时沟通哈。`;
 
       setCalcState({ ...state, internalMail, contractLine, clientText });
       setIsCalculating(false);

@@ -15,7 +15,8 @@ import {
   Mail,
   MapPin,
   MessageSquare,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
@@ -30,7 +31,7 @@ import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, BorderStyle } from 'docx';
 
-type Step = 'category' | 'business' | 'info' | 'preview';
+type Step = 'category' | 'business' | 'preview';
 
 interface CustomerInfo {
   customerName: string;
@@ -44,6 +45,7 @@ interface CustomerInfo {
 
 const MaterialChecklistCenter: React.FC = () => {
   const [step, setStep] = useState<Step>('category');
+  const [showInfoForm, setShowInfoForm] = useState(false);
   const [mainType, setMainType] = useState<'counter' | 'credit' | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<BusinessCategory | null>(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState<BusinessSubCategory | null>(null);
@@ -78,8 +80,10 @@ const MaterialChecklistCenter: React.FC = () => {
 
   const handleBack = () => {
     if (step === 'business') setStep('category');
-    else if (step === 'info') setStep('business');
-    else if (step === 'preview') setStep('info');
+    else if (step === 'preview') {
+      setStep('business');
+      setShowInfoForm(false);
+    }
   };
 
   const generatedScript = useMemo(() => {
@@ -147,7 +151,13 @@ const MaterialChecklistCenter: React.FC = () => {
         item.name,
         item.format,
         item.note || ''
-      ])
+      ]),
+      [],
+      ['通用要求说明:'],
+      ['1. 所有复印件材料均须加盖单位公章。'],
+      ['2. 授信申请书等原件材料须加盖公章及法人私章。'],
+      ['3. 多页材料建议加盖骑缝章，确保材料完整性。'],
+      ['4. 身份证件请确保在有效期内。']
     ];
 
     const requiredInfoData = [
@@ -228,10 +238,10 @@ const MaterialChecklistCenter: React.FC = () => {
             width: { size: 100, type: WidthType.PERCENTAGE },
             alignment: AlignmentType.CENTER,
             borders: {
-              top: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
-              bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
-              left: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
-              right: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+              top: { style: BorderStyle.SINGLE, size: 2, color: "000000" },
+              bottom: { style: BorderStyle.SINGLE, size: 2, color: "000000" },
+              left: { style: BorderStyle.SINGLE, size: 2, color: "000000" },
+              right: { style: BorderStyle.SINGLE, size: 2, color: "000000" },
               insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
               insideVertical: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
             },
@@ -241,41 +251,57 @@ const MaterialChecklistCenter: React.FC = () => {
                   new TableCell({ 
                     width: { size: 10, type: WidthType.PERCENTAGE }, 
                     shading: { fill: "F2F2F2" },
-                    margins: { top: 100, bottom: 100, left: 100, right: 100 },
-                    children: [new Paragraph({ children: [new TextRun({ text: "序号", bold: true, size: 20 })], alignment: AlignmentType.CENTER })] 
+                    verticalAlign: AlignmentType.CENTER,
+                    margins: { top: 120, bottom: 120, left: 100, right: 100 },
+                    children: [new Paragraph({ children: [new TextRun({ text: "序号", bold: true, size: 22 })], alignment: AlignmentType.CENTER })] 
                   }),
                   new TableCell({ 
                     width: { size: 50, type: WidthType.PERCENTAGE }, 
                     shading: { fill: "F2F2F2" },
-                    margins: { top: 100, bottom: 100, left: 100, right: 100 },
-                    children: [new Paragraph({ children: [new TextRun({ text: "材料名称", bold: true, size: 20 })], alignment: AlignmentType.CENTER })] 
+                    verticalAlign: AlignmentType.CENTER,
+                    margins: { top: 120, bottom: 120, left: 100, right: 100 },
+                    children: [new Paragraph({ children: [new TextRun({ text: "材料名称", bold: true, size: 22 })], alignment: AlignmentType.CENTER })] 
                   }),
                   new TableCell({ 
                     width: { size: 40, type: WidthType.PERCENTAGE }, 
                     shading: { fill: "F2F2F2" },
-                    margins: { top: 100, bottom: 100, left: 100, right: 100 },
-                    children: [new Paragraph({ children: [new TextRun({ text: "格式要求/备注", bold: true, size: 20 })], alignment: AlignmentType.CENTER })] 
+                    verticalAlign: AlignmentType.CENTER,
+                    margins: { top: 120, bottom: 120, left: 100, right: 100 },
+                    children: [new Paragraph({ children: [new TextRun({ text: "格式要求/备注", bold: true, size: 22 })], alignment: AlignmentType.CENTER })] 
                   }),
                 ]
               }),
               ...selectedSubCategory.checklist.map((item, index) => new TableRow({
                 children: [
                   new TableCell({ 
-                    margins: { top: 100, bottom: 100, left: 100, right: 100 },
+                    verticalAlign: AlignmentType.CENTER,
+                    margins: { top: 120, bottom: 120, left: 100, right: 100 },
                     children: [new Paragraph({ children: [new TextRun({ text: (index + 1).toString(), size: 20 })], alignment: AlignmentType.CENTER })] 
                   }),
                   new TableCell({ 
-                    margins: { top: 100, bottom: 100, left: 100, right: 100 },
-                    children: [new Paragraph({ children: [new TextRun({ text: item.name, size: 20 })] })] 
+                    verticalAlign: AlignmentType.CENTER,
+                    margins: { top: 120, bottom: 120, left: 100, right: 100 },
+                    children: [new Paragraph({ children: [new TextRun({ text: item.name, size: 20, bold: item.name.includes('申请书') })] })] 
                   }),
                   new TableCell({ 
-                    margins: { top: 100, bottom: 100, left: 100, right: 100 },
-                    children: [new Paragraph({ children: [new TextRun({ text: `${item.format}${item.note ? ' (' + item.note + ')' : ''}`, size: 20 })] })] 
+                    verticalAlign: AlignmentType.CENTER,
+                    margins: { top: 120, bottom: 120, left: 100, right: 100 },
+                    children: [new Paragraph({ children: [new TextRun({ text: `${item.format}${item.note ? ' (' + item.note + ')' : ''}`, size: 20, color: item.note?.includes('公章') ? "FF0000" : "000000" })] })] 
                   }),
                 ]
               }))
             ]
           }),
+
+          // Section 2.5: General Requirements
+          new Paragraph({
+            children: [new TextRun({ text: "\n★ 通用要求说明：", bold: true, size: 24, color: "FF0000" })],
+            spacing: { before: 200 }
+          }),
+          new Paragraph({ children: [new TextRun({ text: "1. 所有复印件材料均须加盖单位公章。", size: 20 })] }),
+          new Paragraph({ children: [new TextRun({ text: "2. 授信申请书等原件材料须加盖公章及法人私章。", size: 20, bold: true })] }),
+          new Paragraph({ children: [new TextRun({ text: "3. 多页材料建议加盖骑缝章，确保材料完整性。", size: 20 })] }),
+          new Paragraph({ children: [new TextRun({ text: "4. 身份证件请确保在有效期内。", size: 20 })] }),
 
           // Section 3: Required Info
           new Paragraph({
@@ -362,11 +388,10 @@ const MaterialChecklistCenter: React.FC = () => {
           {[
             { id: 'category', label: '选择大类' },
             { id: 'business', label: '选择业务' },
-            { id: 'info', label: '填写信息' },
             { id: 'preview', label: '生成预览' }
           ].map((s, idx) => {
             const isActive = step === s.id;
-            const isCompleted = ['category', 'business', 'info', 'preview'].indexOf(step) > idx;
+            const isCompleted = ['category', 'business', 'preview'].indexOf(step) > idx;
             
             return (
               <React.Fragment key={s.id}>
@@ -383,7 +408,7 @@ const MaterialChecklistCenter: React.FC = () => {
                     isActive ? "text-brand-dark" : "text-brand-gray/40"
                   )}>{s.label}</span>
                 </div>
-                {idx < 3 && <div className="w-8 h-px bg-brand-border/20" />}
+                {idx < 2 && <div className="w-8 h-px bg-brand-border/20" />}
               </React.Fragment>
             );
           })}
@@ -478,7 +503,7 @@ const MaterialChecklistCenter: React.FC = () => {
                         {selectedCategory.subCategories.map(sub => (
                           <button
                             key={sub.id}
-                            onClick={() => { setSelectedSubCategory(sub); setStep('info'); }}
+                            onClick={() => { setSelectedSubCategory(sub); setStep('preview'); }}
                             className="p-6 rounded-2xl border border-brand-border/10 bg-brand-light-gray/20 hover:bg-white hover:border-brand-gold/30 hover:shadow-lg transition-all text-left group"
                           >
                             <div className="flex justify-between items-center mb-2">
@@ -502,143 +527,6 @@ const MaterialChecklistCenter: React.FC = () => {
               </motion.div>
             )}
 
-            {step === 'info' && (
-              <motion.div 
-                key="step-info"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="max-w-3xl mx-auto"
-              >
-                <div className="flex items-center gap-4 mb-10">
-                  <button onClick={handleBack} className="p-2 hover:bg-brand-light-gray rounded-full transition-all">
-                    <ChevronLeft size={24} />
-                  </button>
-                  <div>
-                    <h4 className="font-serif text-2xl text-brand-dark">填写基础信息</h4>
-                    <p className="text-xs text-brand-gray mt-1">信息将自动带入话术与材料清单中</p>
-                  </div>
-                </div>
-
-                <div className="bg-brand-light-gray/30 p-10 rounded-[2.5rem] border border-brand-border/10 space-y-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
-                        <Building2 size={12} /> 客户名称 <span className="text-red-500">*</span>
-                      </label>
-                      <input 
-                        type="text"
-                        value={info.customerName}
-                        onChange={e => setInfo({...info, customerName: e.target.value})}
-                        placeholder="请输入完整的企业名称"
-                        className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
-                        <User size={12} /> 客户经理姓名
-                      </label>
-                      <input 
-                        type="text"
-                        value={info.managerName}
-                        onChange={e => setInfo({...info, managerName: e.target.value})}
-                        placeholder="请输入您的姓名"
-                        className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
-                        <Phone size={12} /> 联系电话
-                      </label>
-                      <input 
-                        type="text"
-                        value={info.phone}
-                        onChange={e => setInfo({...info, phone: e.target.value})}
-                        placeholder="请输入您的联系电话"
-                        className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
-                        <MessageSquare size={12} /> 联系微信
-                      </label>
-                      <input 
-                        type="text"
-                        value={info.wechat}
-                        onChange={e => setInfo({...info, wechat: e.target.value})}
-                        placeholder="请输入您的微信号"
-                        className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
-                        <Mail size={12} /> 联系邮箱
-                      </label>
-                      <input 
-                        type="email"
-                        value={info.email}
-                        onChange={e => setInfo({...info, email: e.target.value})}
-                        placeholder="请输入您的联系邮箱"
-                        className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
-                        <MapPin size={12} /> 邮寄地址 / 办公地址
-                      </label>
-                      <input 
-                        type="text"
-                        value={info.address}
-                        onChange={e => setInfo({...info, address: e.target.value})}
-                        placeholder="请输入详细的办公地址"
-                        className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
-                      <AlertCircle size={12} /> 补充备注
-                    </label>
-                    <textarea 
-                      value={info.remark}
-                      onChange={e => setInfo({...info, remark: e.target.value})}
-                      placeholder="如有特殊要求或补充说明，请在此输入"
-                      className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all h-24 resize-none"
-                    />
-                  </div>
-
-                  {selectedCategory?.id === 'industrial' && (
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
-                        <FileText size={12} className="text-brand-gold" /> 特别说明 (工商类专用)
-                      </label>
-                      <textarea 
-                        value={info.specialRemark}
-                        onChange={e => setInfo({...info, specialRemark: e.target.value})}
-                        placeholder="请输入针对该工商类客户的特别说明事项"
-                        className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all h-24 resize-none"
-                      />
-                    </div>
-                  )}
-
-                  <button 
-                    onClick={() => setStep('preview')}
-                    disabled={!info.customerName}
-                    className={cn(
-                      "w-full py-5 rounded-2xl font-bold text-sm transition-all shadow-xl flex items-center justify-center gap-2",
-                      info.customerName ? "bg-brand-dark text-white hover:bg-brand-dark/90" : "bg-brand-border/20 text-brand-gray cursor-not-allowed"
-                    )}
-                  >
-                    生成预览 <ChevronRight size={18} />
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
             {step === 'preview' && selectedSubCategory && (
               <motion.div 
                 key="step-preview"
@@ -647,14 +535,26 @@ const MaterialChecklistCenter: React.FC = () => {
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="space-y-10"
               >
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                   <div className="flex items-center gap-4">
                     <button onClick={handleBack} className="p-2 hover:bg-brand-light-gray rounded-full transition-all">
                       <ChevronLeft size={24} />
                     </button>
-                    <h4 className="font-serif text-2xl text-brand-dark">生成结果预览</h4>
+                    <div>
+                      <h4 className="font-serif text-2xl text-brand-dark">生成结果预览</h4>
+                      <p className="text-xs text-brand-gray mt-1">您可以直接复制话术，或完善信息后导出文档</p>
+                    </div>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap gap-3">
+                    <button 
+                      onClick={() => setShowInfoForm(!showInfoForm)}
+                      className={cn(
+                        "px-6 py-3 rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-lg",
+                        showInfoForm ? "bg-brand-gold text-white" : "bg-white text-brand-gold border border-brand-gold/20"
+                      )}
+                    >
+                      <User size={16} /> {showInfoForm ? '收起个人化设置' : '完善客户信息 (可选)'}
+                    </button>
                     <button 
                       onClick={exportWord}
                       className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold text-xs flex items-center gap-2 hover:bg-blue-700 transition-all shadow-lg"
@@ -669,6 +569,128 @@ const MaterialChecklistCenter: React.FC = () => {
                     </button>
                   </div>
                 </div>
+
+                <AnimatePresence>
+                  {showInfoForm && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="bg-brand-light-gray/30 p-8 rounded-[2.5rem] border border-brand-border/10 space-y-6 mb-10">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Sparkles size={16} className="text-brand-gold" />
+                          <h5 className="text-sm font-bold text-brand-dark">个人化文档信息</h5>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
+                              <Building2 size={12} /> 客户名称
+                            </label>
+                            <input 
+                              type="text"
+                              value={info.customerName}
+                              onChange={e => setInfo({...info, customerName: e.target.value})}
+                              placeholder="请输入企业名称"
+                              className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
+                              <User size={12} /> 客户经理姓名
+                            </label>
+                            <input 
+                              type="text"
+                              value={info.managerName}
+                              onChange={e => setInfo({...info, managerName: e.target.value})}
+                              placeholder="请输入您的姓名"
+                              className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
+                              <Phone size={12} /> 联系电话
+                            </label>
+                            <input 
+                              type="text"
+                              value={info.phone}
+                              onChange={e => setInfo({...info, phone: e.target.value})}
+                              placeholder="请输入联系电话"
+                              className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
+                              <MessageSquare size={12} /> 联系微信
+                            </label>
+                            <input 
+                              type="text"
+                              value={info.wechat}
+                              onChange={e => setInfo({...info, wechat: e.target.value})}
+                              placeholder="请输入微信号"
+                              className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
+                              <Mail size={12} /> 联系邮箱
+                            </label>
+                            <input 
+                              type="email"
+                              value={info.email}
+                              onChange={e => setInfo({...info, email: e.target.value})}
+                              placeholder="请输入联系邮箱"
+                              className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
+                              <MapPin size={12} /> 办公地址
+                            </label>
+                            <input 
+                              type="text"
+                              value={info.address}
+                              onChange={e => setInfo({...info, address: e.target.value})}
+                              placeholder="请输入办公地址"
+                              className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
+                              <AlertCircle size={12} /> 补充备注
+                            </label>
+                            <input 
+                              type="text"
+                              value={info.remark}
+                              onChange={e => setInfo({...info, remark: e.target.value})}
+                              placeholder="如有特殊要求请在此输入"
+                              className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all"
+                            />
+                          </div>
+                          {selectedCategory?.id === 'industrial' && (
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest flex items-center gap-2">
+                                <FileText size={12} className="text-brand-gold" /> 特别说明 (工商类专用)
+                              </label>
+                              <input 
+                                type="text"
+                                value={info.specialRemark}
+                                onChange={e => setInfo({...info, specialRemark: e.target.value})}
+                                placeholder="请输入特别说明事项"
+                                className="w-full bg-white border border-brand-border/20 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Block 1: Customer Script */}
@@ -769,9 +791,19 @@ const MaterialChecklistCenter: React.FC = () => {
                               {idx + 1}
                             </span>
                             <div>
-                              <p className="text-xs font-bold text-brand-dark">{item.name}</p>
+                              <p className={cn(
+                                "text-xs font-bold",
+                                item.name.includes('申请书') ? "text-red-600" : "text-brand-dark"
+                              )}>{item.name}</p>
                               <p className="text-[10px] text-brand-gold font-bold mt-0.5">{item.format}</p>
-                              {item.note && <p className="text-[10px] text-brand-gray italic mt-0.5 opacity-60">({item.note})</p>}
+                              {item.note && (
+                                <p className={cn(
+                                  "text-[10px] italic mt-0.5",
+                                  item.note.includes('公章') ? "text-red-500 font-bold" : "text-brand-gray opacity-60"
+                                )}>
+                                  ({item.note})
+                                </p>
+                              )}
                             </div>
                           </div>
                         ))}

@@ -144,8 +144,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【意愿核实】若小程序核实未通过，必须补录开户核实视频，确保真实意愿。',
           '【尽职调查】开户前必须完成实地走访，拍摄办公场地照片并留存。'
         ],
-        scriptTemplate: ({ customerName }) => 
-          `您好${customerName ? ' ' + customerName : ''}，关于您咨询的【基本户开户】业务，我为您整理了一份详细的材料清单。办理时需要提供原件核对，复印件麻烦帮我加盖下单位公章。清单如下，有任何疑问随时微信找我。`
+        scriptTemplate: () => 
+          `您好！关于您咨询的【基本户开户】业务，资料清单已经为您准备好了。办理时需要提供原件核对，复印件麻烦帮我加盖下单位公章。清单如下，您先看下，有不清楚的地方随时微信联系我哈。`
       },
       {
         id: 'open-general',
@@ -164,8 +164,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【信息一致性】核对基本户信息表上的法人、地址是否与最新证照一致，不一致须先办基本户变更。',
           '【关联关系】询问客户开立一般户的用途（如贷款、代发工资等），做好系统维护。'
         ],
-        scriptTemplate: ({ customerName }) => 
-          `您好${customerName ? ' ' + customerName : ''}，为您整理了【一般户开户】的材料清单。办理时需要用到贵司的基本存款账户信息表原件，请您留意准备。清单已发在下方，您可以先核对一下。`
+        scriptTemplate: () => 
+          `您好！【一般户开户】的材料清单已为您整理好。办理时需要用到贵司的基本存款账户信息表原件，请您留意准备。清单发在下方了，您可以先核对一下。`
       },
       {
         id: 'open-special',
@@ -183,8 +183,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【预算单位】若涉及预算单位，需额外核实财政审批手续。',
           '【资金封闭】明确资金用途，确保符合专款专用监管要求。'
         ],
-        scriptTemplate: ({ customerName, businessName }) => 
-          `您好${customerName ? ' ' + customerName : ''}，关于【${businessName || '专户开户'}】，除了基础证照外，最关键的是需要一份“开立专户的文件依据”。我已经把详细清单整理好了，您可以对照准备，有不确定的文件可以先拍给我看看。`
+        scriptTemplate: ({ businessName }) => 
+          `您好！关于【${businessName || '专户开户'}】，除了基础证照外，最关键的是需要一份“开立专户的文件依据”。详细清单已经为您整理好了，您可以对照准备，有不确定的文件可以先拍给我看看哈。`
       }
     ]
   },
@@ -210,8 +210,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【余额处理】若账户有余额，须确认转出路径，且预留印鉴必须有效。',
           '【工商注销】若公司已注销，须提供工商部门出具的注销通知书。'
         ],
-        scriptTemplate: ({ customerName }) => 
-          `您好${customerName ? ' ' + customerName : ''}，办理【基本户销户】前，请您先确认公司名下在其他银行的账户是否已全部撤销。另外，办理时需要交回原有的开户许可证/信息表、印鉴卡以及未用完的支票。清单已整理如下，您看下是否方便准备。`
+        scriptTemplate: () => 
+          `您好！办理【基本户销户】前，请您先确认公司名下在其他银行的账户是否已全部撤销。另外，办理时需要交回原有的开户许可证/信息表、印鉴卡以及未用完的支票。清单整理如下，您看下是否方便准备。`
       },
       {
         id: 'close-general',
@@ -228,8 +228,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【余额清零】销户前账户余额原则上应为零，或提供明确的资金划转指令。',
           '【凭证回收】务必回收所有未用重要空白凭证（支票等）。'
         ],
-        scriptTemplate: ({ customerName, businessName }) => 
-          `您好${customerName ? ' ' + customerName : ''}，为您整理了【${businessName || '一般户销户'}】的材料清单。办理前请确认贵司的基本户信息是否为最新，清单如下，请查收。`
+        scriptTemplate: ({ businessName }) => 
+          `您好！【${businessName || '一般户销户'}】的材料清单已为您整理好。办理前请确认贵司的基本户信息是否为最新，清单如下，请查收。`
       }
     ]
   },
@@ -254,8 +254,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【印章衔接】新旧章均需带至柜面，若旧章已销毁须提供销毁证明。',
           '【关联变更】网银、短信通、对账联系人等信息需同步更新。'
         ],
-        scriptTemplate: ({ customerName }) => 
-          `您好${customerName ? ' ' + customerName : ''}，关于贵司【基本户变更户名】业务，我已为您整理了清单。办理时需要带上工商部门出具的核准通知书原件，以及新旧两套印章。清单如下，您可以先对照准备。`
+        scriptTemplate: () => 
+          `您好！关于贵司【基本户变更户名】业务，清单已经为您准备好了。办理时需要带上工商部门出具的核准通知书原件，以及新旧两套印章。清单如下，您可以先对照准备。`
       },
       {
         id: 'change-legal-basic',
@@ -272,8 +272,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【联网核查】新法人手机号需进行联网核查，建议法人本人到场或提供授权。',
           '【受益人更新】法人变更通常涉及受益人变化，需重新填写受益人登记表。'
         ],
-        scriptTemplate: ({ customerName, businessName }) => 
-          `您好${customerName ? ' ' + customerName : ''}，办理【${businessName || '基本户变更法人'}】业务，请您准备好新任法人的身份证原件，以及新旧两枚法人章。详细清单已为您整理好，请查收。`
+        scriptTemplate: ({ businessName }) => 
+          `您好！办理【${businessName || '基本户变更法人'}】业务，请您准备好新任法人的身份证原件，以及新旧两枚法人章。详细清单已为您整理好，请查收。`
       }
     ]
   },
@@ -297,8 +297,8 @@ export const COUNTER_BUSINESS: BusinessCategory[] = [
           '【视同新开】久悬返还流程等同于新开户，必须重新进行实地核实。',
           '【尽职调查】重点核实企业为何长期不使用账户，以及当前的经营真实性。'
         ],
-        scriptTemplate: ({ customerName, businessName }) => 
-          `您好${customerName ? ' ' + customerName : ''}，关于贵司账户的【${businessName || '久悬返还'}】业务，流程上视同新开户，我们需要重新进行上门核实。我已经把需要准备的材料清单整理好了，您可以先准备起来，咱们约个时间我过去一趟。`
+        scriptTemplate: ({ businessName }) => 
+          `您好！关于贵司账户的【${businessName || '久悬返还'}】业务，流程上视同新开户，我们需要重新进行上门核实。我已经把需要准备的材料清单整理好了，您可以先准备起来，咱们约个时间我过去一趟哈。`
       }
     ]
   }
@@ -313,7 +313,7 @@ export const CREDIT_BUSINESS: BusinessCategory[] = [
         id: 'low-risk-general',
         name: '低风险类授信材料清单',
         checklist: [
-          { name: '法人客户申请书', format: '原件', note: '需加盖公章' },
+          { name: '授信申请书', format: '原件', note: '需加盖公章、法人私章；若为多页，须加盖骑缝章' },
           { name: '经年检的营业执照', format: '复印件盖章' },
           { name: '法定代表人身份证明（身份证）', format: '复印件签字、盖章' },
           { name: '企业信用信息查询授权书', format: '原件', note: '需法人签字并加盖公章' },
@@ -331,8 +331,8 @@ export const CREDIT_BUSINESS: BusinessCategory[] = [
           '【低风险特质】核实质押物（如存单、票据）的权属是否清晰，确保足额质押。'
         ],
         requiredInfo: COMMON_REQUIRED_INFO,
-        scriptTemplate: ({ customerName }) => 
-          `您好${customerName ? ' ' + customerName : ''}，关于刚才沟通的【低风险授信业务】，我已为您整理好所需的材料清单，您可以先对照准备。办理过程中有任何疑问，随时微信联系我。`
+        scriptTemplate: () => 
+          `您好！关于刚才沟通的【低风险授信业务】，所需的材料清单已为您整理好，您可以先对照准备。办理过程中有任何疑问，随时微信联系我哈。`
       }
     ]
   },
@@ -344,6 +344,7 @@ export const CREDIT_BUSINESS: BusinessCategory[] = [
         id: 'industrial-general',
         name: '工商类授信材料清单（通用版）',
         checklist: [
+          { name: '授信申请书', format: '原件', note: '需加盖公章、法人私章；若为多页，须加盖骑缝章' },
           { name: '公司营业执照正副本', format: '复印件盖章' },
           { name: '公司章程', format: '复印件盖章' },
           { name: '验资报告', format: '复印件盖章' },
@@ -363,8 +364,8 @@ export const CREDIT_BUSINESS: BusinessCategory[] = [
           '【实控人背景】需深入调研实际控制人的行业背景、从业年限及个人资产负债情况。'
         ],
         requiredInfo: COMMON_REQUIRED_INFO,
-        scriptTemplate: ({ customerName }) => 
-          `您好${customerName ? ' ' + customerName : ''}，为您整理了本次【工商类授信】的资料清单。为尽快开展尽职调查，请您协助准备相关经营及财务资料，并补充填写下方的经营信息项。您可以先看下清单，有不确定的地方随时跟我沟通。`
+        scriptTemplate: () => 
+          `您好！为您整理了本次【工商类授信】的资料清单。为尽快开展尽职调查，请您协助准备相关经营及财务资料，并补充填写下方的经营信息项。您可以先看下清单，有不确定的地方随时跟我沟通哈。`
       }
     ]
   },
@@ -376,6 +377,7 @@ export const CREDIT_BUSINESS: BusinessCategory[] = [
         id: 'small-biz-full',
         name: '小企业授信材料清单（完整版）',
         checklist: [
+          { name: '授信申请书', format: '原件', note: '需加盖公章、法人私章；若为多页，须加盖骑缝章' },
           { name: '营业执照（最新版本）', format: 'PDF' },
           { name: '公司章程（含全体股东签字页）', format: 'PDF' },
           { name: '经营场所证明（产权证或租赁合同）', format: 'PDF' },
@@ -400,8 +402,8 @@ export const CREDIT_BUSINESS: BusinessCategory[] = [
           '文件命名格式：[企业全称]-[材料名称].pdf。',
           '企业材料必须加盖公章，个人材料必须本人签字。',
         ],
-        scriptTemplate: ({ customerName }) => 
-          `您好${customerName ? ' ' + customerName : ''}，关于本次【小企业授信】的申请，我已为您整理好所需材料清单及需补充填写的经营信息。建议您按清单准备，其中个人部分的材料（如身份证、征信授权书）需要您本人签字。有任何疑问随时微信联系我。`
+        scriptTemplate: () => 
+          `您好！关于本次【小企业授信】的申请，所需的材料清单及需补充填写的经营信息已为您整理好。建议您按清单准备，其中个人部分的材料（如身份证、征信授权书）需要您本人签字。有任何疑问随时微信联系我哈。`
       }
     ]
   }
