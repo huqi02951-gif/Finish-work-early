@@ -3,24 +3,20 @@ import {
   FileText, 
   Image as ImageIcon, 
   Download, 
-  RefreshCcw, 
+  Layout, 
   Trash2, 
   Copy, 
   ArrowLeft, 
-  Sparkles, 
   CheckCircle2, 
   AlertCircle,
   X,
   Plus,
-  Loader2,
   ChevronRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/utils';
-import { GoogleGenAI } from "@google/genai";
 import { Document, Packer, Paragraph, TextRun, AlignmentType, ImageRun, HeadingLevel } from 'docx';
 import { saveAs } from 'file-saver';
-import ReactMarkdown from 'react-markdown';
 
 // --- Typesetting Configuration ---
 const TYPESETTING_CONFIG = {
@@ -67,16 +63,16 @@ const NewsTypesettingAssistant: React.FC = () => {
 
   // --- Form State ---
   const [formData, setFormData] = useState({
-    titleDirection: '',
+    title: '',
     columnDirection: '管理在线',
     unit: '厦门银行科技业务部',
     author: '胡晓丹',
     date: new Date().toISOString().split('T')[0],
-    rawMaterial: '',
+    body: '',
   });
 
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<GeneratedContent | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -105,81 +101,43 @@ const NewsTypesettingAssistant: React.FC = () => {
 
   const resetForm = () => {
     setFormData({
-      titleDirection: '',
+      title: '',
       columnDirection: '管理在线',
       unit: '厦门银行科技业务部',
       author: '胡晓丹',
       date: new Date().toISOString().split('T')[0],
-      rawMaterial: '',
+      body: '',
     });
     setImages([]);
     setResult(null);
     setError(null);
   };
 
-  const generateNews = async () => {
-    if (!formData.rawMaterial.trim()) {
-      setError('请输入原始新闻材料');
+  const applyTypesetting = () => {
+    if (!formData.title.trim()) {
+      setError('请输入新闻标题');
+      return;
+    }
+    if (!formData.body.trim()) {
+      setError('请输入新闻正文');
       return;
     }
 
-    setIsGenerating(true);
+    setIsProcessing(true);
     setError(null);
 
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const model = "gemini-3-flash-preview";
-      
-      const prompt = `
-        你是一位专业的银行新闻宣传员。请根据以下原始材料，整理并撰写一篇符合《厦行信息》投稿规范的新闻稿。
-
-        【原始材料】
-        ${formData.rawMaterial}
-
-        【要求】
-        1. 必须是完整成稿，不得只是整理材料。
-        2. 字数必须不少于300字。
-        3. 必须明确包含新闻五要素：时间、地点、人物、事件、意义。
-        4. 如果原始材料不足，不得编造关键事实和具体数据。可以使用稳妥表述（如：近日、活动现场、进一步增强、取得积极成效、有效提升等）。
-        5. 风格：正式、简洁、自然，符合银行内部宣传稿口径。不口语化、不夸张、不写广告腔。
-        6. 标题：准确概括事件，避免过度夸饰，尽量体现“单位 + 动作 + 成果/意义”。
-        7. 栏目方向参考：${formData.columnDirection || '自动判断'}。
-        8. 标题方向参考：${formData.titleDirection || '自动生成'}。
-
-        【输出格式】
-        请直接输出 JSON 格式，包含以下字段：
-        - title: 新闻标题
-        - body: 新闻正文（分段落，每段首行不加空格，由程序处理缩进）
-      `;
-
-      const response = await ai.models.generateContent({
-        model,
-        contents: [{ parts: [{ text: prompt }] }],
-        config: {
-          responseMimeType: "application/json"
-        }
-      });
-
-      const content = JSON.parse(response.text || '{}');
-      
-      if (!content.title || !content.body) {
-        throw new Error('生成内容不完整');
-      }
-
+    // Simulate a brief processing time for better UX
+    setTimeout(() => {
       setResult({
-        title: content.title,
-        body: content.body,
+        title: formData.title,
+        body: formData.body,
         column: formData.columnDirection,
         unit: formData.unit,
         author: formData.author,
         date: formData.date
       });
-    } catch (err: any) {
-      console.error('Generation error:', err);
-      setError('生成失败，请稍后重试。原因：' + (err.message || '未知错误'));
-    } finally {
-      setIsGenerating(false);
-    }
+      setIsProcessing(false);
+    }, 500);
   };
 
   const copyToClipboard = (text: string) => {
@@ -304,7 +262,7 @@ const NewsTypesettingAssistant: React.FC = () => {
                   onClick={() => setResult(null)}
                   className="px-6 py-3 bg-white text-brand-dark border border-brand-border/10 rounded-xl font-bold text-sm hover:bg-brand-light-gray transition-all shadow-sm flex items-center gap-2"
                 >
-                  <RefreshCcw size={16} /> 重新生成
+                  <Layout size={16} /> 调整排版
                 </button>
                 <button 
                   onClick={resetForm}
@@ -327,13 +285,13 @@ const NewsTypesettingAssistant: React.FC = () => {
                   <div className="space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       <div>
-                        <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">标题方向 (可选)</label>
+                        <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">新闻标题</label>
                         <input 
                           type="text" 
-                          name="titleDirection"
-                          value={formData.titleDirection}
+                          name="title"
+                          value={formData.title}
                           onChange={handleInputChange}
-                          placeholder="例如：科技赋能业务发展"
+                          placeholder="请输入新闻稿标题"
                           className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark"
                         />
                       </div>
@@ -386,13 +344,13 @@ const NewsTypesettingAssistant: React.FC = () => {
 
                 <div className="bg-white p-10 rounded-[2.5rem] border border-brand-border/10 shadow-sm">
                   <h2 className="text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-10 opacity-60 flex items-center gap-3">
-                    <Sparkles size={16} className="text-brand-gold" /> 原始材料输入
+                    <FileText size={16} className="text-brand-gold" /> 新闻正文输入
                   </h2>
                   <textarea 
-                    name="rawMaterial"
-                    value={formData.rawMaterial}
+                    name="body"
+                    value={formData.body}
                     onChange={handleInputChange}
-                    placeholder="请粘贴原始新闻材料，包含活动时间、地点、人物、事件、成果、意义等内容..."
+                    placeholder="请输入新闻稿正文内容..."
                     className="w-full h-64 px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-3xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark resize-none custom-scrollbar"
                   />
                   {error && (
@@ -447,19 +405,15 @@ const NewsTypesettingAssistant: React.FC = () => {
                 </div>
 
                 <button 
-                  onClick={generateNews}
-                  disabled={isGenerating}
+                  onClick={applyTypesetting}
+                  disabled={isProcessing}
                   className={cn(
                     "w-full py-6 bg-brand-dark text-white rounded-[2rem] font-bold text-xl transition-all shadow-2xl flex items-center justify-center gap-3 active:scale-95",
-                    isGenerating ? "opacity-70 cursor-not-allowed" : "hover:bg-brand-dark/90"
+                    isProcessing ? "opacity-70 cursor-not-allowed" : "hover:bg-brand-dark/90"
                   )}
                 >
-                  {isGenerating ? (
-                    <Loader2 size={24} className="animate-spin" />
-                  ) : (
-                    <Sparkles size={24} />
-                  )}
-                  {isGenerating ? '正在整理排版...' : '生成新闻稿'}
+                  <Layout size={24} />
+                  {isProcessing ? '正在自动排版...' : '开始自动排版'}
                 </button>
               </div>
             </div>
