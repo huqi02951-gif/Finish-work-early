@@ -8,7 +8,7 @@ export interface Skill {
   input: string[];
   output: string[];
   form: string;
-  status: '在线可用' | '需后端支持' | '本地工具' | '开发中' | '开发中/能力介绍';
+  status: ('在线可用' | '需后端支持' | '本地工具' | '开发中' | '开发中/能力介绍')[] | '在线可用' | '需后端支持' | '本地工具' | '开发中' | '开发中/能力介绍';
   note?: string;
   description: string;
   toolRoute?: string;

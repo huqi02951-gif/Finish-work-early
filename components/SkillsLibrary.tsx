@@ -11,7 +11,8 @@ const SkillsLibrary: React.FC = () => {
   const filterOptions = ['全部', '在线可用', '本地工具', '需后端支持', '开发中/能力介绍'];
 
   const filteredSkills = SKILLS.filter(skill => {
-    const matchesFilter = filter === '全部' || skill.status === filter;
+    const skillStatuses = Array.isArray(skill.status) ? skill.status : [skill.status];
+    const matchesFilter = filter === '全部' || skillStatuses.includes(filter as any);
     const matchesSearch = skill.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          skill.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
@@ -35,7 +36,7 @@ const SkillsLibrary: React.FC = () => {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={20} />
               <input 
                 type="text" 
-                placeholder="搜索技能名称、描述或关键词..." 
+                placeholder="搜索技能名称、描述 or 关键词..." 
                 className="w-full pl-12 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold transition-all"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -73,15 +74,19 @@ const SkillsLibrary: React.FC = () => {
                   <span className="px-3 py-1 bg-brand-gold/10 text-brand-gold text-[10px] font-bold uppercase tracking-wider rounded-full border border-brand-gold/20">
                     {skill.category}
                   </span>
-                  <span className={cn(
-                    "text-[10px] font-bold px-2 py-0.5 rounded",
-                    skill.status === '在线可用' ? "bg-green-100 text-green-700" : 
-                    skill.status === '需后端支持' ? "bg-blue-100 text-blue-700" :
-                    skill.status === '本地工具' ? "bg-orange-100 text-orange-700" :
-                    "bg-stone-100 text-stone-600"
-                  )}>
-                    {skill.status}
-                  </span>
+                  <div className="flex flex-wrap gap-2 justify-end">
+                    {(Array.isArray(skill.status) ? skill.status : [skill.status]).map((status, idx) => (
+                      <span key={idx} className={cn(
+                        "text-[10px] font-bold px-2 py-0.5 rounded whitespace-nowrap",
+                        status === '在线可用' ? "bg-green-100 text-green-700" : 
+                        status === '需后端支持' ? "bg-blue-100 text-blue-700" :
+                        status === '本地工具' ? "bg-orange-100 text-orange-700" :
+                        "bg-stone-100 text-stone-600"
+                      )}>
+                        {status}
+                      </span>
+                    ))}
+                  </div>
                 </div>
                 <h4 className="font-serif text-2xl text-brand-dark mb-4 group-hover:text-brand-gold transition-colors">{skill.name}</h4>
                 <p className="text-stone-500 text-sm mb-6 leading-relaxed flex-grow">{skill.description}</p>

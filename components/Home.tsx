@@ -12,7 +12,12 @@ const Home: React.FC = () => {
     { title: '对自己', icon: UserCheck, desc: '固化经验与逻辑，清晰指引下一步流程，减少事务性工作。', color: 'bg-orange-50 text-orange-600', id: 'self' },
   ];
 
-  const featuredSkills = SKILLS.slice(0, 3);
+  const featuredSkills = [
+    SKILLS.find(s => s.id === 'sensitive-comm-assistant'),
+    SKILLS.find(s => s.id === 'cd-calculator'),
+    SKILLS.find(s => s.id === 'rate-discount-report'),
+    SKILLS.find(s => s.id === 'discount-credit-workflow'),
+  ].filter(Boolean) as typeof SKILLS;
 
   const getSkillCount = (scenarioTitle: string) => {
     return SKILLS.filter(skill => skill.scene.includes(scenarioTitle)).length;
@@ -112,25 +117,35 @@ const Home: React.FC = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredSkills.map((skill) => (
-              <div key={skill.id} className="group bg-brand-light-gray/30 p-10 rounded-[2.5rem] border border-transparent hover:border-brand-border/30 hover:bg-white hover:shadow-2xl transition-all duration-500">
-                <div className="flex justify-between items-start mb-10">
-                  <span className="px-4 py-1.5 bg-white text-brand-dark text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-border/20 shadow-sm">
+              <div key={skill.id} className="group bg-brand-light-gray/30 p-8 rounded-[2.5rem] border border-transparent hover:border-brand-border/30 hover:bg-white hover:shadow-2xl transition-all duration-500 flex flex-col">
+                <div className="flex justify-between items-start mb-8">
+                  <span className="px-3 py-1 bg-white text-brand-dark text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-border/20 shadow-sm">
                     {skill.category}
                   </span>
-                  <div className="flex items-center gap-1.5">
-                    <div className={cn("w-1.5 h-1.5 rounded-full", skill.status === '在线可用' ? "bg-emerald-500" : "bg-brand-gray")}></div>
-                    <span className="text-[10px] font-bold text-brand-dark uppercase tracking-widest">
-                      {skill.status}
-                    </span>
+                  <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                    {(Array.isArray(skill.status) ? skill.status : [skill.status]).map((status, idx) => (
+                      <div key={idx} className="flex items-center gap-1.5">
+                        <div className={cn(
+                          "w-1.5 h-1.5 rounded-full", 
+                          status === '在线可用' ? "bg-emerald-500" : 
+                          status === '需后端支持' ? "bg-blue-500" :
+                          status === '本地工具' ? "bg-orange-500" :
+                          "bg-brand-gray"
+                        )}></div>
+                        <span className="text-[10px] font-bold text-brand-dark uppercase tracking-widest">
+                          {status}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <h4 className="font-serif text-2xl text-brand-dark mb-4 tracking-tight">{skill.name}</h4>
-                <p className="text-brand-gray text-sm mb-10 line-clamp-2 font-medium leading-relaxed opacity-80">{skill.description}</p>
+                <h4 className="font-serif text-2xl text-brand-dark mb-4 tracking-tight leading-tight">{skill.name}</h4>
+                <p className="text-brand-gray text-xs mb-8 line-clamp-3 font-medium leading-relaxed opacity-80 flex-grow">{skill.description}</p>
                 
-                <Link to={`/skills/${skill.id}`} className="w-full py-4 bg-white text-brand-dark border border-brand-border/30 rounded-2xl text-[13px] font-bold hover:bg-brand-dark hover:text-white hover:border-brand-dark transition-all duration-300 flex items-center justify-center gap-2 shadow-sm">
-                  查看详情 <ChevronRight size={16} />
+                <Link to={`/skills/${skill.id}`} className="w-full py-3.5 bg-white text-brand-dark border border-brand-border/30 rounded-2xl text-[12px] font-bold hover:bg-brand-dark hover:text-white hover:border-brand-dark transition-all duration-300 flex items-center justify-center gap-2 shadow-sm">
+                  查看详情 <ChevronRight size={14} />
                 </Link>
               </div>
             ))}

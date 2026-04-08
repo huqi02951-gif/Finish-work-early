@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { 
   Users, ShieldCheck, Briefcase, UserCheck, ArrowRight, Utensils, Coffee, 
   Timer, RotateCcw, Sparkles, Send, Heart, Terminal, Lock, EyeOff, 
   Activity, ChevronRight, Search, FileText, CheckCircle2, AlertCircle, X,
-  Calendar as CalendarIcon, Moon, Sun, Palette, Compass, Ban
+  Calendar as CalendarIcon, Moon, Sun, Palette, Compass, Ban, Zap
 } from 'lucide-react';
 import { Solar, Lunar } from 'lunar-javascript';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -1224,6 +1224,75 @@ const GossipZone = () => {
   );
 };
 
+const SensitiveCommModule = () => {
+  const navigate = useNavigate();
+  return (
+    <div className="bg-white rounded-[2.5rem] border border-brand-border/10 shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden group">
+      <div className="grid grid-cols-1 lg:grid-cols-12">
+        <div className="lg:col-span-7 p-10 md:p-12">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-12 h-12 bg-brand-dark text-white rounded-2xl flex items-center justify-center shadow-lg">
+              <ShieldCheck size={24} />
+            </div>
+            <div>
+              <span className="px-3 py-1 bg-brand-gold/10 text-brand-gold text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-gold/20">
+                对客沟通 Skill
+              </span>
+            </div>
+          </div>
+          
+          <h3 className="font-serif text-4xl text-brand-dark mb-6 tracking-tight">敏感沟通助手</h3>
+          <p className="text-brand-gray text-lg mb-10 font-medium leading-relaxed opacity-80">
+            处理对客沟通中“必须说、但不好说”的敏感事项。把最难表达、最容易引发误解的事项，沉淀为高情商、专业、边界清晰的标准化话术。
+          </p>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+            {[
+              { label: '收费通知', icon: Zap },
+              { label: '利率调整', icon: Activity },
+              { label: '授信暂缓', icon: AlertCircle },
+              { label: '拒绝办理', icon: Ban },
+            ].map((item, idx) => (
+              <div key={idx} className="flex flex-col items-center gap-2 p-4 bg-brand-light-gray/50 rounded-2xl border border-brand-border/5 group-hover:bg-brand-gold/5 transition-colors">
+                <item.icon size={18} className="text-brand-gold" />
+                <span className="text-[10px] font-bold text-brand-dark">{item.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <button 
+            onClick={() => navigate('/sensitive-comm')}
+            className="px-10 py-5 bg-brand-dark text-white rounded-2xl font-bold text-lg hover:bg-brand-dark/90 transition-all shadow-xl flex items-center gap-3 group/btn"
+          >
+            立即进入助手
+            <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
+          </button>
+        </div>
+        
+        <div className="lg:col-span-5 bg-brand-light-gray/30 p-10 flex flex-col justify-center border-l border-brand-border/10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-10 opacity-[0.03] pointer-events-none">
+            <Sparkles size={200} />
+          </div>
+          <div className="space-y-6 relative z-10">
+            <div className="p-6 bg-white rounded-2xl shadow-sm border border-brand-border/5 transform -rotate-2 hover:rotate-0 transition-transform duration-500">
+              <p className="text-[10px] text-brand-gold font-bold uppercase tracking-widest mb-2">生成示例：授信暂缓</p>
+              <p className="text-xs text-brand-gray font-medium leading-relaxed italic">
+                “现阶段暂不具备推进条件，建议待相关条件补足后再行评估，我会持续帮您关注政策变化。”
+              </p>
+            </div>
+            <div className="p-6 bg-white rounded-2xl shadow-sm border border-brand-border/5 transform rotate-1 hover:rotate-0 transition-transform duration-500">
+              <p className="text-[10px] text-brand-gold font-bold uppercase tracking-widest mb-2">生成示例：收费通知</p>
+              <p className="text-xs text-brand-gray font-medium leading-relaxed italic">
+                “提前和您同步一下，根据行内最新规则...您可以关注下账户日均存款情况，达到标准后可自动减免。”
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ScenarioCenter: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'customer';
@@ -1301,6 +1370,14 @@ const ScenarioCenter: React.FC = () => {
                     <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                       <MaterialChecklistCenter />
                     </div>
+
+                    <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                      <div className="flex items-center justify-between mb-10">
+                        <h3 className="font-serif text-3xl text-brand-dark tracking-tight">核心沟通赋能</h3>
+                        <div className="h-px flex-grow bg-brand-border/10 mx-8"></div>
+                      </div>
+                      <SensitiveCommModule />
+                    </div>
                     
                     <div className="pt-16 border-t border-brand-border/10">
                       <div className="flex items-center justify-between mb-10">
@@ -1308,7 +1385,7 @@ const ScenarioCenter: React.FC = () => {
                         <div className="h-px flex-grow bg-brand-border/10 mx-8"></div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {relatedSkills.map(skill => (
+                        {relatedSkills.filter(skill => skill.id !== 'sensitive-comm-assistant').map(skill => (
                           <div key={skill.id} className="bg-white p-10 rounded-[2.5rem] border border-brand-border/10 shadow-sm hover:shadow-2xl transition-all duration-500 group flex flex-col">
                             <div className="flex justify-between items-start mb-10">
                               <span className="px-4 py-1.5 bg-brand-light-gray text-brand-dark text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-border/20">

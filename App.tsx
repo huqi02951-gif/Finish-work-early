@@ -12,6 +12,8 @@ import RateOfferTool from './components/tools/RateOfferTool';
 import AcceptanceCalculator from './components/tools/AcceptanceCalculator';
 import FeeDiscountTool from './components/tools/FeeDiscountTool';
 import NewsTypesettingAssistant from './components/tools/NewsTypesettingAssistant';
+import BatchBillingTool from './components/tools/BatchBillingTool';
+import SensitiveCommAssistant from './components/tools/SensitiveCommAssistant';
 
 const App: React.FC = () => {
   return (
@@ -26,6 +28,8 @@ const App: React.FC = () => {
           <Route path="/acceptance-calculator" element={<AcceptanceCalculator />} />
           <Route path="/fee-discount" element={<FeeDiscountTool />} />
           <Route path="/news-assistant" element={<NewsTypesettingAssistant />} />
+          <Route path="/batch-billing" element={<BatchBillingTool />} />
+          <Route path="/sensitive-comm" element={<SensitiveCommAssistant />} />
           <Route path="/updates" element={<UpdateLog />} />
           <Route path="/instructions" element={<UsageInstructions />} />
           <Route path="/feedback" element={<Feedback />} />

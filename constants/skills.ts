@@ -2,19 +2,6 @@ import { Skill } from '../types';
 
 export const SKILLS: Skill[] = [
   {
-    id: 'rate-discount-report',
-    name: "利率优惠签报智能生成",
-    category: "审批文案生成 Skill",
-    scene: "对中后台",
-    audience: ["客户经理", "领导/审批"],
-    input: ["客户名称", "优惠事项", "EVA/客户标签", "申请理由", "审批口径", "补充事实"],
-    output: ["签报正文", "摘要", "可复制文本", "Word 文件"],
-    form: "网页",
-    status: "在线可用",
-    toolRoute: "/rate-offer",
-    description: "针对银行利率优惠申请场景，自动生成符合中后台口径的结构化签报文案，减少手动转译时间。"
-  },
-  {
     id: 'cd-calculator',
     name: "银承/存单测算小助手",
     category: "测算类 Skill",
@@ -26,18 +13,6 @@ export const SKILLS: Skill[] = [
     status: "在线可用",
     toolRoute: "/acceptance-calculator",
     description: "快速测算银承、存单等业务的收益与成本，提供标准化的测算口径输出，方便与中后台沟通。"
-  },
-  {
-    id: 'discount-credit-workflow',
-    name: "贴现/专门授信工作流",
-    category: "授信审批材料 Skill",
-    scene: "对审查 + 对客户",
-    audience: ["客户经理", "审查", "客户"],
-    input: ["企业基础信息", "经营信息", "上下游信息", "营业收入", "净资产", "邮件地址"],
-    output: ["字段确认单", "调查报告", "附件4", "操作规范", "客户盖章材料清单", "对内邮件", "对客邮件"],
-    form: "Skill + Python + 调试网页",
-    status: "需后端支持",
-    description: "端到端的贴现及专门授信全流程辅助，涵盖从客户信息收集到内部报告生成的全套材料。"
   },
   {
     id: 'account-fee-discount',
@@ -53,16 +28,17 @@ export const SKILLS: Skill[] = [
     description: "本地化工具，支持批量生成账户费用优惠申请所需的 Excel 表格及配套的 OA 审批文案。"
   },
   {
-    id: 'batch-billing-generation',
-    name: "项下开票批量生成",
-    category: "模板批量生成 Skill",
-    scene: "对中后台 + 对自己",
-    audience: ["客户经理", "中后台", "柜台/放款中心"],
-    input: ["开票主体信息", "账号", "合同编号", "日期", "金额", "存单信息", "多笔收款人明细"],
-    output: ["多份 docx/xlsx 成品", "校对结果", "成品包", "zip"],
-    form: "本地 Python + 模板批量生成",
-    status: "开发中/能力介绍",
-    description: "针对大批量开票需求，通过模板引擎一键生成多份标准化文档，大幅减少重复录入工作。"
+    id: 'rate-discount-report',
+    name: "利率优惠签报智能生成",
+    category: "审批文案生成 Skill",
+    scene: "对中后台",
+    audience: ["客户经理", "领导/审批"],
+    input: ["客户名称", "优惠事项", "EVA/客户标签", "申请理由", "审批口径", "补充事实"],
+    output: ["签报正文", "摘要", "可复制文本", "Word 文件"],
+    form: "网页",
+    status: "在线可用",
+    toolRoute: "/rate-offer",
+    description: "针对银行利率优惠申请场景，自动生成符合中后台口径的结构化签报文案，减少手动转译时间。"
   },
   {
     id: 'news-assistant',
@@ -76,5 +52,43 @@ export const SKILLS: Skill[] = [
     status: "在线可用",
     toolRoute: "/news-assistant",
     description: "自动整理并排版《厦行信息》投稿新闻稿，支持图片插入和 Word 导出。"
+  },
+  {
+    id: 'sensitive-comm-assistant',
+    name: "敏感沟通助手",
+    category: "对客沟通 Skill",
+    scene: "对客户",
+    audience: ["客户经理"],
+    input: ["场景选择", "客户称呼", "沟通渠道", "语气风格", "场景专属字段"],
+    output: ["直接发送版", "更正式版", "更柔和版", "电话沟通提纲版"],
+    form: "网页 + 规则引擎",
+    status: ["本地工具", "需后端支持"],
+    toolRoute: "/sensitive-comm",
+    description: "处理对客沟通中收费通知、利率调整、授信暂缓等敏感事项，提供高情商、专业、边界清晰的标准化话术。"
+  },
+  {
+    id: 'batch-billing-generation',
+    name: "项下开票本地下载工具包",
+    category: "本地工具包 Skill",
+    scene: "对中后台 + 对自己",
+    audience: ["客户经理", "中后台", "柜台/放款中心"],
+    input: ["开票主体信息", "账号", "合同编号", "日期", "金额", "存单信息", "多笔收款人明细"],
+    output: ["本地工具包 (Python + 模板)", "docx/xlsx 生成能力"],
+    form: "本地下载工具包",
+    status: ["本地工具", "需后端支持"],
+    toolRoute: "/batch-billing",
+    description: "集成 Python 脚本与预设占位符的 Word/Excel 模板，填写客户必要信息后即可一键批量生成标准化开票文档。"
+  },
+  {
+    id: 'discount-credit-workflow',
+    name: "贴现/专门授信工作流",
+    category: "授信审批材料 Skill",
+    scene: "对审查 + 对客户",
+    audience: ["客户经理", "审查", "客户"],
+    input: ["企业基础信息", "经营信息", "上下游信息", "营业收入", "净资产", "邮件地址"],
+    output: ["字段确认单", "调查报告", "附件4", "操作规范", "客户盖章材料清单", "对内邮件", "对客邮件"],
+    form: "Skill + Python + 调试网页",
+    status: "需后端支持",
+    description: "端到端的贴现及专门授信全流程辅助，涵盖从客户信息收集到内部报告生成的全套材料。"
   }
 ];
