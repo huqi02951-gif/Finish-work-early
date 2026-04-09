@@ -28,13 +28,13 @@ const Home: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
           >
-            <p className="text-[13px] font-bold text-apple-blue uppercase tracking-[0.3em] mb-6">Empowering Every Relationship Manager</p>
+            <p className="text-[13px] font-bold text-apple-blue uppercase tracking-[0.3em] mb-6">让专业，信手拈来</p>
             <h2 className="text-5xl md:text-8xl font-bold tracking-tight mb-8 apple-text-gradient leading-[1.05]">
               客户经理 Agent<br />+ Skills <span className="text-apple-blue">很强很强！</span>
             </h2>
             <p className="text-lg md:text-2xl text-brand-gray font-medium max-w-2xl mx-auto leading-relaxed">
-              让枯燥的产品逻辑变生动，让复杂的营销打法变简单。<br className="hidden md:block" />
-              专为 iOS 16/17、App 及小程序优化的全场景赋能平台。
+              将枯燥的产品逻辑转化为生动的实战智慧，<br className="hidden md:block" />
+              让复杂的营销打法变得如呼吸般简单。
             </p>
           </motion.div>
         </section>
@@ -141,9 +141,6 @@ const Home: React.FC = () => {
           </div>
           <p className="text-[12px] font-bold text-brand-gray uppercase tracking-[0.4em] mb-3">Designed by XD.HU, Pyllis Feng</p>
           <p className="text-[11px] text-brand-gray/50 font-medium">© 2026 客户经理 Agent + Skills 很强很强！</p>
-          <p className="mt-6 text-[10px] text-brand-gray/30 max-w-xs mx-auto">
-            Optimized for iOS 16/17, Native App, and WeChat Mini Program environments.
-          </p>
         </footer>
       </div>
     </AppLayout>
