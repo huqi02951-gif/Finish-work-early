@@ -26,40 +26,40 @@ const Home: React.FC = () => {
   return (
     <div className="flex flex-col animate-fade-in">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-white">
+      <section className="relative min-h-[85vh] lg:min-h-[90vh] flex items-center justify-center overflow-hidden bg-white px-4">
         {/* Subtle Background Elements */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-gold/5 blur-[120px]"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-brand-accent/10 blur-[120px]"></div>
+          <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] lg:w-[40%] lg:h-[40%] rounded-full bg-brand-gold/5 blur-[80px] lg:blur-[120px]"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] lg:w-[40%] lg:h-[40%] rounded-full bg-brand-accent/10 blur-[80px] lg:blur-[120px]"></div>
         </div>
 
-        <div className="container mx-auto px-6 relative z-10 text-center max-w-5xl">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-light-gray border border-brand-border/30 text-brand-gray text-[10px] font-bold tracking-[0.3em] uppercase rounded-full mb-10 animate-fade-in-up">
+        <div className="container mx-auto relative z-10 text-center max-w-5xl">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-light-gray border border-brand-border/30 text-brand-gray text-[9px] sm:text-[10px] font-bold tracking-[0.2em] sm:tracking-[0.3em] uppercase rounded-full mb-8 lg:mb-10 animate-fade-in-up">
             <Sparkles size={12} className="text-brand-gold" /> 客户经理 Agent + Skills
           </div>
           
-          <h1 className="font-serif text-6xl md:text-8xl font-bold leading-[1.1] text-brand-dark mb-10 tracking-tight animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            客户经理 Agent + Skills <br className="hidden md:block" />
+          <h1 className="font-serif text-4xl sm:text-6xl lg:text-8xl font-bold leading-[1.2] lg:leading-[1.1] text-brand-dark mb-8 lg:mb-10 tracking-tight animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            客户经理 Agent <br className="hidden sm:block" />
             <span className="text-brand-gold italic font-normal">超级超级强</span>
           </h1>
           
-          <p className="max-w-2xl mx-auto text-lg md:text-xl text-brand-gray font-medium leading-relaxed mb-16 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            将实战经验沉淀为可复用的数字技能。通过场景化驱动，实现业务流程标准化与话术模板化，让专业力量在每一次交互中精准释放。
+          <p className="max-w-2xl mx-auto text-base sm:text-lg lg:text-xl text-brand-gray font-medium leading-relaxed mb-12 lg:mb-16 animate-fade-in-up px-4" style={{ animationDelay: '0.2s' }}>
+            将实战经验沉淀为可复用的数字技能。通过场景化驱动，实现业务流程标准化，让专业力量精准释放。
           </p>
           
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-8 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <Link 
               to="/scenarios" 
-              className="group px-10 py-5 bg-brand-dark text-white rounded-full font-bold text-lg hover:bg-brand-dark/90 transition-all shadow-2xl hover:shadow-brand-dark/20 flex items-center gap-3"
+              className="w-full sm:w-auto group px-10 py-4 sm:py-5 bg-brand-dark text-white rounded-2xl sm:rounded-full font-bold text-base sm:text-lg hover:bg-brand-dark/90 transition-all shadow-2xl flex items-center justify-center gap-3"
             >
               <LayoutDashboard size={20} /> 进入场景中心
               <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link 
               to="/skills" 
-              className="group text-brand-dark font-bold text-lg flex items-center gap-2 hover:text-brand-gold transition-colors"
+              className="w-full sm:w-auto group text-brand-dark font-bold text-base sm:text-lg flex items-center justify-center gap-2 hover:text-brand-gold transition-colors py-2"
             >
-              <Database size={20} /> 浏览 Skills 工具库
+              <Database size={20} /> 浏览工具库
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
@@ -67,32 +67,33 @@ const Home: React.FC = () => {
       </section>
 
       {/* Core Scenarios - Bento Grid Style */}
-      <section className="py-32 bg-brand-light-gray/50 border-y border-brand-border/20">
-        <div className="container mx-auto px-6">
-          <div className="max-w-3xl mb-20">
-            <h2 className="text-[11px] font-bold tracking-[0.4em] text-brand-gray uppercase mb-6">Core Scenarios</h2>
-            <h3 className="font-serif text-4xl md:text-6xl text-brand-dark mb-8 tracking-tight">四大核心工作场景</h3>
-            <p className="text-lg text-brand-gray leading-relaxed font-medium">
-              针对银行一线客户经理的真实痛点，我们将工作场景拆解为四个维度，每个维度都由专属 Skills 提供支撑，实现全流程赋能。
+      <section className="py-20 lg:py-32 bg-brand-light-gray/50 border-y border-brand-border/20">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="max-w-3xl mb-12 lg:mb-20">
+            <h2 className="text-[10px] lg:text-[11px] font-bold tracking-[0.3em] lg:tracking-[0.4em] text-brand-gray uppercase mb-4 lg:mb-6">Core Scenarios</h2>
+            <h3 className="font-serif text-3xl lg:text-6xl text-brand-dark mb-6 lg:mb-8 tracking-tight">四大核心工作场景</h3>
+            <p className="text-base lg:text-lg text-brand-gray leading-relaxed font-medium opacity-80">
+              针对银行一线客户经理的真实痛点，我们将工作场景拆解为四个维度，每个维度都由专属 Skills 提供支撑。
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {scenarios.map((s, idx) => (
               <Link 
                 key={s.title} 
                 to={`/scenarios?tab=${s.id}`}
-                className="p-10 bg-white rounded-[2rem] border border-brand-border/10 hover:border-brand-gold/20 hover:shadow-[0_20px_50px_rgba(0,0,0,0.05)] transition-all duration-500 group relative overflow-hidden"
+                className="p-8 lg:p-10 bg-white rounded-[2rem] border border-brand-border/10 hover:border-brand-gold/20 hover:shadow-[0_20px_50px_rgba(0,0,0,0.05)] transition-all duration-500 group relative overflow-hidden"
               >
-                <div className="absolute top-8 right-8 text-[10px] font-bold text-brand-border group-hover:text-brand-gold transition-colors tracking-widest">
+                <div className="absolute top-6 lg:top-8 right-6 lg:right-8 text-[9px] lg:text-[10px] font-bold text-brand-border group-hover:text-brand-gold transition-colors tracking-widest">
                   {getSkillCount(s.title)} SKILLS
                 </div>
-                <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center mb-10 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm", s.color)}>
-                  <s.icon size={32} />
+                <div className={cn("w-12 h-12 lg:w-16 lg:h-16 rounded-xl lg:rounded-2xl flex items-center justify-center mb-8 lg:mb-10 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm", s.color)}>
+                  <s.icon size={24} className="lg:hidden" />
+                  <s.icon size={32} className="hidden lg:block" />
                 </div>
-                <h4 className="font-serif text-3xl text-brand-dark mb-6 tracking-tight">{s.title}</h4>
-                <p className="text-brand-gray text-sm leading-relaxed mb-10 font-medium opacity-80">{s.desc}</p>
-                <div className="text-brand-gold text-[11px] font-bold flex items-center gap-2 uppercase tracking-widest group-hover:gap-3 transition-all">
+                <h4 className="font-serif text-2xl lg:text-3xl text-brand-dark mb-4 lg:mb-6 tracking-tight">{s.title}</h4>
+                <p className="text-brand-gray text-xs lg:text-sm leading-relaxed mb-8 lg:mb-10 font-medium opacity-70">{s.desc}</p>
+                <div className="text-brand-gold text-[10px] lg:text-[11px] font-bold flex items-center gap-2 uppercase tracking-widest group-hover:gap-3 transition-all">
                   Explore Scene <ChevronRight size={14} />
                 </div>
               </Link>
@@ -102,26 +103,26 @@ const Home: React.FC = () => {
       </section>
 
       {/* Featured Skills - Minimalist Cards */}
-      <section className="py-32 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-10">
+      <section className="py-20 lg:py-32 bg-white">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-12 lg:mb-20 gap-8 lg:gap-10">
             <div className="max-w-2xl">
-              <h2 className="text-[11px] font-bold tracking-[0.4em] text-brand-gray uppercase mb-6">Featured Skills</h2>
-              <h3 className="font-serif text-4xl md:text-6xl text-brand-dark mb-8 tracking-tight">精选技能展示</h3>
-              <p className="text-lg text-brand-gray font-medium">
-                这些技能已经过实战检验，能够显著提升客户经理在特定环节的作业效率与专业度。
+              <h2 className="text-[10px] lg:text-[11px] font-bold tracking-[0.3em] lg:tracking-[0.4em] text-brand-gray uppercase mb-4 lg:mb-6">Featured Skills</h2>
+              <h3 className="font-serif text-3xl lg:text-6xl text-brand-dark mb-6 lg:mb-8 tracking-tight">精选技能展示</h3>
+              <p className="text-base lg:text-lg text-brand-gray font-medium opacity-80">
+                这些技能已经过实战检验，能够显著提升客户经理在特定环节的作业效率。
               </p>
             </div>
-            <Link to="/skills" className="group px-8 py-4 border-2 border-brand-dark text-brand-dark rounded-full font-bold hover:bg-brand-dark hover:text-white transition-all duration-300 flex items-center gap-2">
+            <Link to="/skills" className="w-full lg:w-auto group px-8 py-4 border-2 border-brand-dark text-brand-dark rounded-2xl lg:rounded-full font-bold hover:bg-brand-dark hover:text-white transition-all duration-300 flex items-center justify-center gap-2">
               查看全部工具库 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
             {featuredSkills.map((skill) => (
-              <div key={skill.id} className="group bg-brand-light-gray/30 p-8 rounded-[2.5rem] border border-transparent hover:border-brand-border/30 hover:bg-white hover:shadow-2xl transition-all duration-500 flex flex-col">
-                <div className="flex justify-between items-start mb-8">
-                  <span className="px-3 py-1 bg-white text-brand-dark text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-border/20 shadow-sm">
+              <div key={skill.id} className="group bg-brand-light-gray/30 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] border border-transparent hover:border-brand-border/30 hover:bg-white hover:shadow-2xl transition-all duration-500 flex flex-col">
+                <div className="flex justify-between items-start mb-6 lg:mb-8">
+                  <span className="px-3 py-1 bg-white text-brand-dark text-[9px] lg:text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-border/20 shadow-sm">
                     {skill.category}
                   </span>
                   <div className="flex items-center gap-1.5 flex-wrap justify-end">
@@ -134,18 +135,18 @@ const Home: React.FC = () => {
                           status === '本地工具' ? "bg-orange-500" :
                           "bg-brand-gray"
                         )}></div>
-                        <span className="text-[10px] font-bold text-brand-dark uppercase tracking-widest">
+                        <span className="text-[9px] lg:text-[10px] font-bold text-brand-dark uppercase tracking-widest">
                           {status}
                         </span>
                       </div>
                     ))}
                   </div>
                 </div>
-                <h4 className="font-serif text-2xl text-brand-dark mb-4 tracking-tight leading-tight">{skill.name}</h4>
-                <p className="text-brand-gray text-xs mb-8 line-clamp-3 font-medium leading-relaxed opacity-80 flex-grow">{skill.description}</p>
+                <h4 className="font-serif text-xl lg:text-2xl text-brand-dark mb-3 lg:mb-4 tracking-tight leading-tight">{skill.name}</h4>
+                <p className="text-brand-gray text-[11px] lg:text-xs mb-6 lg:mb-8 line-clamp-3 font-medium leading-relaxed opacity-70 flex-grow">{skill.description}</p>
                 
-                <Link to={`/skills/${skill.id}`} className="w-full py-3.5 bg-white text-brand-dark border border-brand-border/30 rounded-2xl text-[12px] font-bold hover:bg-brand-dark hover:text-white hover:border-brand-dark transition-all duration-300 flex items-center justify-center gap-2 shadow-sm">
-                  查看详情 <ChevronRight size={14} />
+                <Link to={`/skills/${skill.id}`} className="w-full py-3.5 bg-white text-brand-dark border border-brand-border/30 rounded-xl lg:rounded-2xl text-[11px] lg:text-[12px] font-bold hover:bg-brand-dark hover:text-white hover:border-brand-dark transition-all duration-300 flex items-center justify-center gap-2 shadow-sm">
+                  立即使用 <ChevronRight size={14} />
                 </Link>
               </div>
             ))}
@@ -154,40 +155,39 @@ const Home: React.FC = () => {
       </section>
 
       {/* System Console / CTA */}
-      <section className="py-32 bg-brand-dark relative overflow-hidden font-mono">
+      <section className="py-20 lg:py-32 bg-brand-dark relative overflow-hidden font-mono px-4">
         {/* Technical Background */}
         <div className="absolute inset-0 opacity-[0.05] pointer-events-none">
           <div className="absolute top-0 left-0 w-full h-full bg-[repeating-linear-gradient(0deg,transparent,transparent_1px,rgba(255,255,255,0.1)_1px,rgba(255,255,255,0.1)_2px)] bg-[size:100%_3px]"></div>
         </div>
 
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="max-w-6xl mx-auto bg-white/[0.02] border border-white/10 rounded-[3rem] p-10 md:p-20 backdrop-blur-3xl relative">
+        <div className="container mx-auto relative z-10">
+          <div className="max-w-6xl mx-auto bg-white/[0.02] border border-white/10 rounded-[2rem] lg:rounded-[3rem] p-8 lg:p-20 backdrop-blur-3xl relative">
             {/* Corner Accents */}
-            <div className="absolute top-0 left-0 w-12 h-12 border-t-2 border-l-2 border-brand-gold/30 rounded-tl-[3rem]"></div>
-            <div className="absolute bottom-0 right-0 w-12 h-12 border-b-2 border-r-2 border-brand-gold/30 rounded-br-[3rem]"></div>
+            <div className="absolute top-0 left-0 w-8 h-8 lg:w-12 lg:h-12 border-t-2 border-l-2 border-brand-gold/30 rounded-tl-[2rem] lg:rounded-tl-[3rem]"></div>
+            <div className="absolute bottom-0 right-0 w-8 h-8 lg:w-12 lg:h-12 border-b-2 border-r-2 border-brand-gold/30 rounded-br-[2rem] lg:rounded-br-[3rem]"></div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
               <div>
-                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-brand-gold/10 border border-brand-gold/20 rounded-full mb-10">
+                <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-brand-gold/10 border border-brand-gold/20 rounded-full mb-8 lg:mb-10">
                   <div className="w-2 h-2 rounded-full bg-brand-gold animate-pulse"></div>
-                  <span className="text-[10px] font-bold text-brand-gold uppercase tracking-[0.3em]">System.Deployment.Active</span>
+                  <span className="text-[9px] lg:text-[10px] font-bold text-brand-gold uppercase tracking-[0.2em] lg:tracking-[0.3em]">System.Deployment.Active</span>
                 </div>
                 
-                <h2 className="text-4xl md:text-6xl font-bold text-white mb-10 tracking-tighter leading-[1.1]">
+                <h2 className="text-3xl lg:text-6xl font-bold text-white mb-6 lg:mb-10 tracking-tighter leading-[1.2] lg:leading-[1.1]">
                   开启你的 <br />
                   <span className="text-brand-gold">智能作业</span> 时代
                 </h2>
                 
-                <p className="text-white/40 text-lg leading-relaxed mb-12 font-medium">
-                  不再是简单的工具堆砌，而是深度理解业务逻辑的数字伙伴。<br />
-                  加入共创，定义属于你的超级助手。
+                <p className="text-white/40 text-base lg:text-lg leading-relaxed mb-8 lg:mb-12 font-medium">
+                  不再是简单的工具堆砌，而是深度理解业务逻辑的数字伙伴。加入共创，定义属于你的超级助手。
                 </p>
 
-                <div className="flex flex-wrap gap-6">
-                  <Link to="/feedback" className="px-10 py-4 bg-brand-gold text-brand-dark rounded-2xl font-bold text-sm hover:bg-brand-gold/90 transition-all shadow-[0_0_30px_rgba(197,160,89,0.2)]">
+                <div className="flex flex-col sm:flex-row gap-4 lg:gap-6">
+                  <Link to="/feedback" className="w-full sm:w-auto px-10 py-4 bg-brand-gold text-brand-dark rounded-xl lg:rounded-2xl text-center font-bold text-sm hover:bg-brand-gold/90 transition-all shadow-[0_0_30px_rgba(197,160,89,0.2)]">
                     申请试用 / 共创
                   </Link>
-                  <Link to="/instructions" className="px-10 py-4 border border-white/10 text-white/60 rounded-2xl font-bold text-sm hover:bg-white/5 transition-all">
+                  <Link to="/instructions" className="w-full sm:w-auto px-10 py-4 border border-white/10 text-white/60 rounded-xl lg:rounded-2xl text-center font-bold text-sm hover:bg-white/5 transition-all">
                     技术文档
                   </Link>
                 </div>

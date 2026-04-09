@@ -437,81 +437,82 @@ const SensitiveCommAssistant: React.FC = () => {
   };
 
   return (
-    <div className="py-24 bg-brand-offwhite min-h-screen">
-      <div className="container mx-auto px-6">
+    <div className="py-12 md:py-24 bg-brand-offwhite min-h-screen">
+      <div className="container mx-auto px-4 md:px-6">
         <button 
           onClick={() => navigate(-1)} 
-          className="flex items-center gap-3 text-brand-gray hover:text-brand-dark transition-all mb-16 group font-bold text-sm uppercase tracking-widest opacity-60 hover:opacity-100"
+          className="flex items-center gap-2 md:gap-3 text-brand-gray hover:text-brand-dark transition-all mb-8 md:mb-16 group font-bold text-[10px] md:text-sm uppercase tracking-widest opacity-60 hover:opacity-100"
         >
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 返回上一页
+          <ArrowLeft size={14} className="md:w-4 md:h-4 group-hover:-translate-x-1 transition-transform" /> 返回上一页
         </button>
 
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="mb-16 animate-fade-in-up">
-            <div className="flex items-center gap-6 mb-6">
-              <div className="w-16 h-16 bg-brand-dark text-white rounded-2xl flex items-center justify-center shadow-xl">
-                <ShieldCheck size={32} />
+          <div className="mb-10 md:mb-16 animate-fade-in-up">
+            <div className="flex items-center gap-4 md:gap-6 mb-4 md:mb-6">
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-dark text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-xl shrink-0">
+                <ShieldCheck size={24} className="md:hidden" />
+                <ShieldCheck size={32} className="hidden md:block" />
               </div>
               <div>
-                <h1 className="text-4xl md:text-5xl font-serif text-brand-dark tracking-tight">敏感沟通助手</h1>
-                <p className="text-lg text-brand-gray font-medium opacity-60 mt-2">处理对客沟通中“必须说、但不好说”的敏感事项</p>
+                <h1 className="text-2xl md:text-5xl font-serif text-brand-dark tracking-tight">敏感沟通助手</h1>
+                <p className="text-sm md:text-lg text-brand-gray font-medium opacity-60 mt-1 md:mt-2">处理对客沟通中“必须说、但不好说”的敏感事项</p>
               </div>
             </div>
-            <div className="p-6 bg-brand-gold/5 border border-brand-gold/10 rounded-2xl">
-              <p className="text-sm text-brand-dark/80 leading-relaxed">
+            <div className="p-4 md:p-6 bg-brand-gold/5 border border-brand-gold/10 rounded-xl md:rounded-2xl">
+              <p className="text-xs md:text-sm text-brand-dark/80 leading-relaxed">
                 用于处理收费通知、政策说明、暂无法推进、客户配合事项、备案提醒、柜面预约、利率调整通知、授信暂缓推进等场景。帮助客户经理在边界清晰的前提下，用更得体、更稳妥的方式完成客户沟通。
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
             {/* Left Column: Inputs */}
-            <div className="lg:col-span-7 space-y-10 animate-fade-in-up">
+            <div className="lg:col-span-7 space-y-8 md:space-y-10 animate-fade-in-up">
               {/* 1. Scenario Selection */}
-              <div className="bg-white p-10 rounded-[2.5rem] border border-brand-border/10 shadow-sm">
-                <h2 className="text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-10 opacity-60 flex items-center gap-3">
-                  <LayoutDashboard size={16} className="text-brand-gold" /> 场景选择
+              <div className="bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm">
+                <h2 className="text-[10px] md:text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-6 md:mb-10 opacity-60 flex items-center gap-3">
+                  <LayoutDashboard size={14} className="text-brand-gold md:w-4 md:h-4" /> 场景选择
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                   {SCENARIOS.map((s) => (
                     <button
                       key={s.id}
                       onClick={() => setActiveScenario(s.id)}
                       className={cn(
-                        "p-4 rounded-2xl border transition-all flex flex-col items-center gap-3 text-center group",
+                        "p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all flex flex-col items-center gap-2 md:gap-3 text-center group",
                         activeScenario === s.id 
                           ? "bg-brand-dark text-white border-brand-dark shadow-lg" 
                           : "bg-brand-light-gray/50 border-transparent hover:bg-brand-light-gray text-brand-gray"
                       )}
                     >
-                      <s.icon size={20} className={cn(activeScenario === s.id ? "text-brand-gold" : "group-hover:text-brand-dark")} />
-                      <span className="text-[10px] font-bold leading-tight">{s.name}</span>
+                      <s.icon size={18} className={cn("md:w-5 md:h-5", activeScenario === s.id ? "text-brand-gold" : "group-hover:text-brand-dark")} />
+                      <span className="text-[9px] md:text-[10px] font-bold leading-tight">{s.name}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* 2. Basic Parameters */}
-              <div className="bg-white p-10 rounded-[2.5rem] border border-brand-border/10 shadow-sm">
-                <h2 className="text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-10 opacity-60 flex items-center gap-3">
-                  <User size={16} className="text-brand-gold" /> 基础参数
+              <div className="bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm">
+                <h2 className="text-[10px] md:text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-6 md:mb-10 opacity-60 flex items-center gap-3">
+                  <User size={14} className="text-brand-gold md:w-4 md:h-4" /> 基础参数
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                   <div>
-                    <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">客户称呼</label>
+                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">客户称呼</label>
                     <input 
                       type="text" 
                       placeholder="例如：张总、王经理"
-                      className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark"
+                      className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
                       value={basicParams.customerName}
                       onChange={(e) => handleBasicChange('customerName', e.target.value)}
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">客户对象</label>
+                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">客户对象</label>
                     <select 
-                      className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark appearance-none"
+                      className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-sm md:text-base text-brand-dark appearance-none"
                       value={basicParams.target}
                       onChange={(e) => handleBasicChange('target', e.target.value)}
                     >
@@ -522,14 +523,14 @@ const SensitiveCommAssistant: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">沟通渠道</label>
+                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">沟通渠道</label>
                     <div className="flex gap-2">
                       {['微信', '短信', '邮件', '电话'].map(c => (
                         <button 
                           key={c}
                           onClick={() => handleBasicChange('channel', c)}
                           className={cn(
-                            "flex-1 py-3 rounded-xl border text-[10px] font-bold transition-all",
+                            "flex-1 py-2.5 md:py-3 rounded-lg md:rounded-xl border text-[9px] md:text-[10px] font-bold transition-all",
                             basicParams.channel === c ? "bg-brand-dark text-white border-brand-dark" : "bg-brand-light-gray/50 border-transparent text-brand-gray"
                           )}
                         >
@@ -539,9 +540,9 @@ const SensitiveCommAssistant: React.FC = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">语气风格</label>
+                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">语气风格</label>
                     <select 
-                      className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark appearance-none"
+                      className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-sm md:text-base text-brand-dark appearance-none"
                       value={basicParams.tone}
                       onChange={(e) => handleBasicChange('tone', e.target.value)}
                     >
@@ -554,9 +555,9 @@ const SensitiveCommAssistant: React.FC = () => {
               </div>
 
               {/* 3. Scenario Specific Inputs */}
-              <div className="bg-white p-10 rounded-[2.5rem] border border-brand-border/10 shadow-sm">
-                <h2 className="text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-10 opacity-60 flex items-center gap-3">
-                  <Zap size={16} className="text-brand-gold" /> 场景专属输入
+              <div className="bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm">
+                <h2 className="text-[10px] md:text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-6 md:mb-10 opacity-60 flex items-center gap-3">
+                  <Zap size={14} className="text-brand-gold md:w-4 md:h-4" /> 场景专属输入
                 </h2>
                 {renderScenarioInputs()}
               </div>
@@ -565,31 +566,31 @@ const SensitiveCommAssistant: React.FC = () => {
                 onClick={generateContent}
                 disabled={isGenerating}
                 className={cn(
-                  "w-full py-6 bg-brand-dark text-white rounded-[2rem] font-bold text-xl transition-all shadow-2xl flex items-center justify-center gap-3 active:scale-95",
+                  "w-full py-5 md:py-6 bg-brand-dark text-white rounded-2xl md:rounded-[2rem] font-bold text-lg md:text-xl transition-all shadow-2xl flex items-center justify-center gap-3 active:scale-95",
                   isGenerating ? "opacity-70 cursor-not-allowed" : "hover:bg-brand-dark/90"
                 )}
               >
-                {isGenerating ? <RefreshCcw size={24} className="animate-spin" /> : <MessageSquare size={24} />}
+                {isGenerating ? <RefreshCcw size={20} className="md:w-6 md:h-6 animate-spin" /> : <MessageSquare size={20} className="md:w-6 md:h-6" />}
                 {isGenerating ? '正在匹配规则生成...' : '生成沟通话术'}
               </button>
             </div>
 
             {/* Right Column: Outputs & AI Reserved */}
-            <div className="lg:col-span-5 space-y-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <div className="lg:col-span-5 space-y-8 md:space-y-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
               {/* 4. Output Area */}
-              <div className="bg-white rounded-[2.5rem] border border-brand-border/10 shadow-xl overflow-hidden flex flex-col min-h-[500px]">
-                <div className="bg-brand-light-gray/50 px-8 py-6 border-b border-brand-border/5 flex items-center justify-between">
-                  <h3 className="font-serif text-xl text-brand-dark flex items-center gap-3">
-                    <CheckCircle2 size={20} className="text-emerald-500" /> 建议话术
+              <div className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-xl overflow-hidden flex flex-col min-h-[400px] md:min-h-[500px]">
+                <div className="bg-brand-light-gray/50 px-6 md:px-8 py-4 md:py-6 border-b border-brand-border/5 flex items-center justify-between">
+                  <h3 className="font-serif text-lg md:text-xl text-brand-dark flex items-center gap-2 md:gap-3">
+                    <CheckCircle2 size={18} className="md:w-5 md:h-5 text-emerald-500" /> 建议话术
                   </h3>
                   <div className="flex gap-2">
-                    <button className="p-2 bg-white text-brand-gray rounded-lg border border-brand-border/10 opacity-40 cursor-not-allowed" title="AI 优化 (后续开放)">
-                      <Sparkles size={16} />
+                    <button className="p-1.5 md:p-2 bg-white text-brand-gray rounded-lg border border-brand-border/10 opacity-40 cursor-not-allowed" title="AI 优化 (后续开放)">
+                      <Sparkles size={14} className="md:w-4 md:h-4" />
                     </button>
                   </div>
                 </div>
 
-                <div className="flex border-b border-brand-border/5">
+                <div className="flex border-b border-brand-border/5 overflow-x-auto no-scrollbar">
                   {[
                     { id: 'direct', name: '直接发送', icon: MessageCircle },
                     { id: 'formal', name: '更正式', icon: Mail },
@@ -600,17 +601,17 @@ const SensitiveCommAssistant: React.FC = () => {
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as any)}
                       className={cn(
-                        "flex-1 py-4 text-[10px] font-bold uppercase tracking-widest flex flex-col items-center gap-1 transition-all border-b-2",
+                        "flex-1 min-w-[80px] py-3 md:py-4 text-[9px] md:text-[10px] font-bold uppercase tracking-widest flex flex-col items-center gap-1 transition-all border-b-2",
                         activeTab === tab.id ? "text-brand-gold border-brand-gold bg-brand-gold/5" : "text-brand-gray border-transparent hover:bg-brand-light-gray/30"
                       )}
                     >
-                      <tab.icon size={14} />
+                      <tab.icon size={12} className="md:w-3.5 md:h-3.5" />
                       {tab.name}
                     </button>
                   ))}
                 </div>
 
-                <div className="p-8 flex-grow relative">
+                <div className="p-6 md:p-8 flex-grow relative">
                   <AnimatePresence mode="wait">
                     {result ? (
                       <motion.div
@@ -618,25 +619,25 @@ const SensitiveCommAssistant: React.FC = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="space-y-6"
+                        className="space-y-4 md:space-y-6"
                       >
-                        <div className="p-6 bg-brand-light-gray/30 rounded-2xl border border-brand-border/5 min-h-[200px]">
-                          <p className="text-brand-dark leading-relaxed whitespace-pre-wrap font-medium">
+                        <div className="p-5 md:p-6 bg-brand-light-gray/30 rounded-xl md:rounded-2xl border border-brand-border/5 min-h-[180px] md:min-h-[200px]">
+                          <p className="text-xs md:text-sm text-brand-dark leading-relaxed whitespace-pre-wrap font-medium">
                             {result[activeTab]}
                           </p>
                         </div>
                         <button 
                           onClick={() => copyToClipboard(result[activeTab])}
-                          className="w-full py-4 bg-brand-gold/10 text-brand-gold border border-brand-gold/20 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-gold hover:text-white transition-all flex items-center justify-center gap-2"
+                          className="w-full py-3.5 md:py-4 bg-brand-gold/10 text-brand-gold border border-brand-gold/20 rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-brand-gold hover:text-white transition-all flex items-center justify-center gap-2"
                         >
-                          <Copy size={16} /> 复制该版本
+                          <Copy size={14} className="md:w-4 md:h-4" /> 复制该版本
                         </button>
                       </motion.div>
                     ) : (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center p-12 text-center opacity-20">
-                        <MessageSquare size={48} className="mb-4" />
-                        <p className="text-sm font-bold uppercase tracking-widest">等待生成内容</p>
-                        <p className="text-xs mt-2">请在左侧选择场景并填写参数</p>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center p-8 md:p-12 text-center opacity-20">
+                        <MessageSquare size={40} className="md:w-12 md:h-12 mb-4" />
+                        <p className="text-[10px] md:text-sm font-bold uppercase tracking-widest">等待生成内容</p>
+                        <p className="text-[9px] md:text-xs mt-2">请在左侧选择场景并填写参数</p>
                       </div>
                     )}
                   </AnimatePresence>
@@ -644,49 +645,49 @@ const SensitiveCommAssistant: React.FC = () => {
               </div>
 
               {/* 5. AI Reserved Area */}
-              <div className="bg-brand-dark p-10 rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden group">
+              <div className="bg-brand-dark p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Sparkles size={80} />
+                  <Sparkles size={60} className="md:w-20 md:h-20" />
                 </div>
-                <h2 className="text-[11px] font-bold text-white/40 uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
-                  <Settings size={16} className="text-brand-gold" /> AI 增强预留 (后续开放)
+                <h2 className="text-[10px] md:text-[11px] font-bold text-white/40 uppercase tracking-[0.3em] mb-6 md:mb-8 flex items-center gap-3">
+                  <Settings size={14} className="text-brand-gold md:w-4 md:h-4" /> AI 增强预留 (后续开放)
                 </h2>
-                <div className="space-y-6 relative z-10">
-                  <div className="p-6 bg-white/5 border border-white/10 rounded-2xl opacity-50">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">高级润色模式</span>
+                <div className="space-y-4 md:space-y-6 relative z-10">
+                  <div className="p-4 md:p-6 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl opacity-50">
+                    <div className="flex items-center justify-between mb-3 md:mb-4">
+                      <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-white/60">高级润色模式</span>
                       <div className="w-8 h-4 bg-white/10 rounded-full relative">
                         <div className="absolute left-1 top-1 w-2 h-2 bg-white/20 rounded-full"></div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2 md:gap-3">
                       {['更自然', '更正式', '更简洁', '更稳妥'].map(m => (
-                        <div key={m} className="px-3 py-2 bg-white/5 rounded-lg text-[9px] font-bold text-white/30 border border-white/5">
+                        <div key={m} className="px-2 md:px-3 py-1.5 md:py-2 bg-white/5 rounded-lg text-[8px] md:text-[9px] font-bold text-white/30 border border-white/5 text-center">
                           {m}
                         </div>
                       ))}
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-3 p-4 bg-brand-gold/10 border border-brand-gold/20 rounded-xl opacity-50">
-                    <AlertCircle size={16} className="text-brand-gold" />
-                    <span className="text-[10px] font-bold text-brand-gold/80 uppercase tracking-widest">API Key 已预留配置入口</span>
+                  <div className="flex items-center gap-2 md:gap-3 p-3 md:p-4 bg-brand-gold/10 border border-brand-gold/20 rounded-xl opacity-50">
+                    <AlertCircle size={14} className="md:w-4 md:h-4 text-brand-gold" />
+                    <span className="text-[9px] md:text-[10px] font-bold text-brand-gold/80 uppercase tracking-widest">API Key 已预留配置入口</span>
                   </div>
 
                   <button 
                     disabled
-                    className="w-full py-4 bg-white/5 border border-white/10 text-white/30 rounded-2xl font-bold text-xs uppercase tracking-widest cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full py-3.5 md:py-4 bg-white/5 border border-white/10 text-white/30 rounded-xl md:rounded-2xl font-bold text-[10px] md:text-xs uppercase tracking-widest cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    <Sparkles size={16} /> 开启 AI 深度润色
+                    <Sparkles size={14} className="md:w-4 md:h-4" /> 开启 AI 深度润色
                   </button>
                 </div>
               </div>
 
               <button 
                 onClick={() => navigate(-1)}
-                className="w-full py-4 bg-white text-brand-gray border border-brand-border/10 rounded-2xl font-bold text-xs hover:bg-brand-light-gray transition-all flex items-center justify-center gap-2"
+                className="w-full py-3.5 md:py-4 bg-white text-brand-gray border border-brand-border/10 rounded-xl md:rounded-2xl font-bold text-[10px] md:text-xs hover:bg-brand-light-gray transition-all flex items-center justify-center gap-2"
               >
-                返回场景中心 <ChevronRight size={14} />
+                返回场景中心 <ChevronRight size={12} className="md:w-3.5 md:h-3.5" />
               </button>
             </div>
           </div>

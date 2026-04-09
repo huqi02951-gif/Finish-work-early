@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ChevronRight, LayoutDashboard, Database, History, BookOpen, MessageSquare, Home as HomeIcon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
 
 interface LayoutProps {
@@ -80,14 +81,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           ? "bg-white/80 backdrop-blur-xl border-brand-border/50 py-3 shadow-[0_1px_0_rgba(0,0,0,0.05)]" 
           : "bg-transparent border-transparent py-5"
       )}>
-        <div className="container mx-auto px-6 flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 bg-brand-dark rounded-xl flex items-center justify-center text-brand-gold font-serif font-bold text-xl shadow-2xl group-hover:scale-105 transition-all duration-500">
+        <div className="container mx-auto px-4 sm:px-6 flex justify-between items-center">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-brand-dark rounded-lg sm:rounded-xl flex items-center justify-center text-brand-gold font-serif font-bold text-lg sm:text-xl shadow-2xl group-hover:scale-105 transition-all duration-500">
               A
             </div>
-            <div className="hidden sm:block">
-              <h1 className="font-serif font-bold text-lg tracking-tight text-brand-dark leading-none">客户经理 Agent + Skills</h1>
-              <p className="text-[9px] text-brand-gold font-bold uppercase tracking-[0.25em] mt-1 opacity-80">超级超级强</p>
+            <div>
+              <h1 className="font-serif font-bold text-sm sm:text-lg tracking-tight text-brand-dark leading-none">客户经理 Agent</h1>
+              <p className="text-[8px] sm:text-[9px] text-brand-gold font-bold uppercase tracking-[0.2em] mt-0.5 sm:mt-1 opacity-80">超级超级强</p>
             </div>
           </Link>
 
@@ -122,38 +123,92 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </nav>
 
-      {/* Mobile Nav Overlay */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-brand-offwhite/95 backdrop-blur-2xl flex flex-col pt-24 px-8 lg:hidden animate-fade-in">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
+      {/* Mobile Nav Overlay (Drawer Style) */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setIsMenuOpen(false)}
-              className={cn(
-                "flex items-center justify-between py-5 border-b border-brand-border/30 text-xl font-serif tracking-tight",
-                location.pathname === item.path ? "text-brand-dark" : "text-brand-gray"
-              )}
+              className="fixed inset-0 z-[60] bg-brand-dark/20 backdrop-blur-sm lg:hidden"
+            />
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 bottom-0 w-[80%] max-w-sm z-[70] bg-white shadow-2xl lg:hidden flex flex-col"
             >
-              <span className="flex items-center gap-4">
-                <item.icon size={22} className="opacity-50" />
-                {item.name}
-              </span>
-              <ChevronRight size={18} className="opacity-30" />
-            </Link>
-          ))}
+              <div className="p-6 flex justify-between items-center border-b border-brand-border/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-brand-dark rounded-lg flex items-center justify-center text-brand-gold font-serif font-bold text-lg">A</div>
+                  <span className="font-serif font-bold text-brand-dark">导航菜单</span>
+                </div>
+                <button onClick={() => setIsMenuOpen(false)} className="p-2 text-brand-gray hover:text-brand-dark transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="flex-grow overflow-y-auto p-6 space-y-2">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={cn(
+                      "flex items-center justify-between p-4 rounded-2xl transition-all",
+                      location.pathname === item.path 
+                        ? "bg-brand-dark text-white shadow-lg" 
+                        : "text-brand-gray hover:bg-brand-light-gray"
+                    )}
+                  >
+                    <span className="flex items-center gap-4 font-bold text-sm">
+                      <item.icon size={18} className={cn(location.pathname === item.path ? "text-brand-gold" : "opacity-50")} />
+                      {item.name}
+                    </span>
+                    <ChevronRight size={16} className="opacity-30" />
+                  </Link>
+                ))}
+              </div>
+              <div className="p-6 border-t border-brand-border/10">
+                <Link 
+                  to="/skills" 
+                  onClick={() => setIsMenuOpen(false)}
+                  className="w-full py-4 bg-brand-dark text-white rounded-2xl text-center font-bold shadow-xl flex items-center justify-center gap-2"
+                >
+                  <Database size={18} /> 立即体验
+                </Link>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-t border-brand-border/30 px-6 py-3 pb-8 flex justify-between items-center shadow-[0_-1px_10px_rgba(0,0,0,0.05)]">
+        {[
+          { icon: HomeIcon, path: '/', label: '首页' },
+          { icon: LayoutDashboard, path: '/scenarios', label: '场景' },
+          { icon: Database, path: '/skills', label: '工具' },
+          { icon: MessageSquare, path: '/feedback', label: '反馈' },
+        ].map((item) => (
           <Link 
-            to="/skills" 
-            onClick={() => setIsMenuOpen(false)}
-            className="mt-12 w-full py-4 bg-brand-dark text-white rounded-2xl text-center font-medium shadow-2xl hover:bg-brand-dark/90 transition-all"
+            key={item.path} 
+            to={item.path}
+            className={cn(
+              "flex flex-col items-center gap-1 transition-all",
+              location.pathname === item.path ? "text-brand-dark scale-110" : "text-brand-gray opacity-60"
+            )}
           >
-            立即体验
+            <item.icon size={20} strokeWidth={location.pathname === item.path ? 2.5 : 2} />
+            <span className="text-[9px] font-bold uppercase tracking-widest">{item.label}</span>
           </Link>
-        </div>
-      )}
+        ))}
+      </div>
 
       {/* Main Content */}
-      <main className="flex-grow pt-24 pb-20">
+      <main className="flex-grow pt-20 sm:pt-24 pb-24 lg:pb-20">
         <Breadcrumbs />
         {children}
       </main>

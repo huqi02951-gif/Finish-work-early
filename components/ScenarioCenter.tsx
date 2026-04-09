@@ -4,7 +4,8 @@ import {
   Users, ShieldCheck, Briefcase, UserCheck, ArrowRight, Utensils, Coffee, 
   Timer, RotateCcw, Sparkles, Send, Heart, Terminal, Lock, EyeOff, 
   Activity, ChevronRight, Search, FileText, CheckCircle2, AlertCircle, X,
-  Calendar as CalendarIcon, Moon, Sun, Palette, Compass, Ban, Zap
+  Calendar as CalendarIcon, Moon, Sun, Palette, Compass, Ban, Zap,
+  LayoutDashboard, Target, User
 } from 'lucide-react';
 import { Solar, Lunar } from 'lunar-javascript';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -1227,63 +1228,152 @@ const GossipZone = () => {
 const SensitiveCommModule = () => {
   const navigate = useNavigate();
   return (
-    <div className="bg-white rounded-[2.5rem] border border-brand-border/10 shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden group">
+    <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden group">
       <div className="grid grid-cols-1 lg:grid-cols-12">
-        <div className="lg:col-span-7 p-10 md:p-12">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-12 h-12 bg-brand-dark text-white rounded-2xl flex items-center justify-center shadow-lg">
-              <ShieldCheck size={24} />
+        <div className="lg:col-span-7 p-8 md:p-12">
+          <div className="flex items-center gap-4 mb-6 md:mb-8">
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-brand-dark text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg">
+              <ShieldCheck size={20} className="md:hidden" />
+              <ShieldCheck size={24} className="hidden md:block" />
             </div>
             <div>
-              <span className="px-3 py-1 bg-brand-gold/10 text-brand-gold text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-gold/20">
+              <span className="px-3 py-1 bg-brand-gold/10 text-brand-gold text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-gold/20">
                 对客沟通 Skill
               </span>
             </div>
           </div>
           
-          <h3 className="font-serif text-4xl text-brand-dark mb-6 tracking-tight">敏感沟通助手</h3>
-          <p className="text-brand-gray text-lg mb-10 font-medium leading-relaxed opacity-80">
+          <h3 className="font-serif text-3xl md:text-4xl text-brand-dark mb-4 md:mb-6 tracking-tight">敏感沟通助手</h3>
+          <p className="text-base md:text-lg text-brand-gray mb-8 md:mb-10 font-medium leading-relaxed opacity-80">
             处理对客沟通中“必须说、但不好说”的敏感事项。把最难表达、最容易引发误解的事项，沉淀为高情商、专业、边界清晰的标准化话术。
           </p>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8 md:mb-10">
             {[
               { label: '收费通知', icon: Zap },
               { label: '利率调整', icon: Activity },
               { label: '授信暂缓', icon: AlertCircle },
               { label: '拒绝办理', icon: Ban },
             ].map((item, idx) => (
-              <div key={idx} className="flex flex-col items-center gap-2 p-4 bg-brand-light-gray/50 rounded-2xl border border-brand-border/5 group-hover:bg-brand-gold/5 transition-colors">
-                <item.icon size={18} className="text-brand-gold" />
-                <span className="text-[10px] font-bold text-brand-dark">{item.label}</span>
+              <div key={idx} className="flex flex-col items-center gap-2 p-3 md:p-4 bg-brand-light-gray/50 rounded-xl md:rounded-2xl border border-brand-border/5 group-hover:bg-brand-gold/5 transition-colors">
+                <item.icon size={16} className="text-brand-gold md:hidden" />
+                <item.icon size={18} className="text-brand-gold hidden md:block" />
+                <span className="text-[9px] md:text-[10px] font-bold text-brand-dark">{item.label}</span>
               </div>
             ))}
           </div>
 
           <button 
             onClick={() => navigate('/sensitive-comm')}
-            className="px-10 py-5 bg-brand-dark text-white rounded-2xl font-bold text-lg hover:bg-brand-dark/90 transition-all shadow-xl flex items-center gap-3 group/btn"
+            className="w-full md:w-auto px-8 md:px-10 py-4 md:py-5 bg-brand-dark text-white rounded-xl md:rounded-2xl font-bold text-base md:text-lg hover:bg-brand-dark/90 transition-all shadow-xl flex items-center justify-center gap-3 group/btn"
           >
             立即进入助手
             <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
           </button>
         </div>
         
-        <div className="lg:col-span-5 bg-brand-light-gray/30 p-10 flex flex-col justify-center border-l border-brand-border/10 relative overflow-hidden">
+        <div className="lg:col-span-5 bg-brand-light-gray/30 p-8 md:p-10 flex flex-col justify-center border-t lg:border-t-0 lg:border-l border-brand-border/10 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-10 opacity-[0.03] pointer-events-none">
             <Sparkles size={200} />
           </div>
-          <div className="space-y-6 relative z-10">
-            <div className="p-6 bg-white rounded-2xl shadow-sm border border-brand-border/5 transform -rotate-2 hover:rotate-0 transition-transform duration-500">
-              <p className="text-[10px] text-brand-gold font-bold uppercase tracking-widest mb-2">生成示例：授信暂缓</p>
-              <p className="text-xs text-brand-gray font-medium leading-relaxed italic">
+          <div className="space-y-4 md:space-y-6 relative z-10">
+            <div className="p-5 md:p-6 bg-white rounded-xl md:rounded-2xl shadow-sm border border-brand-border/5 transform -rotate-1 md:-rotate-2 hover:rotate-0 transition-transform duration-500">
+              <p className="text-[9px] md:text-[10px] text-brand-gold font-bold uppercase tracking-widest mb-2">生成示例：授信暂缓</p>
+              <p className="text-[11px] md:text-xs text-brand-gray font-medium leading-relaxed italic">
                 “现阶段暂不具备推进条件，建议待相关条件补足后再行评估，我会持续帮您关注政策变化。”
               </p>
             </div>
-            <div className="p-6 bg-white rounded-2xl shadow-sm border border-brand-border/5 transform rotate-1 hover:rotate-0 transition-transform duration-500">
-              <p className="text-[10px] text-brand-gold font-bold uppercase tracking-widest mb-2">生成示例：收费通知</p>
-              <p className="text-xs text-brand-gray font-medium leading-relaxed italic">
+            <div className="p-5 md:p-6 bg-white rounded-xl md:rounded-2xl shadow-sm border border-brand-border/5 transform rotate-1 hover:rotate-0 transition-transform duration-500">
+              <p className="text-[9px] md:text-[10px] text-brand-gold font-bold uppercase tracking-widest mb-2">生成示例：收费通知</p>
+              <p className="text-[11px] md:text-xs text-brand-gray font-medium leading-relaxed italic">
                 “提前和您同步一下，根据行内最新规则...您可以关注下账户日均存款情况，达到标准后可自动减免。”
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const BusinessGuideModule = () => {
+  const navigate = useNavigate();
+  return (
+    <div className="bg-white rounded-[2rem] md:rounded-[3rem] border border-brand-border/10 shadow-sm hover:shadow-2xl transition-all duration-700 overflow-hidden group">
+      <div className="grid grid-cols-1 lg:grid-cols-12">
+        <div className="lg:col-span-7 p-8 md:p-16">
+          <div className="flex items-center gap-4 mb-6 md:mb-8">
+            <div className="w-10 h-10 md:w-12 md:h-12 bg-brand-dark text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg">
+              <LayoutDashboard size={20} className="md:hidden" />
+              <LayoutDashboard size={24} className="hidden md:block" />
+            </div>
+            <div>
+              <h3 className="font-serif text-2xl md:text-3xl text-brand-dark tracking-tight">客户经理业务通</h3>
+              <p className="text-brand-gold text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] mt-1">场景化业务打法中心 + 经验风格库</p>
+            </div>
+          </div>
+          
+          <p className="text-base md:text-lg text-brand-gray font-medium leading-relaxed mb-8 md:mb-10 opacity-80">
+            把产品知识、行业判断、客户对话和推进路径沉淀成可复用的业务打法。
+            解决“面对客户说什么、怎么问、怎么推”的实战痛点。
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-10 md:mb-12">
+            {[
+              { label: '按场景进入', icon: Zap, desc: '首次拜访/他行竞争' },
+              { label: '按产品进入', icon: Briefcase, desc: '银承/流贷/抵押' },
+              { label: '按行业进入', icon: Target, desc: '制造/贸易/科技' },
+            ].map((item, idx) => (
+              <div key={idx} className="flex flex-row sm:flex-col items-center sm:items-start gap-4 sm:gap-2 p-4 md:p-5 bg-brand-light-gray/50 rounded-xl md:rounded-2xl border border-brand-border/5 group-hover:bg-brand-gold/5 transition-colors">
+                <item.icon size={20} className="text-brand-gold shrink-0" />
+                <div>
+                  <p className="text-xs font-bold text-brand-dark">{item.label}</p>
+                  <p className="text-[9px] text-brand-gray font-medium mt-0.5">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <button 
+            onClick={() => navigate('/business-guide')}
+            className="w-full md:w-auto px-8 md:px-10 py-4 md:py-5 bg-brand-dark text-white rounded-xl md:rounded-2xl font-bold text-base md:text-lg hover:bg-brand-dark/90 transition-all shadow-xl flex items-center justify-center gap-3 group/btn"
+          >
+            开启业务通
+            <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
+          </button>
+        </div>
+        
+        <div className="lg:col-span-5 bg-brand-dark p-8 md:p-12 flex flex-col justify-center border-t lg:border-t-0 border-white/5 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-10 opacity-10 pointer-events-none">
+            <Sparkles size={200} className="text-brand-gold" />
+          </div>
+          <div className="space-y-6 md:space-y-8 relative z-10">
+            <div className="flex items-center gap-4 text-white/40 mb-2">
+              <User size={16} />
+              <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest">经验上身 · 风格切换</span>
+            </div>
+            
+            <div className="space-y-3 md:space-y-4">
+              {[
+                { name: 'Amy', style: '关系建立型', desc: '“张总，好久没见，听说咱们公司...”' },
+                { name: 'Emily', style: '专业推进型', desc: '“根据我对贵司财报的分析...”' },
+              ].map((p, idx) => (
+                <div key={idx} className="p-4 md:p-5 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl backdrop-blur-sm transform hover:scale-105 transition-all duration-500">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-brand-gold text-xs font-bold">{p.name}</span>
+                    <span className="text-[8px] md:text-[9px] text-white/40 font-bold uppercase tracking-widest">{p.style}</span>
+                  </div>
+                  <p className="text-[10px] md:text-[11px] text-white/60 italic leading-relaxed">
+                    {p.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+            
+            <div className="pt-2 md:pt-4">
+              <p className="text-[9px] md:text-[10px] text-white/30 font-medium leading-relaxed">
+                不仅仅是资料库，更是你的“业务操作系统”。
+                支持一键复制话术、清单与路径。
               </p>
             </div>
           </div>
@@ -1313,30 +1403,30 @@ const ScenarioCenter: React.FC = () => {
   };
 
   return (
-    <div className="py-24 bg-brand-offwhite min-h-screen">
-      <div className="container mx-auto px-6">
-        <div className="max-w-4xl mb-24">
-          <h1 className="font-serif text-5xl md:text-7xl text-brand-dark mb-10 tracking-tight animate-fade-in-up">场景中心</h1>
-          <p className="text-xl text-brand-gray leading-relaxed font-medium animate-fade-in-up opacity-80" style={{ animationDelay: '0.1s' }}>
+    <div className="py-12 md:py-24 bg-brand-offwhite min-h-screen">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="max-w-4xl mb-12 md:mb-24">
+          <h1 className="font-serif text-4xl md:text-7xl text-brand-dark mb-6 md:mb-10 tracking-tight animate-fade-in-up">场景中心</h1>
+          <p className="text-base md:text-xl text-brand-gray leading-relaxed font-medium animate-fade-in-up opacity-80" style={{ animationDelay: '0.1s' }}>
             按业务场景组织，直观展示每个环节下的赋能工具。
             从客户沟通到内部审批，全方位提升作业效能。
           </p>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex flex-wrap gap-4 mb-20 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+        <div className="flex overflow-x-auto pb-4 md:pb-0 md:flex-wrap gap-3 md:gap-4 mb-10 md:mb-20 animate-fade-in-up no-scrollbar" style={{ animationDelay: '0.2s' }}>
           {scenarios.map((s) => (
             <button
               key={s.id}
               onClick={() => handleTabChange(s.id)}
               className={cn(
-                "px-8 py-4 rounded-full text-sm font-bold transition-all duration-500 flex items-center gap-3 shadow-sm",
+                "px-5 md:px-8 py-3 md:py-4 rounded-full text-[11px] md:text-sm font-bold transition-all duration-500 flex items-center gap-2 md:gap-3 shadow-sm whitespace-nowrap",
                 activeTab === s.id 
                   ? "bg-brand-dark text-white shadow-xl scale-105" 
                   : "bg-white text-brand-gray hover:bg-brand-light-gray border border-brand-border/10"
               )}
             >
-              <s.icon size={18} className={cn(activeTab === s.id ? "text-brand-gold" : "opacity-50")} />
+              <s.icon size={14} className={cn("md:w-[18px] md:h-[18px]", activeTab === s.id ? "text-brand-gold" : "opacity-50")} />
               {s.title}
             </button>
           ))}
@@ -1347,18 +1437,19 @@ const ScenarioCenter: React.FC = () => {
             const relatedSkills = getSkillsByScenario(s.title);
             return (
               <div key={s.id}>
-                <div className="flex flex-col md:flex-row md:items-center gap-10 mb-16 animate-fade-in-up">
-                  <div className={cn("w-20 h-20 rounded-3xl flex items-center justify-center shadow-2xl", s.color)}>
-                    <s.icon size={40} />
+                <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-10 mb-12 md:mb-16 animate-fade-in-up">
+                  <div className={cn("w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center shadow-2xl shrink-0", s.color)}>
+                    <s.icon size={32} className="md:hidden" />
+                    <s.icon size={40} className="hidden md:block" />
                   </div>
                   <div className="max-w-2xl">
-                    <h2 className="font-serif text-4xl text-brand-dark mb-4 tracking-tight">{s.title}</h2>
-                    <p className="text-lg text-brand-gray font-medium opacity-80 leading-relaxed">{s.desc}</p>
+                    <h2 className="font-serif text-3xl md:text-4xl text-brand-dark mb-2 md:mb-4 tracking-tight">{s.title}</h2>
+                    <p className="text-base md:text-lg text-brand-gray font-medium opacity-80 leading-relaxed">{s.desc}</p>
                   </div>
                 </div>
 
                 {s.id === 'self' ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10">
                     <FoodSelector />
                     <EfficientOffDutyGame />
                     <FocusTimer />
@@ -1366,44 +1457,48 @@ const ScenarioCenter: React.FC = () => {
                     <FengShuiCalendar />
                   </div>
                 ) : s.id === 'customer' ? (
-                  <div className="space-y-16">
+                  <div className="space-y-12 md:space-y-16">
                     <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-                      <MaterialChecklistCenter />
+                      <BusinessGuideModule />
                     </div>
 
                     <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                      <div className="flex items-center justify-between mb-10">
-                        <h3 className="font-serif text-3xl text-brand-dark tracking-tight">核心沟通赋能</h3>
-                        <div className="h-px flex-grow bg-brand-border/10 mx-8"></div>
+                      <MaterialChecklistCenter />
+                    </div>
+
+                    <div className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+                      <div className="flex items-center justify-between mb-6 md:mb-10">
+                        <h3 className="font-serif text-2xl md:text-3xl text-brand-dark tracking-tight">核心沟通赋能</h3>
+                        <div className="h-px flex-grow bg-brand-border/10 ml-4 md:ml-8"></div>
                       </div>
                       <SensitiveCommModule />
                     </div>
                     
-                    <div className="pt-16 border-t border-brand-border/10">
-                      <div className="flex items-center justify-between mb-10">
-                        <h3 className="font-serif text-3xl text-brand-dark tracking-tight">更多赋能工具</h3>
-                        <div className="h-px flex-grow bg-brand-border/10 mx-8"></div>
+                    <div className="pt-10 md:pt-16 border-t border-brand-border/10">
+                      <div className="flex items-center justify-between mb-6 md:mb-10">
+                        <h3 className="font-serif text-2xl md:text-3xl text-brand-dark tracking-tight">更多赋能工具</h3>
+                        <div className="h-px flex-grow bg-brand-border/10 ml-4 md:ml-8"></div>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8">
                         {relatedSkills.filter(skill => skill.id !== 'sensitive-comm-assistant').map(skill => (
-                          <div key={skill.id} className="bg-white p-10 rounded-[2.5rem] border border-brand-border/10 shadow-sm hover:shadow-2xl transition-all duration-500 group flex flex-col">
-                            <div className="flex justify-between items-start mb-10">
-                              <span className="px-4 py-1.5 bg-brand-light-gray text-brand-dark text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-border/20">
+                          <div key={skill.id} className="bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm hover:shadow-2xl transition-all duration-500 group flex flex-col">
+                            <div className="flex justify-between items-start mb-6 md:mb-10">
+                              <span className="px-3 md:px-4 py-1 md:py-1.5 bg-brand-light-gray text-brand-dark text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-border/20">
                                 {skill.category}
                               </span>
                               <div className="flex items-center gap-1.5">
                                 <div className={cn("w-1.5 h-1.5 rounded-full", skill.status === '在线可用' ? "bg-emerald-500" : "bg-brand-gray")}></div>
-                                <span className="text-[10px] font-bold text-brand-dark uppercase tracking-widest">
+                                <span className="text-[9px] md:text-[10px] font-bold text-brand-dark uppercase tracking-widest">
                                   {skill.status}
                                 </span>
                               </div>
                             </div>
-                            <h4 className="font-serif text-2xl text-brand-dark mb-4 tracking-tight group-hover:text-brand-gold transition-colors">{skill.name}</h4>
-                            <p className="text-brand-gray text-sm mb-10 line-clamp-2 font-medium leading-relaxed opacity-80">{skill.description}</p>
-                            <div className="flex items-center justify-between mt-auto pt-8 border-t border-brand-border/10">
-                              <span className="text-[10px] text-brand-gray/40 font-bold uppercase tracking-[0.2em]">{skill.form}</span>
-                              <Link to={`/skills/${skill.id}`} className="text-brand-gold text-[13px] font-bold flex items-center gap-1 hover:gap-2 transition-all">
-                                立即使用 <ChevronRight size={16} />
+                            <h4 className="font-serif text-lg md:text-2xl text-brand-dark mb-2 md:mb-4 tracking-tight group-hover:text-brand-gold transition-colors">{skill.name}</h4>
+                            <p className="text-xs md:text-sm text-brand-gray mb-6 md:mb-10 line-clamp-2 font-medium leading-relaxed opacity-80">{skill.description}</p>
+                            <div className="flex items-center justify-between mt-auto pt-4 md:pt-8 border-t border-brand-border/10">
+                              <span className="text-[9px] md:text-[10px] text-brand-gray/40 font-bold uppercase tracking-[0.2em]">{skill.form}</span>
+                              <Link to={`/skills/${skill.id}`} className="text-brand-gold text-[11px] md:text-[13px] font-bold flex items-center gap-1 hover:gap-2 transition-all">
+                                立即使用 <ChevronRight size={14} className="md:w-4 md:h-4" />
                               </Link>
                             </div>
                           </div>
@@ -1412,39 +1507,40 @@ const ScenarioCenter: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                     {relatedSkills.length > 0 ? (
                       relatedSkills.map(skill => (
-                        <div key={skill.id} className="bg-white p-10 rounded-[2.5rem] border border-brand-border/10 shadow-sm hover:shadow-2xl transition-all duration-500 group flex flex-col">
-                          <div className="flex justify-between items-start mb-10">
-                            <span className="px-4 py-1.5 bg-brand-light-gray text-brand-dark text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-border/20">
+                        <div key={skill.id} className="bg-white p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm hover:shadow-2xl transition-all duration-500 group flex flex-col">
+                          <div className="flex justify-between items-start mb-8 md:mb-10">
+                            <span className="px-3 md:px-4 py-1 md:py-1.5 bg-brand-light-gray text-brand-dark text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-border/20">
                               {skill.category}
                             </span>
                             <div className="flex items-center gap-1.5">
                               <div className={cn("w-1.5 h-1.5 rounded-full", skill.status === '在线可用' ? "bg-emerald-500" : "bg-brand-gray")}></div>
-                              <span className="text-[10px] font-bold text-brand-dark uppercase tracking-widest">
+                              <span className="text-[9px] md:text-[10px] font-bold text-brand-dark uppercase tracking-widest">
                                 {skill.status}
                               </span>
                             </div>
                           </div>
-                          <h4 className="font-serif text-2xl text-brand-dark mb-4 tracking-tight group-hover:text-brand-gold transition-colors">{skill.name}</h4>
-                          <p className="text-brand-gray text-sm mb-10 line-clamp-2 font-medium leading-relaxed opacity-80">{skill.description}</p>
-                          <div className="flex items-center justify-between mt-auto pt-8 border-t border-brand-border/10">
-                            <span className="text-[10px] text-brand-gray/40 font-bold uppercase tracking-[0.2em]">{skill.form}</span>
-                            <Link to={`/skills/${skill.id}`} className="text-brand-gold text-[13px] font-bold flex items-center gap-1 hover:gap-2 transition-all">
+                          <h4 className="font-serif text-xl md:text-2xl text-brand-dark mb-3 md:mb-4 tracking-tight group-hover:text-brand-gold transition-colors">{skill.name}</h4>
+                          <p className="text-sm text-brand-gray mb-8 md:mb-10 line-clamp-2 font-medium leading-relaxed opacity-80">{skill.description}</p>
+                          <div className="flex items-center justify-between mt-auto pt-6 md:pt-8 border-t border-brand-border/10">
+                            <span className="text-[9px] md:text-[10px] text-brand-gray/40 font-bold uppercase tracking-[0.2em]">{skill.form}</span>
+                            <Link to={`/skills/${skill.id}`} className="text-brand-gold text-[12px] md:text-[13px] font-bold flex items-center gap-1 hover:gap-2 transition-all">
                               立即使用 <ChevronRight size={16} />
                             </Link>
                           </div>
                         </div>
                       ))
                     ) : (
-                      <div className="col-span-full py-24 px-10 bg-white border border-brand-border/10 rounded-[3rem] text-center shadow-sm">
-                        <div className="w-20 h-20 bg-brand-light-gray rounded-full flex items-center justify-center mx-auto mb-8">
-                          <Search size={32} className="text-brand-gray opacity-30" />
+                      <div className="col-span-full py-16 md:py-24 px-6 md:px-10 bg-white border border-brand-border/10 rounded-[2rem] md:rounded-[3rem] text-center shadow-sm">
+                        <div className="w-16 h-16 md:w-20 md:h-20 bg-brand-light-gray rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8">
+                          <Search size={28} className="text-brand-gray opacity-30 md:hidden" />
+                          <Search size={32} className="text-brand-gray opacity-30 hidden md:block" />
                         </div>
-                        <h4 className="font-serif text-2xl text-brand-dark mb-4 tracking-tight">即将上线</h4>
-                        <p className="text-brand-gray font-medium opacity-60 mb-10 max-w-md mx-auto">该场景下的更多 Skills 正在由业务专家与 Agent 团队共同打造中，敬请期待...</p>
-                        <Link to="/feedback" className="inline-flex items-center gap-2 px-8 py-4 bg-brand-dark text-white rounded-full font-bold text-sm hover:bg-brand-dark/90 transition-all shadow-xl">
+                        <h4 className="font-serif text-xl md:text-2xl text-brand-dark mb-3 md:mb-4 tracking-tight">即将上线</h4>
+                        <p className="text-sm md:text-base text-brand-gray font-medium opacity-60 mb-8 md:mb-10 max-w-md mx-auto">该场景下的更多 Skills 正在由业务专家与 Agent 团队共同打造中，敬请期待...</p>
+                        <Link to="/feedback" className="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand-dark text-white rounded-full font-bold text-xs md:text-sm hover:bg-brand-dark/90 transition-all shadow-xl">
                           提交你的场景需求 <ArrowRight size={18} />
                         </Link>
                       </div>

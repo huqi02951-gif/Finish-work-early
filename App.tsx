@@ -14,6 +14,7 @@ import FeeDiscountTool from './components/tools/FeeDiscountTool';
 import NewsTypesettingAssistant from './components/tools/NewsTypesettingAssistant';
 import BatchBillingTool from './components/tools/BatchBillingTool';
 import SensitiveCommAssistant from './components/tools/SensitiveCommAssistant';
+import BusinessGuide from './components/tools/BusinessGuide';
 
 const App: React.FC = () => {
   return (
@@ -30,6 +31,7 @@ const App: React.FC = () => {
           <Route path="/news-assistant" element={<NewsTypesettingAssistant />} />
           <Route path="/batch-billing" element={<BatchBillingTool />} />
           <Route path="/sensitive-comm" element={<SensitiveCommAssistant />} />
+          <Route path="/business-guide" element={<BusinessGuide />} />
           <Route path="/updates" element={<UpdateLog />} />
           <Route path="/instructions" element={<UsageInstructions />} />
           <Route path="/feedback" element={<Feedback />} />
