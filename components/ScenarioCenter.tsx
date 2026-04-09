@@ -5,7 +5,7 @@ import {
   Timer, RotateCcw, Sparkles, Send, Heart, Terminal, Lock, EyeOff, 
   Activity, ChevronRight, Search, FileText, CheckCircle2, AlertCircle, X,
   Calendar as CalendarIcon, Moon, Sun, Palette, Compass, Ban, Zap,
-  LayoutDashboard, Target, User
+  LayoutDashboard, Target, User, Database
 } from 'lucide-react';
 import { Solar, Lunar } from 'lunar-javascript';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -1389,10 +1389,10 @@ const ScenarioCenter: React.FC = () => {
   const activeTab = searchParams.get('tab') || 'customer';
 
   const scenarios = [
-    { id: 'customer', title: '对客户', icon: Users, desc: '把专业术语转化为客户听得懂的话，提升沟通效率。', color: 'bg-blue-50 text-blue-600' },
-    { id: 'audit', title: '对审查', icon: ShieldCheck, desc: '自动生成结构化、规范化的报批文案，降低退件率。', color: 'bg-green-50 text-green-600' },
-    { id: 'backoffice', title: '对中后台', icon: Briefcase, desc: '提供标准字段、邮件模板和材料清单，协同更顺畅。', color: 'bg-purple-50 text-purple-600' },
-    { id: 'self', title: '对自己', icon: UserCheck, desc: '给自己一点奖励/调剂的小角落，放松一下再出发。', color: 'bg-orange-50 text-orange-600' },
+    { id: 'customer', title: '对客户', icon: Users, desc: '营销话术、业务打法、产品测算。', color: 'bg-apple-blue' },
+    { id: 'review', title: '对审查', icon: ShieldCheck, desc: '政策解读、准入核对、合规建议。', color: 'bg-apple-purple' },
+    { id: 'backoffice', title: '对中后台', icon: Database, desc: '流程指引、材料清单、系统操作。', color: 'bg-apple-indigo' },
+    { id: 'self', title: '对自己', icon: User, desc: '经验沉淀、效率工具、职场成长。', color: 'bg-apple-pink' },
   ];
 
   const getSkillsByScenario = (scenarioTitle: string) => {
@@ -1410,7 +1410,7 @@ const ScenarioCenter: React.FC = () => {
         <header className="px-6 pt-12 pb-8">
           <h1 className="text-4xl font-bold tracking-tight text-brand-dark mb-2">场景中心</h1>
           <p className="text-brand-gray font-medium text-sm max-w-md">
-            按业务场景组织，直观展示每个环节下的赋能工具。
+            按业务场景组织，直观展示每个环节下的实用工具。
             从客户沟通到内部审批，全方位提升作业效能。
           </p>
         </header>
@@ -1467,7 +1467,7 @@ const ScenarioCenter: React.FC = () => {
 
                     <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
                       <div className="flex items-center justify-between mb-6 md:mb-10">
-                        <h3 className="font-serif text-2xl md:text-3xl text-brand-dark tracking-tight">核心沟通赋能</h3>
+                        <h3 className="font-serif text-2xl md:text-3xl text-brand-dark tracking-tight">核心沟通工具</h3>
                         <div className="h-px flex-grow bg-brand-border/10 ml-4 md:ml-8"></div>
                       </div>
                       <SensitiveCommModule />
@@ -1479,7 +1479,7 @@ const ScenarioCenter: React.FC = () => {
                     
                     <div className="pt-10 md:pt-16 border-t border-brand-border/5">
                       <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-xl font-bold text-brand-dark tracking-tight">更多赋能工具</h3>
+                        <h3 className="text-xl font-bold text-brand-dark tracking-tight">更多实用工具</h3>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {relatedSkills.filter(skill => skill.id !== 'sensitive-comm-assistant').map(skill => (

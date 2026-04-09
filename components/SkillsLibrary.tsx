@@ -24,6 +24,9 @@ const SkillsLibrary: React.FC = () => {
       <div className="pb-24 bg-brand-offwhite min-h-screen">
         {/* Apple Music Style Header */}
         <header className="px-6 pt-12 pb-8">
+          <div className="inline-block px-3 py-1 rounded-full bg-brand-dark/5 text-[9px] font-bold tracking-[0.3em] uppercase mb-6 opacity-40">
+            finish work early
+          </div>
           <h1 className="text-4xl font-bold tracking-tight text-brand-dark mb-2">Skills 工具库</h1>
           <p className="text-brand-gray font-medium text-sm max-w-md">
             全量 Skills 展示与检索。每个 Skill 对应一个具体业务痛点，

@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { ChevronLeft, Home as HomeIcon, Search } from 'lucide-react';
+import { ChevronLeft, Home as HomeIcon, Search, LayoutDashboard, MessageSquare, User } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import { motion } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, NavLink, useLocation } from 'react-router-dom';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -13,6 +13,14 @@ interface AppLayoutProps {
 
 const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const navItems = [
+    { path: '/', label: '首页', icon: HomeIcon },
+    { path: '/skills', label: '仓库', icon: LayoutDashboard },
+    { path: '/bbs', label: '论坛', icon: MessageSquare },
+    { path: '/profile', label: '我的', icon: User },
+  ];
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-brand-dark font-sans selection:bg-apple-blue/10 selection:text-apple-blue">
@@ -32,7 +40,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack }) => {
             </Link>
           )}
           <h1 className="text-[17px] font-bold tracking-tight line-clamp-1">
-            {title || '客户经理 Agent + Skills 很强很强！'}
+            {title || '客户经理agent+skills很强很强！'}
           </h1>
         </div>
         
@@ -52,7 +60,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack }) => {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-grow">
+      <main className="flex-grow pb-20">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -62,8 +70,32 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack }) => {
         </motion.div>
       </main>
 
-      {/* Footer / Safe Area */}
-      <footer className="h-12 safe-area-bottom opacity-0 pointer-events-none" />
+      {/* Fixed Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-2xl border-t border-brand-border/10 safe-area-bottom">
+        <div className="flex items-center justify-around h-16 px-2">
+          {navItems.map((item) => {
+            const isActive = item.path === '/' 
+              ? location.pathname === '/' 
+              : item.path.includes('?') 
+                ? location.pathname + location.search === item.path
+                : location.pathname === item.path && !location.search.includes('tab=self');
+            
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1 w-full h-full transition-all active:scale-90",
+                  isActive ? "text-apple-blue" : "text-brand-gray hover:text-brand-dark"
+                )}
+              >
+                <item.icon size={22} className={cn("transition-transform", isActive && "scale-110")} />
+                <span className="text-[10px] font-bold tracking-tight">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 };

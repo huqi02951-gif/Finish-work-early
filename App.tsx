@@ -14,6 +14,7 @@ import SkillsLibrary from './components/SkillsLibrary';
 import UpdateLog from './components/UpdateLog';
 import UsageInstructions from './components/UsageInstructions';
 import Feedback from './components/Feedback';
+import BBSCenter from './components/BBSCenter';
 import SkillDetail from './components/SkillDetail';
 import RateOfferTool from './components/tools/RateOfferTool';
 import AcceptanceCalculator from './components/tools/AcceptanceCalculator';
@@ -35,6 +36,8 @@ const App: React.FC = () => {
         <Route path="/skills" element={<SkillsLibrary />} />
         <Route path="/updates" element={<UpdateLog />} />
         <Route path="/feedback" element={<Feedback />} />
+        <Route path="/bbs" element={<BBSCenter />} />
+        <Route path="/profile" element={<ProfilePage />} />
 
         {/* Sub-pages & Tools */}
         <Route path="/skills/:id" element={<SkillDetail />} />

@@ -21,7 +21,7 @@ const Feedback: React.FC = () => {
   };
 
   return (
-    <AppLayout title="共创 / 赋能中心" showBack>
+    <AppLayout title="共创 / 交流中心" showBack>
       <div className="pb-24 bg-brand-offwhite min-h-screen">
         {/* Apple Music Style Header */}
         <header className="px-6 pt-12 pb-8">
