@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { SKILLS } from '../constants/skills';
 import { cn } from '../lib/utils';
 import MaterialChecklistCenter from './MaterialChecklistCenter';
+import AppLayout from '../src/components/layout/AppLayout';
 
 const FengShuiCalendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -1403,48 +1404,50 @@ const ScenarioCenter: React.FC = () => {
   };
 
   return (
-    <div className="py-12 md:py-24 bg-brand-offwhite min-h-screen">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="max-w-4xl mb-12 md:mb-24">
-          <h1 className="font-serif text-4xl md:text-7xl text-brand-dark mb-6 md:mb-10 tracking-tight animate-fade-in-up">场景中心</h1>
-          <p className="text-base md:text-xl text-brand-gray leading-relaxed font-medium animate-fade-in-up opacity-80" style={{ animationDelay: '0.1s' }}>
+    <AppLayout title="场景中心" showBack>
+      <div className="pb-24 bg-brand-offwhite min-h-screen">
+        {/* Apple Music Style Header */}
+        <header className="px-6 pt-12 pb-8">
+          <h1 className="text-4xl font-bold tracking-tight text-brand-dark mb-2">场景中心</h1>
+          <p className="text-brand-gray font-medium text-sm max-w-md">
             按业务场景组织，直观展示每个环节下的赋能工具。
             从客户沟通到内部审批，全方位提升作业效能。
           </p>
+        </header>
+
+        {/* Segmented Control Style Tabs */}
+        <div className="px-6 mb-10 overflow-x-auto no-scrollbar">
+          <div className="inline-flex p-1 bg-brand-light-gray rounded-2xl border border-brand-border/5">
+            {scenarios.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => handleTabChange(s.id)}
+                className={cn(
+                  "px-6 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-300 whitespace-nowrap flex items-center gap-2",
+                  activeTab === s.id 
+                    ? "bg-white text-brand-dark shadow-sm scale-100" 
+                    : "text-brand-gray hover:text-brand-dark"
+                )}
+              >
+                <s.icon size={14} className={cn(activeTab === s.id ? "text-apple-blue" : "opacity-50")} />
+                {s.title}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex overflow-x-auto pb-4 md:pb-0 md:flex-wrap gap-3 md:gap-4 mb-10 md:mb-20 animate-fade-in-up no-scrollbar" style={{ animationDelay: '0.2s' }}>
-          {scenarios.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => handleTabChange(s.id)}
-              className={cn(
-                "px-5 md:px-8 py-3 md:py-4 rounded-full text-[11px] md:text-sm font-bold transition-all duration-500 flex items-center gap-2 md:gap-3 shadow-sm whitespace-nowrap",
-                activeTab === s.id 
-                  ? "bg-brand-dark text-white shadow-xl scale-105" 
-                  : "bg-white text-brand-gray hover:bg-brand-light-gray border border-brand-border/10"
-              )}
-            >
-              <s.icon size={14} className={cn("md:w-[18px] md:h-[18px]", activeTab === s.id ? "text-brand-gold" : "opacity-50")} />
-              {s.title}
-            </button>
-          ))}
-        </div>
-
-        <div className="animate-fade-in">
+        <div className="px-6 animate-fade-in">
           {scenarios.filter(s => s.id === activeTab).map((s) => {
             const relatedSkills = getSkillsByScenario(s.title);
             return (
               <div key={s.id}>
-                <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-10 mb-12 md:mb-16 animate-fade-in-up">
-                  <div className={cn("w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center shadow-2xl shrink-0", s.color)}>
-                    <s.icon size={32} className="md:hidden" />
-                    <s.icon size={40} className="hidden md:block" />
+                <div className="flex items-center gap-4 mb-8">
+                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg shrink-0", s.color)}>
+                    <s.icon size={24} className="text-white" />
                   </div>
-                  <div className="max-w-2xl">
-                    <h2 className="font-serif text-3xl md:text-4xl text-brand-dark mb-2 md:mb-4 tracking-tight">{s.title}</h2>
-                    <p className="text-base md:text-lg text-brand-gray font-medium opacity-80 leading-relaxed">{s.desc}</p>
+                  <div>
+                    <h2 className="text-2xl font-bold text-brand-dark tracking-tight">{s.title}</h2>
+                    <p className="text-xs text-brand-gray font-medium opacity-80">{s.desc}</p>
                   </div>
                 </div>
 
@@ -1463,42 +1466,41 @@ const ScenarioCenter: React.FC = () => {
                     </div>
 
                     <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                      <MaterialChecklistCenter />
-                    </div>
-
-                    <div className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
                       <div className="flex items-center justify-between mb-6 md:mb-10">
                         <h3 className="font-serif text-2xl md:text-3xl text-brand-dark tracking-tight">核心沟通赋能</h3>
                         <div className="h-px flex-grow bg-brand-border/10 ml-4 md:ml-8"></div>
                       </div>
                       <SensitiveCommModule />
                     </div>
+
+                    <div className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+                      <MaterialChecklistCenter />
+                    </div>
                     
-                    <div className="pt-10 md:pt-16 border-t border-brand-border/10">
-                      <div className="flex items-center justify-between mb-6 md:mb-10">
-                        <h3 className="font-serif text-2xl md:text-3xl text-brand-dark tracking-tight">更多赋能工具</h3>
-                        <div className="h-px flex-grow bg-brand-border/10 ml-4 md:ml-8"></div>
+                    <div className="pt-10 md:pt-16 border-t border-brand-border/5">
+                      <div className="flex items-center justify-between mb-8">
+                        <h3 className="text-xl font-bold text-brand-dark tracking-tight">更多赋能工具</h3>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {relatedSkills.filter(skill => skill.id !== 'sensitive-comm-assistant').map(skill => (
-                          <div key={skill.id} className="bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm hover:shadow-2xl transition-all duration-500 group flex flex-col">
-                            <div className="flex justify-between items-start mb-6 md:mb-10">
-                              <span className="px-3 md:px-4 py-1 md:py-1.5 bg-brand-light-gray text-brand-dark text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-border/20">
+                          <div key={skill.id} className="bg-white p-6 rounded-3xl border border-brand-border/5 shadow-sm hover:shadow-xl transition-all duration-500 group flex flex-col">
+                            <div className="flex justify-between items-start mb-6">
+                              <span className="px-3 py-1 bg-brand-light-gray text-brand-dark text-[9px] font-bold uppercase tracking-widest rounded-full border border-brand-border/10">
                                 {skill.category}
                               </span>
                               <div className="flex items-center gap-1.5">
                                 <div className={cn("w-1.5 h-1.5 rounded-full", skill.status === '在线可用' ? "bg-emerald-500" : "bg-brand-gray")}></div>
-                                <span className="text-[9px] md:text-[10px] font-bold text-brand-dark uppercase tracking-widest">
+                                <span className="text-[9px] font-bold text-brand-dark uppercase tracking-widest">
                                   {skill.status}
                                 </span>
                               </div>
                             </div>
-                            <h4 className="font-serif text-lg md:text-2xl text-brand-dark mb-2 md:mb-4 tracking-tight group-hover:text-brand-gold transition-colors">{skill.name}</h4>
-                            <p className="text-xs md:text-sm text-brand-gray mb-6 md:mb-10 line-clamp-2 font-medium leading-relaxed opacity-80">{skill.description}</p>
-                            <div className="flex items-center justify-between mt-auto pt-4 md:pt-8 border-t border-brand-border/10">
-                              <span className="text-[9px] md:text-[10px] text-brand-gray/40 font-bold uppercase tracking-[0.2em]">{skill.form}</span>
-                              <Link to={`/skills/${skill.id}`} className="text-brand-gold text-[11px] md:text-[13px] font-bold flex items-center gap-1 hover:gap-2 transition-all">
-                                立即使用 <ChevronRight size={14} className="md:w-4 md:h-4" />
+                            <h4 className="text-lg font-bold text-brand-dark mb-2 tracking-tight group-hover:text-apple-blue transition-colors">{skill.name}</h4>
+                            <p className="text-xs text-brand-gray mb-8 line-clamp-2 font-medium leading-relaxed opacity-80">{skill.description}</p>
+                            <div className="flex items-center justify-between mt-auto pt-4 border-t border-brand-border/5">
+                              <span className="text-[9px] text-brand-gray/40 font-bold uppercase tracking-[0.2em]">{skill.form}</span>
+                              <Link to={`/skills/${skill.id}`} className="text-apple-blue text-[11px] font-bold flex items-center gap-1 hover:gap-2 transition-all">
+                                立即使用 <ChevronRight size={14} />
                               </Link>
                             </div>
                           </div>
@@ -1507,41 +1509,40 @@ const ScenarioCenter: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {relatedSkills.length > 0 ? (
                       relatedSkills.map(skill => (
-                        <div key={skill.id} className="bg-white p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm hover:shadow-2xl transition-all duration-500 group flex flex-col">
-                          <div className="flex justify-between items-start mb-8 md:mb-10">
-                            <span className="px-3 md:px-4 py-1 md:py-1.5 bg-brand-light-gray text-brand-dark text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-border/20">
+                        <div key={skill.id} className="bg-white p-6 rounded-3xl border border-brand-border/5 shadow-sm hover:shadow-xl transition-all duration-500 group flex flex-col">
+                          <div className="flex justify-between items-start mb-6">
+                            <span className="px-3 py-1 bg-brand-light-gray text-brand-dark text-[9px] font-bold uppercase tracking-widest rounded-full border border-brand-border/10">
                               {skill.category}
                             </span>
                             <div className="flex items-center gap-1.5">
                               <div className={cn("w-1.5 h-1.5 rounded-full", skill.status === '在线可用' ? "bg-emerald-500" : "bg-brand-gray")}></div>
-                              <span className="text-[9px] md:text-[10px] font-bold text-brand-dark uppercase tracking-widest">
+                              <span className="text-[9px] font-bold text-brand-dark uppercase tracking-widest">
                                 {skill.status}
                               </span>
                             </div>
                           </div>
-                          <h4 className="font-serif text-xl md:text-2xl text-brand-dark mb-3 md:mb-4 tracking-tight group-hover:text-brand-gold transition-colors">{skill.name}</h4>
-                          <p className="text-sm text-brand-gray mb-8 md:mb-10 line-clamp-2 font-medium leading-relaxed opacity-80">{skill.description}</p>
-                          <div className="flex items-center justify-between mt-auto pt-6 md:pt-8 border-t border-brand-border/10">
-                            <span className="text-[9px] md:text-[10px] text-brand-gray/40 font-bold uppercase tracking-[0.2em]">{skill.form}</span>
-                            <Link to={`/skills/${skill.id}`} className="text-brand-gold text-[12px] md:text-[13px] font-bold flex items-center gap-1 hover:gap-2 transition-all">
-                              立即使用 <ChevronRight size={16} />
+                          <h4 className="text-lg font-bold text-brand-dark mb-2 tracking-tight group-hover:text-apple-blue transition-colors">{skill.name}</h4>
+                          <p className="text-xs text-brand-gray mb-8 line-clamp-2 font-medium leading-relaxed opacity-80">{skill.description}</p>
+                          <div className="flex items-center justify-between mt-auto pt-4 border-t border-brand-border/5">
+                            <span className="text-[9px] text-brand-gray/40 font-bold uppercase tracking-[0.2em]">{skill.form}</span>
+                            <Link to={`/skills/${skill.id}`} className="text-apple-blue text-[11px] font-bold flex items-center gap-1 hover:gap-2 transition-all">
+                              立即使用 <ChevronRight size={14} />
                             </Link>
                           </div>
                         </div>
                       ))
                     ) : (
-                      <div className="col-span-full py-16 md:py-24 px-6 md:px-10 bg-white border border-brand-border/10 rounded-[2rem] md:rounded-[3rem] text-center shadow-sm">
-                        <div className="w-16 h-16 md:w-20 md:h-20 bg-brand-light-gray rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8">
-                          <Search size={28} className="text-brand-gray opacity-30 md:hidden" />
-                          <Search size={32} className="text-brand-gray opacity-30 hidden md:block" />
+                      <div className="col-span-full py-20 px-6 bg-white border border-brand-border/5 rounded-[2rem] text-center shadow-sm">
+                        <div className="w-16 h-16 bg-brand-light-gray rounded-full flex items-center justify-center mx-auto mb-6">
+                          <Search size={28} className="text-brand-gray opacity-30" />
                         </div>
-                        <h4 className="font-serif text-xl md:text-2xl text-brand-dark mb-3 md:mb-4 tracking-tight">即将上线</h4>
-                        <p className="text-sm md:text-base text-brand-gray font-medium opacity-60 mb-8 md:mb-10 max-w-md mx-auto">该场景下的更多 Skills 正在由业务专家与 Agent 团队共同打造中，敬请期待...</p>
-                        <Link to="/feedback" className="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-brand-dark text-white rounded-full font-bold text-xs md:text-sm hover:bg-brand-dark/90 transition-all shadow-xl">
-                          提交你的场景需求 <ArrowRight size={18} />
+                        <h4 className="text-xl font-bold text-brand-dark mb-2 tracking-tight">即将上线</h4>
+                        <p className="text-sm text-brand-gray font-medium opacity-60 mb-8 max-w-md mx-auto">该场景下的更多 Skills 正在由业务专家与 Agent 团队共同打造中，敬请期待...</p>
+                        <Link to="/feedback" className="inline-flex items-center gap-2 px-8 py-3 bg-brand-dark text-white rounded-full font-bold text-xs hover:bg-brand-dark/90 transition-all shadow-xl">
+                          提交你的场景需求 <ArrowRight size={16} />
                         </Link>
                       </div>
                     )}
@@ -1552,7 +1553,7 @@ const ScenarioCenter: React.FC = () => {
           })}
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 

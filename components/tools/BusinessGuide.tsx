@@ -25,6 +25,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import AppLayout from '../../src/components/layout/AppLayout';
 
 // --- Types & Data ---
 
@@ -402,29 +403,23 @@ const BusinessGuide: React.FC = () => {
   );
 
   return (
-    <div className="py-12 md:py-24 bg-brand-offwhite min-h-screen">
-      <div className="container mx-auto px-4 md:px-6">
-        <button 
-          onClick={() => navigate(-1)} 
-          className="flex items-center gap-2 md:gap-3 text-brand-gray hover:text-brand-dark transition-all mb-8 md:mb-16 group font-bold text-[10px] md:text-sm uppercase tracking-widest opacity-60 hover:opacity-100"
-        >
-          <ArrowLeft size={14} className="md:w-4 md:h-4 group-hover:-translate-x-1 transition-transform" /> 返回上一页
-        </button>
-
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-10 md:mb-16 animate-fade-in-up">
-            <div className="flex items-center gap-4 md:gap-6 mb-4 md:mb-6">
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-dark text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-xl shrink-0">
-                <LayoutDashboard size={24} className="md:hidden" />
-                <LayoutDashboard size={32} className="hidden md:block" />
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-5xl font-serif text-brand-dark tracking-tight">客户经理业务通</h1>
-                <p className="text-sm md:text-lg text-brand-gray font-medium opacity-60 mt-1 md:mt-2">把产品知识、行业判断、客户对话和推进路径沉淀成可复用的业务打法</p>
+    <AppLayout title="客户经理业务通" showBack>
+      <div className="py-8 md:py-16 bg-brand-offwhite min-h-screen">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="max-w-7xl mx-auto">
+            {/* Header */}
+            <div className="mb-8 md:mb-12 animate-fade-in-up">
+              <div className="flex items-center gap-4 md:gap-6 mb-4 md:mb-6">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-dark text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-xl shrink-0">
+                  <LayoutDashboard size={24} className="md:hidden" />
+                  <LayoutDashboard size={32} className="hidden md:block" />
+                </div>
+                <div>
+                  <h1 className="text-2xl md:text-4xl font-serif text-brand-dark tracking-tight">客户经理业务通</h1>
+                  <p className="text-xs md:text-base text-brand-gray font-medium opacity-60 mt-1 md:mt-2">把产品知识、行业判断、客户对话和推进路径沉淀成可复用的业务打法</p>
+                </div>
               </div>
             </div>
-          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
             {/* Left Sidebar: Selection */}
@@ -606,7 +601,8 @@ const BusinessGuide: React.FC = () => {
         </div>
       </div>
     </div>
-  );
+  </AppLayout>
+);
 };
 
 const ContentCard = ({ title, icon: Icon, content, list, copyable, warning }: { 

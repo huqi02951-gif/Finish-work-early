@@ -1,7 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
-import Home from './components/Home';
+// New Pages
+import HomePage from './src/pages/Home';
+import FeedPage from './src/pages/Feed';
+import PublishPage from './src/pages/Publish';
+import MessagesPage from './src/pages/Messages';
+import ProfilePage from './src/pages/Profile';
+
+// Existing Components
 import ScenarioCenter from './components/ScenarioCenter';
 import SkillsLibrary from './components/SkillsLibrary';
 import UpdateLog from './components/UpdateLog';
@@ -19,24 +26,27 @@ import BusinessGuide from './components/tools/BusinessGuide';
 const App: React.FC = () => {
   return (
     <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/scenarios" element={<ScenarioCenter />} />
-          <Route path="/skills" element={<SkillsLibrary />} />
-          <Route path="/skills/:id" element={<SkillDetail />} />
-          <Route path="/rate-offer" element={<RateOfferTool />} />
-          <Route path="/acceptance-calculator" element={<AcceptanceCalculator />} />
-          <Route path="/fee-discount" element={<FeeDiscountTool />} />
-          <Route path="/news-assistant" element={<NewsTypesettingAssistant />} />
-          <Route path="/batch-billing" element={<BatchBillingTool />} />
-          <Route path="/sensitive-comm" element={<SensitiveCommAssistant />} />
-          <Route path="/business-guide" element={<BusinessGuide />} />
-          <Route path="/updates" element={<UpdateLog />} />
-          <Route path="/instructions" element={<UsageInstructions />} />
-          <Route path="/feedback" element={<Feedback />} />
-        </Routes>
-      </Layout>
+      <Routes>
+        {/* Main Navigation Hub */}
+        <Route path="/" element={<HomePage />} />
+
+        {/* Core Four Modules */}
+        <Route path="/scenarios" element={<ScenarioCenter />} />
+        <Route path="/skills" element={<SkillsLibrary />} />
+        <Route path="/updates" element={<UpdateLog />} />
+        <Route path="/feedback" element={<Feedback />} />
+
+        {/* Sub-pages & Tools */}
+        <Route path="/skills/:id" element={<SkillDetail />} />
+        <Route path="/rate-offer" element={<RateOfferTool />} />
+        <Route path="/acceptance-calculator" element={<AcceptanceCalculator />} />
+        <Route path="/fee-discount" element={<FeeDiscountTool />} />
+        <Route path="/news-assistant" element={<NewsTypesettingAssistant />} />
+        <Route path="/batch-billing" element={<BatchBillingTool />} />
+        <Route path="/sensitive-comm" element={<SensitiveCommAssistant />} />
+        <Route path="/business-guide" element={<BusinessGuide />} />
+        <Route path="/instructions" element={<UsageInstructions />} />
+      </Routes>
     </Router>
   );
 };

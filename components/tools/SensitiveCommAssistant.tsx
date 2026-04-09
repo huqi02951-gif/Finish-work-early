@@ -21,6 +21,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import AppLayout from '../../src/components/layout/AppLayout';
 
 // --- Types & Constants ---
 
@@ -108,13 +109,13 @@ const SensitiveCommAssistant: React.FC = () => {
       // Rule Engine Logic
       switch (activeScenario) {
         case 'fee-notice': {
-          const item = scenarioParams.feeItem || '对公电子渠道转账手续费';
-          const time = '2026年4月1日';
+          const item = scenarioParams.feeItem || '对公账户转账手续费';
+          const time = '4月1日';
           outputs = {
-            direct: `${name}好，提前和您同步一下，根据监管要求及行业现状，我行将于${time}起逐步恢复${item}收费。目前标准为系统内转账免费，跨行转账按柜面标准8折收取。建议您可以适当提升活期日均存款或增加网银使用频率，系统会自动识别并执行减免，无需另行申请。`,
-            formal: `尊敬的客户：\n受市场环境及运营成本影响，我行将于${time}起调整对公电子渠道收费标准。最新标准为：行内转账免费，跨行资金汇兑按柜面标准8折执行。我行已同步推出优惠方案，凡符合标准的客户，系统将自动识别并减免手续费（无需另行发起审批）。建议贵司加强网银使用并提升活期日均存款以享受更多优惠。`,
-            soft: `${name}您好，关于电子渠道收费的事先和您沟通下。疫情期间的阶段性减免政策已到期，全行业都在逐步恢复基准收费。我行将于${time}起做微调，不过我也帮您看了优惠政策，只要咱们活期日均或网银频率达标，系统会自动减免的，非常方便。`,
-            phone: `1. 告知疫情阶段性减免政策到期背景\n2. 明确${time}起恢复收费的标准（系统内免费，跨行8折）\n3. 强调“系统自动识别减免”的便利性（无需审批）\n4. 引导客户提升活期日均存款及网银使用频率`
+            direct: `${name}好，提前同步一下：从${time}开始，我行${item}将按现行标准执行。主要根据账户日均存款情况对应不同档次（如30万以内、30-500万、500万以上标准不同），系统会自动对应。建议您后续尽量多通过我行做结算和留存，日均和活跃度上来后标准更优。想了解具体哪一档可联系柜台573700确认。`,
+            formal: `尊敬的客户：\n自${time}起，我行对公账户转账手续费将恢复按现行收费标准执行。收费标准将根据账户日均存款情况划分为三个档次：30万元以内、30万元至500万元、500万元以上。系统将根据账户实际情况自动匹配对应费率。建议贵司增加在我行的资金留存与结算往来，以获取更优费率。如需查询当前执行档次，请致电柜台573700咨询。`,
+            soft: `${name}您好，和您说下手续费的事。从${time}起，对公转账手续费开始按现行标准走了，主要是看账户日均存款。像30万、500万这些节点对应的档次都不一样，系统会自动识别。所以建议您这边方便的话，尽量多把资金留在咱们行做结算，日均上来后收费会更划算。具体想查哪一档，拨打573700联系柜台就行。`,
+            phone: `1. 告知${time}起恢复现行收费标准\n2. 说明“档次化收费”逻辑（日均30万/500万为界限）\n3. 强调系统自动对应，无需人工干预\n4. 建议增加资金留存以获取更优费率\n5. 提供柜台查询电话：573700`
           };
           break;
         }
@@ -437,34 +438,23 @@ const SensitiveCommAssistant: React.FC = () => {
   };
 
   return (
-    <div className="py-12 md:py-24 bg-brand-offwhite min-h-screen">
-      <div className="container mx-auto px-4 md:px-6">
-        <button 
-          onClick={() => navigate(-1)} 
-          className="flex items-center gap-2 md:gap-3 text-brand-gray hover:text-brand-dark transition-all mb-8 md:mb-16 group font-bold text-[10px] md:text-sm uppercase tracking-widest opacity-60 hover:opacity-100"
-        >
-          <ArrowLeft size={14} className="md:w-4 md:h-4 group-hover:-translate-x-1 transition-transform" /> 返回上一页
-        </button>
-
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="mb-10 md:mb-16 animate-fade-in-up">
-            <div className="flex items-center gap-4 md:gap-6 mb-4 md:mb-6">
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-dark text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-xl shrink-0">
-                <ShieldCheck size={24} className="md:hidden" />
-                <ShieldCheck size={32} className="hidden md:block" />
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-5xl font-serif text-brand-dark tracking-tight">敏感沟通助手</h1>
-                <p className="text-sm md:text-lg text-brand-gray font-medium opacity-60 mt-1 md:mt-2">处理对客沟通中“必须说、但不好说”的敏感事项</p>
+    <AppLayout title="敏感沟通助手" showBack>
+      <div className="py-8 md:py-16 bg-brand-offwhite min-h-screen">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="max-w-6xl mx-auto">
+            {/* Header */}
+            <div className="mb-8 md:mb-12 animate-fade-in-up">
+              <div className="flex items-center gap-4 md:gap-6 mb-4 md:mb-6">
+                <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-dark text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-xl shrink-0">
+                  <ShieldCheck size={24} className="md:hidden" />
+                  <ShieldCheck size={32} className="hidden md:block" />
+                </div>
+                <div>
+                  <h1 className="text-2xl md:text-4xl font-serif text-brand-dark tracking-tight">敏感沟通助手</h1>
+                  <p className="text-xs md:text-base text-brand-gray font-medium opacity-60 mt-1 md:mt-2">处理对客沟通中“必须说、但不好说”的敏感事项</p>
+                </div>
               </div>
             </div>
-            <div className="p-4 md:p-6 bg-brand-gold/5 border border-brand-gold/10 rounded-xl md:rounded-2xl">
-              <p className="text-xs md:text-sm text-brand-dark/80 leading-relaxed">
-                用于处理收费通知、政策说明、暂无法推进、客户配合事项、备案提醒、柜面预约、利率调整通知、授信暂缓推进等场景。帮助客户经理在边界清晰的前提下，用更得体、更稳妥的方式完成客户沟通。
-              </p>
-            </div>
-          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
             {/* Left Column: Inputs */}
@@ -694,7 +684,8 @@ const SensitiveCommAssistant: React.FC = () => {
         </div>
       </div>
     </div>
-  );
+  </AppLayout>
+);
 };
 
 export default SensitiveCommAssistant;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { History, Calendar, CheckCircle2, Clock, Sparkles } from 'lucide-react';
 import { cn } from '../lib/utils';
+import AppLayout from '../src/components/layout/AppLayout';
 
 const UpdateLog: React.FC = () => {
   const updates = [
@@ -52,76 +53,63 @@ const UpdateLog: React.FC = () => {
   ];
 
   return (
-    <div className="py-24 bg-brand-offwhite min-h-screen">
-      <div className="container mx-auto px-6">
-        <div className="max-w-3xl mb-20 animate-fade-in-up">
-          <h1 className="font-serif text-5xl md:text-6xl text-brand-dark mb-8">更新记录</h1>
-          <p className="text-xl text-stone-500 leading-relaxed">
+    <AppLayout title="更新记录中心" showBack>
+      <div className="pb-24 bg-brand-offwhite min-h-screen">
+        {/* Apple Music Style Header */}
+        <header className="px-6 pt-12 pb-8">
+          <h1 className="text-4xl font-bold tracking-tight text-brand-dark mb-2">更新记录</h1>
+          <p className="text-brand-gray font-medium text-sm max-w-md">
             记录 Agent 能力的每一次进化。我们坚持以真实业务痛点为导向，
             持续迭代、固化经验，为一线客户经理减负。
           </p>
-        </div>
+        </header>
 
-        <div className="relative max-w-4xl animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          {/* Timeline Line */}
-          <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-stone-200 -translate-x-1/2 hidden md:block"></div>
-
-          <div className="space-y-16">
-            {updates.map((update, idx) => (
-              <div key={update.version} className={cn(
-                "relative flex flex-col md:flex-row gap-8 md:gap-0",
-                idx % 2 === 0 ? "md:flex-row-reverse" : ""
-              )}>
-                {/* Timeline Dot */}
-                <div className="absolute left-0 md:left-1/2 top-0 w-4 h-4 bg-white border-4 border-brand-gold rounded-full -translate-x-1/2 z-10 hidden md:block"></div>
-
-                {/* Content Card */}
-                <div className="w-full md:w-[45%]">
-                  <div className="bg-white p-8 rounded-xl border border-stone-100 shadow-sm hover:shadow-md transition-all">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="flex items-center gap-2 text-brand-gold text-sm font-bold">
-                        <Calendar size={14} /> {update.date}
-                      </span>
-                      <span className="px-2 py-0.5 bg-stone-100 text-stone-500 text-[10px] font-bold rounded uppercase tracking-widest">
-                        {update.version}
-                      </span>
-                    </div>
-                    <h3 className="font-serif text-2xl text-brand-dark mb-4">{update.title}</h3>
-                    <p className="text-stone-500 text-sm mb-6 leading-relaxed italic border-l-2 border-stone-100 pl-4">
-                      {update.desc}
-                    </p>
-                    <ul className="space-y-3">
-                      {update.items.map((item, i) => (
-                        <li key={i} className="flex items-start gap-3 text-sm text-stone-600">
-                          <CheckCircle2 size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {/* Spacer for the other side */}
-                <div className="hidden md:block w-[10%]"></div>
+        <div className="px-6 space-y-8">
+          {updates.map((update, idx) => (
+            <div key={update.version} className="relative">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-2 h-2 rounded-full bg-apple-blue shadow-[0_0_8px_rgba(0,122,255,0.5)]" />
+                <span className="text-[11px] font-bold text-brand-gray uppercase tracking-widest">{update.date}</span>
+                <span className="px-2 py-0.5 bg-brand-light-gray text-brand-gray text-[9px] font-bold rounded-full border border-brand-border/10">
+                  {update.version}
+                </span>
               </div>
-            ))}
-          </div>
+              
+              <div className="bg-white p-6 rounded-3xl border border-brand-border/5 shadow-sm">
+                <h3 className="text-xl font-bold text-brand-dark mb-3 tracking-tight">{update.title}</h3>
+                <p className="text-xs text-brand-gray mb-6 leading-relaxed font-medium opacity-80 italic border-l-2 border-brand-border/10 pl-4">
+                  {update.desc}
+                </p>
+                <ul className="space-y-3">
+                  {update.items.map((item, i) => (
+                    <li key={i} className="flex items-start gap-3 text-xs text-brand-dark font-medium">
+                      <CheckCircle2 size={14} className="text-emerald-500 mt-0.5 shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
         </div>
 
-        <div className="mt-24 py-12 px-8 bg-brand-dark rounded-xl text-center animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-          <div className="w-12 h-12 bg-brand-gold/10 rounded-full flex items-center justify-center mx-auto mb-6 text-brand-gold">
-            <Clock size={24} />
+        <div className="mt-16 mx-6 p-8 bg-brand-dark rounded-3xl text-center shadow-xl shadow-brand-dark/20 relative overflow-hidden">
+          <div className="relative z-10">
+            <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-6 text-white">
+              <Clock size={24} />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-3 tracking-tight">更多能力正在孵化中</h3>
+            <p className="text-white/60 text-sm font-medium mb-8 max-w-xs mx-auto">
+              我们有一份长长的 Skills 待办清单，如果你有急需解决的痛点，欢迎与我们共创。
+            </p>
+            <button className="px-8 py-3 bg-white text-brand-dark rounded-full font-bold text-xs hover:opacity-90 transition-all">
+              提交需求建议
+            </button>
           </div>
-          <h3 className="font-serif text-2xl text-white mb-4">更多能力正在孵化中</h3>
-          <p className="text-stone-400 mb-8 max-w-md mx-auto">
-            我们有一份长长的 Skills 待办清单，如果你有急需解决的痛点，欢迎与我们共创。
-          </p>
-          <button className="px-8 py-3 bg-brand-gold text-brand-dark rounded-md font-bold hover:bg-brand-gold/90 transition-all">
-            提交需求建议
-          </button>
+          <div className="absolute top-0 right-0 w-48 h-48 bg-apple-blue/10 blur-[80px] -mr-24 -mt-24 rounded-full" />
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 
