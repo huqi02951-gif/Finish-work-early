@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { 
   ChevronRight, 
   ChevronLeft, 
@@ -44,6 +45,7 @@ interface CustomerInfo {
 }
 
 const MaterialChecklistCenter: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState<Step>('category');
   const [showInfoForm, setShowInfoForm] = useState(false);
   const [mainType, setMainType] = useState<'counter' | 'credit' | null>(null);
@@ -59,6 +61,15 @@ const MaterialChecklistCenter: React.FC = () => {
     remark: '',
     specialRemark: ''
   });
+
+  useEffect(() => {
+    const type = searchParams.get('type');
+    if (type === 'credit') {
+      setMainType('credit');
+    } else if (type === 'counter') {
+      setMainType('counter');
+    }
+  }, [searchParams]);
 
   const categories = mainType === 'counter' ? COUNTER_BUSINESS : CREDIT_BUSINESS;
 

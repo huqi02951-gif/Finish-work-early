@@ -1,8 +1,13 @@
 import React from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Zap, LayoutDashboard, Users, FileText, Download, Play, AlertCircle, Info, ArrowRight, ChevronRight, Sparkles } from 'lucide-react';
+import { 
+  ArrowLeft, CheckCircle2, Zap, LayoutDashboard, Users, FileText, 
+  Download, Play, AlertCircle, Info, ArrowRight, ChevronRight, 
+  Sparkles, ShieldCheck, Target, MessageSquare, BarChart3, Clock
+} from 'lucide-react';
 import { SKILLS } from '../constants/skills';
 import { cn } from '../lib/utils';
+import { motion } from 'framer-motion';
 
 const SkillDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +24,8 @@ const SkillDetail: React.FC = () => {
       </div>
     );
   }
+
+  const guide = skill.marketingGuide;
 
   return (
     <div className="py-24 bg-brand-offwhite min-h-screen">
@@ -87,6 +94,143 @@ const SkillDetail: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Marketing Guide Section (If exists) */}
+            {guide && (
+              <div className="space-y-12">
+                {/* 1. 产品框架 & 理解 */}
+                <div className="bg-white rounded-[3rem] p-12 md:p-16 shadow-sm border border-brand-border/10">
+                  <div className="flex items-center gap-4 mb-10">
+                    <div className="w-12 h-12 bg-brand-gold/10 rounded-2xl flex items-center justify-center text-brand-gold">
+                      <ShieldCheck size={24} />
+                    </div>
+                    <h2 className="text-3xl font-serif font-bold text-brand-dark">产品框架与核心逻辑</h2>
+                  </div>
+                  
+                  <div className="space-y-10">
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-widest text-brand-gold mb-4">底层逻辑</h3>
+                      <p className="text-lg text-brand-gray leading-relaxed font-medium">{guide.framework}</p>
+                    </div>
+                    <div className="p-8 bg-brand-light-gray/50 rounded-[2rem] border border-brand-border/5">
+                      <h3 className="text-xs font-bold uppercase tracking-widest text-brand-dark mb-4">产品定位</h3>
+                      <p className="text-brand-gray leading-relaxed font-medium">{guide.understanding}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. 行业切入 & 场景 */}
+                <div className="bg-brand-dark rounded-[3rem] p-12 md:p-16 shadow-2xl text-white relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-brand-gold/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+                  
+                  <div className="flex items-center gap-4 mb-10 relative z-10">
+                    <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-brand-gold">
+                      <Target size={24} />
+                    </div>
+                    <h2 className="text-3xl font-serif font-bold">行业切入与核心场景</h2>
+                  </div>
+                  
+                  <div className="space-y-10 relative z-10">
+                    <p className="text-xl text-white/70 leading-relaxed font-light">{guide.industryFocus}</p>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {['设备更新', '技术改造', '数字化升级', '扩产周转'].map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-4 bg-white/5 border border-white/10 p-5 rounded-2xl">
+                          <div className="w-2.5 h-2.5 bg-brand-gold rounded-full"></div>
+                          <span className="text-sm font-bold tracking-wide">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. 目标客群 */}
+                <div className="bg-white rounded-[3rem] p-12 md:p-16 shadow-sm border border-brand-border/10">
+                  <div className="flex items-center gap-4 mb-10">
+                    <div className="w-12 h-12 bg-brand-gold/10 rounded-2xl flex items-center justify-center text-brand-gold">
+                      <Users size={24} />
+                    </div>
+                    <h2 className="text-3xl font-serif font-bold text-brand-dark">谁最适合这个产品？</h2>
+                  </div>
+                  
+                  <div className="bg-brand-light-gray/50 rounded-[2rem] p-10 border border-brand-border/5">
+                    <p className="text-lg text-brand-gray leading-relaxed font-medium whitespace-pre-line">{guide.targetCustomers}</p>
+                  </div>
+                </div>
+
+                {/* 4. 营销话术 & 沟通 */}
+                <div className="bg-white rounded-[3rem] p-12 md:p-16 shadow-sm border border-brand-border/10">
+                  <div className="flex items-center gap-4 mb-10">
+                    <div className="w-12 h-12 bg-brand-gold/10 rounded-2xl flex items-center justify-center text-brand-gold">
+                      <MessageSquare size={24} />
+                    </div>
+                    <h2 className="text-3xl font-serif font-bold text-brand-dark">对客沟通与营销话术</h2>
+                  </div>
+                  
+                  <div className="space-y-12">
+                    <div className="relative pl-8">
+                      <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-brand-gold rounded-full opacity-40"></div>
+                      <h3 className="text-xs font-bold uppercase tracking-widest text-brand-gold mb-4">首次拜访开口</h3>
+                      <p className="text-2xl font-serif italic text-brand-dark leading-tight">“{guide.openingTalk}”</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="p-8 bg-brand-light-gray/50 rounded-[2rem] border border-brand-border/5">
+                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-gray mb-4 flex items-center gap-2">
+                          <BarChart3 size={14} /> 竞品对比策略
+                        </h4>
+                        <p className="text-sm text-brand-gray leading-relaxed font-medium">{guide.comparison}</p>
+                      </div>
+                      <div className="p-8 bg-brand-light-gray/50 rounded-[2rem] border border-brand-border/5">
+                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-brand-gray mb-4 flex items-center gap-2">
+                          <Zap size={14} /> 利率谈话技巧
+                        </h4>
+                        <p className="text-sm text-brand-gray leading-relaxed font-medium">{guide.interestRates}</p>
+                      </div>
+                    </div>
+
+                    <div className="p-10 bg-brand-dark text-white rounded-[2.5rem] relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                        <Sparkles size={64} />
+                      </div>
+                      <h4 className="text-xs font-bold uppercase tracking-widest text-brand-gold mb-6">行业专家视角 (Role Play)</h4>
+                      <p className="text-xl text-white/90 leading-relaxed italic font-light">“{guide.rolePlay}”</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5. 材料与流程 */}
+                <div className="bg-white rounded-[3rem] p-12 md:p-16 shadow-sm border border-brand-border/10">
+                  <div className="flex items-center gap-4 mb-10">
+                    <div className="w-12 h-12 bg-brand-gold/10 rounded-2xl flex items-center justify-center text-brand-gold">
+                      <FileText size={24} />
+                    </div>
+                    <h2 className="text-3xl font-serif font-bold text-brand-dark">材料准备与提速建议</h2>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div>
+                      <h3 className="text-xs font-bold uppercase tracking-widest text-brand-gold mb-6">材料清单梳理</h3>
+                      <p className="text-brand-gray text-sm leading-relaxed whitespace-pre-line font-medium">{guide.materials}</p>
+                    </div>
+                    <div className="space-y-8">
+                      <div className="p-8 bg-emerald-50 rounded-[2rem] border border-emerald-100">
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-emerald-700 mb-4 flex items-center gap-2">
+                          <Clock size={14} /> 尽快放款的关键
+                        </h3>
+                        <p className="text-emerald-900/80 text-sm leading-relaxed font-medium">{guide.speedUp}</p>
+                      </div>
+                      <div className="p-8 bg-brand-gold/5 rounded-[2rem] border border-brand-gold/10">
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-brand-gold mb-4 flex items-center gap-2">
+                          <CheckCircle2 size={14} /> 核心总结
+                        </h3>
+                        <p className="text-brand-dark text-sm font-bold leading-relaxed">{guide.summary}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Preview / Demo Area */}
             <div className="bg-brand-dark rounded-[3.5rem] p-16 md:p-24 text-center relative overflow-hidden shadow-2xl group">

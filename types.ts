@@ -12,6 +12,19 @@ export interface Skill {
   note?: string;
   description: string;
   toolRoute?: string;
+  marketingGuide?: {
+    framework: string;
+    understanding: string;
+    industryFocus: string;
+    targetCustomers: string;
+    openingTalk: string;
+    comparison: string;
+    interestRates: string;
+    materials: string;
+    speedUp: string;
+    rolePlay: string;
+    summary: string;
+  };
 }
 
 export type SceneType = '对客户' | '对审查' | '对中后台' | '对自己' | '对审查报批' | '对中后台协同' | '对审查报批 + 对客户沟通' | '对自己 / 对中后台';

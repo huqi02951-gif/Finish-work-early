@@ -15,6 +15,7 @@ import UpdateLog from './components/UpdateLog';
 import UsageInstructions from './components/UsageInstructions';
 import Feedback from './components/Feedback';
 import BBSCenter from './components/BBSCenter';
+import MaterialChecklistCenter from './components/MaterialChecklistCenter';
 import SkillDetail from './components/SkillDetail';
 import RateOfferTool from './components/tools/RateOfferTool';
 import AcceptanceCalculator from './components/tools/AcceptanceCalculator';
@@ -48,6 +49,7 @@ const App: React.FC = () => {
         <Route path="/batch-billing" element={<BatchBillingTool />} />
         <Route path="/sensitive-comm" element={<SensitiveCommAssistant />} />
         <Route path="/business-guide" element={<BusinessGuide />} />
+        <Route path="/material-checklist" element={<MaterialChecklistCenter />} />
         <Route path="/instructions" element={<UsageInstructions />} />
       </Routes>
     </Router>

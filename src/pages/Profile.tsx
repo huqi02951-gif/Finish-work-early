@@ -24,6 +24,7 @@ import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Profile: React.FC = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<UserType | null>(null);
   const [activeTab, setActiveTab] = useState<'activity' | 'stats'>('activity');
 
@@ -36,20 +37,20 @@ const Profile: React.FC = () => {
   }, []);
 
   const stats = [
-    { label: '获赞', value: '1,284', icon: Heart, color: 'text-apple-pink' },
-    { label: '收藏', value: '256', icon: Bookmark, color: 'text-apple-blue' },
-    { label: '积分', value: '8,420', icon: Zap, color: 'text-brand-gold' },
+    { label: '获赞', value: '1,284', icon: Heart, color: 'text-apple-pink', path: '/bbs' },
+    { label: '收藏', value: '256', icon: Bookmark, color: 'text-apple-blue', path: '/skills' },
+    { label: '积分', value: '8,420', icon: Zap, color: 'text-brand-gold', path: '/scenarios?tab=self' },
   ];
 
   const activitySummary = [
-    { id: 1, type: 'post', title: '关于新产品定价的几点思考', time: '2小时前', likes: 45, comments: 12 },
-    { id: 2, type: 'comment', title: '回复了：如何提高拓客效率？', time: '昨天', likes: 8, comments: 0 },
-    { id: 3, type: 'post', title: '分享一个超实用的敏感沟通话术模板', time: '3天前', likes: 128, comments: 34 },
+    { id: 1, type: 'post', title: '关于新产品定价的几点思考', time: '2小时前', likes: 45, comments: 12, path: '/bbs' },
+    { id: 2, type: 'comment', title: '回复了：如何提高拓客效率？', time: '昨天', likes: 8, comments: 0, path: '/bbs' },
+    { id: 3, type: 'post', title: '分享一个超实用的敏感沟通话术模板', time: '3天前', likes: 128, comments: 34, path: '/bbs' },
   ];
 
   const menuItems = [
-    { icon: FileText, label: '我的发布', count: '12', path: '/profile/posts' },
-    { icon: Trophy, label: '成就勋章', count: '8', path: '/profile/achievements' },
+    { icon: FileText, label: '我的发布', count: '12', path: '/bbs' },
+    { icon: Trophy, label: '成就勋章', count: '8', path: '/scenarios?tab=self' },
     { icon: Settings, label: '偏好设置', path: '/settings' },
   ];
 
@@ -109,9 +110,10 @@ const Profile: React.FC = () => {
               <motion.div 
                 key={idx}
                 whileTap={{ scale: 0.95 }}
-                className="flex flex-col items-center gap-1"
+                onClick={() => navigate(stat.path)}
+                className="flex flex-col items-center gap-1 cursor-pointer group"
               >
-                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center mb-1", stat.color, "bg-current/5")}>
+                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center mb-1 transition-transform group-hover:scale-110", stat.color, "bg-current/5")}>
                   <stat.icon size={20} />
                 </div>
                 <span className="text-xl font-bold text-brand-dark tracking-tight">{stat.value}</span>
@@ -125,7 +127,7 @@ const Profile: React.FC = () => {
         <section className="px-6 mt-10">
           <div className="flex items-center justify-between mb-6 px-2">
             <h3 className="text-xl font-bold tracking-tight text-brand-dark">动态汇总</h3>
-            <button className="text-xs font-bold text-apple-blue">查看全部</button>
+            <button onClick={() => navigate('/bbs')} className="text-xs font-bold text-apple-blue">查看全部</button>
           </div>
 
           <div className="space-y-4">
@@ -134,8 +136,10 @@ const Profile: React.FC = () => {
                 key={activity.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate(activity.path)}
                 transition={{ delay: idx * 0.1 }}
-                className="bg-white p-5 rounded-3xl border border-brand-border/5 shadow-sm hover:shadow-md transition-all group"
+                className="bg-white p-5 rounded-3xl border border-brand-border/5 shadow-sm hover:shadow-md transition-all group cursor-pointer"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">

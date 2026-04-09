@@ -53,6 +53,10 @@ interface ProductCard {
   steps: string[];
   objections: { q: string; a: string }[];
   forbiddenPhrases: string[];
+  relatedSkill?: {
+    name: string;
+    path: string;
+  };
 }
 
 interface IndustryCard {
@@ -98,6 +102,48 @@ interface PersonaCard {
 const GUIDE_DATA: BusinessGuideData = {
   products: [
     {
+      id: 'chang_rong_bao',
+      name: '长融保',
+      category: '政策性增信经营贷',
+      targetCustomers: ['中小微企业', '个体工商户', '小微企业主', '农户'],
+      suitableIndustries: ['制造业', '科技类', '各行业中小微'],
+      overview: '传统银担合作模式，由厦门市中小企业融资担保有限公司提供80%本金连带责任保证担保。',
+      sellingPoints: ['逻辑成熟', '模式稳定', '适配面广', '政策性增信'],
+      entryCriteria: ['真实经营', '有报税流水', '有订单', '信用基础稍弱需增信'],
+      commonBlockers: ['非一年期以上', '随借随还循环贷', '无真实经营场景'],
+      openingTalk: '“我这次来，主要是想看看您企业今年有没有设备更新、技改升级、产能扩张或者原材料备货这类资金安排。我们最近有一类针对制造业、科技类企业比较合适的政策型经营贷，不是单纯拼额度，而是期限、增信和整体融资成本都更适合中长期经营使用。”',
+      mustAskQuestions: ['“今年是否有设备更新或技改计划？”', '“目前的融资期限是否匹配经营周期？”', '“是否有担保增信的需求？”'],
+      needRecognition: '客户提到“想拿长一点期限”、“信用额度不够”或“有明确资金用途”。',
+      materials: ['主体材料', '经营材料', '财税材料', '用途和增信材料'],
+      steps: ['客户向中小担申请', '中小担出意向函', '银行审批', '中小担出放款通知书', '银行放款'],
+      objections: [
+        { q: '“为什么要担保费？”', a: '“担保费是0.5%/年，但通过担保增信，您可以获得更长周期、更稳妥的额度，综合成本依然非常有优势。”' }
+      ],
+      forbiddenPhrases: ['“随借随还”', '“循环贷”'],
+      relatedSkill: { name: '材料清单 (授信类)', path: '/material-checklist?type=credit' }
+    },
+    {
+      id: 'chang_yi_dan',
+      name: '长易担',
+      category: '简易审批备案经营贷',
+      targetCustomers: ['优质中小微企业', '制造业', '科技型企业'],
+      suitableIndustries: ['先进制造业', '科技类', '数智化升级企业'],
+      overview: '简易审批、单笔备案模式，由中小担提供80%本金担保，效率更高。',
+      sellingPoints: ['效率极高', '政策属性强', '单笔备案', '感知直接'],
+      entryCriteria: ['成立满两年', '报税规范', '纳税信用非D', '资产负债率不超过70%'],
+      commonBlockers: ['当前有逾期', '展期/借新还旧业务', '中小担在保风险客户'],
+      openingTalk: '“针对您这类优质的制造业/科技型企业，我们现在有‘长易担’简易审批模式，流程非常快，重点支持您的设备更新和数智化改造。”',
+      mustAskQuestions: ['“近12个月缴税总额是否不低于5万元？”', '“是否有设备采购或技术改造需求？”', '“目前是否有他行在保担保业务？”'],
+      needRecognition: '优质企业提到“需要快速到账”、“追求极致效率”或“制造业技改”。',
+      materials: ['主体材料', '经营材料', '财税材料', '用途和增信材料'],
+      steps: ['银行审批通过', '向中小担报送备案', '中小担现场尽调(300万以上)', '保费到账', '放款'],
+      objections: [
+        { q: '“300万以上为什么要现场尽调？”', a: '“这是政策性产品的标准流程，为了确保资金精准支持到优质企业的真实技改和生产中，我们会全力配合提速。”' }
+      ],
+      forbiddenPhrases: ['“建筑施工类企业”', '“逾期客户”'],
+      relatedSkill: { name: '材料清单 (授信类)', path: '/material-checklist?type=credit' }
+    },
+    {
       id: 'bank_acceptance',
       name: '银承',
       category: '结算/融资',
@@ -115,7 +161,8 @@ const GUIDE_DATA: BusinessGuideData = {
       objections: [
         { q: '“保证金比例太高了。”', a: '“我们可以根据您的信用状况申请降低比例，或者结合其他担保方式。”' }
       ],
-      forbiddenPhrases: ['“我们行随便开。”', '“不用看贸易背景。”']
+      forbiddenPhrases: ['“我们行随便开。”', '“不用看贸易背景。”'],
+      relatedSkill: { name: '银承测算工具', path: '/acceptance-calculator' }
     },
     {
       id: 'working_capital_loan',
@@ -135,7 +182,8 @@ const GUIDE_DATA: BusinessGuideData = {
       objections: [
         { q: '“利率还是有点高。”', a: '“我们可以为您申请针对小微企业的专项贴息，折算下来非常划算。”' }
       ],
-      forbiddenPhrases: ['“100%能批。”', '“钱拿去干啥都行。”']
+      forbiddenPhrases: ['“100%能批。”', '“钱拿去干啥都行。”'],
+      relatedSkill: { name: '利率报价工具', path: '/rate-offer' }
     },
     {
       id: 'mortgage_loan',
@@ -155,7 +203,8 @@ const GUIDE_DATA: BusinessGuideData = {
       objections: [
         { q: '“手续太麻烦了。”', a: '“我们现在有绿色通道，很多流程可以线上办理，我们会全程协助。”' }
       ],
-      forbiddenPhrases: ['“只要有房就能贷。”', '“不看经营只看房。”']
+      forbiddenPhrases: ['“只要有房就能贷。”', '“不看经营只看房。”'],
+      relatedSkill: { name: '利率报价工具', path: '/rate-offer' }
     },
     {
       id: 'rate_discount',
@@ -175,7 +224,8 @@ const GUIDE_DATA: BusinessGuideData = {
       objections: [
         { q: '“申报太复杂，怕办不下来。”', a: '“我们有专业的政策顾问团队，会帮您一对一梳理，成功率很高。”' }
       ],
-      forbiddenPhrases: ['“这钱是白给的。”', '“不用还。”']
+      forbiddenPhrases: ['“这钱是白给的。”', '“不用还。”'],
+      relatedSkill: { name: '费率优惠测算', path: '/fee-discount' }
     },
     {
       id: 'account_settlement',
@@ -363,7 +413,7 @@ const GUIDE_DATA: BusinessGuideData = {
 const BusinessGuide: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'guide' | 'persona'>('guide');
-  const [guideType, setGuideType] = useState<'product' | 'industry' | 'scenario'>('scenario');
+  const [guideType, setGuideType] = useState<'product' | 'industry' | 'scenario'>('product');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   // --- Helpers ---
@@ -453,8 +503,8 @@ const BusinessGuide: React.FC = () => {
                     <p className="text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest opacity-40 mb-3 md:mb-4">分类维度</p>
                     <div className="flex overflow-x-auto md:flex-col gap-1 no-scrollbar">
                       {[
-                        { id: 'scenario', name: '按场景', icon: Zap },
                         { id: 'product', name: '按产品', icon: Briefcase },
+                        { id: 'scenario', name: '按场景', icon: Zap },
                         { id: 'industry', name: '按行业', icon: Target },
                       ].map(t => (
                         <button
@@ -519,11 +569,23 @@ const BusinessGuide: React.FC = () => {
                         <Sparkles size={120} className="md:w-40 md:h-40" />
                       </div>
                       <div className="relative z-10">
-                        <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-                          <span className="px-3 md:px-4 py-1 md:py-1.5 bg-brand-gold/10 text-brand-gold text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-gold/20">
-                            {activeTab === 'guide' ? (guideType === 'product' ? '产品打法' : guideType === 'industry' ? '行业洞察' : '场景策略') : '风格卡片'}
-                          </span>
-                          <h2 className="text-2xl md:text-3xl font-serif text-brand-dark">{(activeContent as any).name}</h2>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 md:mb-6">
+                          <div className="flex items-center gap-3 md:gap-4">
+                            <span className="px-3 md:px-4 py-1 md:py-1.5 bg-brand-gold/10 text-brand-gold text-[9px] md:text-[10px] font-bold uppercase tracking-widest rounded-full border border-brand-gold/20">
+                              {activeTab === 'guide' ? (guideType === 'product' ? '产品打法' : guideType === 'industry' ? '行业洞察' : '场景策略') : '风格卡片'}
+                            </span>
+                            <h2 className="text-2xl md:text-3xl font-serif text-brand-dark">{(activeContent as any).name}</h2>
+                          </div>
+                          {activeTab === 'guide' && guideType === 'product' && (activeContent as ProductCard).relatedSkill && (
+                            <button 
+                              onClick={() => navigate((activeContent as ProductCard).relatedSkill!.path)}
+                              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-brand-dark text-white rounded-xl font-bold text-[10px] md:text-xs hover:bg-brand-dark/90 transition-all shadow-lg group/btn self-start sm:self-auto"
+                            >
+                              <Sparkles size={14} className="text-brand-gold" />
+                              立即调用: {(activeContent as ProductCard).relatedSkill!.name}
+                              <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
+                            </button>
+                          )}
                         </div>
                         <p className="text-base md:text-lg text-brand-gray font-medium leading-relaxed max-w-3xl">
                           {activeTab === 'guide' 
@@ -543,7 +605,16 @@ const BusinessGuide: React.FC = () => {
                               <ContentCard title="准入判断" icon={ShieldCheck} list={(activeContent as ProductCard).entryCriteria} />
                               <ContentCard title="进门对话" icon={MessageSquare} content={(activeContent as ProductCard).openingTalk} copyable />
                               <ContentCard title="需求识别" icon={Target} content={(activeContent as ProductCard).needRecognition} />
-                              <ContentCard title="材料清单" icon={FileText} list={(activeContent as ProductCard).materials} copyable />
+                              <ContentCard 
+                                title="材料清单" 
+                                icon={FileText} 
+                                list={(activeContent as ProductCard).materials} 
+                                copyable 
+                                action={(activeContent as ProductCard).relatedSkill?.path.includes('material-checklist') ? {
+                                  label: '去生成授信清单',
+                                  onClick: () => navigate((activeContent as ProductCard).relatedSkill!.path)
+                                } : undefined}
+                              />
                               <ContentCard title="推进路径" icon={TrendingUp} list={(activeContent as ProductCard).steps} />
                               <ContentCard title="禁忌表达" icon={Ban} list={(activeContent as ProductCard).forbiddenPhrases} warning />
                             </>
@@ -605,13 +676,14 @@ const BusinessGuide: React.FC = () => {
 );
 };
 
-const ContentCard = ({ title, icon: Icon, content, list, copyable, warning }: { 
+const ContentCard = ({ title, icon: Icon, content, list, copyable, warning, action }: { 
   title: string, 
   icon: any, 
   content?: string, 
   list?: string[], 
   copyable?: boolean,
-  warning?: boolean
+  warning?: boolean,
+  action?: { label: string, onClick: () => void }
 }) => (
   <div className={cn(
     "bg-white p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border shadow-sm flex flex-col group transition-all hover:shadow-md",
@@ -664,6 +736,16 @@ const ContentCard = ({ title, icon: Icon, content, list, copyable, warning }: {
             </li>
           ))}
         </ul>
+      )}
+      {action && (
+        <button 
+          onClick={action.onClick}
+          className="mt-6 w-full flex items-center justify-center gap-2 py-3 bg-brand-light-gray hover:bg-brand-border/20 text-brand-dark rounded-xl text-[10px] md:text-xs font-bold transition-all border border-brand-border/10 group/act"
+        >
+          <Sparkles size={14} className="text-brand-gold group-hover/act:scale-110 transition-transform" />
+          {action.label}
+          <ArrowRight size={12} className="group-hover/act:translate-x-1 transition-transform" />
+        </button>
       )}
     </div>
   </div>

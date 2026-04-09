@@ -15,6 +15,7 @@ import MaterialChecklistCenter from './MaterialChecklistCenter';
 import AppLayout from '../src/components/layout/AppLayout';
 
 const FengShuiCalendar = () => {
+  const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [direction, setDirection] = useState(0);
   const [showDivination, setShowDivination] = useState(false);
@@ -308,31 +309,40 @@ const FengShuiCalendar = () => {
                 <Compass size={14} /> 今日打工风水 | Daily Feng Shui
               </h5>
               <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-[#D4AF37]">
+                <div 
+                  onClick={() => navigate('/bbs')}
+                  className="flex items-center gap-4 cursor-pointer group/item"
+                >
+                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-[#D4AF37] group-hover/item:scale-110 transition-transform">
                     <Palette size={18} />
                   </div>
                   <div>
                     <p className="text-[9px] text-white/40 uppercase font-bold">Lucky Color | 宜穿/带颜色</p>
-                    <p className="text-xs font-bold">{getFengShui(Math.min(new Date().getDate(), totalDays)).color}</p>
+                    <p className="text-xs font-bold group-hover/item:text-[#D4AF37] transition-colors">{getFengShui(Math.min(new Date().getDate(), totalDays)).color}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-[#D4AF37]">
+                <div 
+                  onClick={() => navigate('/skills')}
+                  className="flex items-center gap-4 cursor-pointer group/item"
+                >
+                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-[#D4AF37] group-hover/item:scale-110 transition-transform">
                     <Sun size={18} />
                   </div>
                   <div>
                     <p className="text-[9px] text-white/40 uppercase font-bold">Lucky Item | 开运好物</p>
-                    <p className="text-xs font-bold">{getFengShui(Math.min(new Date().getDate(), totalDays)).item}</p>
+                    <p className="text-xs font-bold group-hover/item:text-[#D4AF37] transition-colors">{getFengShui(Math.min(new Date().getDate(), totalDays)).item}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-red-400">
+                <div 
+                  onClick={() => navigate('/business-guide')}
+                  className="flex items-center gap-4 cursor-pointer group/item"
+                >
+                  <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-red-400 group-hover/item:scale-110 transition-transform">
                     <Ban size={18} />
                   </div>
                   <div>
                     <p className="text-[9px] text-white/40 uppercase font-bold">Taboo | 打工大忌</p>
-                    <p className="text-xs font-bold">{getFengShui(Math.min(new Date().getDate(), totalDays)).taboo}</p>
+                    <p className="text-xs font-bold group-hover/item:text-red-400 transition-colors">{getFengShui(Math.min(new Date().getDate(), totalDays)).taboo}</p>
                   </div>
                 </div>
               </div>
