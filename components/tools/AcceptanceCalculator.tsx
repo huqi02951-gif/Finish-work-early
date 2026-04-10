@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calculator, Trash2, Copy, CheckCircle2, Info, ArrowRight, FileText, Sparkles, ArrowLeft, RefreshCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/utils';
+import AppLayout from '../../src/components/layout/AppLayout';
 
 const AcceptanceCalculator: React.FC = () => {
   const navigate = useNavigate();
@@ -193,14 +194,9 @@ const AcceptanceCalculator: React.FC = () => {
   };
 
   return (
-    <div className="py-24 bg-brand-offwhite min-h-screen">
-      <div className="container mx-auto px-6">
-        <button 
-          onClick={() => navigate(-1)} 
-          className="flex items-center gap-3 text-brand-gray hover:text-brand-dark transition-all mb-16 group font-bold text-sm uppercase tracking-widest opacity-60 hover:opacity-100"
-        >
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 返回上一页
-        </button>
+    <AppLayout title="银承/存单测算" showBack>
+    <div className="py-4 md:py-8 bg-brand-offwhite min-h-screen">
+      <div className="container mx-auto px-4 md:px-6">
 
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12 md:mb-16 animate-fade-in-up">
@@ -456,6 +452,7 @@ const AcceptanceCalculator: React.FC = () => {
         </div>
       </div>
     </div>
+    </AppLayout>
   );
 };
 

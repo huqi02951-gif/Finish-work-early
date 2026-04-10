@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { Document, Packer, Paragraph, TextRun, AlignmentType, ImageRun, HeadingLevel } from 'docx';
 import { saveAs } from 'file-saver';
+import AppLayout from '../../src/components/layout/AppLayout';
 
 // --- Typesetting Configuration ---
 const TYPESETTING_CONFIG = {
@@ -236,14 +237,9 @@ const NewsTypesettingAssistant: React.FC = () => {
   }, [result, images]);
 
   return (
-    <div className="py-24 bg-brand-offwhite min-h-screen">
-      <div className="container mx-auto px-6">
-        <button 
-          onClick={() => navigate(-1)} 
-          className="flex items-center gap-3 text-brand-gray hover:text-brand-dark transition-all mb-16 group font-bold text-sm uppercase tracking-widest opacity-60 hover:opacity-100"
-        >
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 返回上一页
-        </button>
+    <AppLayout title="宣传稿排版助手" showBack>
+    <div className="py-4 md:py-8 bg-brand-offwhite min-h-screen">
+      <div className="container mx-auto px-4 md:px-6">
 
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12 md:mb-16 animate-fade-in-up">
@@ -527,6 +523,7 @@ const NewsTypesettingAssistant: React.FC = () => {
         </div>
       </div>
     </div>
+    </AppLayout>
   );
 };
 

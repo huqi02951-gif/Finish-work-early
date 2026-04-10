@@ -47,15 +47,13 @@ const FengShuiCalendar = () => {
       ganZhiYear: l.getYearInGanZhi(),
       ganZhiMonth: l.getMonthInGanZhi(),
       ganZhiDay: l.getDayInGanZhi(),
-      zodiac: l.getYearZodiac(),
+      zodiac: l.getYearShengXiao(),
       yi: l.getDayYi(),
       ji: l.getDayJi(),
-      lucky: l.getDayLuck(),
-      wuXing: l.getDayWuXing(),
+      wuXing: l.getDayNaYin(),
       chong: l.getDayChongDesc(),
       sha: l.getDaySha(),
       position: l.getDayPositionXiDesc(),
-      luckyColor: l.getDayLuckName(),
     };
   };
 
@@ -69,7 +67,7 @@ const FengShuiCalendar = () => {
         </div>
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)))}
+            onClick={() => { const d = new Date(currentDate); d.setMonth(d.getMonth() - 1); setCurrentDate(d); }}
             className="p-1.5 hover:bg-white/5 rounded-lg transition-colors text-white/60"
           >
             <ChevronRight className="w-4 h-4 rotate-180" />
@@ -78,7 +76,7 @@ const FengShuiCalendar = () => {
             {currentDate.getFullYear()}年 {currentDate.getMonth() + 1}月
           </span>
           <button 
-            onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)))}
+            onClick={() => { const d = new Date(currentDate); d.setMonth(d.getMonth() + 1); setCurrentDate(d); }}
             className="p-1.5 hover:bg-white/5 rounded-lg transition-colors text-white/60"
           >
             <ChevronRight className="w-4 h-4" />
