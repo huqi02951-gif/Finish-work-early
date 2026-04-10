@@ -307,13 +307,13 @@ const Profile: React.FC = () => {
                   {/* CPU / Usage bars */}
                   <div className="border border-[#00ff41]/20 p-3">
                     <div className="text-[10px] text-[#00ff41] mb-2 pb-1 border-b border-[#00ff41]/20 flex items-center gap-1">
-                      <Cpu className="w-3 h-3"/> SCENARIO_ALLOCATION
+                      <Cpu className="w-3 h-3"/> 系统算力分配池 (ALLOCATION)
                     </div>
                     {[
-                      { label: 'CLIENT_OPS', val: 85 },
-                      { label: 'AUDIT_NET', val: 62 },
-                      { label: 'MID_OFFICE', val: 45 },
-                      { label: 'SELF_CARE', val: 78 },
+                      { label: '对客模块运算', val: 85 },
+                      { label: '审查网络嗅探', val: 62 },
+                      { label: '中后台数据处理', val: 45 },
+                      { label: '算力自我结晶', val: 78 },
                     ].map((item, idx) => (
                       <div key={idx} className="flex items-center text-[10px] my-1.5">
                         <span className="w-20 text-[#00ff41]/70">{item.label}</span>
@@ -333,7 +333,7 @@ const Profile: React.FC = () => {
               {activeTab === 'MODULES' && (
                 <motion.div key="modules" initial={{opacity:0, x:-5}} animate={{opacity:1, x:0}} exit={{opacity:0}} className="space-y-2">
                   <div className="text-[#00ff41] text-[10px] mb-2 opacity-70">
-                    <span className="text-gray-500">$</span> ls -la ./quick_tools/
+                    <span className="text-gray-500">$</span> ls -la ./可用权限模块/
                   </div>
                   {quickTools.map((tool, idx) => (
                     <motion.div 
@@ -345,7 +345,7 @@ const Profile: React.FC = () => {
                       <div className="flex flex-col">
                         <span className="text-[#00ff41] text-xs font-bold font-mono group-hover:hidden transition-all">{tool.cmd}</span>
                         <span className="text-[#00ff41] text-xs font-bold font-mono hidden group-hover:block transition-all">
-                          <span className="bg-[#00ff41] text-black px-1.5 mr-1">EXEC</span> {tool.label}
+                          <span className="bg-[#00ff41] text-black px-1.5 mr-1">运行</span> {tool.label}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -362,8 +362,8 @@ const Profile: React.FC = () => {
                   {/* Additional directories */}
                   <div className="pt-4 grid grid-cols-2 gap-2">
                     {[
-                      { icon: FolderTree, label: '../settings', path: '/settings' },
-                      { icon: FolderTree, label: '../bbs_logs', path: '/bbs' },
+                      { icon: FolderTree, label: '../系统配置', path: '/settings' },
+                      { icon: FolderTree, label: '../暗网交流区', path: '/bbs' },
                     ].map((dir, idx) => (
                       <Link key={idx} to={dir.path} className="flex items-center gap-1.5 text-[10px] text-gray-500 hover:text-[#00ff41] transition-colors cursor-pointer border border-transparent hover:border-[#00ff41]/30 bg-[#1a1a1a] p-2">
                         <dir.icon className="w-3.5 h-3.5" /> {dir.label}
@@ -376,14 +376,14 @@ const Profile: React.FC = () => {
               {activeTab === 'ACHIEVEMENTS' && (
                 <motion.div key="achievements" initial={{opacity:0, x:-5}} animate={{opacity:1, x:0}} exit={{opacity:0}}>
                   <div className="border border-[#00ff41]/20 bg-black p-3 space-y-3">
-                    <div className="text-[10px] text-[#00ff41]/70 border-b border-[#00ff41]/20 pb-1 mb-2 font-mono">
-                      DECRYPTED CERTIFICATES
+                    <div className="text-[10px] text-[#00ff41]/70 border-b border-[#00ff41]/20 pb-1 mb-2 font-mono font-bold">
+                      [已解密干员荣誉凭证]
                     </div>
                     {[
-                      { title: 'MASTER_HACKER', stat: 'Used 10+ Tools', unlocked: true },
-                      { title: 'RUNTIME_OVERLORD', stat: '7x NO OVERTIME', unlocked: true },
-                      { title: 'SIGNAL_AMPLIFIER', stat: '100+ LIKES/POST', unlocked: true },
-                      { title: 'CRON_MASTER', stat: '100 POMODOROS', unlocked: false },
+                      { title: '初级黑客大师', stat: '调用超过10次权限模块', unlocked: true },
+                      { title: '准点下班真神', stat: '连续7天未被剥削剩余价值', unlocked: true },
+                      { title: '赛博广播放大器', stat: '帖文获得超过100次算力共鸣', unlocked: true },
+                      { title: '时间管理大师', stat: '累积挂载100个番茄防御节点', unlocked: false },
                     ].map((ach, idx) => (
                       <div key={idx} className={cn(
                         "flex items-center justify-between p-2 border-l-2",
@@ -391,7 +391,7 @@ const Profile: React.FC = () => {
                       )}>
                         <div>
                           <div className={cn("text-[10px] font-bold tracking-widest", ach.unlocked ? "text-[#00ff41]" : "text-gray-500")}>
-                            {ach.unlocked ? `[${ach.title}]` : '[ENCRYPTED_BLOCK]'}
+                            {ach.unlocked ? `[${ach.title}]` : '[权限受限_待解密区块]'}
                           </div>
                           <div className="text-[8px] opacity-70 mt-0.5">{ach.stat}</div>
                         </div>
@@ -415,7 +415,7 @@ const Profile: React.FC = () => {
               <div className="absolute inset-0 bg-red-500/10 -translate-x-full group-hover:translate-x-0 transition-transform duration-300 pointer-events-none"></div>
               <span className="text-[11px] text-red-500 font-bold font-mono group-hover:text-red-400 z-10 transition-colors">
                 <span className="text-gray-600 mr-2">$</span>
-                sudo poweroff --terminate
+                sudo poweroff --退出暗网链接
               </span>
               <LogOut className="w-4 h-4 text-red-500 group-hover:text-red-400 z-10" />
             </button>
