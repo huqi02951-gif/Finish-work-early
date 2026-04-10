@@ -111,64 +111,64 @@ const BBSCenter: React.FC = () => {
     <AppLayout title="BBS 中心" showBack>
       <div className="min-h-screen bg-[#0a0a0c] text-white pb-24">
         {/* Immersive Header */}
-        <header className="relative px-6 pt-10 sm:pt-16 pb-8 sm:pb-12 overflow-hidden">
+        <header className="relative px-6 pt-8 sm:pt-16 pb-6 sm:pb-12 overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.1),transparent_70%)]"></div>
           <div className="absolute -top-24 -left-24 w-64 h-64 bg-brand-gold/5 rounded-full blur-[100px]"></div>
           
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-brand-gold shadow-[0_0_20px_rgba(197,160,89,0.1)]">
-                <Shield size={20} />
+            <div className="flex items-center gap-3 mb-3 sm:mb-4">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-brand-gold shadow-[0_0_20px_rgba(197,160,89,0.1)]">
+                <Shield className="w-[18px] h-[18px] sm:w-5 sm:h-5" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">BBS 中心</h1>
-                <p className="text-[9px] sm:text-[10px] text-white/40 uppercase tracking-[0.3em] font-bold mt-1">Encrypted Knowledge Space</p>
+                <h1 className="text-xl sm:text-3xl font-bold tracking-tight">BBS 中心</h1>
+                <p className="text-[8px] sm:text-[10px] text-white/40 uppercase tracking-[0.3em] font-bold mt-0.5 sm:mt-1">Encrypted Knowledge Space</p>
               </div>
             </div>
-            <p className="text-white/60 text-xs sm:text-sm max-w-md leading-relaxed font-medium">
+            <p className="text-white/60 text-[11px] sm:text-sm max-w-md leading-relaxed font-medium">
               专属于客户经理的经验情报站。在这里，每一份实战经验都是进阶的阶梯。
             </p>
           </div>
         </header>
 
         {/* Search & Post Bar */}
-        <div className="px-6 mb-8">
-          <div className="flex flex-col gap-4">
+        <div className="px-6 mb-6 sm:mb-8">
+          <div className="flex flex-col gap-3 sm:gap-4">
             <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-brand-gold transition-colors" size={18} />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-brand-gold transition-colors w-4 h-4 sm:w-[18px] sm:h-[18px]" />
               <input 
                 type="text" 
                 placeholder="搜索经验、情报或话题..." 
-                className="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:border-brand-gold/50 focus:ring-4 focus:ring-brand-gold/5 transition-all text-sm font-medium placeholder:text-white/20"
+                className="w-full pl-11 pr-4 py-3 sm:py-4 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:border-brand-gold/50 focus:ring-4 focus:ring-brand-gold/5 transition-all text-xs sm:text-sm font-medium placeholder:text-white/20"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
               <div className="flex p-1 bg-white/5 rounded-xl border border-white/10">
                 <button 
                   onClick={() => setIsAnonymousMode(false)}
                   className={cn(
-                    "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-[11px] font-bold transition-all",
+                    "flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all",
                     !isAnonymousMode ? "bg-white/10 text-white shadow-lg" : "text-white/40 hover:text-white/60"
                   )}
                 >
-                  <Eye size={14} /> 公开发帖
+                  <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> 公开
                 </button>
                 <button 
                   onClick={() => setIsAnonymousMode(true)}
                   className={cn(
-                    "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-[11px] font-bold transition-all",
+                    "flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-[10px] sm:text-[11px] font-bold transition-all",
                     isAnonymousMode ? "bg-brand-gold/20 text-brand-gold shadow-lg" : "text-white/40 hover:text-white/60"
                   )}
                 >
-                  <EyeOff size={14} /> 匿名模式
+                  <EyeOff className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> 匿名
                 </button>
               </div>
               
-              <button className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-gold text-brand-dark rounded-xl font-bold text-xs hover:scale-[1.02] active:scale-95 transition-all shadow-[0_10px_20px_rgba(197,160,89,0.2)]">
-                <Plus size={16} /> 发布新帖
+              <button className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-gold text-brand-dark rounded-xl font-bold text-[11px] sm:text-xs hover:scale-[1.02] active:scale-95 transition-all shadow-[0_10px_20px_rgba(197,160,89,0.2)]">
+                <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 发布新帖
               </button>
             </div>
           </div>
@@ -184,13 +184,13 @@ const BBSCenter: React.FC = () => {
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.name)}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap border text-left w-full",
+                    "flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl text-[11px] sm:text-sm font-bold transition-all whitespace-nowrap border text-left w-full",
                     activeCategory === cat.name 
                       ? "bg-brand-gold/10 text-brand-gold border-brand-gold/30 shadow-[0_0_15px_rgba(197,160,89,0.1)]" 
                       : "bg-white/5 text-white/40 border-white/5 hover:bg-white/10 hover:text-white"
                   )}
                 >
-                  <cat.icon size={18} className={cn(activeCategory === cat.name ? "text-brand-gold" : "opacity-50")} />
+                  <cat.icon className={cn("w-4 h-4 sm:w-[18px] sm:h-[18px]", activeCategory === cat.name ? "text-brand-gold" : "opacity-50")} />
                   <div className="hidden lg:block">
                     <p>{cat.name}</p>
                     {cat.desc && <p className="text-[9px] font-medium opacity-40 mt-0.5">{cat.desc}</p>}
@@ -216,7 +216,7 @@ const BBSCenter: React.FC = () => {
                       "w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold border",
                       post.isAnonymous ? "bg-brand-gold/10 text-brand-gold border-brand-gold/20" : "bg-white/10 text-white/60 border-white/10"
                     )}>
-                      {post.isAnonymous ? <Lock size={14} /> : <User size={14} />}
+                      {post.isAnonymous ? <Lock className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
                     </div>
                     <div>
                       <p className={cn("text-xs font-bold", post.isAnonymous ? "text-brand-gold" : "text-white/80")}>
@@ -226,16 +226,16 @@ const BBSCenter: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-lg border border-white/5">
-                    <Flame size={12} className="text-orange-500" />
+                    <Flame className="w-3 h-3 text-orange-500" />
                     <span className="text-[10px] font-bold text-white/40">{post.hotValue}</span>
                   </div>
                 </div>
 
-                <h3 className="text-lg font-bold text-white mb-3 group-hover:text-brand-gold transition-colors leading-tight">
+                <h3 className="text-base sm:text-lg font-bold text-white mb-2 sm:mb-3 group-hover:text-brand-gold transition-colors leading-tight">
                   {post.title}
                 </h3>
                 
-                <p className="text-sm text-white/50 mb-6 line-clamp-2 font-medium leading-relaxed">
+                <p className="text-[11px] sm:text-sm text-white/50 mb-4 sm:mb-6 line-clamp-2 font-medium leading-relaxed">
                   {post.summary}
                 </p>
 
@@ -250,16 +250,16 @@ const BBSCenter: React.FC = () => {
                 <div className="flex items-center justify-between pt-4 border-t border-white/5">
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2 text-white/30 hover:text-brand-gold transition-colors">
-                      <ThumbsUp size={16} />
+                      <ThumbsUp className="w-4 h-4" />
                       <span className="text-xs font-bold">{post.likes}</span>
                     </div>
                     <div className="flex items-center gap-2 text-white/30 hover:text-brand-gold transition-colors">
-                      <ReplyIcon size={16} />
+                      <ReplyIcon className="w-4 h-4" />
                       <span className="text-xs font-bold">{post.replies}</span>
                     </div>
                   </div>
                   <button className="p-2 text-white/20 hover:text-white transition-colors">
-                    <Bookmark size={16} />
+                    <Bookmark className="w-4 h-4" />
                   </button>
                 </div>
               </motion.div>
@@ -270,7 +270,7 @@ const BBSCenter: React.FC = () => {
           <div className="lg:col-span-3 hidden lg:block space-y-8">
             <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6">
               <h4 className="text-xs font-bold uppercase tracking-widest text-brand-gold mb-6 flex items-center gap-2">
-                <Flame size={16} /> 今日热议榜
+                <Flame className="w-4 h-4" /> 今日热议榜
               </h4>
               <div className="space-y-6">
                 {posts.slice(0, 3).map((post, idx) => (
@@ -289,7 +289,7 @@ const BBSCenter: React.FC = () => {
 
             <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6">
               <h4 className="text-xs font-bold uppercase tracking-widest text-white/40 mb-6 flex items-center gap-2">
-                <Tag size={16} /> 热门标签
+                <Tag className="w-4 h-4" /> 热门标签
               </h4>
               <div className="flex flex-wrap gap-2">
                 {hotTags.map(tag => (
@@ -302,7 +302,7 @@ const BBSCenter: React.FC = () => {
 
             <div className="p-6 bg-brand-gold/5 border border-brand-gold/10 rounded-[2rem]">
               <div className="flex items-center gap-2 text-brand-gold mb-3">
-                <Zap size={16} />
+                <Zap className="w-4 h-4" />
                 <span className="text-[10px] font-bold uppercase tracking-widest">情报局公告</span>
               </div>
               <p className="text-[11px] text-white/60 leading-relaxed font-medium">

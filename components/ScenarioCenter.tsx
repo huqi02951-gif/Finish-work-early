@@ -1415,31 +1415,31 @@ const ScenarioCenter: React.FC = () => {
 
   return (
     <AppLayout title="场景中心" showBack>
-      <div className="pb-24 bg-brand-offwhite min-h-screen">
+      <div className="pb-16 sm:pb-24 bg-brand-offwhite min-h-screen">
         {/* Apple Music Style Header */}
-        <header className="px-6 pt-12 pb-8">
-          <h1 className="text-4xl font-bold tracking-tight text-brand-dark mb-2">场景中心</h1>
-          <p className="text-brand-gray font-medium text-sm max-w-md">
+        <header className="px-6 pt-8 sm:pt-12 pb-6 sm:pb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-brand-dark mb-2">场景中心</h1>
+          <p className="text-brand-gray font-medium text-xs sm:text-sm max-w-md">
             按业务场景组织，直观展示每个环节下的实用工具。
             从客户沟通到内部审批，全方位提升作业效能。
           </p>
         </header>
 
         {/* Segmented Control Style Tabs */}
-        <div className="px-6 mb-10 overflow-x-auto no-scrollbar">
+        <div className="px-6 mb-6 sm:mb-10 overflow-x-auto no-scrollbar">
           <div className="inline-flex p-1 bg-brand-light-gray rounded-2xl border border-brand-border/5">
             {scenarios.map((s) => (
               <button
                 key={s.id}
                 onClick={() => handleTabChange(s.id)}
                 className={cn(
-                  "px-6 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-300 whitespace-nowrap flex items-center gap-2",
+                  "px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-[13px] font-bold transition-all duration-300 whitespace-nowrap flex items-center gap-2",
                   activeTab === s.id 
                     ? "bg-white text-brand-dark shadow-sm scale-100" 
                     : "text-brand-gray hover:text-brand-dark"
                 )}
               >
-                <s.icon size={14} className={cn(activeTab === s.id ? "text-apple-blue" : "opacity-50")} />
+                <s.icon size={12} className={cn(activeTab === s.id ? "text-apple-blue" : "opacity-50")} />
                 {s.title}
               </button>
             ))}
@@ -1451,18 +1451,19 @@ const ScenarioCenter: React.FC = () => {
             const relatedSkills = getSkillsByScenario(s.title);
             return (
               <div key={s.id}>
-                <div className="flex items-center gap-4 mb-8">
-                  <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg shrink-0", s.color)}>
-                    <s.icon size={24} className="text-white" />
+                <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+                  <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shrink-0", s.color)}>
+                    <s.icon size={20} className="text-white sm:hidden" />
+                    <s.icon size={24} className="text-white hidden sm:block" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-brand-dark tracking-tight">{s.title}</h2>
-                    <p className="text-xs text-brand-gray font-medium opacity-80">{s.desc}</p>
+                    <h2 className="text-xl sm:text-2xl font-bold text-brand-dark tracking-tight">{s.title}</h2>
+                    <p className="text-[10px] sm:text-xs text-brand-gray font-medium opacity-80">{s.desc}</p>
                   </div>
                 </div>
 
                 {s.id === 'self' ? (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10">
                     <FoodSelector />
                     <EfficientOffDutyGame />
                     <FocusTimer />
@@ -1470,28 +1471,28 @@ const ScenarioCenter: React.FC = () => {
                     <FengShuiCalendar />
                   </div>
                 ) : s.id === 'customer' ? (
-                  <div className="space-y-12 md:space-y-16">
+                  <div className="space-y-8 sm:space-y-12 md:space-y-16">
                     <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                       <BusinessGuideModule />
                     </div>
-
+ 
                     <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                      <div className="flex items-center justify-between mb-6 md:mb-10">
-                        <h3 className="font-serif text-2xl md:text-3xl text-brand-dark tracking-tight">核心沟通工具</h3>
+                      <div className="flex items-center justify-between mb-6 sm:mb-10">
+                        <h3 className="font-serif text-xl sm:text-2xl md:text-3xl text-brand-dark tracking-tight">核心沟通工具</h3>
                         <div className="h-px flex-grow bg-brand-border/10 ml-4 md:ml-8"></div>
                       </div>
                       <SensitiveCommModule />
                     </div>
-
+ 
                     <div className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
                       <MaterialChecklistCenter />
                     </div>
                     
-                    <div className="pt-10 md:pt-16 border-t border-brand-border/5">
-                      <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-xl font-bold text-brand-dark tracking-tight">更多实用工具</h3>
+                    <div className="pt-8 sm:pt-10 md:pt-16 border-t border-brand-border/5">
+                      <div className="flex items-center justify-between mb-6 sm:mb-8">
+                        <h3 className="text-lg sm:text-xl font-bold text-brand-dark tracking-tight">更多实用工具</h3>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         {relatedSkills.filter(skill => skill.id !== 'sensitive-comm-assistant').map(skill => (
                           <div key={skill.id} className="bg-white p-6 rounded-3xl border border-brand-border/5 shadow-sm hover:shadow-xl transition-all duration-500 group flex flex-col">
                             <div className="flex justify-between items-start mb-6">
