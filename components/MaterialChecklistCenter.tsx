@@ -378,24 +378,24 @@ const MaterialChecklistCenter: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-[2.5rem] border border-brand-border/10 shadow-sm overflow-hidden flex flex-col h-full">
+    <div className="bg-white rounded-3xl md:rounded-[2.5rem] border border-brand-border/10 shadow-sm overflow-hidden flex flex-col h-full">
       {/* Header */}
-      <div className="p-6 sm:p-8 border-b border-brand-border/10 bg-brand-light-gray/30 shrink-0">
-        <div className="flex justify-between items-center mb-4 sm:mb-6">
+      <div className="p-5 sm:p-10 border-b border-brand-border/10 bg-brand-light-gray/20 shrink-0">
+        <div className="flex justify-between items-center mb-6 sm:mb-10">
           <div>
-            <h3 className="font-serif text-2xl sm:text-3xl text-brand-dark mb-1 sm:mb-2 tracking-tight">材料清单中心</h3>
-            <p className="text-brand-gray text-[10px] sm:text-sm font-medium opacity-60">快速生成对客业务材料清单与沟通话术</p>
+            <h3 className="font-serif text-xl sm:text-4xl text-brand-dark mb-1 tracking-tight">材料清单中心</h3>
+            <p className="text-brand-gray text-[10px] sm:text-lg font-medium opacity-60">快速生成对客业务材料清单与沟通话术</p>
           </div>
           <button 
             onClick={handleReset}
-            className="p-2 sm:p-3 text-brand-gray hover:text-brand-dark hover:bg-white rounded-xl sm:rounded-2xl transition-all border border-transparent hover:border-brand-border/20"
+            className="p-2 sm:p-4 text-brand-gray hover:text-brand-dark hover:bg-white rounded-xl sm:rounded-2xl transition-all border border-transparent hover:border-brand-border/20 shadow-sm"
           >
-            <RotateCcw className="w-[18px] h-[18px] sm:w-5 sm:h-5" />
+            <RotateCcw className="w-4 h-4 sm:w-6 sm:h-6" />
           </button>
         </div>
  
         {/* Steps Indicator */}
-        <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto no-scrollbar pb-2 sm:pb-0">
+        <div className="flex items-center gap-2 sm:gap-6 overflow-x-auto no-scrollbar pb-2 sm:pb-0">
           {[
             { id: 'category', label: '大类' },
             { id: 'business', label: '业务' },
@@ -406,20 +406,20 @@ const MaterialChecklistCenter: React.FC = () => {
             
             return (
               <React.Fragment key={s.id}>
-                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                   <div className={cn(
-                    "w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold transition-all",
-                    isActive ? "bg-brand-dark text-white shadow-lg scale-110" : 
+                    "w-6 h-6 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-[10px] sm:text-sm font-bold transition-all",
+                    isActive ? "bg-brand-dark text-white shadow-2xl scale-110" : 
                     isCompleted ? "bg-emerald-500 text-white" : "bg-brand-border/20 text-brand-gray"
                   )}>
-                    {isCompleted ? <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : idx + 1}
+                    {isCompleted ? <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" /> : idx + 1}
                   </div>
                   <span className={cn(
-                    "text-[9px] sm:text-xs font-bold tracking-widest uppercase",
+                    "text-[10px] sm:text-sm font-bold tracking-widest uppercase",
                     isActive ? "text-brand-dark" : "text-brand-gray/40"
                   )}>{s.label}</span>
                 </div>
-                {idx < 2 && <div className="w-4 sm:w-8 h-px bg-brand-border/20 shrink-0" />}
+                {idx < 2 && <div className="w-4 sm:w-12 h-px bg-brand-border/20 shrink-0" />}
               </React.Fragment>
             );
           })}
@@ -436,37 +436,41 @@ const MaterialChecklistCenter: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8"
+                className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8"
               >
                 <button 
                   onClick={() => { setMainType('counter'); setStep('business'); }}
-                  className="group p-8 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border-2 border-brand-border/10 hover:border-brand-gold/30 hover:bg-brand-gold/5 transition-all text-left flex flex-col justify-between min-h-[250px] sm:min-h-[300px]"
+                  className="group p-5 sm:p-10 rounded-2xl sm:rounded-[2.5rem] border-2 border-brand-border/10 hover:border-brand-gold/30 hover:bg-brand-gold/5 transition-all text-left flex flex-row sm:flex-col items-center sm:items-start justify-between sm:justify-between min-h-[100px] sm:min-h-[300px] gap-4"
                 >
-                  <div>
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-50 text-blue-600 rounded-2xl sm:rounded-3xl flex items-center justify-center mb-6 sm:mb-8 group-hover:scale-110 transition-transform">
-                      <Building2 className="w-6 h-6 sm:w-8 sm:h-8" />
+                  <div className="flex flex-row sm:flex-col items-center sm:items-start gap-4 sm:gap-0">
+                    <div className="w-10 h-10 sm:w-16 sm:h-16 bg-blue-50 text-blue-600 rounded-xl sm:rounded-3xl flex items-center justify-center mb-0 sm:mb-8 group-hover:scale-110 transition-transform shrink-0">
+                      <Building2 className="w-5 h-5 sm:w-8 sm:h-8" />
                     </div>
-                    <h4 className="font-serif text-xl sm:text-2xl text-brand-dark mb-3 sm:mb-4">柜面业务类</h4>
-                    <p className="text-brand-gray text-xs sm:text-sm leading-relaxed opacity-80">包含开户、销户、变更户名/法人、久悬户返还等基础柜面业务。</p>
+                    <div>
+                      <h4 className="font-serif text-base sm:text-2xl text-brand-dark mb-1 sm:mb-4">柜面业务类</h4>
+                      <p className="text-brand-gray text-[10px] sm:text-sm leading-tight sm:leading-relaxed opacity-80 line-clamp-2 sm:line-clamp-none">开户、销户、变更、久悬户返还等基础业务。</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-brand-gold font-bold text-xs sm:text-sm mt-6 sm:mt-8">
-                    进入选择 <ChevronRight className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+                  <div className="flex items-center gap-2 text-brand-gold font-bold text-[10px] sm:text-sm shrink-0">
+                    <span className="hidden sm:inline">进入选择</span> <ChevronRight className="w-3 h-3 sm:w-[18px] sm:h-[18px]" />
                   </div>
                 </button>
  
                 <button 
                   onClick={() => { setMainType('credit'); setStep('business'); }}
-                  className="group p-8 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border-2 border-brand-border/10 hover:border-brand-gold/30 hover:bg-brand-gold/5 transition-all text-left flex flex-col justify-between min-h-[250px] sm:min-h-[300px]"
+                  className="group p-5 sm:p-10 rounded-2xl sm:rounded-[2.5rem] border-2 border-brand-border/10 hover:border-brand-gold/30 hover:bg-brand-gold/5 transition-all text-left flex flex-row sm:flex-col items-center sm:items-start justify-between sm:justify-between min-h-[100px] sm:min-h-[300px] gap-4"
                 >
-                  <div>
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-50 text-purple-600 rounded-2xl sm:rounded-3xl flex items-center justify-center mb-6 sm:mb-8 group-hover:scale-110 transition-transform">
-                      <CreditCard className="w-6 h-6 sm:w-8 sm:h-8" />
+                  <div className="flex flex-row sm:flex-col items-center sm:items-start gap-4 sm:gap-0">
+                    <div className="w-10 h-10 sm:w-16 sm:h-16 bg-purple-50 text-purple-600 rounded-xl sm:rounded-3xl flex items-center justify-center mb-0 sm:mb-8 group-hover:scale-110 transition-transform shrink-0">
+                      <CreditCard className="w-5 h-5 sm:w-8 sm:h-8" />
                     </div>
-                    <h4 className="font-serif text-xl sm:text-2xl text-brand-dark mb-3 sm:mb-4">授信业务类</h4>
-                    <p className="text-brand-gray text-xs sm:text-sm leading-relaxed opacity-80">包含低风险、工商类通用版、小企业完整版授信资料清单。</p>
+                    <div>
+                      <h4 className="font-serif text-base sm:text-2xl text-brand-dark mb-1 sm:mb-4">授信业务类</h4>
+                      <p className="text-brand-gray text-[10px] sm:text-sm leading-tight sm:leading-relaxed opacity-80 line-clamp-2 sm:line-clamp-none">低风险、工商类、小企业完整版授信资料清单。</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-brand-gold font-bold text-xs sm:text-sm mt-6 sm:mt-8">
-                    进入选择 <ChevronRight className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+                  <div className="flex items-center gap-2 text-brand-gold font-bold text-[10px] sm:text-sm shrink-0">
+                    <span className="hidden sm:inline">进入选择</span> <ChevronRight className="w-3 h-3 sm:w-[18px] sm:h-[18px]" />
                   </div>
                 </button>
               </motion.div>
@@ -487,50 +491,50 @@ const MaterialChecklistCenter: React.FC = () => {
                   <h4 className="font-serif text-xl sm:text-2xl text-brand-dark">请选择具体业务场景</h4>
                 </div>
  
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10">
-                  <div className="space-y-3 sm:space-y-4">
-                    <p className="text-[9px] sm:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 sm:mb-4">业务分类</p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10">
+                  <div className="space-y-2 sm:space-y-4">
+                    <p className="text-[8px] sm:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 sm:mb-4">业务分类</p>
                     {categories.map(cat => (
                       <button
                         key={cat.id}
                         onClick={() => setSelectedCategory(cat)}
                         className={cn(
-                          "w-full p-4 sm:p-6 rounded-xl sm:rounded-2xl border transition-all text-left flex items-center justify-between group",
+                          "w-full p-3.5 sm:p-6 rounded-xl sm:rounded-2xl border transition-all text-left flex items-center justify-between group",
                           selectedCategory?.id === cat.id 
                             ? "bg-brand-dark text-white border-brand-dark shadow-xl" 
                             : "bg-white border-brand-border/10 hover:border-brand-border/30"
                         )}
                       >
-                        <span className="font-bold text-xs sm:text-sm">{cat.name}</span>
-                        <ChevronRight className={cn("w-4 h-4 sm:w-[18px] sm:h-[18px] transition-transform", selectedCategory?.id === cat.id ? "translate-x-1" : "opacity-0")} />
+                        <span className="font-bold text-[11px] sm:text-sm">{cat.name}</span>
+                        <ChevronRight className={cn("w-3.5 h-3.5 sm:w-[18px] sm:h-[18px] transition-transform", selectedCategory?.id === cat.id ? "translate-x-1" : "opacity-0")} />
                       </button>
                     ))}
                   </div>
  
-                  <div className="space-y-3 sm:space-y-4">
-                    <p className="text-[9px] sm:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 sm:mb-4">具体细分</p>
+                  <div className="space-y-2 sm:space-y-4">
+                    <p className="text-[8px] sm:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 sm:mb-4">具体细分</p>
                     {selectedCategory ? (
-                      <div className="grid grid-cols-1 gap-3 sm:gap-4">
+                      <div className="grid grid-cols-1 gap-2 sm:gap-4">
                         {selectedCategory.subCategories.map(sub => (
                           <button
                             key={sub.id}
                             onClick={() => { setSelectedSubCategory(sub); setStep('preview'); }}
-                            className="p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-brand-border/10 bg-brand-light-gray/20 hover:bg-white hover:border-brand-gold/30 hover:shadow-lg transition-all text-left group"
+                            className="p-3.5 sm:p-6 rounded-xl sm:rounded-2xl border border-brand-border/10 bg-brand-light-gray/20 hover:bg-white hover:border-brand-gold/30 hover:shadow-lg transition-all text-left group"
                           >
-                            <div className="flex justify-between items-center mb-1 sm:mb-2">
-                              <span className="font-bold text-xs sm:text-sm text-brand-dark">{sub.name}</span>
+                            <div className="flex justify-between items-center mb-0.5 sm:mb-2">
+                              <span className="font-bold text-[11px] sm:text-sm text-brand-dark">{sub.name}</span>
                               <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white rounded-full flex items-center justify-center text-brand-gold opacity-0 group-hover:opacity-100 transition-all">
-                                <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                               </div>
                             </div>
-                            <p className="text-[10px] sm:text-xs text-brand-gray opacity-60">包含 {sub.checklist.length} 项必备材料</p>
+                            <p className="text-[9px] sm:text-xs text-brand-gray opacity-60">包含 {sub.checklist.length} 项必备材料</p>
                           </button>
                         ))}
                       </div>
                     ) : (
-                      <div className="h-32 sm:h-40 border-2 border-dashed border-brand-border/20 rounded-[1.5rem] sm:rounded-[2rem] flex flex-col items-center justify-center text-brand-gray/40">
-                        <AlertCircle className="w-6 h-6 sm:w-8 sm:h-8 mb-2 opacity-20" />
-                        <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">请先选择左侧分类</p>
+                      <div className="h-24 sm:h-40 border-2 border-dashed border-brand-border/20 rounded-2xl sm:rounded-[2rem] flex flex-col items-center justify-center text-brand-gray/40">
+                        <AlertCircle className="w-5 h-5 sm:w-8 sm:h-8 mb-1 sm:mb-2 opacity-20" />
+                        <p className="text-[8px] sm:text-[10px] font-bold uppercase tracking-widest">请先选择左侧分类</p>
                       </div>
                     )}
                   </div>
@@ -560,23 +564,23 @@ const MaterialChecklistCenter: React.FC = () => {
                     <button 
                       onClick={() => setShowInfoForm(!showInfoForm)}
                       className={cn(
-                        "flex-grow sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-[10px] sm:text-xs flex items-center justify-center gap-2 transition-all shadow-lg",
+                        "flex-1 sm:flex-none px-3 sm:px-6 py-2 sm:py-3 rounded-xl font-bold text-[9px] sm:text-xs flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-lg",
                         showInfoForm ? "bg-brand-gold text-white" : "bg-white text-brand-gold border border-brand-gold/20"
                       )}
                     >
-                      <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> {showInfoForm ? '收起设置' : '完善信息'}
+                      <User className="w-3 h-3 sm:w-4 sm:h-4" /> {showInfoForm ? '收起' : '完善信息'}
                     </button>
                     <button 
                       onClick={exportWord}
-                      className="flex-grow sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-xl font-bold text-[10px] sm:text-xs flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg"
+                      className="flex-1 sm:flex-none px-3 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-xl font-bold text-[9px] sm:text-xs flex items-center justify-center gap-1.5 sm:gap-2 hover:bg-blue-700 transition-all shadow-lg"
                     >
-                      <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Word
+                      <FileText className="w-3 h-3 sm:w-4 sm:h-4" /> Word
                     </button>
                     <button 
                       onClick={exportExcel}
-                      className="flex-grow sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 bg-emerald-600 text-white rounded-xl font-bold text-[10px] sm:text-xs flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all shadow-lg"
+                      className="flex-1 sm:flex-none px-3 sm:px-6 py-2 sm:py-3 bg-emerald-600 text-white rounded-xl font-bold text-[9px] sm:text-xs flex items-center justify-center gap-1.5 sm:gap-2 hover:bg-emerald-700 transition-all shadow-lg"
                     >
-                      <FileSpreadsheet className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Excel
+                      <FileSpreadsheet className="w-3 h-3 sm:w-4 sm:h-4" /> Excel
                     </button>
                   </div>
                 </div>

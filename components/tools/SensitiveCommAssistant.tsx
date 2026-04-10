@@ -464,19 +464,19 @@ const SensitiveCommAssistant: React.FC = () => {
                 <h2 className="text-[10px] md:text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-6 md:mb-10 opacity-60 flex items-center gap-3">
                   <LayoutDashboard size={14} className="text-brand-gold md:w-4 md:h-4" /> 场景选择
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
                   {SCENARIOS.map((s) => (
                     <button
                       key={s.id}
                       onClick={() => setActiveScenario(s.id)}
                       className={cn(
-                        "p-3 md:p-4 rounded-xl md:rounded-2xl border transition-all flex flex-col items-center gap-2 md:gap-3 text-center group",
+                        "p-2.5 md:p-4 rounded-xl md:rounded-2xl border transition-all flex flex-col items-center gap-1.5 md:gap-3 text-center group",
                         activeScenario === s.id 
                           ? "bg-brand-dark text-white border-brand-dark shadow-lg" 
                           : "bg-brand-light-gray/50 border-transparent hover:bg-brand-light-gray text-brand-gray"
                       )}
                     >
-                      <s.icon size={18} className={cn("md:w-5 md:h-5", activeScenario === s.id ? "text-brand-gold" : "group-hover:text-brand-dark")} />
+                      <s.icon className={cn("w-4 h-4 md:w-5 md:h-5", activeScenario === s.id ? "text-brand-gold" : "group-hover:text-brand-dark")} />
                       <span className="text-[9px] md:text-[10px] font-bold leading-tight">{s.name}</span>
                     </button>
                   ))}
@@ -514,13 +514,13 @@ const SensitiveCommAssistant: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">沟通渠道</label>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-1.5 md:gap-2">
                       {['微信', '短信', '邮件', '电话'].map(c => (
                         <button 
                           key={c}
                           onClick={() => handleBasicChange('channel', c)}
                           className={cn(
-                            "flex-1 py-2.5 md:py-3 rounded-lg md:rounded-xl border text-[9px] md:text-[10px] font-bold transition-all",
+                            "flex-1 min-w-[50px] py-2 md:py-3 rounded-lg md:rounded-xl border text-[9px] md:text-[10px] font-bold transition-all",
                             basicParams.channel === c ? "bg-brand-dark text-white border-brand-dark" : "bg-brand-light-gray/50 border-transparent text-brand-gray"
                           )}
                         >
@@ -556,11 +556,11 @@ const SensitiveCommAssistant: React.FC = () => {
                 onClick={generateContent}
                 disabled={isGenerating}
                 className={cn(
-                  "w-full py-5 md:py-6 bg-brand-dark text-white rounded-2xl md:rounded-[2rem] font-bold text-lg md:text-xl transition-all shadow-2xl flex items-center justify-center gap-3 active:scale-95",
+                  "w-full py-4 md:py-6 bg-brand-dark text-white rounded-xl md:rounded-[2rem] font-bold text-base md:text-xl transition-all shadow-2xl flex items-center justify-center gap-2 md:gap-3 active:scale-95",
                   isGenerating ? "opacity-70 cursor-not-allowed" : "hover:bg-brand-dark/90"
                 )}
               >
-                {isGenerating ? <RefreshCcw size={20} className="md:w-6 md:h-6 animate-spin" /> : <MessageSquare size={20} className="md:w-6 md:h-6" />}
+                {isGenerating ? <RefreshCcw className="w-4 h-4 md:w-6 md:h-6 animate-spin" /> : <MessageSquare className="w-4 h-4 md:w-6 md:h-6" />}
                 {isGenerating ? '正在匹配规则生成...' : '生成沟通话术'}
               </button>
             </div>
@@ -569,13 +569,13 @@ const SensitiveCommAssistant: React.FC = () => {
             <div className="lg:col-span-5 space-y-8 md:space-y-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
               {/* 4. Output Area */}
               <div className="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-xl overflow-hidden flex flex-col min-h-[400px] md:min-h-[500px]">
-                <div className="bg-brand-light-gray/50 px-6 md:px-8 py-4 md:py-6 border-b border-brand-border/5 flex items-center justify-between">
-                  <h3 className="font-serif text-lg md:text-xl text-brand-dark flex items-center gap-2 md:gap-3">
-                    <CheckCircle2 size={18} className="md:w-5 md:h-5 text-emerald-500" /> 建议话术
+                <div className="bg-brand-light-gray/50 px-5 md:px-8 py-3.5 md:py-6 border-b border-brand-border/5 flex items-center justify-between">
+                  <h3 className="font-serif text-base md:text-xl text-brand-dark flex items-center gap-2 md:gap-3">
+                    <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 text-emerald-500" /> 建议话术
                   </h3>
                   <div className="flex gap-2">
                     <button className="p-1.5 md:p-2 bg-white text-brand-gray rounded-lg border border-brand-border/10 opacity-40 cursor-not-allowed" title="AI 优化 (后续开放)">
-                      <Sparkles size={14} className="md:w-4 md:h-4" />
+                      <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     </button>
                   </div>
                 </div>
@@ -625,9 +625,9 @@ const SensitiveCommAssistant: React.FC = () => {
                       </motion.div>
                     ) : (
                       <div className="absolute inset-0 flex flex-col items-center justify-center p-8 md:p-12 text-center opacity-20">
-                        <MessageSquare size={40} className="md:w-12 md:h-12 mb-4" />
+                        <MessageSquare className="w-10 h-10 md:w-12 md:h-12 mb-3 md:mb-4" />
                         <p className="text-[10px] md:text-sm font-bold uppercase tracking-widest">等待生成内容</p>
-                        <p className="text-[9px] md:text-xs mt-2">请在左侧选择场景并填写参数</p>
+                        <p className="text-[9px] md:text-xs mt-1.5 md:mt-2">请在左侧选择场景并填写参数</p>
                       </div>
                     )}
                   </AnimatePresence>

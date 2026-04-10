@@ -24,6 +24,31 @@ export interface Skill {
     speedUp: string;
     rolePlay: string;
     summary: string;
+    // New fields for professional RM guide
+    productBoundary?: {
+      suitable: string[];
+      unsuitable: string[];
+    };
+    highFreqQA?: {
+      question: string;
+      answer: string;
+      internalLogic: string;
+      prohibited: string;
+    }[];
+    speedUpChecklist?: {
+      rmActions: string[];
+      customerCooperation: string[];
+    };
+    industryMarketing?: {
+      manufacturing: string;
+      tech: string;
+    };
+    scripts?: {
+      initial: string;
+      deep: string;
+      followUp: string;
+    };
+    practicalLogic?: string[];
   };
 }
 

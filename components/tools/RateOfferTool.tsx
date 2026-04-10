@@ -251,142 +251,142 @@ const RateOfferTool: React.FC = () => {
         </button>
 
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16 animate-fade-in-up">
-            <div className="flex items-center gap-6">
-              <div className="w-16 h-16 bg-brand-gold/10 rounded-2xl flex items-center justify-center text-brand-gold shadow-sm border border-brand-gold/20">
-                <Sparkles size={32} />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12 md:mb-16 animate-fade-in-up">
+            <div className="flex items-center gap-4 md:gap-6">
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-gold/10 rounded-xl md:rounded-2xl flex items-center justify-center text-brand-gold shadow-sm border border-brand-gold/20 shrink-0">
+                <Sparkles className="w-6 h-6 md:w-8 md:h-8" />
               </div>
               <div>
-                <h1 className="text-4xl md:text-5xl font-serif text-brand-dark tracking-tight">利率优惠智能生成</h1>
-                <p className="text-lg text-brand-gray font-medium opacity-60 mt-2">自动生成规范化的利率优惠申请文案</p>
+                <h1 className="text-2xl md:text-5xl font-serif text-brand-dark tracking-tight">利率优惠智能生成</h1>
+                <p className="text-sm md:text-lg text-brand-gray font-medium opacity-60 mt-1 md:mt-2">自动生成规范化的利率优惠申请文案</p>
               </div>
             </div>
             <button 
               onClick={loadExample}
-              className="px-6 py-3 bg-white text-brand-dark border border-brand-border/10 rounded-xl font-bold text-sm hover:bg-brand-light-gray transition-all shadow-sm flex items-center gap-2"
+              className="w-full md:w-auto px-6 py-3 bg-white text-brand-dark border border-brand-border/10 rounded-xl font-bold text-xs md:text-sm hover:bg-brand-light-gray transition-all shadow-sm flex items-center justify-center gap-2"
             >
-              <RefreshCcw size={16} /> 加载示例数据
+              <RefreshCcw className="w-4 h-4" /> 加载示例数据
             </button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Input Section */}
-            <div className="lg:col-span-6 space-y-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-              <div className="bg-white p-10 rounded-[2.5rem] border border-brand-border/10 shadow-sm">
-                <h2 className="text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-10 opacity-60 flex items-center gap-3">
-                  <FileText size={16} className="text-brand-gold" /> 基础信息
+            <div className="lg:col-span-6 space-y-8 md:space-y-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+              <div className="bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm">
+                <h2 className="text-[10px] md:text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-6 md:mb-10 opacity-60 flex items-center gap-3">
+                  <FileText className="w-4 h-4 text-brand-gold" /> 基础信息
                 </h2>
 
-                <div className="space-y-8">
+                <div className="space-y-6 md:space-y-8">
                   <div>
-                    <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">客户名称 *</label>
+                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">客户名称 *</label>
                     <input 
                       type="text" 
                       name="cust"
                       value={formData.cust}
                       onChange={handleInputChange}
                       placeholder="请输入完整的企业名称"
-                      className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark"
+                      className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div>
-                      <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">申请机构</label>
+                      <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">申请机构</label>
                       <input 
                         type="text" 
                         name="branch"
                         value={formData.branch}
                         onChange={handleInputChange}
-                        className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark"
+                        className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">金额 (万元) *</label>
+                      <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">金额 (万元) *</label>
                       <input 
                         type="number" 
                         name="amt"
                         value={formData.amt}
                         onChange={handleInputChange}
-                        className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark"
+                        className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div>
-                      <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">期限</label>
+                      <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">期限</label>
                       <select 
                         name="tenor"
                         value={formData.tenor}
                         onChange={handleInputChange}
-                        className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark appearance-none"
+                        className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark appearance-none"
                       >
                         {Object.keys(CONFIG.THRESH).map(t => <option key={t} value={t}>{t}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">拟执行利率 (%) *</label>
+                      <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">拟执行利率 (%) *</label>
                       <input 
                         type="number" 
                         name="rate"
                         step="0.01"
                         value={formData.rate}
                         onChange={handleInputChange}
-                        className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark"
+                        className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
                       />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-10 rounded-[2.5rem] border border-brand-border/10 shadow-sm">
-                <h2 className="text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-10 opacity-60 flex items-center gap-3">
-                  <Info size={16} className="text-brand-gold" /> 业务详情
+              <div className="bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm">
+                <h2 className="text-[10px] md:text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-6 md:mb-10 opacity-60 flex items-center gap-3">
+                  <Info className="w-4 h-4 text-brand-gold" /> 业务详情
                 </h2>
-                <div className="space-y-8">
-                  <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-6 md:space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div>
-                      <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">所属行业</label>
+                      <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">所属行业</label>
                       <select 
                         name="industry"
                         value={formData.industry}
                         onChange={handleInputChange}
-                        className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark appearance-none"
+                        className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark appearance-none"
                       >
                         {Object.keys(CONFIG.industryTemplates).map(i => <option key={i} value={i}>{i}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">担保方式</label>
+                      <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">担保方式</label>
                       <select 
                         name="gb"
                         value={formData.gb}
                         onChange={handleInputChange}
-                        className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark appearance-none"
+                        className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark appearance-none"
                       >
                         {CONFIG.collateral.map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">资金用途</label>
+                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">资金用途</label>
                     <select 
                       name="use"
                       value={formData.use}
                       onChange={handleInputChange}
-                      className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark appearance-none"
+                      className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark appearance-none"
                     >
                       {CONFIG.purposes.map(p => <option key={p} value={p}>{p}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-4 opacity-60">中收/综合贡献计划</label>
-                    <div className="grid grid-cols-2 gap-3 mt-2">
+                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 md:mb-4 opacity-60">中收/综合贡献计划</label>
+                    <div className="grid grid-cols-2 gap-2 md:gap-3 mt-2">
                       {CONFIG.incomePlans.map(plan => (
                         <button
                           key={plan.id}
                           onClick={() => handleIncomePlanToggle(plan.id)}
                           className={cn(
-                            "text-left px-4 py-3 rounded-xl text-xs transition-all border font-bold",
+                            "text-left px-3 md:px-4 py-2.5 md:py-3 rounded-lg md:rounded-xl text-[10px] md:text-xs transition-all border font-bold",
                             formData.selectedIncomePlans.includes(plan.id)
                               ? "bg-brand-gold/10 border-brand-gold text-brand-gold shadow-sm"
                               : "bg-brand-light-gray/50 border-brand-border/5 text-brand-gray hover:bg-brand-light-gray"
@@ -400,18 +400,18 @@ const RateOfferTool: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-white p-10 rounded-[2.5rem] border border-brand-border/10 shadow-sm">
-                <h2 className="text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-10 opacity-60 flex items-center gap-3">
-                  <Sparkles size={16} className="text-brand-gold" /> 生成选项
+              <div className="bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm">
+                <h2 className="text-[10px] md:text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-6 md:mb-10 opacity-60 flex items-center gap-3">
+                  <Sparkles className="w-4 h-4 text-brand-gold" /> 生成选项
                 </h2>
-                <div className="grid grid-cols-2 gap-8 mb-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-8 md:mb-10">
                   <div>
-                    <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">文案风格</label>
+                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">文案风格</label>
                     <select 
                       name="style"
                       value={formData.style}
                       onChange={handleInputChange}
-                      className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark appearance-none"
+                      className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark appearance-none"
                     >
                       <option value="simple">精简版</option>
                       <option value="full">完整版</option>
@@ -419,12 +419,12 @@ const RateOfferTool: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">审批权限</label>
+                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">审批权限</label>
                     <select 
                       name="apprPath"
                       value={formData.apprPath}
                       onChange={handleInputChange}
-                      className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark appearance-none"
+                      className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark appearance-none"
                     >
                       <option value="分行权限">分行权限</option>
                       <option value="总行权限">总行权限</option>
@@ -432,19 +432,19 @@ const RateOfferTool: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <button 
                     onClick={generateResult}
                     disabled={isGenerating}
                     className={cn(
-                      "flex-grow py-5 bg-brand-dark text-white rounded-2xl font-bold text-lg transition-all shadow-2xl flex items-center justify-center gap-3 active:scale-95",
+                      "flex-grow py-4 md:py-5 bg-brand-dark text-white rounded-xl md:rounded-2xl font-bold text-base md:text-lg transition-all shadow-2xl flex items-center justify-center gap-3 active:scale-95",
                       isGenerating ? "opacity-70 cursor-not-allowed" : "hover:bg-brand-dark/90"
                     )}
                   >
                     {isGenerating ? (
-                      <RefreshCcw size={20} className="animate-spin" />
+                      <RefreshCcw className="w-5 h-5 animate-spin" />
                     ) : (
-                      <Sparkles size={20} />
+                      <Sparkles className="w-5 h-5" />
                     )}
                     {isGenerating ? '正在构建方案...' : '立即生成文案'}
                   </button>
@@ -465,9 +465,9 @@ const RateOfferTool: React.FC = () => {
                       style: 'full',
                       selectedIncomePlans: [],
                     })}
-                    className="p-5 bg-brand-light-gray text-brand-gray rounded-2xl font-bold hover:bg-brand-border/10 transition-all active:scale-95"
+                    className="p-4 md:p-5 bg-brand-light-gray text-brand-gray rounded-xl md:rounded-2xl font-bold hover:bg-brand-border/10 transition-all active:scale-95 flex items-center justify-center"
                   >
-                    <Trash2 size={24} />
+                    <Trash2 className="w-5 h-5 md:w-6 md:h-6" />
                   </button>
                 </div>
               </div>
@@ -476,65 +476,65 @@ const RateOfferTool: React.FC = () => {
             {/* Result Section */}
             <div className="lg:col-span-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               {result ? (
-                <div className="bg-white rounded-[3rem] border border-brand-border/10 shadow-2xl overflow-hidden flex flex-col h-full sticky top-24">
-                  <div className="bg-brand-light-gray/50 px-10 py-8 border-b border-brand-border/5 flex items-center justify-between">
-                    <h3 className="font-serif text-2xl text-brand-dark flex items-center gap-3">
-                      <CheckCircle2 size={24} className="text-emerald-500" /> 生成结果
+                <div className="bg-white rounded-[1.5rem] md:rounded-[3rem] border border-brand-border/10 shadow-2xl overflow-hidden flex flex-col h-full sticky top-24">
+                  <div className="bg-brand-light-gray/50 px-6 md:px-10 py-6 md:py-8 border-b border-brand-border/5 flex items-center justify-between">
+                    <h3 className="font-serif text-xl md:text-2xl text-brand-dark flex items-center gap-2 md:gap-3">
+                      <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-emerald-500" /> 生成结果
                     </h3>
-                    <div className="flex gap-4">
+                    <div className="flex gap-2 md:gap-4">
                       <button 
                         onClick={() => copyToClipboard(`标题：${result.title}\n\n摘要：${result.summary}\n\n正文：\n${result.body}`)}
-                        className="p-3 bg-white text-brand-gray hover:text-brand-gold rounded-xl border border-brand-border/10 transition-all shadow-sm active:scale-95"
+                        className="p-2.5 md:p-3 bg-white text-brand-gray hover:text-brand-gold rounded-lg md:rounded-xl border border-brand-border/10 transition-all shadow-sm active:scale-95"
                         title="复制全部"
                       >
-                        <Copy size={20} />
+                        <Copy className="w-4 h-4 md:w-5 md:h-5" />
                       </button>
                       <button 
                         onClick={downloadTxt}
-                        className="p-3 bg-white text-brand-gray hover:text-brand-gold rounded-xl border border-brand-border/10 transition-all shadow-sm active:scale-95"
+                        className="p-2.5 md:p-3 bg-white text-brand-gray hover:text-brand-gold rounded-lg md:rounded-xl border border-brand-border/10 transition-all shadow-sm active:scale-95"
                         title="导出TXT"
                       >
-                        <Download size={20} />
+                        <Download className="w-4 h-4 md:w-5 md:h-5" />
                       </button>
                     </div>
                   </div>
                   
-                  <div className="p-10 space-y-12 overflow-y-auto flex-grow custom-scrollbar">
+                  <div className="p-6 md:p-10 space-y-8 md:space-y-12 overflow-y-auto flex-grow custom-scrollbar">
                     <div className="animate-fade-in">
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] opacity-60">标题</span>
-                        <button onClick={() => copyToClipboard(result.title)} className="text-[11px] text-brand-gold font-bold hover:underline">复制标题</button>
+                      <div className="flex items-center justify-between mb-3 md:mb-4">
+                        <span className="text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] opacity-60">标题</span>
+                        <button onClick={() => copyToClipboard(result.title)} className="text-[10px] md:text-[11px] text-brand-gold font-bold hover:underline">复制标题</button>
                       </div>
-                      <div className="p-6 bg-brand-light-gray/30 rounded-2xl border border-brand-border/5 text-lg font-bold text-brand-dark tracking-tight leading-relaxed">
+                      <div className="p-4 md:p-6 bg-brand-light-gray/30 rounded-xl md:rounded-2xl border border-brand-border/5 text-base md:text-lg font-bold text-brand-dark tracking-tight leading-relaxed">
                         {result.title}
                       </div>
                     </div>
 
                     <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] opacity-60">摘要</span>
-                        <button onClick={() => copyToClipboard(result.summary)} className="text-[11px] text-brand-gold font-bold hover:underline">复制摘要</button>
+                      <div className="flex items-center justify-between mb-3 md:mb-4">
+                        <span className="text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] opacity-60">摘要</span>
+                        <button onClick={() => copyToClipboard(result.summary)} className="text-[10px] md:text-[11px] text-brand-gold font-bold hover:underline">复制摘要</button>
                       </div>
-                      <div className="p-6 bg-brand-light-gray/30 rounded-2xl border border-brand-border/5 text-sm text-brand-gray leading-relaxed italic font-medium">
+                      <div className="p-4 md:p-6 bg-brand-light-gray/30 rounded-xl md:rounded-2xl border border-brand-border/5 text-xs md:text-sm text-brand-gray leading-relaxed italic font-medium">
                         {result.summary}
                       </div>
                     </div>
 
                     <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] opacity-60">正文</span>
-                        <button onClick={() => copyToClipboard(result.body)} className="text-[11px] text-brand-gold font-bold hover:underline">复制正文</button>
+                      <div className="flex items-center justify-between mb-3 md:mb-4">
+                        <span className="text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] opacity-60">正文</span>
+                        <button onClick={() => copyToClipboard(result.body)} className="text-[10px] md:text-[11px] text-brand-gold font-bold hover:underline">复制正文</button>
                       </div>
-                      <div className="p-8 bg-brand-light-gray/30 rounded-[2rem] border border-brand-border/5 text-[15px] text-brand-dark leading-relaxed whitespace-pre-wrap font-serif">
+                      <div className="p-6 md:p-8 bg-brand-light-gray/30 rounded-[1.5rem] md:rounded-[2rem] border border-brand-border/5 text-sm md:text-[15px] text-brand-dark leading-relaxed whitespace-pre-wrap font-serif">
                         {result.body}
                       </div>
                     </div>
 
-                    <div className="pt-10 border-t border-brand-border/10 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-                      <span className="text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] mb-6 block opacity-60">建议附件清单</span>
-                      <div className="flex flex-wrap gap-3">
+                    <div className="pt-8 md:pt-10 border-t border-brand-border/10 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                      <span className="text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] mb-4 md:mb-6 block opacity-60">建议附件清单</span>
+                      <div className="flex flex-wrap gap-2 md:gap-3">
                         {CONFIG.docExt.attachments.map(a => (
-                          <span key={a} className="px-5 py-2 bg-brand-light-gray text-brand-gray text-[11px] font-bold rounded-full border border-brand-border/10">
+                          <span key={a} className="px-4 md:px-5 py-1.5 md:py-2 bg-brand-light-gray text-brand-gray text-[10px] md:text-[11px] font-bold rounded-full border border-brand-border/10">
                             {a}
                           </span>
                         ))}
@@ -543,12 +543,12 @@ const RateOfferTool: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="bg-white rounded-[3rem] border-2 border-dashed border-brand-border/20 h-full min-h-[600px] flex flex-col items-center justify-center text-center p-16 sticky top-24">
-                  <div className="w-24 h-24 bg-brand-light-gray rounded-full flex items-center justify-center text-brand-gray opacity-20 mb-8">
-                    <FileText size={48} />
+                <div className="bg-white rounded-[1.5rem] md:rounded-[3rem] border-2 border-dashed border-brand-border/20 h-full min-h-[400px] md:min-h-[600px] flex flex-col items-center justify-center text-center p-8 md:p-16 sticky top-24">
+                  <div className="w-16 h-16 md:w-24 md:h-24 bg-brand-light-gray rounded-full flex items-center justify-center text-brand-gray opacity-20 mb-6 md:mb-8">
+                    <FileText className="w-8 h-8 md:w-12 md:h-12" />
                   </div>
-                  <h3 className="text-2xl font-serif text-brand-dark mb-4 tracking-tight">等待生成文案</h3>
-                  <p className="text-brand-gray font-medium opacity-60 max-w-xs leading-relaxed">
+                  <h3 className="text-xl md:text-2xl font-serif text-brand-dark mb-3 md:mb-4 tracking-tight">等待生成文案</h3>
+                  <p className="text-xs md:text-sm text-brand-gray font-medium opacity-60 max-w-xs leading-relaxed">
                     请在左侧填写业务信息并点击“立即生成”按钮，系统将自动为您构建规范的报批文本。
                   </p>
                 </div>

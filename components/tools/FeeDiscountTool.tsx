@@ -205,114 +205,114 @@ const FeeDiscountTool: React.FC = () => {
         </button>
 
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16 animate-fade-in-up">
-            <div className="flex items-center gap-6">
-              <div className="w-16 h-16 bg-brand-gold/10 rounded-2xl flex items-center justify-center text-brand-gold shadow-sm border border-brand-gold/20">
-                <FileSpreadsheet size={32} />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12 md:mb-16 animate-fade-in-up">
+            <div className="flex items-center gap-4 md:gap-6">
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-gold/10 rounded-xl md:rounded-2xl flex items-center justify-center text-brand-gold shadow-sm border border-brand-gold/20 shrink-0">
+                <FileSpreadsheet className="w-6 h-6 md:w-8 md:h-8" />
               </div>
               <div>
-                <h1 className="text-4xl md:text-5xl font-serif text-brand-dark tracking-tight">中收优惠生成器</h1>
-                <p className="text-lg text-brand-gray font-medium opacity-60 mt-2">批量生成账户业务费用减免申请及OA附件</p>
+                <h1 className="text-2xl md:text-5xl font-serif text-brand-dark tracking-tight">中收优惠生成器</h1>
+                <p className="text-sm md:text-lg text-brand-gray font-medium opacity-60 mt-1 md:mt-2">批量生成账户业务费用减免申请及OA附件</p>
               </div>
             </div>
             <button 
               onClick={loadExample}
-              className="px-6 py-3 bg-white text-brand-dark border border-brand-border/10 rounded-xl font-bold text-sm hover:bg-brand-light-gray transition-all shadow-sm flex items-center gap-2"
+              className="w-full md:w-auto px-6 py-3 bg-white text-brand-dark border border-brand-border/10 rounded-xl font-bold text-xs md:text-sm hover:bg-brand-light-gray transition-all shadow-sm flex items-center justify-center gap-2"
             >
-              <RefreshCcw size={16} /> 加载示例数据
+              <RefreshCcw className="w-4 h-4" /> 加载示例数据
             </button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Input Section */}
-            <div className="lg:col-span-6 space-y-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-              <div className="bg-white p-10 rounded-[2.5rem] border border-brand-border/10 shadow-sm">
-                <h2 className="text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-10 opacity-60 flex items-center gap-3">
-                  <Sparkles size={16} className="text-brand-gold" /> 全局信息
+            <div className="lg:col-span-6 space-y-8 md:space-y-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+              <div className="bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm">
+                <h2 className="text-[10px] md:text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-6 md:mb-10 opacity-60 flex items-center gap-3">
+                  <Sparkles className="w-4 h-4 text-brand-gold" /> 全局信息
                 </h2>
-                <div className="grid grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
                   <div>
-                    <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">申请机构</label>
+                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">申请机构</label>
                     <input 
                       type="text" 
                       value={globalInfo.dept}
                       onChange={(e) => setGlobalInfo(prev => ({ ...prev, dept: e.target.value }))}
-                      className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark"
+                      className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">联系方式</label>
+                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">联系方式</label>
                     <input 
                       type="text" 
                       value={globalInfo.contact}
                       onChange={(e) => setGlobalInfo(prev => ({ ...prev, contact: e.target.value }))}
-                      className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark"
+                      className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-8">
+              <div className="space-y-6 md:space-y-8">
                 {companies.map((company, index) => (
-                  <div key={company.id} className="bg-white p-10 rounded-[2.5rem] border border-brand-border/10 shadow-sm relative group animate-fade-in">
-                    <div className="flex items-center justify-between mb-10">
-                      <h3 className="text-xl font-serif text-brand-dark">企业 {index + 1}</h3>
+                  <div key={company.id} className="bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm relative group animate-fade-in">
+                    <div className="flex items-center justify-between mb-6 md:mb-10">
+                      <h3 className="text-lg md:text-xl font-serif text-brand-dark">企业 {index + 1}</h3>
                       {companies.length > 1 && (
-                        <button onClick={() => removeCompany(company.id)} className="w-10 h-10 flex items-center justify-center text-brand-gray/40 hover:text-red-500 hover:bg-red-50 rounded-full transition-all">
-                          <X size={20} />
+                        <button onClick={() => removeCompany(company.id)} className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-brand-gray/40 hover:text-red-500 hover:bg-red-50 rounded-full transition-all">
+                          <X className="w-4 h-4 md:w-5 md:h-5" />
                         </button>
                       )}
                     </div>
 
-                    <div className="space-y-8">
+                    <div className="space-y-6 md:space-y-8">
                       <div>
-                        <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">客户名称 *</label>
+                        <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">客户名称 *</label>
                         <input 
                           type="text" 
                           value={company.name}
                           onChange={(e) => handleCompanyChange(company.id, 'name', e.target.value)}
                           placeholder="请输入企业名称"
-                          className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark"
+                          className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-8">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
                         <div>
-                          <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">申请日期</label>
+                          <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">申请日期</label>
                           <input 
                             type="date" 
                             value={company.date}
                             onChange={(e) => handleCompanyChange(company.id, 'date', e.target.value)}
-                            className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark"
+                            className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
                           />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">EVA (万元) *</label>
+                          <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">EVA (万元) *</label>
                           <input 
                             type="text" 
                             value={company.eva}
                             onChange={(e) => handleCompanyChange(company.id, 'eva', e.target.value)}
                             placeholder="如：10.5"
-                            className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark"
+                            className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
                           />
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-8">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
                         <div>
-                          <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">客户标签</label>
+                          <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">客户标签</label>
                           <input 
                             type="text" 
                             value={company.tags}
                             onChange={(e) => handleCompanyChange(company.id, 'tags', e.target.value)}
                             placeholder="如：高新技术企业"
-                            className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark"
+                            className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
                           />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">分行</label>
+                          <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">分行</label>
                           <select 
                             value={company.branch}
                             onChange={(e) => handleCompanyChange(company.id, 'branch', e.target.value)}
-                            className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark appearance-none"
+                            className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark appearance-none"
                           >
                             <option value="">自动判断</option>
                             <option value="厦门分行">厦门分行</option>
@@ -321,29 +321,29 @@ const FeeDiscountTool: React.FC = () => {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">补充说明</label>
+                        <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">补充说明</label>
                         <input 
                           type="text" 
                           value={company.reasonExtra}
                           onChange={(e) => handleCompanyChange(company.id, 'reasonExtra', e.target.value)}
                           placeholder="将加入申请理由末尾"
-                          className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-brand-dark"
+                          className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
                         />
                       </div>
                     </div>
 
-                    <div className="mt-10">
-                      <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-5 opacity-60">申请项目</label>
-                      <div className="grid grid-cols-1 gap-3">
+                    <div className="mt-8 md:mt-10">
+                      <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-4 md:mb-5 opacity-60">申请项目</label>
+                      <div className="grid grid-cols-1 gap-2 md:gap-3">
                         {Object.keys(CATALOG).map(key => (
-                          <label key={key} className="flex items-center gap-4 p-4 bg-brand-light-gray/30 border border-brand-border/5 rounded-2xl cursor-pointer hover:bg-brand-light-gray/50 transition-all group/item">
+                          <label key={key} className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-brand-light-gray/30 border border-brand-border/5 rounded-xl md:rounded-2xl cursor-pointer hover:bg-brand-light-gray/50 transition-all group/item">
                             <input 
                               type="checkbox" 
                               checked={company.selectedItems.includes(key)}
                               onChange={() => toggleItem(company.id, key)}
-                              className="w-5 h-5 text-brand-gold border-brand-border/20 rounded-lg focus:ring-brand-gold/20 transition-all"
+                              className="w-4 h-4 md:w-5 md:h-5 text-brand-gold border-brand-border/20 rounded-md md:rounded-lg focus:ring-brand-gold/20 transition-all"
                             />
-                            <span className="text-sm text-brand-dark font-medium group-hover/item:text-brand-gold transition-colors">{key}</span>
+                            <span className="text-xs md:text-sm text-brand-dark font-medium group-hover/item:text-brand-gold transition-colors">{key}</span>
                           </label>
                         ))}
                       </div>
@@ -353,25 +353,25 @@ const FeeDiscountTool: React.FC = () => {
 
                 <button 
                   onClick={addCompany}
-                  className="w-full py-6 border-2 border-dashed border-brand-border/20 rounded-[2.5rem] text-brand-gray font-bold hover:border-brand-gold hover:text-brand-gold hover:bg-brand-gold/5 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                  className="w-full py-4 md:py-6 border-2 border-dashed border-brand-border/20 rounded-2xl md:rounded-[2.5rem] text-brand-gray font-bold text-sm md:text-base hover:border-brand-gold hover:text-brand-gold hover:bg-brand-gold/5 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                 >
-                  <Plus size={20} /> 新增企业
+                  <Plus className="w-4 h-4 md:w-5 md:h-5" /> 新增企业
                 </button>
               </div>
 
-              <div className="flex gap-6">
+              <div className="flex flex-col sm:flex-row gap-4 md:gap-6">
                 <button 
                   onClick={generate}
                   disabled={isGenerating}
                   className={cn(
-                    "flex-grow py-5 bg-brand-dark text-white rounded-2xl font-bold text-lg transition-all shadow-2xl flex items-center justify-center gap-3 active:scale-95",
+                    "flex-grow py-4 md:py-5 bg-brand-dark text-white rounded-xl md:rounded-2xl font-bold text-base md:text-lg transition-all shadow-2xl flex items-center justify-center gap-3 active:scale-95",
                     isGenerating ? "opacity-70 cursor-not-allowed" : "hover:bg-brand-dark/90"
                   )}
                 >
                   {isGenerating ? (
-                    <RefreshCcw size={20} className="animate-spin" />
+                    <RefreshCcw className="w-5 h-5 animate-spin" />
                   ) : (
-                    <Sparkles size={20} />
+                    <Sparkles className="w-5 h-5" />
                   )}
                   {isGenerating ? '正在生成方案...' : '一键生成 OA 附件/文案'}
                 </button>
@@ -389,9 +389,9 @@ const FeeDiscountTool: React.FC = () => {
                     }]);
                     setResults([]);
                   }}
-                  className="p-5 bg-brand-light-gray text-brand-gray rounded-2xl font-bold hover:bg-brand-border/10 transition-all active:scale-95"
+                  className="p-4 md:p-5 bg-brand-light-gray text-brand-gray rounded-xl md:rounded-2xl font-bold hover:bg-brand-border/10 transition-all active:scale-95 flex items-center justify-center"
                 >
-                  <Trash2 size={24} />
+                  <Trash2 className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
               </div>
             </div>
@@ -399,38 +399,38 @@ const FeeDiscountTool: React.FC = () => {
             {/* Result Section */}
             <div className="lg:col-span-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
               {results.length > 0 ? (
-                <div className="space-y-10 sticky top-24 max-h-[calc(100vh-12rem)] overflow-y-auto custom-scrollbar pr-2">
+                <div className="space-y-8 md:space-y-10 sticky top-24 max-h-[calc(100vh-12rem)] overflow-y-auto custom-scrollbar pr-2">
                   {results.map((res, idx) => (
-                    <div key={res.companyId} className="bg-white rounded-[3rem] border border-brand-border/10 shadow-2xl overflow-hidden animate-fade-in">
-                      <div className="bg-brand-light-gray/50 px-10 py-8 border-b border-brand-border/5 flex items-center justify-between">
-                        <h3 className="font-serif text-2xl text-brand-dark flex items-center gap-3">
-                          <CheckCircle2 size={24} className="text-emerald-500" /> {res.companyName}
+                    <div key={res.companyId} className="bg-white rounded-[1.5rem] md:rounded-[3rem] border border-brand-border/10 shadow-2xl overflow-hidden animate-fade-in">
+                      <div className="bg-brand-light-gray/50 px-6 md:px-10 py-6 md:py-8 border-b border-brand-border/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <h3 className="font-serif text-xl md:text-2xl text-brand-dark flex items-center gap-2 md:gap-3">
+                          <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-emerald-500" /> {res.companyName}
                         </h3>
                         <button 
                           onClick={() => downloadExcel(res)}
-                          className="flex items-center gap-2 px-5 py-2.5 bg-brand-gold text-brand-dark text-xs font-bold rounded-xl hover:bg-brand-gold/90 transition-all shadow-sm active:scale-95"
+                          className="flex items-center justify-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-brand-gold text-brand-dark text-[10px] md:text-xs font-bold rounded-lg md:rounded-xl hover:bg-brand-gold/90 transition-all shadow-sm active:scale-95"
                         >
-                          <Download size={16} /> 下载 Excel 附件
+                          <Download className="w-3.5 h-3.5 md:w-4 md:h-4" /> 下载 Excel 附件
                         </button>
                       </div>
                       
-                      <div className="p-10 space-y-10">
+                      <div className="p-6 md:p-10 space-y-8 md:space-y-10">
                         <div>
-                          <div className="flex items-center justify-between mb-4">
-                            <span className="text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] opacity-60">OA 申请文案</span>
-                            <button onClick={() => copyToClipboard(res.oaText)} className="text-[11px] text-brand-gold font-bold hover:underline">复制文案</button>
+                          <div className="flex items-center justify-between mb-3 md:mb-4">
+                            <span className="text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] opacity-60">OA 申请文案</span>
+                            <button onClick={() => copyToClipboard(res.oaText)} className="text-[10px] md:text-[11px] text-brand-gold font-bold hover:underline">复制文案</button>
                           </div>
-                          <div className="p-8 bg-brand-light-gray/30 rounded-[2rem] border border-brand-border/5 text-[14px] text-brand-dark leading-relaxed whitespace-pre-wrap max-h-[400px] overflow-y-auto font-mono custom-scrollbar">
+                          <div className="p-6 md:p-8 bg-brand-light-gray/30 rounded-xl md:rounded-[2rem] border border-brand-border/5 text-xs md:text-[14px] text-brand-dark leading-relaxed whitespace-pre-wrap max-h-[300px] md:max-h-[400px] overflow-y-auto font-mono custom-scrollbar">
                             {res.oaText}
                           </div>
                         </div>
 
                         <div>
-                          <div className="flex items-center justify-between mb-4">
-                            <span className="text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] opacity-60">对客沟通话术</span>
-                            <button onClick={() => copyToClipboard(res.clientText)} className="text-[11px] text-brand-gold font-bold hover:underline">复制话术</button>
+                          <div className="flex items-center justify-between mb-3 md:mb-4">
+                            <span className="text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] opacity-60">对客沟通话术</span>
+                            <button onClick={() => copyToClipboard(res.clientText)} className="text-[10px] md:text-[11px] text-brand-gold font-bold hover:underline">复制话术</button>
                           </div>
-                          <div className="p-8 bg-brand-light-gray/30 rounded-[2rem] border border-brand-border/5 text-[15px] text-brand-dark leading-relaxed italic font-serif">
+                          <div className="p-6 md:p-8 bg-brand-light-gray/30 rounded-xl md:rounded-[2rem] border border-brand-border/5 text-sm md:text-[15px] text-brand-dark leading-relaxed italic font-serif">
                             {res.clientText}
                           </div>
                         </div>
@@ -439,12 +439,12 @@ const FeeDiscountTool: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <div className="bg-white rounded-[3rem] border-2 border-dashed border-brand-border/20 h-full min-h-[600px] flex flex-col items-center justify-center text-center p-16 sticky top-24">
-                  <div className="w-24 h-24 bg-brand-light-gray rounded-full flex items-center justify-center text-brand-gray opacity-20 mb-8">
-                    <FileSpreadsheet size={48} />
+                <div className="bg-white rounded-[1.5rem] md:rounded-[3rem] border-2 border-dashed border-brand-border/20 h-full min-h-[400px] md:min-h-[600px] flex flex-col items-center justify-center text-center p-8 md:p-16 sticky top-24">
+                  <div className="w-16 h-16 md:w-24 md:h-24 bg-brand-light-gray rounded-full flex items-center justify-center text-brand-gray opacity-20 mb-6 md:mb-8">
+                    <FileSpreadsheet className="w-8 h-8 md:w-12 md:h-12" />
                   </div>
-                  <h3 className="text-2xl font-serif text-brand-dark mb-4 tracking-tight">等待生成</h3>
-                  <p className="text-brand-gray font-medium opacity-60 max-w-xs leading-relaxed">
+                  <h3 className="text-xl md:text-2xl font-serif text-brand-dark mb-3 md:mb-4 tracking-tight">等待生成</h3>
+                  <p className="text-xs md:text-sm text-brand-gray font-medium opacity-60 max-w-xs leading-relaxed">
                     请在左侧填写企业信息并勾选申请项目，系统将自动为您生成 OA 申请文本及标准 Excel 附件。
                   </p>
                 </div>
