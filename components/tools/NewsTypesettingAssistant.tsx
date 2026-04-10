@@ -242,14 +242,14 @@ const NewsTypesettingAssistant: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6">
 
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12 md:mb-16 animate-fade-in-up">
-            <div className="flex items-center gap-4 md:gap-6">
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-dark text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-xl shrink-0">
-                <FileText className="w-6 h-6 md:w-8 md:h-8" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6 mb-4 sm:mb-10 animate-fade-in-up">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 sm:w-12 sm:h-12 bg-brand-dark text-white rounded-lg sm:rounded-xl flex items-center justify-center shadow-xl shrink-0">
+                <FileText className="w-4 h-4 sm:w-6 sm:h-6" />
               </div>
               <div>
-                <h1 className="text-2xl md:text-5xl font-serif text-brand-dark tracking-tight">宣传稿排版助手</h1>
-                <p className="text-sm md:text-lg text-brand-gray font-medium opacity-60 mt-1 md:mt-2">自动整理并排版《厦行信息》投稿新闻稿</p>
+                <h1 className="text-base sm:text-2xl font-serif text-brand-dark tracking-tight">宣传稿排版助手</h1>
+                <p className="text-[11px] sm:text-sm text-brand-gray font-medium opacity-60 mt-0.5">自动整理并排版《厦行信息》投稿新闻稿</p>
               </div>
             </div>
             {result && (

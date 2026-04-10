@@ -78,25 +78,25 @@ const BatchBillingTool: React.FC = () => {
 
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12 md:mb-16 animate-fade-in-up">
-            <div className="flex items-center gap-4 md:gap-6">
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-dark text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-xl shrink-0">
-                <Package className="w-6 h-6 md:w-8 md:h-8" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6 mb-4 sm:mb-10 animate-fade-in-up">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 sm:w-12 sm:h-12 bg-brand-dark text-white rounded-lg sm:rounded-xl flex items-center justify-center shadow-xl shrink-0">
+                <Package className="w-4 h-4 sm:w-6 sm:h-6" />
               </div>
               <div>
-                <h1 className="text-2xl md:text-5xl font-serif text-brand-dark tracking-tight">项下开票本地下载工具包</h1>
-                <p className="text-sm md:text-lg text-brand-gray font-medium opacity-60 mt-1 md:mt-2">集成 Python 脚本与标准化模板，支持大批量开票一键生成</p>
+                <h1 className="text-base sm:text-2xl font-serif text-brand-dark tracking-tight">项下开票本地工具包</h1>
+                <p className="text-[11px] sm:text-sm text-brand-gray font-medium opacity-60 mt-0.5">集成Python脚本与模板，支持大批量开票一键生成</p>
               </div>
             </div>
             <button 
               onClick={handleDownloadPackage}
-              className="w-full md:w-auto px-6 md:px-8 py-3.5 md:py-4 bg-brand-gold text-brand-dark rounded-xl md:rounded-2xl font-bold text-xs md:text-sm hover:bg-brand-gold/90 transition-all shadow-xl flex items-center justify-center gap-3 active:scale-95"
+              className="w-full sm:w-auto px-4 py-2 sm:py-2.5 bg-brand-gold text-brand-dark rounded-lg sm:rounded-xl font-bold text-[11px] sm:text-xs hover:bg-brand-gold/90 transition-all shadow-lg flex items-center justify-center gap-1.5 active:scale-95"
             >
-              <Download className="w-4 h-4 md:w-5 md:h-5" /> 下载本地工具包
+              <Download className="w-3.5 h-3.5" /> 下载工具包
             </button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 animate-fade-in-up">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 animate-fade-in-up">
             {/* Main Form */}
             <div className="lg:col-span-8 space-y-8 md:space-y-10">
               <div className="bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm">

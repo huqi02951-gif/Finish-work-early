@@ -201,32 +201,32 @@ const FeeDiscountTool: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6">
 
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12 md:mb-16 animate-fade-in-up">
-            <div className="flex items-center gap-4 md:gap-6">
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-gold/10 rounded-xl md:rounded-2xl flex items-center justify-center text-brand-gold shadow-sm border border-brand-gold/20 shrink-0">
-                <FileSpreadsheet className="w-6 h-6 md:w-8 md:h-8" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6 mb-4 sm:mb-10 animate-fade-in-up">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 sm:w-12 sm:h-12 bg-brand-gold/10 rounded-lg sm:rounded-xl flex items-center justify-center text-brand-gold shadow-sm border border-brand-gold/20 shrink-0">
+                <FileSpreadsheet className="w-4 h-4 sm:w-6 sm:h-6" />
               </div>
               <div>
-                <h1 className="text-2xl md:text-5xl font-serif text-brand-dark tracking-tight">中收优惠生成器</h1>
-                <p className="text-sm md:text-lg text-brand-gray font-medium opacity-60 mt-1 md:mt-2">批量生成账户业务费用减免申请及OA附件</p>
+                <h1 className="text-base sm:text-2xl font-serif text-brand-dark tracking-tight">中收优惠生成器</h1>
+                <p className="text-[11px] sm:text-sm text-brand-gray font-medium opacity-60 mt-0.5">批量生成账户业务费用减免申请及OA附件</p>
               </div>
             </div>
             <button 
               onClick={loadExample}
-              className="w-full md:w-auto px-6 py-3 bg-white text-brand-dark border border-brand-border/10 rounded-xl font-bold text-xs md:text-sm hover:bg-brand-light-gray transition-all shadow-sm flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-4 py-2 sm:py-2.5 bg-white text-brand-dark border border-brand-border/10 rounded-lg sm:rounded-xl font-bold text-[11px] sm:text-xs hover:bg-brand-light-gray transition-all shadow-sm flex items-center justify-center gap-1.5"
             >
-              <RefreshCcw className="w-4 h-4" /> 加载示例数据
+              <RefreshCcw className="w-3.5 h-3.5" /> 加载示例
             </button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8">
             {/* Input Section */}
-            <div className="lg:col-span-6 space-y-8 md:space-y-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-              <div className="bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm">
-                <h2 className="text-[10px] md:text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-6 md:mb-10 opacity-60 flex items-center gap-3">
-                  <Sparkles className="w-4 h-4 text-brand-gold" /> 全局信息
+            <div className="lg:col-span-6 space-y-3 sm:space-y-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+              <div className="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-brand-border/10 shadow-sm">
+                <h2 className="text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] mb-3 sm:mb-6 opacity-60 flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-brand-gold" /> 全局信息
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5">
                   <div>
                     <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">申请机构</label>
                     <input 

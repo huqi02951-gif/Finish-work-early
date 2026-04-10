@@ -199,42 +199,42 @@ const AcceptanceCalculator: React.FC = () => {
       <div className="container mx-auto px-4 md:px-6">
 
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12 md:mb-16 animate-fade-in-up">
-            <div className="flex items-center gap-4 md:gap-6">
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-gold/10 rounded-xl md:rounded-2xl flex items-center justify-center text-brand-gold shadow-sm border border-brand-gold/20 shrink-0">
-                <Calculator className="w-6 h-6 md:w-8 md:h-8" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6 mb-4 sm:mb-10 animate-fade-in-up">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 sm:w-12 sm:h-12 bg-brand-gold/10 rounded-lg sm:rounded-xl flex items-center justify-center text-brand-gold shadow-sm border border-brand-gold/20 shrink-0">
+                <Calculator className="w-4 h-4 sm:w-6 sm:h-6" />
               </div>
               <div>
-                <h1 className="text-2xl md:text-5xl font-serif text-brand-dark tracking-tight">银承/存单测算小助手</h1>
-                <p className="text-sm md:text-lg text-brand-gray font-medium opacity-60 mt-1 md:mt-2">票据金额测算、资料确认与文案输出</p>
+                <h1 className="text-base sm:text-2xl font-serif text-brand-dark tracking-tight">银承/存单测算小助手</h1>
+                <p className="text-[11px] sm:text-sm text-brand-gray font-medium opacity-60 mt-0.5">票据金额测算、资料确认与文案输出</p>
               </div>
             </div>
             <button 
               onClick={loadExample}
-              className="w-full md:w-auto px-6 py-3 bg-white text-brand-dark border border-brand-border/10 rounded-xl font-bold text-xs md:text-sm hover:bg-brand-light-gray transition-all shadow-sm flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-4 py-2 sm:py-2.5 bg-white text-brand-dark border border-brand-border/10 rounded-lg sm:rounded-xl font-bold text-[11px] sm:text-xs hover:bg-brand-light-gray transition-all shadow-sm flex items-center justify-center gap-1.5"
             >
-              <RefreshCcw className="w-4 h-4" /> 加载示例数据
+              <RefreshCcw className="w-3.5 h-3.5" /> 加载示例
             </button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8">
             {/* Input Section */}
-            <div className="lg:col-span-6 space-y-8 md:space-y-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-              <div className="bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm">
-                <h2 className="text-[10px] md:text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-6 md:mb-10 opacity-60 flex items-center gap-3">
-                  <Sparkles className="w-4 h-4 text-brand-gold" /> 核心测算
+            <div className="lg:col-span-6 space-y-3 sm:space-y-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+              <div className="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-brand-border/10 shadow-sm">
+                <h2 className="text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] mb-3 sm:mb-6 opacity-60 flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-brand-gold" /> 核心测算
                 </h2>
                 
-                <div className="space-y-6 md:space-y-8">
+                <div className="space-y-3 sm:space-y-5">
                   <div>
-                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">企业名称</label>
+                    <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-1.5 sm:mb-2 opacity-60">企业名称</label>
                     <input 
                       type="text" 
                       name="corp"
                       value={formData.corp}
                       onChange={handleInputChange}
                       placeholder="如：厦门**实业有限公司"
-                      className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-brand-light-gray/50 border border-brand-border/5 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-brand-gold/20 focus:border-brand-gold outline-none transition-all font-medium text-[13px] sm:text-sm text-brand-dark"
                     />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">

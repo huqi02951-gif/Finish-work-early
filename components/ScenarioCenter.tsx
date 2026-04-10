@@ -5,7 +5,7 @@ import {
   Timer, RotateCcw, Sparkles, Send, Heart, Terminal, Lock, EyeOff, 
   Activity, ChevronRight, Search, FileText, CheckCircle2, AlertCircle, X,
   Calendar as CalendarIcon, Moon, Sun, Palette, Compass, Ban, Zap,
-  LayoutDashboard, Target, User, Database, Star, Info, Clock, TrendingUp
+  LayoutDashboard, Target, User, Database, Star, Info, Clock, TrendingUp, Settings
 } from 'lucide-react';
 import { Solar, Lunar } from 'lunar-javascript';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -261,142 +261,310 @@ const FoodSelector = () => {
 };
 
 const EfficientOffDutyGame = () => {
-  const [gameState, setGameState] = useState<'idle' | 'playing' | 'result'>('idle');
-  const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(30);
-  const [items, setItems] = useState<{ id: number; type: 'work' | 'life'; x: number; y: number }[]>([]);
+  const [monthlySalary, setMonthlySalary] = useState(10000);
+  const [showSalaryInput, setShowSalaryInput] = useState(false);
+  const [now, setNow] = useState(new Date());
+  const [activeTab, setActiveTab] = useState<'calculator' | 'roast'>('calculator');
+  const [quizStep, setQuizStep] = useState(0);
+  const [quizScore, setQuizScore] = useState(0);
+  const [showQuizResult, setShowQuizResult] = useState(false);
+  const [currentRoast, setCurrentRoast] = useState(0);
+  const [declaration, setDeclaration] = useState('');
+  const [copied, setCopied] = useState(false);
 
-  const startGame = () => {
-    setGameState('playing');
-    setScore(0);
-    setTimeLeft(30);
-    setItems([]);
-  };
-
+  // Real-time clock update every second
   useEffect(() => {
-    if (gameState !== 'playing') return;
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          setGameState('result');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+  // Salary calculations
+  const workDays = 20;
+  const dailySalary = monthlySalary / workDays;
+  const hourlyRate = dailySalary / 8;
+  const minuteRate = hourlyRate / 60;
+  const secondRate = minuteRate / 60;
 
-    const itemSpawner = setInterval(() => {
-      const newItem: { id: number, type: 'work' | 'life', x: number, y: number } = {
-        id: Date.now(),
-        type: Math.random() > 0.4 ? 'work' : 'life',
-        x: Math.random() * 80 + 10,
-        y: Math.random() * 80 + 10,
-      };
-      setItems((prev) => [...prev, newItem]);
-      setTimeout(() => {
-        setItems((prev) => prev.filter((i) => i.id !== newItem.id));
-      }, 2000);
-    }, 800);
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+  const second = now.getSeconds();
+  const currentMinutes = hour * 60 + minute;
+  const workStart = 9 * 60; // 9:00
+  const workEnd = 17 * 60;  // 17:00
 
-    return () => {
-      clearInterval(timer);
-      clearInterval(itemSpawner);
-    };
-  }, [gameState]);
+  const isWorkTime = currentMinutes >= workStart && currentMinutes < workEnd;
+  const isOvertime = currentMinutes >= workEnd;
+  const isBeforeWork = currentMinutes < workStart;
 
-  const handleItemClick = (type: 'work' | 'life', id: number) => {
-    if (type === 'life') setScore((prev) => prev + 10);
-    else setScore((prev) => Math.max(0, prev - 5));
-    setItems((prev) => prev.filter((i) => i.id !== id));
+  // Overtime calculation
+  const overtimeMinutes = isOvertime ? currentMinutes - workEnd : 0;
+  const overtimeHours = Math.floor(overtimeMinutes / 60);
+  const overtimeMins = overtimeMinutes % 60;
+  const overtimeLoss = overtimeMinutes * minuteRate + second * secondRate;
+
+  // Work progress
+  const workedMinutes = isWorkTime ? currentMinutes - workStart : isOvertime ? 480 : 0;
+  const earnedToday = Math.min(workedMinutes, 480) * minuteRate + (isWorkTime ? second * secondRate : 0);
+  const minutesUntilOff = isWorkTime ? workEnd - currentMinutes : 0;
+
+  // Roast quotes
+  const roasts = [
+    { text: "加班一小时，老板又买了一杯星巴克 ☕", emoji: "💰" },
+    { text: "你的时间在流逝，但薪水不会因为加班多一分钱", emoji: "⏰" },
+    { text: "老板的劳斯莱斯轮胎，就是你加班的青春打的气", emoji: "🚗" },
+    { text: "加班不会让你变得更优秀，只会让你变得更便宜", emoji: "📉" },
+    { text: "别人下班去健身房，你下班去ICU", emoji: "🏥" },
+    { text: "你以为你在拼事业？你只是在帮老板拼豪宅", emoji: "🏠" },
+    { text: "加班最大的谎言：我这次忙完就好了", emoji: "🤡" },
+    { text: "你996，老板669（6套房6辆车9位数存款）", emoji: "💎" },
+    { text: "加一小时班 = 损失一次火锅自由 🍲", emoji: "🍲" },
+  ];
+
+  // Quiz
+  const quizQuestions = [
+    {
+      q: "周五下午5:01，老板说'这个不急，你今天做完就行'，你会？",
+      options: ["马上开始做", "说好的然后慢慢整理包", "直接说明天做"],
+      scores: [0, 5, 10]
+    },
+    {
+      q: "同事在加班，你已经做完了，你会？",
+      options: ["留下来陪着", "装作很忙然后偷偷走", "大声说'我走啦再见'"],
+      scores: [0, 5, 10]
+    },
+    {
+      q: "老板周末在群里发消息@你，你会？",
+      options: ["立刻回复", "假装没看到，周一再处理", "把群设为免打扰"],
+      scores: [0, 5, 10]
+    },
+  ];
+
+  // Declarations
+  const declarations = [
+    `本人郑重宣布：从今天起，${hour}:${String(minute).padStart(2,'0')}分以后的每一分钟都属于我自己！每加班1分钟 = 损失¥${minuteRate.toFixed(2)}！`,
+    `打工人觉醒宣言：我的时薪值¥${hourlyRate.toFixed(0)}，老板休想用加班996偷走我的生活！到点下班是我的权利！`,
+    `今日下班公告：本人已于17:00准时关闭工作脑，开启生活脑。如有急事，请联系明天早上9:00的我。当前加班损失估算：¥${overtimeLoss.toFixed(2)}`,
+  ];
+
+  const generateDeclaration = () => {
+    const d = declarations[Math.floor(Math.random() * declarations.length)];
+    setDeclaration(d);
   };
+
+  const copyDeclaration = () => {
+    navigator.clipboard.writeText(declaration);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Auto-cycle roast quotes
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentRoast(prev => (prev + 1) % roasts.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-3xl border border-brand-border/10 overflow-hidden shadow-sm">
-      <div className="p-4 border-b border-brand-border/5 flex justify-between items-center bg-brand-light-gray/20">
+    <div className="flex flex-col bg-white rounded-3xl border border-brand-border/10 overflow-hidden shadow-sm">
+      {/* Header */}
+      <div className="p-3 border-b border-brand-border/5 flex justify-between items-center bg-brand-light-gray/20">
         <div className="flex items-center gap-2">
           <Zap className="w-4 h-4 text-brand-gold" />
-          <span className="text-xs font-bold text-brand-dark uppercase tracking-widest">下班冲刺</span>
+          <span className="text-[11px] font-bold text-brand-dark tracking-wide">高效下班计算器</span>
         </div>
-        {gameState === 'playing' && (
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-brand-gray" />
-              <span className="text-xs font-mono font-bold text-brand-dark">{timeLeft}s</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
-              <span className="text-xs font-mono font-bold text-emerald-500">{score}</span>
-            </div>
-          </div>
-        )}
+        <div className="flex p-0.5 bg-brand-light-gray/50 rounded-lg">
+          <button 
+            onClick={() => setActiveTab('calculator')}
+            className={cn("px-2.5 py-1 rounded-md text-[10px] font-bold transition-all", activeTab === 'calculator' ? "bg-white text-brand-dark shadow-sm" : "text-brand-gray")}
+          >💰 损失计算</button>
+          <button 
+            onClick={() => setActiveTab('roast')}
+            className={cn("px-2.5 py-1 rounded-md text-[10px] font-bold transition-all", activeTab === 'roast' ? "bg-white text-brand-dark shadow-sm" : "text-brand-gray")}
+          >🔥 骂醒打工人</button>
+        </div>
       </div>
 
-      <div className="flex-grow relative overflow-hidden bg-brand-offwhite/30">
+      <div className="p-4">
         <AnimatePresence mode="wait">
-          {gameState === 'idle' && (
-            <motion.div
-              key="idle"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"
-            >
-              <div className="w-16 h-16 bg-brand-gold/10 rounded-2xl flex items-center justify-center mb-6">
-                <Zap className="w-8 h-8 text-brand-gold" />
+          {activeTab === 'calculator' ? (
+            <motion.div key="calc" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="space-y-3">
+              {/* Salary setting */}
+              <div className="flex items-center justify-between">
+                <button onClick={() => setShowSalaryInput(!showSalaryInput)} className="text-[10px] text-brand-gray font-medium flex items-center gap-1 hover:text-brand-dark">
+                  <Settings className="w-3 h-3" /> 月薪 ¥{monthlySalary.toLocaleString()}
+                </button>
+                <span className="text-[10px] text-brand-gray font-mono">时薪 ¥{hourlyRate.toFixed(1)}</span>
               </div>
-              <h4 className="text-xl font-serif text-brand-dark mb-2">高效下班大作战</h4>
-              <p className="text-xs text-brand-gray mb-8 max-w-[200px] leading-relaxed">
-                点击 <span className="text-emerald-500 font-bold">生活</span> 元素加分，避开 <span className="text-red-500 font-bold">工作</span> 干扰。
-              </p>
-              <button
-                onClick={startGame}
-                className="px-8 py-3 bg-brand-dark text-white rounded-xl text-xs font-bold hover:bg-brand-dark/90 transition-all shadow-lg"
-              >
-                开始冲刺
-              </button>
-            </motion.div>
-          )}
+              
+              {showSalaryInput && (
+                <motion.div initial={{height:0,opacity:0}} animate={{height:'auto',opacity:1}} className="overflow-hidden">
+                  <input 
+                    type="range" min={3000} max={50000} step={500} value={monthlySalary}
+                    onChange={e => setMonthlySalary(Number(e.target.value))}
+                    className="w-full h-1.5 bg-brand-light-gray rounded-full appearance-none accent-brand-gold"
+                  />
+                  <div className="flex justify-between text-[9px] text-brand-gray/50 mt-1">
+                    <span>¥3,000</span><span>¥50,000</span>
+                  </div>
+                </motion.div>
+              )}
 
-          {gameState === 'playing' && (
-            <motion.div key="playing" className="absolute inset-0">
-              {items.map((item) => (
-                <motion.button
-                  key={item.id}
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0, opacity: 0 }}
-                  onClick={() => handleItemClick(item.type, item.id)}
-                  style={{ left: `${item.x}%`, top: `${item.y}%` }}
-                  className={cn(
-                    "absolute w-12 h-12 rounded-xl flex items-center justify-center shadow-lg transform -translate-x-1/2 -translate-y-1/2 transition-transform active:scale-90",
-                    item.type === 'work' ? "bg-white border border-red-100 text-red-500" : "bg-emerald-500 text-white"
-                  )}
+              {/* Main Display */}
+              <div className={cn(
+                "rounded-2xl p-4 text-center",
+                isOvertime ? "bg-red-50 border border-red-200" : isWorkTime ? "bg-emerald-50 border border-emerald-200" : "bg-blue-50 border border-blue-200"
+              )}>
+                {isBeforeWork && (
+                  <>
+                    <div className="text-[10px] text-blue-500 font-bold mb-1">☀️ 还没上班呢</div>
+                    <div className="text-2xl font-mono font-black text-blue-600">
+                      {Math.floor((workStart - currentMinutes)/60)}h {(workStart - currentMinutes) % 60}m
+                    </div>
+                    <div className="text-[10px] text-blue-400 mt-1">距离上班</div>
+                  </>
+                )}
+                {isWorkTime && (
+                  <>
+                    <div className="text-[10px] text-emerald-600 font-bold mb-1">⏱️ 正在努力搬砖中</div>
+                    <div className="text-3xl font-mono font-black text-emerald-700">
+                      {Math.floor(minutesUntilOff/60)}:{String(minutesUntilOff % 60).padStart(2,'0')}:{String(60-second).padStart(2,'0')}
+                    </div>
+                    <div className="text-[10px] text-emerald-500 mt-1 font-bold">距离下班 · 已赚 ¥{earnedToday.toFixed(2)}</div>
+                  </>
+                )}
+                {isOvertime && (
+                  <>
+                    <div className="text-[10px] text-red-500 font-bold mb-1 animate-pulse">🚨 加班警报！你在亏钱！</div>
+                    <div className="text-3xl font-mono font-black text-red-600">
+                      -¥{overtimeLoss.toFixed(2)}
+                    </div>
+                    <div className="text-[10px] text-red-400 mt-1">
+                      已无偿加班 {overtimeHours > 0 ? `${overtimeHours}h ` : ''}{overtimeMins}m {second}s
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-brand-light-gray/30 rounded-xl p-2.5 text-center">
+                  <div className="text-[9px] text-brand-gray mb-0.5">日薪</div>
+                  <div className="text-xs font-bold text-brand-dark">¥{dailySalary.toFixed(0)}</div>
+                </div>
+                <div className="bg-brand-light-gray/30 rounded-xl p-2.5 text-center">
+                  <div className="text-[9px] text-brand-gray mb-0.5">每分钟</div>
+                  <div className="text-xs font-bold text-brand-dark">¥{minuteRate.toFixed(2)}</div>
+                </div>
+                <div className="bg-brand-light-gray/30 rounded-xl p-2.5 text-center">
+                  <div className="text-[9px] text-brand-gray mb-0.5">今日已赚</div>
+                  <div className="text-xs font-bold text-emerald-600">¥{earnedToday.toFixed(0)}</div>
+                </div>
+              </div>
+
+              {/* Overtime guilt bar (only when overtime) */}
+              {isOvertime && (
+                <div className="bg-red-50 rounded-xl p-3 border border-red-100">
+                  <div className="text-[10px] font-bold text-red-600 mb-2">加班等价损失清单：</div>
+                  <div className="space-y-1.5">
+                    {[
+                      { icon: "🍜", text: "一碗热干面", cost: 12 },
+                      { icon: "☕", text: "一杯美式咖啡", cost: 25 },
+                      { icon: "🍔", text: "一份麦当劳套餐", cost: 39 },
+                      { icon: "🎬", text: "一张电影票", cost: 50 },
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between">
+                        <span className="text-[10px] text-red-700">{item.icon} {item.text}</span>
+                        <span className={cn("text-[10px] font-mono font-bold", overtimeLoss >= item.cost ? "text-red-600" : "text-red-300")}>
+                          {overtimeLoss >= item.cost ? "✅ 已损失" : `还差¥${(item.cost - overtimeLoss).toFixed(1)}`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          ) : (
+            <motion.div key="roast" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="space-y-3">
+              {/* Roast Quotes Carousel */}
+              <div className="bg-brand-dark rounded-2xl p-4 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-brand-gold/10 rounded-full blur-2xl" />
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentRoast}
+                    initial={{opacity:0,y:10}}
+                    animate={{opacity:1,y:0}}
+                    exit={{opacity:0,y:-10}}
+                    className="relative z-10"
+                  >
+                    <div className="text-xl mb-2">{roasts[currentRoast].emoji}</div>
+                    <p className="text-[12px] text-white/80 leading-relaxed font-medium">{roasts[currentRoast].text}</p>
+                  </motion.div>
+                </AnimatePresence>
+                <div className="flex gap-1 mt-3">
+                  {roasts.map((_, i) => (
+                    <div key={i} className={cn("h-0.5 rounded-full transition-all", i === currentRoast ? "w-4 bg-brand-gold" : "w-1.5 bg-white/20")} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Quiz */}
+              {!showQuizResult ? (
+                <div className="bg-amber-50 rounded-2xl p-4 border border-amber-200">
+                  <div className="text-[10px] font-bold text-amber-700 mb-2 uppercase tracking-wider">🧠 打工觉醒测试 ({quizStep + 1}/{quizQuestions.length})</div>
+                  <p className="text-[12px] font-bold text-brand-dark mb-3 leading-relaxed">{quizQuestions[quizStep].q}</p>
+                  <div className="space-y-1.5">
+                    {quizQuestions[quizStep].options.map((opt, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          const newScore = quizScore + quizQuestions[quizStep].scores[idx];
+                          setQuizScore(newScore);
+                          if (quizStep < quizQuestions.length - 1) {
+                            setQuizStep(quizStep + 1);
+                          } else {
+                            setShowQuizResult(true);
+                          }
+                        }}
+                        className="w-full text-left px-3 py-2 bg-white rounded-xl text-[11px] font-medium text-brand-dark hover:bg-amber-100 transition-all border border-amber-100 active:scale-[0.98]"
+                      >
+                        {String.fromCharCode(65 + idx)}. {opt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <motion.div initial={{scale:0.9,opacity:0}} animate={{scale:1,opacity:1}} className="bg-amber-50 rounded-2xl p-4 border border-amber-200 text-center">
+                  <div className="text-2xl mb-2">{quizScore >= 25 ? "🏆" : quizScore >= 15 ? "💪" : "😰"}</div>
+                  <div className="text-lg font-bold text-brand-dark mb-1">觉醒指数：{quizScore}/30</div>
+                  <p className="text-[11px] text-amber-700 mb-3">
+                    {quizScore >= 25 ? "恭喜！你是下班之神 🎉 准时下班对你来说就是呼吸一样自然" : 
+                     quizScore >= 15 ? "还行，有觉醒意识但还需反复练习" : "严重警告⚠️ 你正在被职场PUA，请立刻觉醒！"}
+                  </p>
+                  <button onClick={() => {setQuizStep(0);setQuizScore(0);setShowQuizResult(false)}} className="px-4 py-1.5 rounded-lg bg-amber-200 text-amber-800 text-[11px] font-bold">再测一次</button>
+                </motion.div>
+              )}
+
+              {/* Declaration Generator */}
+              <div className="bg-brand-light-gray/30 rounded-2xl p-4 border border-brand-border/5">
+                <button 
+                  onClick={generateDeclaration}
+                  className="w-full py-2.5 bg-brand-dark text-white rounded-xl text-[11px] font-bold hover:bg-brand-dark/90 transition-all flex items-center justify-center gap-1.5 active:scale-95"
                 >
-                  {item.type === 'work' ? <Briefcase className="w-6 h-6" /> : <Coffee className="w-6 h-6" />}
-                </motion.button>
-              ))}
-            </motion.div>
-          )}
-
-          {gameState === 'result' && (
-            <motion.div
-              key="result"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center"
-            >
-              <div className="text-4xl font-serif text-brand-dark mb-2">{score}</div>
-              <div className="text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-6">最终得分</div>
-              <p className="text-xs text-brand-gray mb-8">
-                {score > 150 ? "你是真正的下班之神！" : score > 80 ? "表现不错，准时下班！" : "加班预警，再接再厉。"}
-              </p>
-              <button
-                onClick={startGame}
-                className="px-8 py-3 border border-brand-dark text-brand-dark rounded-xl text-xs font-bold hover:bg-brand-dark hover:text-white transition-all"
-              >
-                再来一次
-              </button>
+                  <Send className="w-3 h-3" /> 生成下班宣言
+                </button>
+                {declaration && (
+                  <motion.div initial={{opacity:0,y:5}} animate={{opacity:1,y:0}} className="mt-3 p-3 bg-white rounded-xl border border-brand-border/10">
+                    <p className="text-[11px] text-brand-dark leading-relaxed">{declaration}</p>
+                    <button 
+                      onClick={copyDeclaration}
+                      className="mt-2 px-3 py-1 bg-brand-gold/10 text-brand-gold rounded-lg text-[10px] font-bold hover:bg-brand-gold/20 transition-all"
+                    >
+                      {copied ? "✅ 已复制" : "📋 复制分享"}
+                    </button>
+                  </motion.div>
+                )}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

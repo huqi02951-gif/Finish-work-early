@@ -8,6 +8,7 @@ import {
 import { SKILLS } from '../constants/skills';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
+import AppLayout from '../src/components/layout/AppLayout';
 
 const SkillDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,65 +29,60 @@ const SkillDetail: React.FC = () => {
   const guide = skill.marketingGuide;
 
   return (
-    <div className="py-12 sm:py-24 bg-brand-offwhite min-h-screen">
-      <div className="container mx-auto px-6">
-        <button 
-          onClick={() => navigate(-1)} 
-          className="flex items-center gap-3 text-brand-gray hover:text-brand-dark transition-all mb-8 sm:mb-16 group font-bold text-[10px] sm:text-sm uppercase tracking-widest opacity-60 hover:opacity-100"
-        >
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 返回上一页
-        </button>
+    <AppLayout title={skill.name} showBack>
+    <div className="py-3 sm:py-8 bg-brand-offwhite min-h-screen">
+      <div className="container mx-auto px-4 sm:px-6">
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-10">
           {/* Main Content */}
-          <div className="lg:col-span-8 space-y-8 sm:space-y-16">
-            <div className="bg-white p-8 sm:p-12 md:p-16 rounded-[2rem] sm:rounded-[3rem] border border-brand-border/10 shadow-sm hover:shadow-xl transition-all duration-700">
-              <div className="flex flex-wrap justify-between items-start mb-8 sm:mb-12 gap-6 sm:gap-8">
+          <div className="lg:col-span-8 space-y-4 sm:space-y-10">
+            <div className="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-[2.5rem] border border-brand-border/10 shadow-sm hover:shadow-xl transition-all duration-700">
+              <div className="flex flex-wrap justify-between items-start mb-4 sm:mb-8 gap-3 sm:gap-6">
                 <div className="max-w-2xl">
-                  <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                    <span className="px-3 py-1 sm:px-4 sm:py-1.5 bg-brand-light-gray text-brand-dark text-[8px] sm:text-[10px] font-bold uppercase tracking-[0.2em] rounded-full border border-brand-border/20">
+                  <div className="flex items-center gap-2 mb-2 sm:mb-4">
+                    <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-brand-light-gray text-brand-dark text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.15em] rounded-full border border-brand-border/20">
                       {skill.category}
                     </span>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1">
                       <div className={cn("w-1.5 h-1.5 rounded-full", skill.status === '在线可用' ? "bg-emerald-500" : "bg-brand-gray")}></div>
-                      <span className="text-[8px] sm:text-[10px] font-bold text-brand-dark uppercase tracking-widest">
+                      <span className="text-[9px] font-bold text-brand-dark uppercase tracking-widest">
                         {skill.status}
                       </span>
                     </div>
                   </div>
-                  <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl text-brand-dark tracking-tight leading-tight">{skill.name}</h1>
+                  <h1 className="font-serif text-xl sm:text-3xl text-brand-dark tracking-tight leading-tight">{skill.name}</h1>
                 </div>
               </div>
  
-              <div className="relative mb-10 sm:mb-16">
-                <div className="absolute top-0 left-0 w-1 h-full bg-brand-gold rounded-full opacity-30"></div>
-                <p className="text-lg sm:text-2xl text-brand-gray leading-relaxed pl-6 sm:pl-10 font-medium opacity-80">
+              <div className="relative mb-4 sm:mb-10">
+                <div className="absolute top-0 left-0 w-0.5 sm:w-1 h-full bg-brand-gold rounded-full opacity-30"></div>
+                <p className="text-[13px] sm:text-base text-brand-gray leading-relaxed pl-4 sm:pl-8 font-medium opacity-80">
                   {skill.description}
                 </p>
               </div>
  
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-16">
-                <div className="bg-brand-light-gray/30 p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-brand-border/5">
-                  <h3 className="flex items-center gap-3 text-[9px] sm:text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-6 sm:mb-8 opacity-60">
-                    <Zap size={16} className="text-brand-gold" /> 输入参数
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-8">
+                <div className="bg-brand-light-gray/30 p-4 sm:p-8 rounded-xl sm:rounded-[2rem] border border-brand-border/5">
+                  <h3 className="flex items-center gap-2 text-[9px] sm:text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] mb-3 sm:mb-6 opacity-60">
+                    <Zap size={14} className="text-brand-gold" /> 输入参数
                   </h3>
-                  <ul className="space-y-4 sm:space-y-6">
+                  <ul className="space-y-2 sm:space-y-4">
                     {skill.input.map(item => (
-                      <li key={item} className="flex items-center gap-3 sm:gap-4 text-brand-dark font-medium text-base sm:text-lg">
-                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-brand-gold/40"></div>
+                      <li key={item} className="flex items-center gap-2 text-brand-dark font-medium text-[13px] sm:text-base">
+                        <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-brand-gold/40"></div>
                         {item}
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div className="bg-brand-light-gray/30 p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-brand-border/5">
-                  <h3 className="flex items-center gap-3 text-[9px] sm:text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-6 sm:mb-8 opacity-60">
-                    <FileText size={16} className="text-brand-gold" /> 输出成果
+                  <h3 className="flex items-center gap-2 text-[9px] sm:text-[10px] font-bold text-brand-gray uppercase tracking-[0.2em] mb-3 sm:mb-6 opacity-60">
+                    <FileText size={14} className="text-brand-gold" /> 输出成果
                   </h3>
-                  <ul className="space-y-4 sm:space-y-6">
+                  <ul className="space-y-2 sm:space-y-4">
                     {skill.output.map(item => (
-                      <li key={item} className="flex items-center gap-3 sm:gap-4 text-brand-dark font-medium text-base sm:text-lg">
-                        <CheckCircle2 className="w-[18px] h-[18px] sm:w-5 sm:h-5 text-emerald-500" />
+                      <li key={item} className="flex items-center gap-2 text-brand-dark font-medium text-[13px] sm:text-base">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                         {item}
                       </li>
                     ))}
@@ -97,24 +93,24 @@ const SkillDetail: React.FC = () => {
 
             {/* Marketing Guide Section (If exists) */}
             {guide && (
-              <div className="space-y-8 sm:space-y-12">
+              <div className="space-y-4 sm:space-y-8">
                 {/* 1. 产品框架 & 理解 */}
-                <div className="bg-white rounded-[2rem] sm:rounded-[3rem] p-8 sm:p-12 md:p-16 shadow-sm border border-brand-border/10">
-                  <div className="flex items-center gap-4 mb-8 sm:mb-10">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-brand-gold/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-brand-gold">
-                      <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
+                <div className="bg-white rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-8 shadow-sm border border-brand-border/10">
+                  <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-brand-gold/10 rounded-lg sm:rounded-xl flex items-center justify-center text-brand-gold">
+                      <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-serif font-bold text-brand-dark">产品框架与核心逻辑</h2>
+                    <h2 className="text-base sm:text-xl font-serif font-bold text-brand-dark">产品框架与核心逻辑</h2>
                   </div>
                   
-                  <div className="space-y-8 sm:space-y-10">
+                  <div className="space-y-3 sm:space-y-6">
                     <div>
-                      <h3 className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-gold mb-3 sm:mb-4">底层逻辑</h3>
-                      <p className="text-base sm:text-lg text-brand-gray leading-relaxed font-medium">{guide.framework}</p>
+                      <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-gold mb-2 sm:mb-3">底层逻辑</h3>
+                      <p className="text-[13px] sm:text-sm text-brand-gray leading-relaxed font-medium">{guide.framework}</p>
                     </div>
-                    <div className="p-6 sm:p-8 bg-brand-light-gray/50 rounded-[1.5rem] sm:rounded-[2rem] border border-brand-border/5">
-                      <h3 className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-brand-dark mb-3 sm:mb-4">产品定位</h3>
-                      <p className="text-sm sm:text-base text-brand-gray leading-relaxed font-medium">{guide.understanding}</p>
+                    <div className="p-3 sm:p-6 bg-brand-light-gray/50 rounded-xl sm:rounded-2xl border border-brand-border/5">
+                      <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-dark mb-2 sm:mb-3">产品定位</h3>
+                      <p className="text-[12px] sm:text-sm text-brand-gray leading-relaxed font-medium">{guide.understanding}</p>
                     </div>
                   </div>
                 </div>
@@ -329,6 +325,7 @@ const SkillDetail: React.FC = () => {
         </div>
       </div>
     </div>
+    </AppLayout>
   );
 };
 
