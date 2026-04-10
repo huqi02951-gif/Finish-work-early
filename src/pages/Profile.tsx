@@ -1,11 +1,8 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
-  User, Settings, Bookmark, FileText, Shield, ChevronRight, LogOut,
-  HelpCircle, Award, Heart, MessageCircle, Zap, Sparkles, Trophy,
-  Clock, TrendingUp, Target, Calendar, Utensils, Timer, Coffee,
-  ArrowUpRight, Flame, BarChart3, Star, Activity, Gift, Brain
+  Terminal, ShieldAlert, Cpu, HeartPulse, Activity, LogOut, 
+  Settings, FolderTree, ArrowRight, Zap, Target, Lock
 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiService } from '../services/api';
@@ -13,12 +10,85 @@ import { User as UserType } from '../types';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// --- Cyberpunk / CLI Components ---
+
+const GlitchText: React.FC<{ text: string; className?: string; glitchHoverOnly?: boolean }> = ({ text, className, glitchHoverOnly }) => {
+  return (
+    <span className={cn("relative inline-block group", className)}>
+      <span className="relative z-10">{text}</span>
+      <span className={cn(
+        "absolute top-0 left-[1px] z-0 text-[#00ff41] opacity-30 select-none",
+        glitchHoverOnly ? "opacity-0 group-hover:opacity-30 group-hover:clip-glitch-1" : "clip-glitch-1"
+      )} aria-hidden>{text}</span>
+      <span className={cn(
+        "absolute top-0 left-[-1px] z-0 text-[#ff0040] opacity-20 select-none",
+        glitchHoverOnly ? "opacity-0 group-hover:opacity-20 group-hover:clip-glitch-2" : "clip-glitch-2"
+      )} aria-hidden>{text}</span>
+    </span>
+  );
+};
+
+const TypewriterText: React.FC<{ text: string; delay?: number; className?: string; onComplete?: () => void }> = ({ text, delay = 0, className, onComplete }) => {
+  const [displayText, setDisplayText] = useState('');
+  
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    let index = 0;
+    
+    const startTyping = () => {
+      timeout = setInterval(() => {
+        setDisplayText(text.substring(0, index + 1));
+        index++;
+        if (index === text.length) {
+          clearInterval(timeout);
+          if (onComplete) onComplete();
+        }
+      }, 50); // typing speed
+    };
+
+    if (delay > 0) {
+      setTimeout(startTyping, delay);
+    } else {
+      startTyping();
+    }
+
+    return () => clearInterval(timeout);
+  }, [text, delay]);
+
+  return (
+    <span className={className}>
+      {displayText}
+      <span className="animate-pulse bg-[#00ff41] w-2 h-4 inline-block ml-1 align-middle"></span>
+    </span>
+  );
+};
+
+const AsciiProgress: React.FC<{ percent: number; width?: number; color?: string }> = ({ percent, width = 15, color = "text-[#00ff41]" }) => {
+  const filledCount = Math.round((percent / 100) * width);
+  const emptyCount = width - filledCount;
+  const filled = "█".repeat(filledCount);
+  const empty = "░".repeat(emptyCount);
+  
+  return (
+    <span className={cn("font-mono tracking-tight", color)}>
+      [{filled}<span className="text-gray-600">{empty}</span>] {percent.toFixed(0)}%
+    </span>
+  );
+};
+
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserType | null>(null);
-  const [activeSection, setActiveSection] = useState<'overview' | 'growth' | 'tools'>('overview');
+  const [activeScreen, setActiveScreen] = useState<'AUTH' | 'MAIN' | 'TOOLS' | 'LOGOUT'>('AUTH');
+  const [activeTab, setActiveTab] = useState<'SYS_STATS' | 'MODULES' | 'ACHIEVEMENTS'>('SYS_STATS');
   const [now, setNow] = useState(new Date());
+  
+  // Game state
   const [monthlySalary] = useState(10000);
+  const [level] = useState(42);
+  const [xp] = useState(8420);
+  const nextLevelXp = 10000;
+  const xpPercent = (xp / nextLevelXp) * 100;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -26,6 +96,9 @@ const Profile: React.FC = () => {
       setUser(data);
     };
     fetchUser();
+    
+    // Boot sequence mock
+    setTimeout(() => setActiveScreen('MAIN'), 1500);
   }, []);
 
   useEffect(() => {
@@ -41,323 +114,305 @@ const Profile: React.FC = () => {
   const earnedToday = Math.min(Math.max(currentMinutes - 9 * 60, 0), 480) * minuteRate;
   const overtimeLoss = isOvertime ? (currentMinutes - 17 * 60) * minuteRate : 0;
 
-  // Mock data
-  const joinDays = 892;
-  const skillsUsed = 47;
-  const focusTomatoes = 3;
+  // Render Authentication screen
+  if (activeScreen === 'AUTH') {
+    return (
+      <AppLayout title="Terminal">
+        <div className="bg-[#050505] min-h-screen text-[#00ff41] font-mono p-4 flex flex-col justify-center items-center relative overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-50 z-50"></div>
+          
+          <div className="text-center z-10 w-full max-w-sm">
+            <Lock className="w-12 h-12 mx-auto mb-4 opacity-70 animate-pulse text-[#00ff41]" />
+            <div className="text-left bg-black p-4 border border-[#00ff41]/30 shadow-[0_0_15px_rgba(0,255,65,0.2)]">
+              <TypewriterText text="CONNECTING TO SECURE MAINFRAME..." />
+              <br/>
+              <TypewriterText text="VERIFYING AGENT PROTOCOLS..." delay={500} />
+              <br/>
+              <TypewriterText text="ACCESS GRANTED." delay={1000} className="text-green-300 font-bold" />
+            </div>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
-  const stats = [
-    { label: '获赞', value: '1,284', icon: Heart, color: 'text-rose-500', bg: 'bg-rose-50' },
-    { label: '发帖', value: '67', icon: FileText, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: '积分', value: '8,420', icon: Zap, color: 'text-amber-500', bg: 'bg-amber-50' },
-    { label: '收藏', value: '256', icon: Bookmark, color: 'text-purple-500', bg: 'bg-purple-50' },
+  // Stats Grid Data
+  const sysStats = [
+    { label: 'LIKES', val: '1284', icon: HeartPulse },
+    { label: 'POSTS', val: '67', icon: Terminal },
+    { label: 'TOKENS', val: xp.toString(), icon: Zap },
   ];
 
   const quickTools = [
-    { icon: Utensils, label: '今天吃什么', desc: '午餐选择困难症救星', path: '/scenarios?tab=self', color: 'bg-orange-500' },
-    { icon: Timer, label: '番茄时钟', desc: `今日已完成 ${focusTomatoes} 个`, path: '/scenarios?tab=self', color: 'bg-red-500' },
-    { icon: TrendingUp, label: '加班计算器', desc: isOvertime ? `已损失 ¥${overtimeLoss.toFixed(1)}` : '实时时薪追踪', path: '/scenarios?tab=self', color: 'bg-emerald-500' },
-    { icon: Calendar, label: '玄学日历', desc: '今日宜忌速查', path: '/scenarios?tab=self', color: 'bg-indigo-500' },
-  ];
-
-  const activityFeed = [
-    { id: 1, type: 'skill', title: '使用了「利率优惠生成」工具', time: '30分钟前', icon: Zap, color: 'text-amber-500' },
-    { id: 2, type: 'post', title: '发布了帖子：如何提高拓客效率？', time: '2小时前', icon: FileText, color: 'text-blue-500' },
-    { id: 3, type: 'comment', title: '回复了：关于长融保审批的合规细节', time: '昨天', icon: MessageCircle, color: 'text-purple-500' },
-    { id: 4, type: 'achievement', title: '解锁成就：连续7天准时下班 🏆', time: '3天前', icon: Trophy, color: 'text-amber-600' },
-    { id: 5, type: 'skill', title: '使用了「银承/存单测算」工具', time: '上周', icon: Zap, color: 'text-amber-500' },
-  ];
-
-  const achievements = [
-    { icon: '🏆', title: '准时下班王', desc: '连续7天17:00前下班', unlocked: true },
-    { icon: '🔥', title: '热帖制造机', desc: '单帖获赞超过100', unlocked: true },
-    { icon: '🧠', title: 'Skills大师', desc: '使用超过10个不同工具', unlocked: true },
-    { icon: '⏰', title: '番茄收割者', desc: '累计完成100个番茄钟', unlocked: false },
-    { icon: '📊', title: '数据达人', desc: '生成50份测算报告', unlocked: false },
-    { icon: '🌟', title: '全能选手', desc: '四大场景各使用20次', unlocked: false },
-  ];
-
-  // Radar data (usage across 4 scenarios)
-  const radarData = [
-    { label: '对客户', value: 85 },
-    { label: '对审查', value: 62 },
-    { label: '对中后台', value: 45 },
-    { label: '对自己', value: 78 },
+    { cmd: './execute --food', label: '今天吃什么', path: '/scenarios?tab=self', badge: 'v1.0' },
+    { cmd: './focus --tomato', label: '番茄时钟', path: '/scenarios?tab=self', badge: 'ACTIVE' },
+    { cmd: './calc --overtime', label: '加班计算器', path: '/scenarios?tab=self', badge: isOvertime ? 'CRITICAL' : 'OK' },
+    { cmd: './run --fengshui', label: '玄学日历', path: '/scenarios?tab=self', badge: 'Daily' },
   ];
 
   return (
-    <AppLayout title="我的">
-      <div className="pb-24 bg-brand-offwhite min-h-screen">
-        {/* Compact Profile Header */}
-        <section className="relative pt-6 pb-4 px-4 overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-brand-dark via-brand-dark to-brand-dark/90" />
-          <div className="absolute top-0 right-0 w-40 h-40 bg-brand-gold/10 rounded-full blur-[80px]" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-[60px]" />
+    <AppLayout title="SysOps">
+      <div className="bg-[#050505] min-h-[100dvh] text-gray-300 font-mono pb-24 relative overflow-hidden">
+        {/* CRT Scanline Overlay */}
+        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-40 z-50"></div>
+        
+        {/* Vim-like top bar */}
+        <div className="bg-[#1a1a1a] text-[#00ff41] px-2 py-1 flex justify-between text-[10px] border-b border-[#00ff41]/20 sticky top-0 z-40">
+          <span className="flex items-center gap-1"><Terminal className="w-3 h-3"/> tty1</span>
+          <span>root@{user?.nickname || 'agent'} ~</span>
+        </div>
+
+        <div className="p-4 relative z-10 max-w-lg mx-auto space-y-6">
           
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="relative">
-                <div className="w-14 h-14 rounded-2xl bg-white/10 p-0.5 overflow-hidden border border-white/10">
-                  <img 
-                    src={user?.avatar || 'https://picsum.photos/seed/user/200/200'} 
-                    alt={user?.nickname} 
-                    className="w-full h-full object-cover rounded-xl"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-brand-gold rounded-md flex items-center justify-center border-2 border-brand-dark">
-                  <Star className="w-2.5 h-2.5 text-brand-dark" />
-                </div>
-              </div>
-              <div className="flex-grow">
-                <h2 className="text-lg font-bold text-white tracking-tight">
-                  {user?.nickname || '客户经理'}
-                </h2>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="px-1.5 py-0.5 bg-brand-gold/20 text-brand-gold rounded text-[8px] font-bold uppercase tracking-wider">
-                    Pro Agent
-                  </span>
-                  <span className="text-[10px] text-white/40 font-mono">入职 {joinDays} 天</span>
-                </div>
-              </div>
-              <button onClick={() => navigate('/settings')} className="p-2 bg-white/5 rounded-xl border border-white/10 text-white/40 hover:text-white transition-all">
-                <Settings className="w-4 h-4" />
-              </button>
+          {/* Identity Box */}
+          <section className="border border-[#00ff41]/30 bg-black p-3 shadow-[0_0_10px_rgba(0,255,65,0.1)]">
+            <div className="text-[#00ff41] text-[10px] mb-2 font-bold opacity-70">
+              <span className="text-gray-500">$</span> whoami --details
             </div>
-
-            {/* Live Earning Strip */}
-            <div className="bg-white/5 rounded-xl px-3 py-2 border border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className={cn("w-1.5 h-1.5 rounded-full", isOvertime ? "bg-red-500 animate-pulse" : "bg-emerald-500")} />
-                <span className="text-[10px] text-white/50 font-medium">
-                  {isOvertime ? '加班中' : '工作中'}
-                </span>
+            
+            <div className="flex gap-4 items-start">
+              <div className="w-16 h-16 border-2 border-[#00ff41]/50 p-1 shrink-0 relative group cursor-pointer overflow-hidden bg-[#0A1A0F]">
+                <img 
+                  src={user?.avatar || 'https://picsum.photos/seed/hacker/200/200'} 
+                  alt="avatar" 
+                  className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all mix-blend-luminosity"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-[#00ff41]/20 mix-blend-overlay group-hover:opacity-0 transition-opacity"></div>
+                {/* Glitch overlay on hover */}
+                <div className="absolute -inset-1 bg-[#00ff41] opacity-0 group-hover:opacity-20 group-hover:clip-glitch-1 mix-blend-overlay pointer-events-none"></div>
               </div>
-              <div className="text-right">
-                <span className="text-[10px] text-white/40">今日已赚 </span>
-                <span className={cn("text-xs font-mono font-bold", isOvertime ? "text-red-400" : "text-emerald-400")}>
-                  ¥{earnedToday.toFixed(0)}
-                </span>
-                {isOvertime && (
-                  <span className="text-[10px] text-red-400 ml-1.5 font-mono">-¥{overtimeLoss.toFixed(1)}</span>
-                )}
+              
+              <div className="flex-grow space-y-1">
+                <div className="flex justify-between items-end">
+                  <GlitchText text={`ID: ${user?.nickname || 'CLI_AGENT'}`} className="text-[#00ff41] text-lg font-bold tracking-tight" glitchHoverOnly />
+                  <span className="text-[#f5a623] text-[10px] border border-[#f5a623]/50 px-1">LVL.{level}</span>
+                </div>
+                
+                <div className="text-[10px] text-gray-400">CLASS: PRO_AGENT</div>
+                <div className="text-[10px] mt-1 space-y-0.5">
+                  <div className="flex justify-between text-[#00ff41]">
+                    <span>XP_SYNC</span>
+                    <span>{xp}/{nextLevelXp}</span>
+                  </div>
+                  <AsciiProgress percent={xpPercent} width={20} />
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Stats Grid */}
-        <section className="px-4 -mt-2 relative z-20">
-          <div className="bg-white rounded-2xl p-3 shadow-sm border border-brand-border/5 grid grid-cols-4 gap-1">
-            {stats.map((stat, idx) => (
-              <motion.div 
-                key={idx}
-                whileTap={{ scale: 0.95 }}
-                className="flex flex-col items-center gap-0.5 py-2 cursor-pointer group"
-              >
-                <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110", stat.bg)}>
-                  <stat.icon className={cn("w-3.5 h-3.5", stat.color)} />
-                </div>
-                <span className="text-sm font-bold text-brand-dark">{stat.value}</span>
-                <span className="text-[9px] text-brand-gray font-bold">{stat.label}</span>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* Section Tabs */}
-        <section className="px-4 mt-4">
-          <div className="flex p-0.5 bg-brand-light-gray/50 rounded-xl border border-brand-border/5">
-            {[
-              { id: 'overview', label: '效能概览', icon: Activity },
-              { id: 'growth', label: '成长轨迹', icon: TrendingUp },
-              { id: 'tools', label: '我的工具', icon: Zap },
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveSection(tab.id as any)}
-                className={cn(
-                  "flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-[11px] font-bold transition-all",
-                  activeSection === tab.id ? "bg-white text-brand-dark shadow-sm" : "text-brand-gray"
-                )}
-              >
-                <tab.icon className="w-3 h-3" />
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* Content Sections */}
-        <AnimatePresence mode="wait">
-          {activeSection === 'overview' && (
-            <motion.section key="overview" initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="px-4 mt-4 space-y-3">
-              {/* Skill Radar */}
-              <div className="bg-white rounded-2xl p-4 border border-brand-border/5 shadow-sm">
-                <h3 className="text-[11px] font-bold text-brand-dark mb-3 flex items-center gap-1.5">
-                  <BarChart3 className="w-3.5 h-3.5 text-brand-gold" /> 场景使用频次
-                </h3>
-                <div className="space-y-2">
-                  {radarData.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <span className="text-[10px] text-brand-gray w-14 shrink-0">{item.label}</span>
-                      <div className="flex-grow h-5 bg-brand-light-gray/50 rounded-full overflow-hidden">
-                        <motion.div 
-                          initial={{width:0}}
-                          animate={{width:`${item.value}%`}}
-                          transition={{duration:0.8,delay:idx*0.1}}
-                          className={cn(
-                            "h-full rounded-full flex items-center justify-end pr-2",
-                            idx === 0 ? "bg-blue-500" : idx === 1 ? "bg-purple-500" : idx === 2 ? "bg-indigo-500" : "bg-rose-500"
-                          )}
-                        >
-                          <span className="text-[8px] font-bold text-white">{item.value}%</span>
-                        </motion.div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          {/* Overtime Alert Monitor */}
+          <section>
+            <div className="text-[#00ff41] text-[10px] mb-1 font-bold opacity-70">
+              <span className="text-gray-500">$</span> ./monitor_salary.sh
+            </div>
+            
+            <motion.div 
+              className={cn(
+                "p-3 border text-xs", 
+                isOvertime 
+                  ? "border-red-500 bg-red-950/30 text-red-400 shadow-[0_0_15px_rgba(255,0,0,0.2)]" 
+                  : "border-[#00ff41]/30 bg-[#00ff41]/5 text-[#00ff41]"
+              )}
+              animate={isOvertime ? { boxShadow: ['0 0 5px #ff0000', '0 0 15px #ff0000', '0 0 5px #ff0000'] } : {}}
+              transition={{ repeat: Infinity, duration: 2 }}
+            >
+              <div className="flex justify-between items-center mb-1">
+                <span className="font-bold flex items-center gap-1">
+                  {isOvertime ? <ShieldAlert className="w-3.5 h-3.5 text-red-500 animate-pulse" /> : <Activity className="w-3.5 h-3.5" />}
+                  {isOvertime ? "SYSTEM ALERT" : "STATUS OK"}
+                </span>
+                <span className="text-[10px] opacity-70">{now.toLocaleTimeString('en-US', { hour12: false })}</span>
               </div>
+              
+              {isOvertime ? (
+                <div className="space-y-1 mt-2">
+                  <GlitchText text="EXPLOITATION DETECTED (无偿加班中)" className="text-red-500 font-bold block" />
+                  <div className="flex justify-between mt-2 border-t border-red-900/50 pt-1">
+                    <span>ESTIMATED LOSS:</span>
+                    <span className="font-bold text-red-400">¥ {overtimeLoss.toFixed(2)}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1 mt-2 border-l-2 border-[#00ff41] pl-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">NODE STATUS</span>
+                    <span>ACTIVE</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">DAILY YIELD</span>
+                    <span className="text-[#00ff41]">¥ {earnedToday.toFixed(0)}</span>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </section>
 
-              {/* Today's Highlights */}
-              <div className="grid grid-cols-2 gap-2">
-                <div className="bg-white rounded-2xl p-3 border border-brand-border/5 shadow-sm">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <Timer className="w-3 h-3 text-red-500" />
-                    <span className="text-[10px] font-bold text-brand-gray">番茄钟</span>
-                  </div>
-                  <div className="text-xl font-bold text-brand-dark">{focusTomatoes}<span className="text-xs text-brand-gray font-normal ml-0.5">/ 8</span></div>
-                  <div className="w-full h-1 bg-brand-light-gray rounded-full mt-2">
-                    <div className="h-full bg-red-500 rounded-full" style={{width:`${(focusTomatoes/8)*100}%`}} />
-                  </div>
-                </div>
-                <div className="bg-white rounded-2xl p-3 border border-brand-border/5 shadow-sm">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <Zap className="w-3 h-3 text-amber-500" />
-                    <span className="text-[10px] font-bold text-brand-gray">工具使用</span>
-                  </div>
-                  <div className="text-xl font-bold text-brand-dark">{skillsUsed}<span className="text-xs text-brand-gray font-normal ml-0.5">次</span></div>
-                  <div className="text-[9px] text-emerald-500 font-bold mt-2 flex items-center gap-0.5">
-                    <ArrowUpRight className="w-2.5 h-2.5" /> +12% 本月
-                  </div>
-                </div>
-              </div>
-
-              {/* Achievements */}
-              <div className="bg-white rounded-2xl p-4 border border-brand-border/5 shadow-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-[11px] font-bold text-brand-dark flex items-center gap-1.5">
-                    <Trophy className="w-3.5 h-3.5 text-amber-500" /> 成就勋章
-                  </h3>
-                  <span className="text-[10px] text-brand-gray">{achievements.filter(a => a.unlocked).length}/{achievements.length}</span>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {achievements.map((ach, idx) => (
-                    <div key={idx} className={cn(
-                      "flex flex-col items-center p-2 rounded-xl text-center transition-all",
-                      ach.unlocked ? "bg-amber-50 border border-amber-200" : "bg-brand-light-gray/30 opacity-40"
-                    )}>
-                      <span className="text-lg mb-0.5">{ach.icon}</span>
-                      <span className="text-[9px] font-bold text-brand-dark line-clamp-1">{ach.title}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.section>
-          )}
-
-          {activeSection === 'growth' && (
-            <motion.section key="growth" initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="px-4 mt-4 space-y-3">
-              <h3 className="text-[11px] font-bold text-brand-dark px-1 flex items-center gap-1.5">
-                <Activity className="w-3.5 h-3.5 text-brand-gold" /> 最近动态
-              </h3>
-              {activityFeed.map((item, idx) => (
-                <motion.div
-                  key={item.id}
-                  initial={{opacity:0,x:-10}}
-                  animate={{opacity:1,x:0}}
-                  transition={{delay:idx*0.05}}
-                  className="bg-white p-3.5 rounded-2xl border border-brand-border/5 shadow-sm flex items-start gap-3 group cursor-pointer hover:shadow-md transition-all"
+          {/* Terminal Tabs */}
+          <section>
+            <div className="flex border-b border-[#00ff41]/30 mb-3">
+              {[
+                { id: 'SYS_STATS', label: 'SYS_STATS', cmd: 'top' },
+                { id: 'MODULES', label: 'SKILL_MAP', cmd: 'ls -l' },
+                { id: 'ACHIEVEMENTS', label: 'BADGES', cmd: 'cat badges.txt' },
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={cn(
+                    "px-3 py-1.5 text-[10px] md:text-xs font-bold transition-all relative",
+                    activeTab === tab.id 
+                      ? "text-black bg-[#00ff41]" 
+                      : "text-[#00ff41]/50 hover:text-[#00ff41]"
+                  )}
                 >
-                  <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
-                    item.type === 'post' ? "bg-blue-50" : item.type === 'comment' ? "bg-purple-50" : item.type === 'achievement' ? "bg-amber-50" : "bg-amber-50"
-                  )}>
-                    <item.icon className={cn("w-3.5 h-3.5", item.color)} />
-                  </div>
-                  <div className="flex-grow min-w-0">
-                    <p className="text-[12px] font-medium text-brand-dark line-clamp-2 leading-relaxed group-hover:text-blue-600 transition-colors">{item.title}</p>
-                    <span className="text-[9px] text-brand-gray mt-1 block">{item.time}</span>
-                  </div>
-                  <ChevronRight className="w-3.5 h-3.5 text-brand-border shrink-0 mt-1 group-hover:text-blue-500 transition-colors" />
-                </motion.div>
+                  {tab.cmd}
+                </button>
               ))}
-            </motion.section>
-          )}
+            </div>
 
-          {activeSection === 'tools' && (
-            <motion.section key="tools" initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} exit={{opacity:0}} className="px-4 mt-4 space-y-3">
-              <h3 className="text-[11px] font-bold text-brand-dark px-1 flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-brand-gold" /> 快捷工具（关联「对自己」）
-              </h3>
-              <div className="grid grid-cols-2 gap-2">
-                {quickTools.map((tool, idx) => (
-                  <motion.div
-                    key={idx}
-                    whileTap={{scale:0.97}}
-                    onClick={() => navigate(tool.path)}
-                    className="bg-white p-3.5 rounded-2xl border border-brand-border/5 shadow-sm cursor-pointer group hover:shadow-md transition-all"
-                  >
-                    <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center text-white mb-2", tool.color)}>
-                      <tool.icon className="w-4 h-4" />
-                    </div>
-                    <h4 className="text-[12px] font-bold text-brand-dark group-hover:text-blue-600 transition-colors">{tool.label}</h4>
-                    <p className="text-[10px] text-brand-gray mt-0.5">{tool.desc}</p>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Quick Menu */}
-              <div className="space-y-2 mt-2">
-                {[
-                  { icon: FileText, label: '我的发布', count: '12', path: '/bbs' },
-                  { icon: Bookmark, label: '收藏内容', count: '256', path: '/skills' },
-                  { icon: Trophy, label: '成就中心', count: '3/6', path: '/scenarios?tab=self' },
-                  { icon: HelpCircle, label: '使用帮助', path: '/instructions' },
-                ].map((item, idx) => (
-                  <Link
-                    key={idx}
-                    to={item.path}
-                    className="flex items-center justify-between p-3 bg-white rounded-xl border border-brand-border/5 shadow-sm hover:shadow-md transition-all group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-brand-light-gray flex items-center justify-center text-brand-dark/50 group-hover:text-blue-500 group-hover:bg-blue-50 transition-all">
-                        <item.icon className="w-3.5 h-3.5" />
+            <AnimatePresence mode="wait">
+              {activeTab === 'SYS_STATS' && (
+                <motion.div key="stats" initial={{opacity:0, x:-5}} animate={{opacity:1, x:0}} exit={{opacity:0}} className="space-y-4">
+                  {/* Grid Metrics */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {sysStats.map((stat, idx) => (
+                      <div key={idx} className="border border-[#00ff41]/20 bg-[#00ff41]/5 p-2 flex flex-col items-center justify-center relative overflow-hidden group cursor-crosshair">
+                        <stat.icon className="w-4 h-4 text-[#00ff41]/40 mb-1 group-hover:text-[#00ff41] transition-colors" />
+                        <span className="text-[#00ff41] font-bold">{stat.val}</span>
+                        <span className="text-[8px] text-gray-500 tracking-widest">{stat.label}</span>
+                        {/* Hover corner brackets */}
+                        <div className="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-[#00ff41] opacity-0 group-hover:opacity-100"></div>
+                        <div className="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-[#00ff41] opacity-0 group-hover:opacity-100"></div>
                       </div>
-                      <div>
-                        <h4 className="text-[12px] font-bold text-brand-dark">{item.label}</h4>
-                        {item.count && <p className="text-[9px] text-brand-gray">{item.count} 项</p>}
-                      </div>
-                    </div>
-                    <ChevronRight className="w-3.5 h-3.5 text-brand-border group-hover:text-blue-500 transition-all" />
-                  </Link>
-                ))}
-              </div>
-            </motion.section>
-          )}
-        </AnimatePresence>
+                    ))}
+                  </div>
 
-        {/* Footer */}
-        <section className="px-4 mt-6 space-y-3">
-          <button 
-            className="w-full py-3 bg-red-50 text-red-500 rounded-2xl font-bold text-[12px] flex items-center justify-center gap-1.5 hover:bg-red-100 transition-all active:scale-95 border border-red-100"
-          >
-            <LogOut className="w-3.5 h-3.5" /> 退出登录
-          </button>
-          <div className="text-center py-4 space-y-1 opacity-30">
-            <p className="text-[9px] font-bold text-brand-gray uppercase tracking-[0.3em]">finish work early</p>
-            <p className="text-[8px] text-brand-gray">© 2026 客户经理agent+skills</p>
-          </div>
-        </section>
+                  {/* CPU / Usage bars */}
+                  <div className="border border-[#00ff41]/20 p-3">
+                    <div className="text-[10px] text-[#00ff41] mb-2 pb-1 border-b border-[#00ff41]/20 flex items-center gap-1">
+                      <Cpu className="w-3 h-3"/> SCENARIO_ALLOCATION
+                    </div>
+                    {[
+                      { label: 'CLIENT_OPS', val: 85 },
+                      { label: 'AUDIT_NET', val: 62 },
+                      { label: 'MID_OFFICE', val: 45 },
+                      { label: 'SELF_CARE', val: 78 },
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-center text-[10px] my-1.5">
+                        <span className="w-20 text-[#00ff41]/70">{item.label}</span>
+                        <span>[</span>
+                        <span className="flex-grow text-[#00ff41]">
+                          {"#".repeat(Math.floor(item.val/5))}
+                          <span className="text-gray-700">{".".repeat(20 - Math.floor(item.val/5))}</span>
+                        </span>
+                        <span>]</span>
+                        <span className="w-8 text-right text-[#00ff41]">{item.val}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {activeTab === 'MODULES' && (
+                <motion.div key="modules" initial={{opacity:0, x:-5}} animate={{opacity:1, x:0}} exit={{opacity:0}} className="space-y-2">
+                  <div className="text-[#00ff41] text-[10px] mb-2 opacity-70">
+                    <span className="text-gray-500">$</span> ls -la ./quick_tools/
+                  </div>
+                  {quickTools.map((tool, idx) => (
+                    <motion.div 
+                      key={idx}
+                      whileHover={{ x: 5 }}
+                      onClick={() => navigate(tool.path)}
+                      className="border border-[#00ff41]/20 hover:border-[#00ff41] bg-black p-2 flex items-center justify-between cursor-pointer group transition-all"
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-[#00ff41] text-xs font-bold font-mono group-hover:hidden transition-all">{tool.cmd}</span>
+                        <span className="text-[#00ff41] text-xs font-bold font-mono hidden group-hover:block transition-all">
+                          <span className="bg-[#00ff41] text-black px-1.5 mr-1">EXEC</span> {tool.label}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={cn(
+                          "text-[9px] px-1 border",
+                          tool.badge === 'CRITICAL' ? "border-red-500 text-red-500 animate-pulse" : "border-[#00ff41]/50 text-[#00ff41]/70"
+                        )}>
+                          {tool.badge}
+                        </span>
+                      </div>
+                    </motion.div>
+                  ))}
+                  
+                  {/* Additional directories */}
+                  <div className="pt-4 grid grid-cols-2 gap-2">
+                    {[
+                      { icon: FolderTree, label: '../settings', path: '/settings' },
+                      { icon: FolderTree, label: '../bbs_logs', path: '/bbs' },
+                    ].map((dir, idx) => (
+                      <Link key={idx} to={dir.path} className="flex items-center gap-1.5 text-[10px] text-gray-500 hover:text-[#00ff41] transition-colors cursor-pointer border border-transparent hover:border-[#00ff41]/30 bg-[#1a1a1a] p-2">
+                        <dir.icon className="w-3.5 h-3.5" /> {dir.label}
+                      </Link>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {activeTab === 'ACHIEVEMENTS' && (
+                <motion.div key="achievements" initial={{opacity:0, x:-5}} animate={{opacity:1, x:0}} exit={{opacity:0}}>
+                  <div className="border border-[#00ff41]/20 bg-black p-3 space-y-3">
+                    <div className="text-[10px] text-[#00ff41]/70 border-b border-[#00ff41]/20 pb-1 mb-2 font-mono">
+                      DECRYPTED CERTIFICATES
+                    </div>
+                    {[
+                      { title: 'MASTER_HACKER', stat: 'Used 10+ Tools', unlocked: true },
+                      { title: 'RUNTIME_OVERLORD', stat: '7x NO OVERTIME', unlocked: true },
+                      { title: 'SIGNAL_AMPLIFIER', stat: '100+ LIKES/POST', unlocked: true },
+                      { title: 'CRON_MASTER', stat: '100 POMODOROS', unlocked: false },
+                    ].map((ach, idx) => (
+                      <div key={idx} className={cn(
+                        "flex items-center justify-between p-2 border-l-2",
+                        ach.unlocked ? "border-[#00ff41] bg-[#00ff41]/5 text-[#00ff41]" : "border-gray-700 bg-gray-900 text-gray-600"
+                      )}>
+                        <div>
+                          <div className={cn("text-[10px] font-bold tracking-widest", ach.unlocked ? "text-[#00ff41]" : "text-gray-500")}>
+                            {ach.unlocked ? `[${ach.title}]` : '[ENCRYPTED_BLOCK]'}
+                          </div>
+                          <div className="text-[8px] opacity-70 mt-0.5">{ach.stat}</div>
+                        </div>
+                        <div className="text-xs">
+                          {ach.unlocked ? <Target className="w-4 h-4 text-[#00ff41]" /> : <Lock className="w-4 h-4 text-gray-600" />}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </section>
+
+          {/* Footer CLI Logout */}
+          <section className="pt-4 pb-8">
+            <button 
+              onClick={() => setActiveScreen('LOGOUT')}
+              className="w-full relative group bg-[#0A0A0A] border text-left flex justify-between items-center overflow-hidden border-red-900/50 hover:border-red-500/80 transition-all p-3"
+            >
+              <div className="absolute inset-0 bg-red-500/10 -translate-x-full group-hover:translate-x-0 transition-transform duration-300 pointer-events-none"></div>
+              <span className="text-[11px] text-red-500 font-bold font-mono group-hover:text-red-400 z-10 transition-colors">
+                <span className="text-gray-600 mr-2">$</span>
+                sudo poweroff --terminate
+              </span>
+              <LogOut className="w-4 h-4 text-red-500 group-hover:text-red-400 z-10" />
+            </button>
+            
+            <div className="text-center py-4 mt-6">
+              <p className="text-[8px] font-mono text-[#00ff41]/30">
+                F.W.E CORE_SYSTEM v2.0 <br/>
+                ©2026 OPENCLAW_AGENT_MATRIX
+              </p>
+            </div>
+          </section>
+
+        </div>
       </div>
     </AppLayout>
   );
