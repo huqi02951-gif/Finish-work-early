@@ -1509,9 +1509,16 @@ const ScenarioCenter: React.FC = () => {
                             <p className="text-xs text-brand-gray mb-8 line-clamp-2 font-medium leading-relaxed opacity-80">{skill.description}</p>
                             <div className="flex items-center justify-between mt-auto pt-4 border-t border-brand-border/5">
                               <span className="text-[9px] text-brand-gray/40 font-bold uppercase tracking-[0.2em]">{skill.form}</span>
-                              <Link to={`/skills/${skill.id}`} className="text-apple-blue text-[11px] font-bold flex items-center gap-1 hover:gap-2 transition-all">
-                                立即使用 <ChevronRight size={14} />
-                              </Link>
+                              <div className="flex items-center gap-3">
+                                <Link to={`/skills/${skill.id}`} className="text-brand-gray text-[11px] font-bold hover:text-brand-dark transition-all">
+                                  详情
+                                </Link>
+                                {skill.status === '在线可用' && skill.toolRoute && (
+                                  <Link to={skill.toolRoute} className="text-apple-blue text-[11px] font-bold flex items-center gap-1 hover:gap-2 transition-all bg-apple-blue/5 px-3 py-1.5 rounded-lg">
+                                    立即运行 <ChevronRight size={14} />
+                                  </Link>
+                                )}
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -1538,9 +1545,16 @@ const ScenarioCenter: React.FC = () => {
                           <p className="text-xs text-brand-gray mb-8 line-clamp-2 font-medium leading-relaxed opacity-80">{skill.description}</p>
                           <div className="flex items-center justify-between mt-auto pt-4 border-t border-brand-border/5">
                             <span className="text-[9px] text-brand-gray/40 font-bold uppercase tracking-[0.2em]">{skill.form}</span>
-                            <Link to={`/skills/${skill.id}`} className="text-apple-blue text-[11px] font-bold flex items-center gap-1 hover:gap-2 transition-all">
-                              立即使用 <ChevronRight size={14} />
-                            </Link>
+                            <div className="flex items-center gap-3">
+                              <Link to={`/skills/${skill.id}`} className="text-brand-gray text-[11px] font-bold hover:text-brand-dark transition-all">
+                                详情
+                              </Link>
+                              {skill.status === '在线可用' && skill.toolRoute && (
+                                <Link to={skill.toolRoute} className="text-apple-blue text-[11px] font-bold flex items-center gap-1 hover:gap-2 transition-all bg-apple-blue/5 px-3 py-1.5 rounded-lg">
+                                  立即运行 <ChevronRight size={14} />
+                                </Link>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))

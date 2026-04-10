@@ -18,7 +18,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack }) => {
   const navItems = [
     { path: '/', label: '首页', icon: HomeIcon },
     { path: '/skills', label: '仓库', icon: LayoutDashboard },
-    { path: '/bbs', label: '论坛', icon: MessageSquare },
+    { path: '/bbs', label: 'BBS', icon: MessageSquare },
     { path: '/profile', label: '我的', icon: User },
   ];
 

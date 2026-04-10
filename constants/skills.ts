@@ -62,7 +62,7 @@ export const SKILLS: Skill[] = [
     input: ["场景选择", "客户称呼", "沟通渠道", "语气风格", "场景专属字段"],
     output: ["直接发送版", "更正式版", "更柔和版", "电话沟通提纲版"],
     form: "网页 + 规则引擎",
-    status: ["本地工具", "需后端支持"],
+    status: "在线可用",
     toolRoute: "/sensitive-comm",
     description: "处理对客沟通中收费通知、利率调整、授信暂缓等敏感事项，提供高情商、专业、边界清晰的标准化话术。"
   },
@@ -75,7 +75,7 @@ export const SKILLS: Skill[] = [
     input: ["开票主体信息", "账号", "合同编号", "日期", "金额", "存单信息", "多笔收款人明细"],
     output: ["本地工具包 (Python + 模板)", "docx/xlsx 生成能力"],
     form: "本地下载工具包",
-    status: ["本地工具", "需后端支持"],
+    status: "在线可用",
     toolRoute: "/batch-billing",
     description: "集成 Python 脚本与预设占位符的 Word/Excel 模板，填写客户必要信息后即可一键批量生成标准化开票文档。"
   },
@@ -88,7 +88,8 @@ export const SKILLS: Skill[] = [
     input: ["企业基础信息", "经营信息", "上下游信息", "营业收入", "净资产", "邮件地址"],
     output: ["字段确认单", "调查报告", "附件4", "操作规范", "客户盖章材料清单", "对内邮件", "对客邮件"],
     form: "Skill + Python + 调试网页",
-    status: "需后端支持",
+    status: "在线可用",
+    toolRoute: "/business-guide",
     description: "端到端的贴现及专门授信全流程辅助，涵盖从客户信息收集到内部报告生成的全套材料。"
   },
   {

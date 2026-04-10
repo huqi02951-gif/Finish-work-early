@@ -114,9 +114,16 @@ const SkillsLibrary: React.FC = () => {
 
                 <div className="flex items-center justify-between pt-4 border-t border-brand-border/5">
                   <span className="text-[9px] text-brand-gray/40 font-bold uppercase tracking-widest">{skill.form}</span>
-                  <Link to={`/skills/${skill.id}`} className="text-apple-blue text-xs font-bold flex items-center gap-1 hover:gap-2 transition-all">
-                    查看详情 <ArrowRight size={14} />
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <Link to={`/skills/${skill.id}`} className="text-brand-gray text-[11px] font-bold hover:text-brand-dark transition-all">
+                      详情
+                    </Link>
+                    {skill.status === '在线可用' && skill.toolRoute && (
+                      <Link to={skill.toolRoute} className="text-apple-blue text-[11px] font-bold flex items-center gap-1 hover:gap-2 transition-all bg-apple-blue/5 px-3 py-1.5 rounded-lg">
+                        立即运行 <ArrowRight size={14} />
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
             ))
