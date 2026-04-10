@@ -258,8 +258,19 @@ const FoodSelector = () => {
         <div className="mt-auto w-full">
           <button 
             onClick={() => {
-              if (!isRolling) setHasRolled(true);
-              setIsRolling(!isRolling);
+              if (!isRolling) {
+                const currentXp = Number(localStorage.getItem('cl_hacker_xp')) || 8420;
+                if (currentXp >= 5) {
+                  localStorage.setItem('cl_hacker_xp', String(currentXp - 5));
+                  window.dispatchEvent(new Event('storage'));
+                  setHasRolled(true);
+                  setIsRolling(true);
+                } else {
+                  setCurrent('ERR: 算力不足(-5 XP)');
+                }
+              } else {
+                setIsRolling(false);
+              }
             }}
             className={cn(
               "w-full py-3 border text-[12px] font-bold transition-all flex justify-center items-center gap-2",
@@ -268,7 +279,7 @@ const FoodSelector = () => {
                 : "bg-red-950/30 border-red-500/50 text-red-500 shadow-[0_0_10px_rgba(255,0,0,0.2)]"
             )}
           >
-            {isRolling ? "终止随机进程" : hasRolled ? "重新抽取" : "执行抽选程序"}
+            {isRolling ? "终止随机进程" : hasRolled ? "重新抽取 (-5 XP)" : "执行抽选程序 (-5 XP)"}
           </button>
         </div>
       </div>
@@ -277,10 +288,15 @@ const FoodSelector = () => {
 };
 
 const EfficientOffDutyGame = () => {
-  const [monthlySalary, setMonthlySalary] = useState(10000);
+  const [monthlySalary, setMonthlySalary] = useState(() => Number(localStorage.getItem('cl_monthly_salary')) || 6200);
   const [now, setNow] = useState(new Date());
   const [activeTab, setActiveTab] = useState<'calculator' | 'roast'>('calculator');
   const [currentRoast, setCurrentRoast] = useState(0);
+
+  useEffect(() => {
+    localStorage.setItem('cl_monthly_salary', monthlySalary.toString());
+    window.dispatchEvent(new Event('storage'));
+  }, [monthlySalary]);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
@@ -364,8 +380,8 @@ const EfficientOffDutyGame = () => {
               <div className="border border-red-500/30 p-3 space-y-2">
                 <div className="text-[10px] text-red-500 font-bold">等价损失换算：</div>
                 {[
-                  { name: '一杯美式咖啡', cost: 25 },
-                  { name: '一套麦当劳午餐', cost: 40 },
+                  { name: '一杯瑞幸咖啡', cost: 9.9 },
+                  { name: '一份外卖快餐', cost: 20 },
                   { name: '一张电影票', cost: 50 },
                 ].map(i => (
                   <div key={i.name} className="flex justify-between text-[10px]">
@@ -408,7 +424,7 @@ const FocusTimer = () => {
   const [newTask, setNewTask] = useState('');
   const [interruptions, setInterruptions] = useState(0);
   const [sessionCompleted, setSessionCompleted] = useState(false);
-  const [trees, setTrees] = useState(0);
+  const [trees, setTrees] = useState(() => Number(localStorage.getItem('cl_hacker_trees')) || 0);
 
   useEffect(() => {
     let interval: any;
@@ -418,14 +434,19 @@ const FocusTimer = () => {
       setIsActive(false);
       if (mode === 'focus') {
         setSessionCompleted(true);
-        setTrees(p => p + 1);
+        const newTrees = trees + 1;
+        setTrees(newTrees);
+        localStorage.setItem('cl_hacker_trees', newTrees.toString());
+        const currentXp = Number(localStorage.getItem('cl_hacker_xp')) || 8420;
+        localStorage.setItem('cl_hacker_xp', String(currentXp + 50));
+        window.dispatchEvent(new Event('storage'));
       } else {
         setMode('focus');
         setTimeLeft(focusDuration * 60);
       }
     }
     return () => clearInterval(interval);
-  }, [isActive, timeLeft, mode, focusDuration]);
+  }, [isActive, timeLeft, mode, focusDuration, trees]);
 
   const m = Math.floor(timeLeft / 60);
   const s = timeLeft % 60;
@@ -476,8 +497,13 @@ const FocusTimer = () => {
             {isActive ? '强行中断进程' : '执行代码流'}
           </button>
           {isActive && mode === 'focus' && (
-            <button onClick={() => setInterruptions(p => p + 1)} className="px-4 border border-yellow-500/50 text-yellow-500 bg-yellow-950/20 text-[11px] font-bold hover:bg-yellow-900/30">
-              干扰!
+            <button onClick={() => {
+              setInterruptions(p => p + 1);
+              const currentXp = Number(localStorage.getItem('cl_hacker_xp')) || 8420;
+              localStorage.setItem('cl_hacker_xp', String(Math.max(0, currentXp - 5)));
+              window.dispatchEvent(new Event('storage'));
+            }} className="px-4 border border-yellow-500/50 text-yellow-500 bg-yellow-950/20 text-[11px] font-bold hover:bg-yellow-900/30">
+              干扰! (-5 XP)
             </button>
           )}
         </div>

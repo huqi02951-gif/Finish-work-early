@@ -84,11 +84,27 @@ const Profile: React.FC = () => {
   const [now, setNow] = useState(new Date());
   
   // Game state
-  const [monthlySalary] = useState(10000);
-  const [level] = useState(42);
-  const [xp] = useState(8420);
-  const nextLevelXp = 10000;
-  const xpPercent = (xp / nextLevelXp) * 100;
+  const [monthlySalary, setMonthlySalary] = useState(() => Number(localStorage.getItem('cl_monthly_salary')) || 6200);
+  const [xp, setXp] = useState(() => Number(localStorage.getItem('cl_hacker_xp')) || 8420);
+  const [trees, setTrees] = useState(() => Number(localStorage.getItem('cl_hacker_trees')) || 0);
+  const [level, setLevel] = useState(1);
+  const nextLevelXp = level * 10000;
+  const xpPercent = (xp % 10000) / 10000 * 100;
+
+  useEffect(() => {
+    // Automatically recalculate level based on XP
+    setLevel(Math.floor(xp / 10000) + 1);
+  }, [xp]);
+
+  useEffect(() => {
+    const handleStorage = () => {
+      setMonthlySalary(Number(localStorage.getItem('cl_monthly_salary')) || 6200);
+      setXp(Number(localStorage.getItem('cl_hacker_xp')) || 8420);
+      setTrees(Number(localStorage.getItem('cl_hacker_trees')) || 0);
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -124,11 +140,11 @@ const Profile: React.FC = () => {
           <div className="text-center z-10 w-full max-w-sm">
             <Lock className="w-12 h-12 mx-auto mb-4 opacity-70 animate-pulse text-[#00ff41]" />
             <div className="text-left bg-black p-4 border border-[#00ff41]/30 shadow-[0_0_15px_rgba(0,255,65,0.2)]">
-              <TypewriterText text="CONNECTING TO SECURE MAINFRAME..." />
+              <TypewriterText text="[正在接入暗网主控核心...]" />
               <br/>
-              <TypewriterText text="VERIFYING AGENT PROTOCOLS..." delay={500} />
+              <TypewriterText text="[校验赛博干员权限序列...]" delay={500} />
               <br/>
-              <TypewriterText text="ACCESS GRANTED." delay={1000} className="text-green-300 font-bold" />
+              <TypewriterText text="[权限确认，准许登入]" delay={1000} className="text-green-300 font-bold" />
             </div>
           </div>
         </div>
@@ -138,9 +154,9 @@ const Profile: React.FC = () => {
 
   // Stats Grid Data
   const sysStats = [
-    { label: 'LIKES', val: '1284', icon: HeartPulse },
-    { label: 'POSTS', val: '67', icon: Terminal },
-    { label: 'TOKENS', val: xp.toString(), icon: Zap },
+    { label: '算力结晶分布', val: trees.toString() + ' 棵', icon: FolderTree },
+    { label: '系统拦截指令', val: '67', icon: ShieldAlert },
+    { label: '当前算力池', val: xp.toString(), icon: Zap },
   ];
 
   const quickTools = [
@@ -158,8 +174,8 @@ const Profile: React.FC = () => {
         
         {/* Vim-like top bar */}
         <div className="bg-[#1a1a1a] text-[#00ff41] px-2 py-1 flex justify-between text-[10px] border-b border-[#00ff41]/20 sticky top-0 z-40">
-          <span className="flex items-center gap-1"><Terminal className="w-3 h-3"/> tty1</span>
-          <span>root@{user?.nickname || 'agent'} ~</span>
+          <span className="flex items-center gap-1"><Terminal className="w-3 h-3"/> tty_暗网节点1</span>
+          <span>root@{user?.nickname || '特工'} ~</span>
         </div>
 
         <div className="p-4 relative z-10 max-w-lg mx-auto space-y-6">
@@ -167,7 +183,7 @@ const Profile: React.FC = () => {
           {/* Identity Box */}
           <section className="border border-[#00ff41]/30 bg-black p-3 shadow-[0_0_10px_rgba(0,255,65,0.1)]">
             <div className="text-[#00ff41] text-[10px] mb-2 font-bold opacity-70">
-              <span className="text-gray-500">$</span> whoami --details
+              <span className="text-gray-500">$</span> {'>'} 执行指令获取干员身份... (whoami --details)
             </div>
             
             <div className="flex gap-4 items-start">
@@ -185,15 +201,15 @@ const Profile: React.FC = () => {
               
               <div className="flex-grow space-y-1">
                 <div className="flex justify-between items-end">
-                  <GlitchText text={`ID: ${user?.nickname || 'CLI_AGENT'}`} className="text-[#00ff41] text-lg font-bold tracking-tight" glitchHoverOnly />
+                  <GlitchText text={`特工代号: ${user?.nickname || '暗网匿名者'}`} className="text-[#00ff41] text-lg font-bold tracking-tight" glitchHoverOnly />
                   <span className="text-[#f5a623] text-[10px] border border-[#f5a623]/50 px-1">LVL.{level}</span>
                 </div>
                 
-                <div className="text-[10px] text-gray-400">CLASS: PRO_AGENT</div>
+                <div className="text-[10px] text-gray-400">权限组: 高级赛博打工人</div>
                 <div className="text-[10px] mt-1 space-y-0.5">
                   <div className="flex justify-between text-[#00ff41]">
-                    <span>XP_SYNC</span>
-                    <span>{xp}/{nextLevelXp}</span>
+                    <span>算力结晶池 (XP_SYNC)</span>
+                    <span>{xp % 10000}/10000</span>
                   </div>
                   <AsciiProgress percent={xpPercent} width={20} />
                 </div>
@@ -220,27 +236,27 @@ const Profile: React.FC = () => {
               <div className="flex justify-between items-center mb-1">
                 <span className="font-bold flex items-center gap-1">
                   {isOvertime ? <ShieldAlert className="w-3.5 h-3.5 text-red-500 animate-pulse" /> : <Activity className="w-3.5 h-3.5" />}
-                  {isOvertime ? "SYSTEM ALERT" : "STATUS OK"}
+                  {isOvertime ? "红警: 无偿加班中" : "进程正常: 创收中"}
                 </span>
                 <span className="text-[10px] opacity-70">{now.toLocaleTimeString('en-US', { hour12: false })}</span>
               </div>
               
               {isOvertime ? (
                 <div className="space-y-1 mt-2">
-                  <GlitchText text="EXPLOITATION DETECTED (无偿加班中)" className="text-red-500 font-bold block" />
+                  <GlitchText text="严重警告: 您的剩余价值正在被剥削！" className="text-red-500 font-bold block" />
                   <div className="flex justify-between mt-2 border-t border-red-900/50 pt-1">
-                    <span>ESTIMATED LOSS:</span>
+                    <span>本时段算力亏损评估:</span>
                     <span className="font-bold text-red-400">¥ {overtimeLoss.toFixed(2)}</span>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-1 mt-2 border-l-2 border-[#00ff41] pl-2">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">NODE STATUS</span>
-                    <span>ACTIVE</span>
+                    <span className="text-gray-400">节点状态</span>
+                    <span>活跃 (ACTIVE)</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">DAILY YIELD</span>
+                    <span className="text-gray-400">今日收益核算</span>
                     <span className="text-[#00ff41]">¥ {earnedToday.toFixed(0)}</span>
                   </div>
                 </div>
@@ -252,9 +268,9 @@ const Profile: React.FC = () => {
           <section>
             <div className="flex border-b border-[#00ff41]/30 mb-3">
               {[
-                { id: 'SYS_STATS', label: 'SYS_STATS', cmd: 'top' },
-                { id: 'MODULES', label: 'SKILL_MAP', cmd: 'ls -l' },
-                { id: 'ACHIEVEMENTS', label: 'BADGES', cmd: 'cat badges.txt' },
+                { id: 'SYS_STATS', label: 'SYS_STATS', cmd: 'top - 资源监控' },
+                { id: 'MODULES', label: 'SKILL_MAP', cmd: 'ls -l 技能挂载' },
+                { id: 'ACHIEVEMENTS', label: 'BADGES', cmd: 'cat 荣誉徽章.txt' },
               ].map(tab => (
                 <button
                   key={tab.id}
