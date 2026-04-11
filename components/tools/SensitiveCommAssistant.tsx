@@ -22,6 +22,8 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import AppLayout from '../../src/components/layout/AppLayout';
+import { ActionBar } from '../shared/ActionBar';
+import { buildSensitiveCommDocx } from '../../lib/exportDocx';
 
 // --- Types & Constants ---
 
@@ -673,21 +675,20 @@ const SensitiveCommAssistant: React.FC = () => {
                             {result[activeTab]}
                           </p>
                         </div>
-                        <button 
-                          onClick={() => copyToClipboard(result[activeTab])}
-                          className={cn(
-                            "w-full py-3.5 md:py-4 border rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2",
-                            copySuccess 
-                              ? "bg-emerald-500 text-white border-emerald-500" 
-                              : "bg-brand-gold/10 text-brand-gold border-brand-gold/20 hover:bg-brand-gold hover:text-white"
+                        <ActionBar
+                          copyText={result[activeTab]}
+                          buildDocx={() => buildSensitiveCommDocx(
+                            SCENARIOS.find(s => s.id === activeScenario)?.name || '沟通话术',
+                            basicParams.customerName,
+                            result!
                           )}
-                        >
-                          {copySuccess ? (
-                            <><CheckCircle2 size={14} className="md:w-4 md:h-4" /> 已复制到剪贴板</>
-                          ) : (
-                            <><Copy size={14} className="md:w-4 md:h-4" /> 复制该版本</>
-                          )}
-                        </button>
+                          docxFilename={`沟通话术_${SCENARIOS.find(s => s.id === activeScenario)?.name}_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '')}.docx`}
+                          toolId="sensitive-comm"
+                          historyTitle={`${SCENARIOS.find(s => s.id === activeScenario)?.name} - ${basicParams.customerName || '通用'}`}
+                          historyContent={Object.values(result!).join('\n\n---\n\n')}
+                          historyMetadata={{ scenario: activeScenario, params: basicParams }}
+                          className="w-full"
+                        />
                       </motion.div>
                     ) : (
                       <div className="absolute inset-0 flex flex-col items-center justify-center p-8 md:p-12 text-center opacity-20">
