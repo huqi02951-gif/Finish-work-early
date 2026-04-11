@@ -119,9 +119,6 @@ export async function buildSimpleDocx(
   return await Packer.toBlob(doc);
 }
 
-/**
- * 敏感沟通助手专用：把四版话术导出为一份 Word
- */
 export async function buildSensitiveCommDocx(
   scenarioName: string,
   customerName: string,
@@ -142,3 +139,42 @@ export async function buildSensitiveCommDocx(
     }
   );
 }
+
+/**
+ * 利率优惠签报专用
+ */
+export async function buildRateOfferDocx(
+  result: { title: string; summary: string; body: string },
+  customerName: string
+): Promise<Blob> {
+  const today = new Date().toLocaleDateString('zh-CN');
+  return buildSimpleDocx(
+    result.title,
+    [
+      { heading: '摘要', content: result.summary },
+      { heading: '正文', content: result.body },
+    ],
+    { author: customerName, date: today }
+  );
+}
+
+/**
+ * 银承/存单测算专用
+ */
+export async function buildAcceptanceDocx(
+  corpName: string,
+  internalMail: string,
+  contractLine: string,
+  clientText: string
+): Promise<Blob> {
+  const today = new Date().toLocaleDateString('zh-CN');
+  return buildSimpleDocx(
+    `银承/存单测算方案 — ${corpName}`,
+    [
+      { heading: '内部邮件 / OA 模板', content: internalMail + '\n' + contractLine },
+      { heading: '客户沟通话术', content: clientText },
+    ],
+    { author: corpName, date: today }
+  );
+}
+

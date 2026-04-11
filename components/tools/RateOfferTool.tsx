@@ -3,6 +3,8 @@ import { Copy, Trash2, Download, FileText, Info, Sparkles, ChevronRight, CheckCi
 import { useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import AppLayout from '../../src/components/layout/AppLayout';
+import { ActionBar } from '../shared/ActionBar';
+import { buildRateOfferDocx } from '../../lib/exportDocx';
 
 // --- Data from JSON ---
 const CONFIG = {
@@ -477,22 +479,15 @@ const RateOfferTool: React.FC = () => {
                     <h3 className="font-serif text-xl md:text-2xl text-brand-dark flex items-center gap-2 md:gap-3">
                       <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-emerald-500" /> 生成结果
                     </h3>
-                    <div className="flex gap-2 md:gap-4">
-                      <button 
-                        onClick={() => copyToClipboard(`标题：${result.title}\n\n摘要：${result.summary}\n\n正文：\n${result.body}`)}
-                        className="p-2.5 md:p-3 bg-white text-brand-gray hover:text-brand-gold rounded-lg md:rounded-xl border border-brand-border/10 transition-all shadow-sm active:scale-95"
-                        title="复制全部"
-                      >
-                        <Copy className="w-4 h-4 md:w-5 md:h-5" />
-                      </button>
-                      <button 
-                        onClick={downloadTxt}
-                        className="p-2.5 md:p-3 bg-white text-brand-gray hover:text-brand-gold rounded-lg md:rounded-xl border border-brand-border/10 transition-all shadow-sm active:scale-95"
-                        title="导出TXT"
-                      >
-                        <Download className="w-4 h-4 md:w-5 md:h-5" />
-                      </button>
-                    </div>
+                    <ActionBar
+                      copyText={`标题：${result.title}\n\n摘要：${result.summary}\n\n正文：\n${result.body}`}
+                      buildDocx={() => buildRateOfferDocx(result, formData.cust)}
+                      docxFilename={`${formData.cust || '利率优惠'}_签报_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '')}.docx`}
+                      toolId="rate-offer"
+                      historyTitle={`${formData.cust} - ${formData.amt}万 ${formData.rate}%`}
+                      historyContent={`标题：${result.title}\n\n摘要：${result.summary}\n\n正文：\n${result.body}`}
+                      historyMetadata={{ formData }}
+                    />
                   </div>
                   
                   <div className="p-6 md:p-10 space-y-8 md:space-y-12 overflow-y-auto flex-grow custom-scrollbar">

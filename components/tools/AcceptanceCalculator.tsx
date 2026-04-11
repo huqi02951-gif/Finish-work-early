@@ -3,6 +3,8 @@ import { Calculator, Trash2, Copy, CheckCircle2, Info, ArrowRight, FileText, Spa
 import { useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import AppLayout from '../../src/components/layout/AppLayout';
+import { ActionBar } from '../shared/ActionBar';
+import { buildAcceptanceDocx } from '../../lib/exportDocx';
 
 const AcceptanceCalculator: React.FC = () => {
   const navigate = useNavigate();
@@ -376,15 +378,20 @@ const AcceptanceCalculator: React.FC = () => {
                     <h3 className="font-serif text-xl md:text-2xl text-brand-dark flex items-center gap-2 md:gap-3">
                       <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-emerald-500" /> 测算结果
                     </h3>
-                    <div className="flex gap-2 md:gap-4">
-                      <button 
-                        onClick={() => copyToClipboard(calcState.internalMail + '\n\n' + calcState.contractLine + '\n\n' + calcState.clientText)}
-                        className="p-2.5 md:p-3 bg-white text-brand-gray hover:text-brand-gold rounded-lg md:rounded-xl border border-brand-border/10 transition-all shadow-sm active:scale-95"
-                        title="复制全部"
-                      >
-                        <Copy className="w-4 h-4 md:w-5 md:h-5" />
-                      </button>
-                    </div>
+                    <ActionBar
+                      copyText={calcState.internalMail + '\n\n' + calcState.contractLine + '\n\n' + calcState.clientText}
+                      buildDocx={() => buildAcceptanceDocx(
+                        formData.corp || '客户',
+                        calcState.internalMail,
+                        calcState.contractLine,
+                        calcState.clientText
+                      )}
+                      docxFilename={`${formData.corp || '银承'}_测算方案_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '')}.docx`}
+                      toolId="acceptance-calc"
+                      historyTitle={`${formData.corp || '客户'} - ${formData.billAmt || formData.depositBudget}万`}
+                      historyContent={calcState.internalMail + '\n\n' + calcState.contractLine + '\n\n' + calcState.clientText}
+                      historyMetadata={{ formData }}
+                    />
                   </div>
                   
                   <div className="p-6 md:p-10 space-y-8 md:space-y-12 overflow-y-auto flex-grow custom-scrollbar">

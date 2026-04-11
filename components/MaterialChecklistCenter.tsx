@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
+import { SaveHistoryButton, HistoryPanel } from './shared/ActionBar';
 import { 
   COUNTER_BUSINESS, 
   CREDIT_BUSINESS, 
@@ -582,6 +583,14 @@ const MaterialChecklistCenter: React.FC = () => {
                     >
                       <FileSpreadsheet className="w-3 h-3 sm:w-4 sm:h-4" /> Excel
                     </button>
+                    <SaveHistoryButton
+                      toolId="material-checklist"
+                      title={`${info.customerName || '客户'} - ${selectedSubCategory.name}`}
+                      content={`话术：\n${generatedScript}\n\n材料清单：\n${checklistText}`}
+                      metadata={{ category: selectedCategory?.name, subCategory: selectedSubCategory.name }}
+                      className="flex-1 sm:flex-none"
+                    />
+                    <HistoryPanel toolId="material-checklist" className="flex-1 sm:flex-none" />
                   </div>
                 </div>
  
