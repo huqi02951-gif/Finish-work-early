@@ -1,0 +1,35 @@
+::code-comment{title="[P1] 发布成功后新内容不会出现在发现页" body="`createPost` 只是构造并返回了一个新对象，没有写回任何本地 store、mock 列表或持久层。`Publish` 页面会显示“发布成功”并跳转到 `/feed`，但 `Feed` 仍然只读取原始 `MOCK_POSTS`，所以用户会立刻看到“发布成功但内容消失”的结果。这是直接可见的功能断裂，不只是后端未接入。至少需要在 mock 层维护可变 posts store，或在前端把新帖子插入当前列表并明确标记为待审核。" file="/Users/daisy/gemini demo/finish work early/Finish-work-early/src/services/api.ts" start=35 end=50 priority=1 confidence=0.96}
+
+::code-comment{title="[P1] 反馈表单会提示成功，但实际上没有提交任何数据" body="这里的提交逻辑只做了 `preventDefault()`、切换 `submitted` 状态并在 5 秒后复原，没有调用任何 API、没有发邮件、没有写本地缓存，也没有错误处理。页面文案却承诺“项目组将在 3 个工作日内与你取得联系”，这会让真实用户误以为请求已经送达。若当前阶段仍是原型，建议至少把页面文案改成“演示提交”，否则就需要接入最小可用的投递通道。" file="/Users/daisy/gemini demo/finish work early/Finish-work-early/components/Feedback.tsx" start=17 end=20 priority=1 confidence=0.99}
+
+::code-comment{title="[P2] 个人页数值不会随着同标签页内的工具操作实时更新" body="`Profile` 依赖浏览器原生 `storage` 事件刷新工资、XP 和树木数量，但这个事件不会在同一个标签页触发；而当前“对自己”模块里的多个写入点只是 `localStorage.setItem(...)`，没有统一的同页广播。结果是用户在 `ToMyselfSpace` 里消耗或增加 XP 后，再切到个人页会看到旧值，通常要刷新才同步。应改成共享状态、集中封装 storage 更新，或者至少在写入后显式派发同页自定义事件。" file="/Users/daisy/gemini demo/finish work early/Finish-work-early/src/pages/Profile.tsx" start=99 end=106 priority=2 confidence=0.94}
+
+::code-comment{title="[P2] 没有兜底路由时，错误 hash 或过期链接会再次落成空白页" body="当前路由表只有显式 path，没有 `*` fallback。项目刚经历过 GitHub Pages 路由调整，旧分享链接、手输错误 hash、未来路径重命名后的历史链接都会直接渲染空内容，看上去就是又一次白屏。这里至少应该加一个 Not Found 页面或重定向到首页，并给出返回入口。" file="/Users/daisy/gemini demo/finish work early/Finish-work-early/src/App.tsx" start=27 end=156 priority=2 confidence=0.9}
+
+我看完后的结论是：现在项目“能跑、能部署”，但还处在明显的原型阶段，主要问题不是编译，而是几个关键流程给了用户“已经成功”的错觉。
+
+最重要的 bug 就是上面四个，前两个建议优先修：
+1. 发布流是假提交。
+2. 反馈流是假提交。
+3. 个人页和“对自己”模块的状态同步不稳定。
+4. 缺少 404/fallback，后续很容易再被误判成白屏。
+
+另外几个提升点也很值得做：
+
+- `Feed` 和 `BBS` 的搜索 UI 基本是摆设。`Feed` 只有输入框没有任何过滤逻辑；`BBS` 虽然有 `searchQuery` state，但 `filteredPosts` 只按分类过滤，没有把搜索词算进去。
+- 包体积偏大。我本地构建时主包大约 `1.77 MB`，gzip 后也有 `539 KB`。像 `docx`、`xlsx`、复杂工具页、赛博风页面都在首包里，建议把工具页和 `/feed` `/messages` `/publish` 这些次级页面改成 `lazy` 按路由拆包。
+- 组件体系还是双轨：一套 `Layout`，一套 `AppLayout`，风格也分成“官网感”和“移动端 App 感”。现在还能工作，但继续叠功能会越来越难维护，建议把导航、标题栏、底部栏抽成统一壳层。
+- 有些页面还在用远程占位图，比如 `picsum.photos`。这在弱网或公司内网环境下会拖慢首屏，甚至造成头像区域空白。
+- 定时器/延时器清理不完整，像 `Publish`、`Feedback`、`Profile`、`ScenarioCenter` 里都有 `setTimeout` 但没做 cleanup。大多数时候只是轻微泄漏，但如果用户快速切页，会出现卸载后状态更新或晚到跳转。
+
+我已经确认过基础质量现状：
+- `npm run lint` 通过
+- `npm run build` 通过
+- GitHub Pages 部署链现在是通的
+
+如果按“先止血再提升”的顺序，我建议下一轮直接做这三件事：
+1. 把发布/反馈接成最小可用的真实提交链。
+2. 给路由加 fallback，并统一本地状态同步。
+3. 做路由级懒加载，先把首包降下来。
+
+如果你要，我下一步可以直接按这个顺序给你出一个修复清单并开始改。
