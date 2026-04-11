@@ -74,7 +74,7 @@ const SensitiveCommAssistant: React.FC = () => {
     tone: '标准专业',
     keepCooperation: '是',
     boundary: '中',
-    myPhone: '57137XX（请修改为您的实际号码）',
+    myPhone: '5713700（科技支行柜台）',
   });
 
   const [scenarioParams, setScenarioParams] = useState<Record<string, any>>({});
@@ -104,7 +104,7 @@ const SensitiveCommAssistant: React.FC = () => {
       // --- Tone modifiers ---
       const isHard = tone === '更明确';
       const isSoft = tone === '更柔和';
-      const myPhone = basicParams.myPhone || '（请在基础参数中填写您的电话）';
+      const myPhone = basicParams.myPhone.trim() || '5713700（科技支行柜台）';
       // Target-aware greeting — 避免 name='您' 时出现'您您好'
       const isDefaultName = !basicParams.customerName;
       const greeting = target === '财务'
@@ -567,16 +567,30 @@ const SensitiveCommAssistant: React.FC = () => {
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60 flex items-center gap-2">
-                      <Phone size={11} className="text-brand-gold" /> 我的联系电话
-                      <span className="text-brand-gold/60 normal-case font-normal tracking-normal">（将替换话术中的电话号码）</span>
+                      <Phone size={11} className="text-brand-gold" />
+                      我的联系方式
+                      <span className="text-brand-gold/60 normal-case font-normal tracking-normal ml-1">（选填，嵌入话术中可直接复制发送）</span>
                     </label>
-                    <input 
-                      type="text" 
-                      placeholder="例如：135XXXX8888 或 0592-5713700"
-                      className="w-full px-4 md:px-6 py-3 md:py-4 bg-amber-50/50 border border-brand-gold/20 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/30 outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
-                      value={basicParams.myPhone.includes('请修改') ? '' : basicParams.myPhone}
-                      onChange={(e) => handleBasicChange('myPhone', e.target.value || '57137XX（请修改为您的实际号码）')}
-                    />
+                    <div className="relative">
+                      <input 
+                        type="text" 
+                        placeholder="留空则使用默认：5713700（科技支行柜台）"
+                        className="w-full px-4 md:px-6 py-3 md:py-4 pr-24 bg-amber-50/30 border border-brand-gold/20 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/30 outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
+                        value={basicParams.myPhone === '5713700（科技支行柜台）' ? '' : basicParams.myPhone}
+                        onChange={(e) => handleBasicChange('myPhone', e.target.value || '5713700（科技支行柜台）')}
+                      />
+                      {basicParams.myPhone !== '5713700（科技支行柜台）' && basicParams.myPhone && (
+                        <button
+                          onClick={() => handleBasicChange('myPhone', '5713700（科技支行柜台）')}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] text-brand-gray/50 hover:text-brand-gray font-medium px-2 py-1 rounded-lg hover:bg-brand-light-gray transition-all"
+                        >
+                          重置
+                        </button>
+                      )}
+                    </div>
+                    <p className="mt-1.5 text-[9px] text-brand-gray opacity-40 font-medium">
+                      当前将嵌入：<span className="text-brand-gold opacity-80 font-bold">{basicParams.myPhone}</span>
+                    </p>
                   </div>
                 </div>
               </div>
