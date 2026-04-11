@@ -30,11 +30,7 @@ const App: React.FC = () => {
 
         <Route
           path="/scenarios"
-          element={
-            <Layout>
-              <ScenarioCenter />
-            </Layout>
-          }
+          element={<ScenarioCenter />}
         />
         <Route
           path="/skills"
