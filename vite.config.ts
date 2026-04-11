@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
 
   return {
-    base: mode === 'production' ? '/Finish-work-early/' : '/',
+    base: '/',
     server: {
       port: 5000,
       host: '0.0.0.0',
