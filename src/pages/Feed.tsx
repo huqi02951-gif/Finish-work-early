@@ -25,6 +25,11 @@ const Feed: React.FC = () => {
 
   return (
     <AppLayout title="发现">
+      {/* 🧪 本地演示标签 */}
+      <div className="mx-4 mt-3 px-4 py-2.5 bg-amber-50 border border-amber-200/60 rounded-2xl flex items-center gap-2">
+        <span className="text-sm">🧪</span>
+        <span className="text-[11px] text-amber-700 font-medium">本地演示模式 · 数据仅保存在当前浏览器中</span>
+      </div>
       <div className="sticky top-14 z-40 bg-brand-offwhite/80 backdrop-blur-md border-b border-brand-border/5 px-4 py-3 space-y-3">
         {/* Search Bar */}
         <div className="relative">

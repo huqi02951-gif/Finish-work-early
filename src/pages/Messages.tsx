@@ -32,6 +32,11 @@ const Messages: React.FC = () => {
 
   return (
     <AppLayout title="消息">
+      {/* 🧪 本地演示标签 */}
+      <div className="mx-4 mt-3 px-4 py-2.5 bg-amber-50 border border-amber-200/60 rounded-2xl flex items-center gap-2">
+        <span className="text-sm">🧪</span>
+        <span className="text-[11px] text-amber-700 font-medium">本地演示模式 · 数据仅保存在当前浏览器中</span>
+      </div>
       <div className="px-4 py-6 space-y-6">
         {/* Notification Types Grid */}
         <div className="grid grid-cols-4 gap-4 animate-fade-in">

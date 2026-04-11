@@ -206,6 +206,11 @@ const BBSCenter: React.FC = () => {
 
   return (
     <AppLayout title="BBS 中心" showBack>
+      {/* 🧪 本地演示标签 */}
+      <div className="mx-4 mt-3 px-4 py-2.5 bg-amber-50 border border-amber-200/60 rounded-2xl flex items-center gap-2">
+        <span className="text-sm">🧪</span>
+        <span className="text-[11px] text-amber-700 font-medium">本地演示模式 · 数据仅保存在当前浏览器中</span>
+      </div>
       <div className="min-h-screen bg-[#050507] text-white pb-24 relative overflow-hidden">
         {/* Matrix Rain Background */}
         <MatrixRain />
