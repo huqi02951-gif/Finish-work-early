@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { 
-  Users, ShieldCheck, Briefcase, UserCheck, ArrowRight, Utensils, Coffee, 
-  Timer, RotateCcw, Sparkles, Send, Heart, Terminal, Lock, EyeOff, 
-  Activity, ChevronRight, Search, FileText, CheckCircle2, AlertCircle, X,
-  Calendar as CalendarIcon, Moon, Sun, Palette, Compass, Ban, Zap,
-  LayoutDashboard, Target, User, Database, Star, Info, Clock, TrendingUp, Settings
+import {
+  Users, ShieldCheck, Briefcase, ArrowRight,
+  Sparkles, Activity, ChevronRight, Search, AlertCircle,
+  Compass, Ban, Zap,
+  LayoutDashboard, Target, User, Database
 } from 'lucide-react';
-import { Solar, Lunar } from 'lunar-javascript';
 import ToMyselfSpace from './tools/ToMyselfSpace';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { SKILLS } from '../constants/skills';
 import { cn } from '../lib/utils';
 import MaterialChecklistCenter from './MaterialChecklistCenter';
 import AppLayout from '../src/components/layout/AppLayout';
+
+const ANIM_DELAY_1 = { animationDelay: '0.3s' };
+const ANIM_DELAY_2 = { animationDelay: '0.4s' };
+const ANIM_DELAY_3 = { animationDelay: '0.5s' };
 
 
 const SensitiveCommModule = () => {
@@ -174,21 +176,54 @@ const BusinessGuideModule = () => {
   );
 };
 
+interface SkillCardProps {
+  skill: typeof SKILLS[number];
+  runLabel?: string;
+}
+
+const SkillCard: React.FC<SkillCardProps> = ({ skill, runLabel = '运行' }) => (
+  <div className="bg-white p-5 sm:p-6 rounded-3xl border border-brand-border/5 shadow-sm hover:shadow-xl transition-all duration-500 group flex flex-col">
+    <div className="flex justify-between items-start mb-4 sm:mb-6">
+      <span className="px-2.5 py-0.5 sm:px-3 sm:py-1 bg-brand-light-gray text-brand-dark text-[8px] sm:text-[9px] font-bold uppercase tracking-widest rounded-full border border-brand-border/10">
+        {skill.category}
+      </span>
+      <div className="flex items-center gap-1.5">
+        <div className={cn("w-1.5 h-1.5 rounded-full", skill.status === '在线可用' ? "bg-emerald-500" : "bg-brand-gray")} />
+        <span className="text-[8px] sm:text-[9px] font-bold text-brand-dark uppercase tracking-widest">{skill.status}</span>
+      </div>
+    </div>
+    <h4 className="text-base sm:text-lg font-bold text-brand-dark mb-2 tracking-tight group-hover:text-apple-blue transition-colors">{skill.name}</h4>
+    <p className="text-[10px] sm:text-xs text-brand-gray mb-6 sm:mb-8 line-clamp-2 font-medium leading-relaxed opacity-80">{skill.description}</p>
+    <div className="flex items-center justify-between mt-auto pt-4 border-t border-brand-border/5">
+      <span className="text-[8px] sm:text-[9px] text-brand-gray/40 font-bold uppercase tracking-[0.2em]">{skill.form}</span>
+      <div className="flex items-center gap-3">
+        <Link to={`/skills/${skill.id}`} className="text-brand-gray text-[10px] sm:text-[11px] font-bold hover:text-brand-dark transition-all">详情</Link>
+        {skill.status === '在线可用' && skill.toolRoute && (
+          <Link to={skill.toolRoute} className="text-apple-blue text-[10px] sm:text-[11px] font-bold flex items-center gap-1 hover:gap-2 transition-all bg-apple-blue/5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg">
+            {runLabel} <ChevronRight size={12} />
+          </Link>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
+const SCENARIOS = [
+  { id: 'customer', title: '对客户', icon: Users, desc: '营销话术、业务打法、产品测算。', color: 'bg-apple-blue' },
+  { id: 'review', title: '对审查', icon: ShieldCheck, desc: '政策解读、准入核对、合规建议。', color: 'bg-apple-purple' },
+  { id: 'backoffice', title: '对中后台', icon: Database, desc: '流程指引、材料清单、系统操作。', color: 'bg-apple-indigo' },
+  { id: 'self', title: '对自己', icon: User, desc: '经验沉淀、效率工具、职场成长。', color: 'bg-apple-pink' },
+];
+
+const SKILLS_BY_SCENARIO = SCENARIOS.reduce<Record<string, typeof SKILLS>>((acc, s) => {
+  acc[s.title] = SKILLS.filter(skill => skill.scene.includes(s.title));
+  return acc;
+}, {});
+
 const ScenarioCenter: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'customer';
   const [showAllSkills, setShowAllSkills] = useState(false);
-
-  const scenarios = [
-    { id: 'customer', title: '对客户', icon: Users, desc: '营销话术、业务打法、产品测算。', color: 'bg-apple-blue' },
-    { id: 'review', title: '对审查', icon: ShieldCheck, desc: '政策解读、准入核对、合规建议。', color: 'bg-apple-purple' },
-    { id: 'backoffice', title: '对中后台', icon: Database, desc: '流程指引、材料清单、系统操作。', color: 'bg-apple-indigo' },
-    { id: 'self', title: '对自己', icon: User, desc: '经验沉淀、效率工具、职场成长。', color: 'bg-apple-pink' },
-  ];
-
-  const getSkillsByScenario = (scenarioTitle: string) => {
-    return SKILLS.filter(skill => skill.scene.includes(scenarioTitle));
-  };
 
   const handleTabChange = (id: string) => {
     setSearchParams({ tab: id });
@@ -196,31 +231,31 @@ const ScenarioCenter: React.FC = () => {
 
   return (
     <AppLayout title="场景中心" showBack>
-      <div className={cn("pb-16 sm:pb-24 min-h-screen transition-colors duration-700", "bg-brand-offwhite")}>
-        {/* ChatGPT Style Header */}
+      <div className="pb-16 sm:pb-24 bg-brand-offwhite">
+        {/* Hero Header */}
         <header className="px-6 pt-10 sm:pt-16 pb-8 sm:pb-12 text-center max-w-2xl mx-auto">
-          <div className={cn("inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-2xl mb-6 shadow-2xl transform -rotate-3 transition-colors", "bg-brand-dark text-white")}>
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-2xl mb-6 shadow-2xl -rotate-3 bg-brand-dark text-white">
             <Compass size={28} className="sm:hidden" />
             <Compass size={36} className="hidden sm:block" />
           </div>
-          <h1 className={cn("text-3xl sm:text-5xl font-serif font-bold tracking-tight mb-4 transition-colors", "text-brand-dark")}>场景中心</h1>
-          <p className={cn("font-medium text-sm sm:text-lg leading-relaxed opacity-70 transition-colors", "text-brand-gray")}>
+          <h1 className="text-3xl sm:text-5xl font-serif font-bold tracking-tight mb-4 text-brand-dark">场景中心</h1>
+          <p className="font-medium text-sm sm:text-lg leading-relaxed opacity-70 text-brand-gray">
             按业务场景组织，直观展示每个环节下的实用工具。
             从客户沟通到内部审批，全方位提升作业效能。
           </p>
         </header>
 
-        {/* Segmented Control Style Tabs */}
-        <div className={cn("px-6 mb-8 sm:mb-16 sticky top-0 z-40 backdrop-blur-md py-4", "bg-brand-offwhite/80")}>
-          <div className={cn("max-w-fit mx-auto p-1 rounded-2xl border flex gap-1", "bg-brand-light-gray/50 border-brand-border/5")}>
-            {scenarios.map((s) => (
+        {/* Segmented Tabs — sticks below the AppLayout header (z-50) */}
+        <div className="px-6 mb-8 sm:mb-16 sticky top-16 z-40 backdrop-blur-md py-4 bg-brand-offwhite/80">
+          <div className="max-w-fit mx-auto p-1 rounded-2xl border flex gap-1 bg-brand-light-gray/50 border-brand-border/5">
+            {SCENARIOS.map((s) => (
               <button
                 key={s.id}
                 onClick={() => handleTabChange(s.id)}
                 className={cn(
                   "px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl text-[12px] sm:text-[14px] font-bold transition-all duration-500 whitespace-nowrap flex items-center gap-2",
-                  activeTab === s.id 
-                    ? "bg-white text-brand-dark shadow-xl scale-100" 
+                  activeTab === s.id
+                    ? "bg-white text-brand-dark shadow-xl"
                     : "text-brand-gray hover:text-brand-dark hover:bg-white/50"
                 )}
               >
@@ -231,9 +266,9 @@ const ScenarioCenter: React.FC = () => {
           </div>
         </div>
 
-        <div className="px-6 animate-fade-in relative z-10">
-          {scenarios.filter(s => s.id === activeTab).map((s) => {
-            const relatedSkills = getSkillsByScenario(s.title);
+        <div className="px-6 animate-fade-in">
+          {SCENARIOS.filter(s => s.id === activeTab).map((s) => {
+            const relatedSkills = SKILLS_BY_SCENARIO[s.title];
             return (
               <div key={s.id}>
                 {s.id !== 'self' && (
@@ -253,30 +288,30 @@ const ScenarioCenter: React.FC = () => {
                   <ToMyselfSpace />
                 ) : s.id === 'customer' ? (
                   <div className="space-y-8 sm:space-y-12 md:space-y-16">
-                    <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+                    <div className="animate-fade-in-up" style={ANIM_DELAY_1}>
                       <BusinessGuideModule />
                     </div>
 
-                    <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                      <div className="flex items-center justify-between mb-6 sm:mb-10">
-                        <h3 className="font-serif text-xl sm:text-2xl md:text-3xl text-brand-dark tracking-tight">核心沟通工具</h3>
-                        <div className="h-px flex-grow bg-brand-border/10 ml-4 md:ml-8"></div>
+                    <div className="animate-fade-in-up" style={ANIM_DELAY_2}>
+                      <div className="flex items-center mb-6 sm:mb-10 gap-4">
+                        <h3 className="font-serif text-xl sm:text-2xl md:text-3xl text-brand-dark tracking-tight shrink-0">核心沟通工具</h3>
+                        <div className="h-px flex-grow bg-brand-border/10" />
                       </div>
                       <SensitiveCommModule />
                     </div>
- 
-                    <div className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-                      <div className="flex items-center justify-between mb-6 sm:mb-10">
-                        <h3 className="font-serif text-xl sm:text-2xl md:text-3xl text-brand-dark tracking-tight">材料清单中心</h3>
-                        <div className="h-px flex-grow bg-brand-border/10 ml-4 md:ml-8"></div>
+
+                    <div className="animate-fade-in-up" style={ANIM_DELAY_3}>
+                      <div className="flex items-center mb-6 sm:mb-10 gap-4">
+                        <h3 className="font-serif text-xl sm:text-2xl md:text-3xl text-brand-dark tracking-tight shrink-0">材料清单中心</h3>
+                        <div className="h-px flex-grow bg-brand-border/10" />
                       </div>
                       <MaterialChecklistCenter />
                     </div>
-                    
+
                     <div className="pt-8 sm:pt-10 md:pt-16 border-t border-brand-border/5">
                       <div className="flex items-center justify-between mb-6 sm:mb-8">
                         <h3 className="text-lg sm:text-xl font-bold text-brand-dark tracking-tight">更多实用工具</h3>
-                        <button 
+                        <button
                           onClick={() => setShowAllSkills(!showAllSkills)}
                           className="text-[10px] sm:text-xs font-bold text-brand-gray hover:text-brand-dark transition-all flex items-center gap-1"
                         >
@@ -288,72 +323,14 @@ const ScenarioCenter: React.FC = () => {
                         {relatedSkills
                           .filter(skill => !['sensitive-comm-assistant', 'chang-rong-bao', 'chang-yi-dan'].includes(skill.id))
                           .filter(skill => showAllSkills || ['cd-calculator', 'account-fee-discount'].includes(skill.id))
-                          .map(skill => (
-                          <div key={skill.id} className="bg-white p-5 sm:p-6 rounded-3xl border border-brand-border/5 shadow-sm hover:shadow-xl transition-all duration-500 group flex flex-col">
-                            <div className="flex justify-between items-start mb-4 sm:mb-6">
-                              <span className="px-2.5 py-0.5 sm:px-3 sm:py-1 bg-brand-light-gray text-brand-dark text-[8px] sm:text-[9px] font-bold uppercase tracking-widest rounded-full border border-brand-border/10">
-                                {skill.category}
-                              </span>
-                              <div className="flex items-center gap-1.5">
-                                <div className={cn("w-1.5 h-1.5 rounded-full", skill.status === '在线可用' ? "bg-emerald-500" : "bg-brand-gray")}></div>
-                                <span className="text-[8px] sm:text-[9px] font-bold text-brand-dark uppercase tracking-widest">
-                                  {skill.status}
-                                </span>
-                              </div>
-                            </div>
-                            <h4 className="text-base sm:text-lg font-bold text-brand-dark mb-2 tracking-tight group-hover:text-apple-blue transition-colors">{skill.name}</h4>
-                            <p className="text-[10px] sm:text-xs text-brand-gray mb-6 sm:mb-8 line-clamp-2 font-medium leading-relaxed opacity-80">{skill.description}</p>
-                            <div className="flex items-center justify-between mt-auto pt-4 border-t border-brand-border/5">
-                              <span className="text-[8px] sm:text-[9px] text-brand-gray/40 font-bold uppercase tracking-[0.2em]">{skill.form}</span>
-                              <div className="flex items-center gap-3">
-                                <Link to={`/skills/${skill.id}`} className="text-brand-gray text-[10px] sm:text-[11px] font-bold hover:text-brand-dark transition-all">
-                                  详情
-                                </Link>
-                                {skill.status === '在线可用' && skill.toolRoute && (
-                                  <Link to={skill.toolRoute} className="text-apple-blue text-[10px] sm:text-[11px] font-bold flex items-center gap-1 hover:gap-2 transition-all bg-apple-blue/5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg">
-                                    运行 <ChevronRight size={12} />
-                                  </Link>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+                          .map(skill => <SkillCard key={skill.id} skill={skill} />)}
                       </div>
                     </div>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {relatedSkills.length > 0 ? (
-                      relatedSkills.map(skill => (
-                        <div key={skill.id} className="bg-white p-6 rounded-3xl border border-brand-border/5 shadow-sm hover:shadow-xl transition-all duration-500 group flex flex-col">
-                          <div className="flex justify-between items-start mb-6">
-                            <span className="px-3 py-1 bg-brand-light-gray text-brand-dark text-[9px] font-bold uppercase tracking-widest rounded-full border border-brand-border/10">
-                              {skill.category}
-                            </span>
-                            <div className="flex items-center gap-1.5">
-                              <div className={cn("w-1.5 h-1.5 rounded-full", skill.status === '在线可用' ? "bg-emerald-500" : "bg-brand-gray")}></div>
-                              <span className="text-[9px] font-bold text-brand-dark uppercase tracking-widest">
-                                {skill.status}
-                              </span>
-                            </div>
-                          </div>
-                          <h4 className="text-lg font-bold text-brand-dark mb-2 tracking-tight group-hover:text-apple-blue transition-colors">{skill.name}</h4>
-                          <p className="text-xs text-brand-gray mb-8 line-clamp-2 font-medium leading-relaxed opacity-80">{skill.description}</p>
-                          <div className="flex items-center justify-between mt-auto pt-4 border-t border-brand-border/5">
-                            <span className="text-[9px] text-brand-gray/40 font-bold uppercase tracking-[0.2em]">{skill.form}</span>
-                            <div className="flex items-center gap-3">
-                              <Link to={`/skills/${skill.id}`} className="text-brand-gray text-[11px] font-bold hover:text-brand-dark transition-all">
-                                详情
-                              </Link>
-                              {skill.status === '在线可用' && skill.toolRoute && (
-                                <Link to={skill.toolRoute} className="text-apple-blue text-[11px] font-bold flex items-center gap-1 hover:gap-2 transition-all bg-apple-blue/5 px-3 py-1.5 rounded-lg">
-                                  立即运行 <ChevronRight size={14} />
-                                </Link>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))
+                      relatedSkills.map(skill => <SkillCard key={skill.id} skill={skill} runLabel="立即运行" />)
                     ) : (
                       <div className="col-span-full py-20 px-6 bg-white border border-brand-border/5 rounded-[2rem] text-center shadow-sm">
                         <div className="w-16 h-16 bg-brand-light-gray rounded-full flex items-center justify-center mx-auto mb-6">

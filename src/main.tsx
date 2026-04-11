@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './styles/global.css';
+import { CustomerProvider } from '../lib/CustomerContext';
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -74,7 +75,9 @@ if (!rootElement) {
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <App />
+      <CustomerProvider>
+        <App />
+      </CustomerProvider>
     </ErrorBoundary>
   </React.StrictMode>,
 );

@@ -21,6 +21,7 @@ import HomePage from './pages/Home';
 import MessagesPage from './pages/Messages';
 import ProfilePage from './pages/Profile';
 import PublishPage from './pages/Publish';
+import WorkspacePage from './pages/Workspace';
 
 /* ─── 404 Not Found ─── */
 const NotFoundPage = () => (
@@ -53,23 +54,26 @@ const App: React.FC = () => {
         {/* ─── 场景中心（自带 AppLayout） ─── */}
         <Route path="/scenarios" element={<ScenarioCenter />} />
 
-        {/* ─── 业务工具（统一使用 AppLayout） ─── */}
-        <Route path="/skills" element={<AppLayout title="Skills 工具库"><SkillsLibrary /></AppLayout>} />
-        <Route path="/skills/:id" element={<AppLayout title="Skill 详情" showBack><SkillDetail /></AppLayout>} />
-        <Route path="/rate-offer" element={<AppLayout title="利率优惠签报" showBack><RateOfferTool /></AppLayout>} />
-        <Route path="/acceptance-calculator" element={<AppLayout title="银承/存单测算" showBack><AcceptanceCalculator /></AppLayout>} />
-        <Route path="/fee-discount" element={<AppLayout title="费用优惠申请" showBack><FeeDiscountTool /></AppLayout>} />
-        <Route path="/news-assistant" element={<AppLayout title="宣传稿排版助手" showBack><NewsTypesettingAssistant /></AppLayout>} />
-        <Route path="/batch-billing" element={<AppLayout title="批量开票工具" showBack><BatchBillingTool /></AppLayout>} />
-        <Route path="/sensitive-comm" element={<AppLayout title="敏感沟通助手" showBack><SensitiveCommAssistant /></AppLayout>} />
-        <Route path="/business-guide" element={<AppLayout title="业务通" showBack><BusinessGuide /></AppLayout>} />
+        {/* ─── 业务工具（组件内自带 AppLayout，此处直接渲染） ─── */}
+        <Route path="/skills" element={<SkillsLibrary />} />
+        <Route path="/skills/:id" element={<SkillDetail />} />
+        <Route path="/rate-offer" element={<RateOfferTool />} />
+        <Route path="/acceptance-calculator" element={<AcceptanceCalculator />} />
+        <Route path="/fee-discount" element={<FeeDiscountTool />} />
+        <Route path="/news-assistant" element={<NewsTypesettingAssistant />} />
+        <Route path="/batch-billing" element={<BatchBillingTool />} />
+        <Route path="/sensitive-comm" element={<SensitiveCommAssistant />} />
+        <Route path="/business-guide" element={<BusinessGuide />} />
         <Route path="/material-checklist" element={<AppLayout title="材料清单中心" showBack><MaterialChecklistCenter /></AppLayout>} />
 
-        {/* ─── 信息页 ─── */}
-        <Route path="/updates" element={<AppLayout title="更新日志" showBack><UpdateLog /></AppLayout>} />
-        <Route path="/feedback" element={<AppLayout title="反馈共创" showBack><Feedback /></AppLayout>} />
-        <Route path="/bbs" element={<AppLayout title="讨论区"><BBSCenter /></AppLayout>} />
+        {/* ─── 信息页（组件内自带 AppLayout） ─── */}
+        <Route path="/updates" element={<UpdateLog />} />
+        <Route path="/feedback" element={<Feedback />} />
+        <Route path="/bbs" element={<BBSCenter />} />
         <Route path="/instructions" element={<AppLayout title="使用说明" showBack><UsageInstructions /></AppLayout>} />
+
+        {/* ─── 工作台 ─── */}
+        <Route path="/workspace" element={<WorkspacePage />} />
 
         {/* ─── 404 Fallback ─── */}
         <Route path="*" element={<NotFoundPage />} />
