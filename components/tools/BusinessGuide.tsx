@@ -1134,14 +1134,105 @@ const BusinessGuide: React.FC = () => {
                     </div>
                   </motion.div>
                 ) : (
-                  <div className="h-[400px] md:h-[600px] bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-dashed border-brand-border/20 flex flex-col items-center justify-center text-center p-8 md:p-12">
-                    <div className="w-16 h-16 md:w-20 md:h-20 bg-brand-light-gray rounded-full flex items-center justify-center mb-6 md:mb-8">
-                      <Search className="w-8 h-8 md:w-10 md:h-10 text-brand-gray opacity-30" />
-                    </div>
-                    <h3 className="font-serif text-xl md:text-2xl text-brand-dark mb-3 md:mb-4">请选择一个维度开始</h3>
-                    <p className="text-xs md:text-sm text-brand-gray font-medium opacity-60 max-w-md">
-                      点击左侧的分类和具体条目，即可查看结构化的业务打法建议。
-                    </p>
+                  <div className="space-y-6 md:space-y-8">
+                    {/* 主打产品快速导览 */}
+                    {guideType === 'product' && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3 mb-2">
+                          <Star size={16} className="text-brand-gold" />
+                          <p className="text-[10px] font-bold text-brand-gray uppercase tracking-[0.25em] opacity-60">主打产品 · 快速导览</p>
+                        </div>
+                        {['chang_rong_bao', 'chang_yi_dan'].map(pid => {
+                          const p = GUIDE_DATA.products.find(x => x.id === pid);
+                          if (!p) return null;
+                          const isCRB = pid === 'chang_rong_bao';
+                          return (
+                            <motion.div
+                              key={pid}
+                              initial={{ opacity: 0, y: 12 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="bg-white rounded-[1.5rem] md:rounded-[2rem] border border-brand-border/10 shadow-sm overflow-hidden hover:shadow-md transition-all cursor-pointer group"
+                              onClick={() => { setSelectedId(pid); setGuideType('product'); }}
+                            >
+                              {/* 产品头部 */}
+                              <div className={cn("px-6 md:px-8 pt-6 md:pt-8 pb-4 md:pb-5 flex items-start justify-between gap-4", isCRB ? "bg-gradient-to-r from-blue-50/80 to-indigo-50/40" : "bg-gradient-to-r from-emerald-50/80 to-teal-50/40")}>
+                                <div>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className={cn("text-[9px] font-bold px-2 py-0.5 rounded-full", isCRB ? "bg-blue-100 text-blue-600" : "bg-emerald-100 text-emerald-600")}>
+                                      {isCRB ? '稳健型' : '高效型'}
+                                    </span>
+                                    <span className="text-[9px] text-brand-gray opacity-60 font-medium">{p.category}</span>
+                                  </div>
+                                  <h3 className="text-xl md:text-2xl font-bold text-brand-dark tracking-tight">{p.name}</h3>
+                                  <p className="text-xs text-brand-gray font-medium mt-1 opacity-70 max-w-sm">{p.overview?.substring(0, 55)}...</p>
+                                </div>
+                                <div className={cn("shrink-0 w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform", isCRB ? "bg-blue-100 text-blue-600" : "bg-emerald-100 text-emerald-600")}>
+                                  <ChevronRight size={20} />
+                                </div>
+                              </div>
+                              {/* 核心信息速查 */}
+                              <div className="px-6 md:px-8 py-5 md:py-6 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 border-t border-brand-border/5">
+                                {/* 准入速查 */}
+                                <div>
+                                  <p className="text-[9px] font-bold text-brand-gray uppercase tracking-widest opacity-50 mb-2">准入门槛</p>
+                                  <ul className="space-y-1">
+                                    {(p.entryCriteria || []).slice(0, 3).map((c, i) => (
+                                      <li key={i} className="flex items-start gap-1.5 text-[10px] text-brand-dark font-medium">
+                                        <CheckCircle2 size={10} className="mt-0.5 shrink-0 text-emerald-500" />
+                                        {c}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                                {/* 必问问题 */}
+                                <div>
+                                  <p className="text-[9px] font-bold text-brand-gray uppercase tracking-widest opacity-50 mb-2">必问问题</p>
+                                  <ul className="space-y-1">
+                                    {(p.mustAskQuestions || []).slice(0, 2).map((q, i) => (
+                                      <li key={i} className="text-[10px] text-brand-dark font-medium leading-tight">
+                                        <span className="text-brand-gold font-bold mr-1">Q{i+1}.</span>{q.replace(/["""]/g, '')}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                                {/* 禁忌 & 卖点 */}
+                                <div>
+                                  <p className="text-[9px] font-bold text-brand-gray uppercase tracking-widest opacity-50 mb-2">核心卖点</p>
+                                  <ul className="space-y-1">
+                                    {(p.sellingPoints || []).slice(0, 3).map((sp, i) => (
+                                      <li key={i} className="flex items-start gap-1.5 text-[10px] text-brand-dark font-medium">
+                                        <Sparkles size={9} className="mt-0.5 shrink-0 text-brand-gold" />
+                                        {sp}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </div>
+                              {/* 开场话术预览 */}
+                              <div className="mx-6 md:mx-8 mb-5 md:mb-6 p-3 md:p-4 bg-brand-light-gray/40 rounded-xl border border-brand-border/5">
+                                <p className="text-[9px] font-bold text-brand-gray uppercase tracking-widest opacity-50 mb-1.5">开场参考</p>
+                                <p className="text-[10px] md:text-xs text-brand-dark font-medium leading-relaxed line-clamp-2 italic opacity-80">
+                                  {p.openingTalk?.replace(/["""]/g, '"')}
+                                </p>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                        <p className="text-center text-[10px] text-brand-gray opacity-40 mt-2">点击卡片查看完整打法 · 或从左侧选择其他产品</p>
+                      </div>
+                    )}
+                    {/* 非产品维度的空状态 */}
+                    {guideType !== 'product' && (
+                      <div className="h-[400px] md:h-[600px] bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-dashed border-brand-border/20 flex flex-col items-center justify-center text-center p-8 md:p-12">
+                        <div className="w-16 h-16 md:w-20 md:h-20 bg-brand-light-gray rounded-full flex items-center justify-center mb-6 md:mb-8">
+                          <Search className="w-8 h-8 md:w-10 md:h-10 text-brand-gray opacity-30" />
+                        </div>
+                        <h3 className="font-serif text-xl md:text-2xl text-brand-dark mb-3 md:mb-4">请选择一个维度开始</h3>
+                        <p className="text-xs md:text-sm text-brand-gray font-medium opacity-60 max-w-md">
+                          点击左侧的分类和具体条目，即可查看结构化的业务打法建议。
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </AnimatePresence>

@@ -74,6 +74,7 @@ const SensitiveCommAssistant: React.FC = () => {
     tone: '标准专业',
     keepCooperation: '是',
     boundary: '中',
+    myPhone: '57137XX（请修改为您的实际号码）',
   });
 
   const [scenarioParams, setScenarioParams] = useState<Record<string, any>>({});
@@ -103,11 +104,15 @@ const SensitiveCommAssistant: React.FC = () => {
       // --- Tone modifiers ---
       const isHard = tone === '更明确';
       const isSoft = tone === '更柔和';
-      // Target-aware greeting
-      const greeting = target === '财务' ? `${name}（财务负责人）您好`
-        : target === '经办人' ? `${name}您好`
-        : `${name}好`;
-      const greetingSoft = `${name}您好`;
+      const myPhone = basicParams.myPhone || '（请在基础参数中填写您的电话）';
+      // Target-aware greeting — 避免 name='您' 时出现'您您好'
+      const isDefaultName = !basicParams.customerName;
+      const greeting = target === '财务'
+        ? (isDefaultName ? '您（财务负责人）好' : `${name}（财务负责人）您好`)
+        : target === '经办人'
+        ? (isDefaultName ? '您好' : `${name}您好`)
+        : (isDefaultName ? '您好' : `${name}好`);
+      const greetingSoft = isDefaultName ? '您好' : `${name}您好`;
       // Channel-aware suffix
       const channelSuffix = channel === '短信' ? '\n（短信字数有限，详情可电话沟通）' 
         : channel === '邮件' ? '\n\n如有疑问，欢迎随时回复本邮件或致电沟通。'
@@ -120,10 +125,10 @@ const SensitiveCommAssistant: React.FC = () => {
           const item = scenarioParams.feeItem || '对公账户转账手续费';
           const time = scenarioParams.startTime || '近期';
           outputs = {
-            direct: `${greeting}，${isHard ? '正式通知您' : '提前同步一下'}：从${time}开始，我行${item}将按现行标准执行。主要根据账户日均存款情况对应不同档次（如30万以内、30-500万、500万以上标准不同），系统会自动对应。建议您后续尽量多通过我行做结算和留存，日均和活跃度上来后标准更优。${isHard ? '请知悉。' : '想了解具体哪一档可联系柜台573700确认。'}${channelSuffix}`,
-            formal: `尊敬的客户：\n自${time}起，我行${item}将恢复按现行收费标准执行。收费标准将根据账户日均存款情况划分为三个档次：30万元以内、30万元至500万元、500万元以上。系统将根据账户实际情况自动匹配对应费率。建议贵司增加在我行的资金留存与结算往来，以获取更优费率。如需查询当前执行档次，请致电柜台573700咨询。${channelSuffix}`,
-            soft: `${greetingSoft}，${isSoft ? '有件小事先和您说一声' : '和您说下手续费的事'}。从${time}起，对公转账手续费开始按现行标准走了，主要是看账户日均存款。像30万、500万这些节点对应的档次都不一样，系统会自动识别。所以建议您这边方便的话，尽量多把资金留在咱们行做结算，日均上来后收费会更划算。具体想查哪一档，拨打573700联系柜台就行。${channelSuffix}`,
-            phone: `1. 告知${time}起恢复现行收费标准\n2. 说明"档次化收费"逻辑（日均30万/500万为界限）\n3. 强调系统自动对应，无需人工干预\n4. 建议增加资金留存以获取更优费率\n5. 提供柜台查询电话：573700\n6. 注意对象为${target}，沟通时${target === '老板' ? '注重大局和决策引导' : target === '财务' ? '注重数据细节和操作指引' : '注重流程说明和配合事项'}`
+            direct: `${greeting}，${isHard ? '正式通知您' : '提前同步一下'}：从${time}开始，我行${item}将按现行标准执行。主要根据账户日均存款情况对应不同档次（如30万以内、30-500万、500万以上标准不同），系统会自动对应。建议您后续尽量多通过我行做结算和留存，日均和活跃度上来后标准更优。${isHard ? '请知悉。' : `如需确认具体档次，可直接联系我（${myPhone}）。`}${channelSuffix}`,
+            formal: `尊敬的客户：\n自${time}起，我行${item}将恢复按现行收费标准执行。收费标准将根据账户日均存款情况划分为三个档次：30万元以内、30万元至500万元、500万元以上。系统将根据账户实际情况自动匹配对应费率。如需确认当前执行档次，请随时与我联系（${myPhone}）。${channelSuffix}`,
+            soft: `${greetingSoft}，${isSoft ? '有件小事先和您说一声' : '和您说下手续费的事'}。从${time}起，对公转账手续费开始按现行标准走了，主要是看账户日均存款。像30万、500万这些节点对应的档次都不一样，系统会自动识别。所以建议您这边方便的话，尽量多把资金留在咱们行做结算，日均上来后收费会更划算。有疑问随时联系我（${myPhone}）。${channelSuffix}`,
+            phone: `1. 告知${time}起恢复现行收费标准\n2. 说明"档次化收费"逻辑（日均30万/500万为界限）\n3. 强调系统自动对应，无需人工干预\n4. 建议增加资金留存以获取更优费率\n5. 告知客户我的联系方式：${myPhone}\n6. 注意对象为${target}，沟通时${target === '老板' ? '注重大局和决策引导' : target === '财务' ? '注重数据细节和操作指引' : '注重流程说明和配合事项'}`
           };
           break;
         }
@@ -559,6 +564,19 @@ const SensitiveCommAssistant: React.FC = () => {
                       <option>标准专业</option>
                       <option>更明确</option>
                     </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60 flex items-center gap-2">
+                      <Phone size={11} className="text-brand-gold" /> 我的联系电话
+                      <span className="text-brand-gold/60 normal-case font-normal tracking-normal">（将替换话术中的电话号码）</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      placeholder="例如：135XXXX8888 或 0592-5713700"
+                      className="w-full px-4 md:px-6 py-3 md:py-4 bg-amber-50/50 border border-brand-gold/20 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/30 outline-none transition-all font-medium text-sm md:text-base text-brand-dark"
+                      value={basicParams.myPhone.includes('请修改') ? '' : basicParams.myPhone}
+                      onChange={(e) => handleBasicChange('myPhone', e.target.value || '57137XX（请修改为您的实际号码）')}
+                    />
                   </div>
                 </div>
               </div>
