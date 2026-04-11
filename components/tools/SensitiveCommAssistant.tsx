@@ -80,6 +80,7 @@ const SensitiveCommAssistant: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<GeneratedOutput | null>(null);
   const [activeTab, setActiveTab] = useState<'direct' | 'formal' | 'soft' | 'phone'>('direct');
+  const [copySuccess, setCopySuccess] = useState(false);
 
   // --- Handlers ---
 
@@ -94,38 +95,46 @@ const SensitiveCommAssistant: React.FC = () => {
   const generateContent = () => {
     setIsGenerating(true);
     
-    // Simulate rule-based generation (Python logic equivalent)
     setTimeout(() => {
       const name = basicParams.customerName || '您';
       const scenario = SCENARIOS.find(s => s.id === activeScenario)?.name;
-      
-      let outputs: GeneratedOutput = {
-        direct: '',
-        formal: '',
-        soft: '',
-        phone: ''
-      };
+      const { tone, target, channel } = basicParams;
 
-      // Rule Engine Logic
+      // --- Tone modifiers ---
+      const isHard = tone === '更明确';
+      const isSoft = tone === '更柔和';
+      // Target-aware greeting
+      const greeting = target === '财务' ? `${name}（财务负责人）您好`
+        : target === '经办人' ? `${name}您好`
+        : `${name}好`;
+      const greetingSoft = `${name}您好`;
+      // Channel-aware suffix
+      const channelSuffix = channel === '短信' ? '\n（短信字数有限，详情可电话沟通）' 
+        : channel === '邮件' ? '\n\n如有疑问，欢迎随时回复本邮件或致电沟通。'
+        : '';
+
+      let outputs: GeneratedOutput = { direct: '', formal: '', soft: '', phone: '' };
+
       switch (activeScenario) {
         case 'fee-notice': {
           const item = scenarioParams.feeItem || '对公账户转账手续费';
-          const time = '4月1日';
+          const time = scenarioParams.startTime || '近期';
           outputs = {
-            direct: `${name}好，提前同步一下：从${time}开始，我行${item}将按现行标准执行。主要根据账户日均存款情况对应不同档次（如30万以内、30-500万、500万以上标准不同），系统会自动对应。建议您后续尽量多通过我行做结算和留存，日均和活跃度上来后标准更优。想了解具体哪一档可联系柜台573700确认。`,
-            formal: `尊敬的客户：\n自${time}起，我行对公账户转账手续费将恢复按现行收费标准执行。收费标准将根据账户日均存款情况划分为三个档次：30万元以内、30万元至500万元、500万元以上。系统将根据账户实际情况自动匹配对应费率。建议贵司增加在我行的资金留存与结算往来，以获取更优费率。如需查询当前执行档次，请致电柜台573700咨询。`,
-            soft: `${name}您好，和您说下手续费的事。从${time}起，对公转账手续费开始按现行标准走了，主要是看账户日均存款。像30万、500万这些节点对应的档次都不一样，系统会自动识别。所以建议您这边方便的话，尽量多把资金留在咱们行做结算，日均上来后收费会更划算。具体想查哪一档，拨打573700联系柜台就行。`,
-            phone: `1. 告知${time}起恢复现行收费标准\n2. 说明“档次化收费”逻辑（日均30万/500万为界限）\n3. 强调系统自动对应，无需人工干预\n4. 建议增加资金留存以获取更优费率\n5. 提供柜台查询电话：573700`
+            direct: `${greeting}，${isHard ? '正式通知您' : '提前同步一下'}：从${time}开始，我行${item}将按现行标准执行。主要根据账户日均存款情况对应不同档次（如30万以内、30-500万、500万以上标准不同），系统会自动对应。建议您后续尽量多通过我行做结算和留存，日均和活跃度上来后标准更优。${isHard ? '请知悉。' : '想了解具体哪一档可联系柜台573700确认。'}${channelSuffix}`,
+            formal: `尊敬的客户：\n自${time}起，我行${item}将恢复按现行收费标准执行。收费标准将根据账户日均存款情况划分为三个档次：30万元以内、30万元至500万元、500万元以上。系统将根据账户实际情况自动匹配对应费率。建议贵司增加在我行的资金留存与结算往来，以获取更优费率。如需查询当前执行档次，请致电柜台573700咨询。${channelSuffix}`,
+            soft: `${greetingSoft}，${isSoft ? '有件小事先和您说一声' : '和您说下手续费的事'}。从${time}起，对公转账手续费开始按现行标准走了，主要是看账户日均存款。像30万、500万这些节点对应的档次都不一样，系统会自动识别。所以建议您这边方便的话，尽量多把资金留在咱们行做结算，日均上来后收费会更划算。具体想查哪一档，拨打573700联系柜台就行。${channelSuffix}`,
+            phone: `1. 告知${time}起恢复现行收费标准\n2. 说明"档次化收费"逻辑（日均30万/500万为界限）\n3. 强调系统自动对应，无需人工干预\n4. 建议增加资金留存以获取更优费率\n5. 提供柜台查询电话：573700\n6. 注意对象为${target}，沟通时${target === '老板' ? '注重大局和决策引导' : target === '财务' ? '注重数据细节和操作指引' : '注重流程说明和配合事项'}`
           };
           break;
         }
         case 'subsidy-policy': {
           const policy = scenarioParams.policyName || '相关贴息政策';
+          const targetDesc = scenarioParams.targetDesc || '符合条件的中小微企业';
           outputs = {
-            direct: `${name}好，关于您关注的${policy}，目前最新口径是：主要面向符合条件的[适用对象]开展。具体贴息比例和申请流程我整理好发您，您可以先核对下准入条件。`,
-            formal: `【政策说明】关于${policy}的最新通知：\n该政策旨在扶持[适用对象]，申请需满足[核心条件]。目前正处于申报窗口期，建议贵司尽快准备相关材料。`,
-            soft: `${name}您好，您之前问到的那个贴息政策有新消息了。目前看准入要求比较明确，我先把核心条款发给您参考，看咱们公司是否能对得上。`,
-            phone: `1. 告知政策已更新\n2. 明确适用对象与核心条件\n3. 提醒申报时效性\n4. 约定后续材料对接时间`
+            direct: `${greeting}，关于您关注的${policy}，目前最新口径是：主要面向${targetDesc}开展。具体贴息比例和申请流程我整理好发您，您可以先核对下准入条件。${channelSuffix}`,
+            formal: `【政策说明】关于${policy}的最新通知：\n该政策旨在扶持${targetDesc}，申请需满足相关准入条件。目前正处于申报窗口期，建议贵司尽快准备相关材料。${channelSuffix}`,
+            soft: `${greetingSoft}，您之前问到的${policy}有新消息了。目前看准入要求比较明确，主要面向${targetDesc}，我先把核心条款发给您参考，看咱们公司是否能对得上。${channelSuffix}`,
+            phone: `1. 告知政策已更新\n2. 明确适用对象：${targetDesc}\n3. 提醒申报时效性\n4. 约定后续材料对接时间`
           };
           break;
         }
@@ -133,10 +142,10 @@ const SensitiveCommAssistant: React.FC = () => {
           const item = scenarioParams.itemName || '该项业务';
           const reason = scenarioParams.reason || '暂不符合现行准入要求';
           outputs = {
-            direct: `${name}好，关于您申请的${item}，这边和您确认一下目前情况。现阶段受[核心限制]影响，暂不具备推进条件，建议待相关条件补足后再行评估。`,
-            formal: `【业务进度反馈】关于贵司申请的${item}，经多方评估，当前方案按现有条件暂难落地。主要原因为：${reason}。建议后续待相关经营数据完善后再行评估。`,
-            soft: `${name}您好，关于${item}的进度先和您说明一下。结合目前政策和评估情况，仍需补足相关条件后再推进。我会持续帮您关注政策变化，一旦有转机立刻联系您。`,
-            phone: `1. 缓冲开头（已尽力协调）\n2. 专业表述：暂不具备推进条件\n3. 给出补件或替代建议（如：其他产品）\n4. 保留后续合作空间，维护关系`
+            direct: `${greeting}，关于您申请的${item}，这边和您确认一下目前情况。经过多方评估和沟通，因${reason}，${isHard ? '目前确实无法推进' : '当前方案暂难落地'}。${isHard ? '建议您考虑其他替代方案，我可以帮您梳理。' : '不过我已帮您梳理了几个替代方向，稍后发您参考。'}${channelSuffix}`,
+            formal: `【业务进度反馈】关于贵司申请的${item}，经多方评估，当前方案因${reason}，按现有条件无法推进。建议贵司可考虑以下替代方向：1) 调整业务方案后重新评估；2) 了解我行其他适配产品。我行将持续为贵司提供专业服务。${channelSuffix}`,
+            soft: `${greetingSoft}，关于${item}的事先和您说明一下。前期我们也做了不少努力去沟通协调，但结合目前的情况（${reason}），确实比较难推进。不过别灰心，我帮您看了下，咱们可以换个思路试试其他方案，回头我整理好发您。${channelSuffix}`,
+            phone: `1. 缓冲开头（已经做了很多协调工作）\n2. 清晰告知：因"${reason}"无法推进\n3. 明确提出替代方案方向\n4. ${isSoft ? '安抚情绪，强调长期合作意愿' : '专业收尾，保持开放态度'}`
           };
           break;
         }
@@ -144,54 +153,61 @@ const SensitiveCommAssistant: React.FC = () => {
           const item = scenarioParams.itemName || '业务办理';
           const materials = scenarioParams.materials || '相关基础材料';
           outputs = {
-            direct: `${name}好，办理${item}需要麻烦您配合提供以下材料：\n1. ${materials}\n麻烦近期准备好发我，我先预审一下，没问题再收原件。`,
-            formal: `尊敬的客户：\n为确保${item}顺利推进，请贵司协助准备以下材料：\n${materials}\n请于[日期]前反馈电子版，以便我行及时开展后续流程。`,
-            soft: `${name}您好，又要麻烦您了。为了把${item}的流程跑快一点，需要补几份材料：\n${materials}\n您可以先拍个照或发个扫描件给我，我帮您把关。`,
+            direct: `${greeting}，办理${item}需要麻烦您配合提供以下材料：\n${materials}\n${isHard ? '请尽快准备并反馈，以免影响办理进度。' : '麻烦近期准备好发我，我先预审一下，没问题再收原件。'}${channelSuffix}`,
+            formal: `尊敬的客户：\n为确保${item}顺利推进，请贵司协助准备以下材料：\n${materials}\n请于近期反馈电子版，以便我行及时开展后续流程。${channelSuffix}`,
+            soft: `${greetingSoft}，又要麻烦您了。为了把${item}的流程跑快一点，需要补几份材料：\n${materials}\n您可以先拍个照或发个扫描件给我，我帮您把关，${isSoft ? '不着急，有空弄就行。' : '咱们争取这周搞定。'}${channelSuffix}`,
             phone: `1. 说明材料用途（为了提速）\n2. 逐项核对材料清单\n3. 确认获取材料的难易程度\n4. 约定反馈时间点`
           };
           break;
         }
         case 'beneficiary-filing': {
           outputs = {
-            direct: `${name}好，根据《受益所有人信息管理办法》，自11月1日起需完成备案。操作建议：登录厦门市市场监督管理局系统（https://wssp.scjg.xm.gov.cn:4433/wssp/），用闽政通APP扫码登录最方便。进入“单独备案入口”选“自行填报”。提醒：如果公司有多个受益所有人，记得点击右上角“添加”全部备案。看到“上报成功”弹窗就完成了。`,
-            formal: `【重要提醒】根据《受益所有人信息管理办法》，自2024年11月1日起，公司、合伙企业等主体应备案受益所有人信息。请登录：https://wssp.scjg.xm.gov.cn:4433/wssp/ -> 实名登录 -> 选择单位 -> 单独备案入口 -> 自行填报。提醒：需逐一对照标准识别，如有多个受益所有人均应予以备案（点击右上角“添加”）。看到“备案上报成功”弹窗即完成。`,
-            soft: `${name}您好，有个配合事项和您说下。近期工商局要求受益所有人备案（24年11月1日起实施），为了不影响后续业务，建议您近期抽空在网上办一下。用闽政通APP扫码登录操作很快。如果公司受益人不止一个，记得都要填上。路径我发您，如有疑问随时找我。`,
-            phone: `1. 政策背景（11月1日新规）\n2. 操作路径指引（推荐闽政通扫码登录）\n3. 提醒识别多个受益所有人的要求（点击“添加”）\n4. 强调合规重要性，避免影响后续业务`
+            direct: `${greeting}，根据《受益所有人信息管理办法》，自11月1日起需完成备案。操作建议：登录厦门市市场监督管理局系统（https://wssp.scjg.xm.gov.cn:4433/wssp/），用闽政通APP扫码登录最方便。进入"单独备案入口"选"自行填报"。提醒：如果公司有多个受益所有人，记得点击右上角"添加"全部备案。看到"上报成功"弹窗就完成了。${channelSuffix}`,
+            formal: `【重要提醒】根据《受益所有人信息管理办法》，自2024年11月1日起，公司、合伙企业等主体应备案受益所有人信息。请登录：https://wssp.scjg.xm.gov.cn:4433/wssp/ -> 实名登录 -> 选择单位 -> 单独备案入口 -> 自行填报。提醒：需逐一对照标准识别，如有多个受益所有人均应予以备案（点击右上角"添加"）。看到"备案上报成功"弹窗即完成。${channelSuffix}`,
+            soft: `${greetingSoft}，有个配合事项和您说下。近期工商局要求受益所有人备案（24年11月1日起实施），为了不影响后续业务，建议您近期抽空在网上办一下。用闽政通APP扫码登录操作很快。如果公司受益人不止一个，记得都要填上。路径我发您，如有疑问随时找我。${channelSuffix}`,
+            phone: `1. 政策背景（11月1日新规）\n2. 操作路径指引（推荐闽政通扫码登录）\n3. 提醒识别多个受益所有人的要求（点击"添加"）\n4. 强调合规重要性，避免影响后续业务`
           };
           break;
         }
         case 'counter-appointment': {
           const time = scenarioParams.suggestTime || '近期';
           outputs = {
-            direct: `${name}好，关于开户的事，建议您预约在${time}。为了避免您白跑一趟，请务必带齐：1.营业执照原件 2.公章/财务章/法人章 3.法人及经办人身份证。到时找我即可。`,
-            formal: `【开户预约确认】\n尊敬的客户，已为您预约${time}办理开户业务。请携带以下材料原件：营业执照、三章、相关人员身份证件。如需变更时间，请提前告知。`,
-            soft: `${name}您好，开户的事我帮您排好了，建议${time}过来。材料清单我再发您核对一遍，咱们争取一次办好，节省您的时间。`,
+            direct: `${greeting}，关于开户的事，建议您预约在${time}。为了避免您白跑一趟，请务必带齐：1.营业执照原件 2.公章/财务章/法人章 3.法人及经办人身份证。到时找我即可。${channelSuffix}`,
+            formal: `【开户预约确认】\n尊敬的客户，已为您预约${time}办理开户业务。请携带以下材料原件：营业执照、三章、相关人员身份证件。如需变更时间，请提前告知。${channelSuffix}`,
+            soft: `${greetingSoft}，开户的事我帮您排好了，建议${time}过来。材料清单我再发您核对一遍，咱们争取一次办好，节省您的时间。${channelSuffix}`,
             phone: `1. 确认预约时间\n2. 逐一核对必备材料（防止漏带）\n3. 告知行内具体位置及停车建议\n4. 确认联系人及电话`
           };
           break;
         }
         case 'rate-adjustment': {
           const type = scenarioParams.businessType || '存款业务';
+          const effectDate = scenarioParams.effectDate || '';
+          const newRate = scenarioParams.newRate || '';
           if (type === '协定存款') {
+            const dateStr = effectDate || '2025年4月28日';
+            const rateStr = newRate || '1%';
             outputs = {
-              direct: `${name}好，根据协议约定及市场利率调整，您在我行的协定存款利率将于2025年4月28日起调整为1%。正式通知书我已通过邮件发您，麻烦核对一下。纸质版后续会通过EMS寄送，到时麻烦按协议原印章签收反馈。`,
-              formal: `【利率调整通知】\n尊敬的客户：根据贵司与我行签署的协定存款协议兜底条款，自2025年4月28日起，贵司协定存款执行利率将调整为1%。我行已统一拟定《利率调整通知书》，请贵司确保签章与原协议一致并做好留档反馈。`,
-              soft: `${name}您好，关于协定存款利率的事先和您同步下。根据协议里的兜底条款，自4月28日起利率将调整为1%。我先把通知书扫描件发您预审，后续纸质版寄到后麻烦配合签收一下，谢谢支持。`,
-              phone: `1. 提及协议中的“兜底条款”背景\n2. 告知4月28日起利率调整为1%\n3. 提醒邮件查收扫描件，EMS寄送纸质版\n4. 强调签章需与原协议一致`
+              direct: `${greeting}，根据协议约定及市场利率调整，您在我行的协定存款利率将于${dateStr}起调整为${rateStr}。正式通知书我已通过邮件发您，麻烦核对一下。纸质版后续会通过EMS寄送，到时麻烦按协议原印章签收反馈。${channelSuffix}`,
+              formal: `【利率调整通知】\n尊敬的客户：根据贵司与我行签署的协定存款协议兜底条款，自${dateStr}起，贵司协定存款执行利率将调整为${rateStr}。我行已统一拟定《利率调整通知书》，请贵司确保签章与原协议一致并做好留档反馈。${channelSuffix}`,
+              soft: `${greetingSoft}，关于协定存款利率的事先和您同步下。根据协议里的兜底条款，自${dateStr}起利率将调整为${rateStr}。我先把通知书扫描件发您预审，后续纸质版寄到后麻烦配合签收一下，谢谢支持。${channelSuffix}`,
+              phone: `1. 提及协议中的"兜底条款"背景\n2. 告知${dateStr}起利率调整为${rateStr}\n3. 提醒邮件查收扫描件，EMS寄送纸质版\n4. 强调签章需与原协议一致`
             };
           } else if (type === '通知存款') {
+            const dateStr = effectDate || '4月25日';
             outputs = {
-              direct: `${name}好，根据人行最新要求，通知存款利率不得超过1.45%。建议您在4月25日前办理支取，可按原利率执行。若4月25日之后支取，超过1.45%的部分将统一按1.45%计息。支取后您可以按新利率续存。`,
-              formal: `【通知存款整改通知】\n尊敬的客户：根据人民银行最新监管要求，存量通知存款利率需进行整改。贵司在我行办理的通知存款，请于2025年4月25日前办理支取，可按原利率执行。若逾期支取，超过1.45%的部分将自起存之日起按1.45%计息。`,
-              soft: `${name}您好，关于通知存款利率整改的事和您沟通下。受监管新规影响，利率上限统一调至1.45%。建议您在4月25号前抽空办下支取，这样能保住之前的原利率收益，之后咱们再按新标准续存。`,
-              phone: `1. 提及人行最新监管要求\n2. 明确4月25日为关键时点\n3. 说明逾期支取的计息规则变化\n4. 建议客户提前支取并按新利率续存`
+              direct: `${greeting}，根据人行最新要求，通知存款利率不得超过1.45%。建议您在${dateStr}前办理支取，可按原利率执行。若${dateStr}之后支取，超过1.45%的部分将统一按1.45%计息。支取后您可以按新利率续存。${channelSuffix}`,
+              formal: `【通知存款整改通知】\n尊敬的客户：根据人民银行最新监管要求，存量通知存款利率需进行整改。贵司在我行办理的通知存款，请于${dateStr}前办理支取，可按原利率执行。若逾期支取，超过1.45%的部分将自起存之日起按1.45%计息。${channelSuffix}`,
+              soft: `${greetingSoft}，关于通知存款利率整改的事和您沟通下。受监管新规影响，利率上限统一调至1.45%。建议您在${dateStr}前抽空办下支取，这样能保住之前的原利率收益，之后咱们再按新标准续存。${channelSuffix}`,
+              phone: `1. 提及人行最新监管要求\n2. 明确${dateStr}为关键时点\n3. 说明逾期支取的计息规则变化\n4. 建议客户提前支取并按新利率续存`
             };
           } else {
+            const dateStr = effectDate || '[待填写日期]';
+            const rateStr = newRate || '[待填写利率]';
             outputs = {
-              direct: `${name}好，提前和您同步一下，根据市场利率定价自律机制要求，自[日期]起，${type}利率将调整为[利率]。这是全行业统一调整，建议您关注下资金安排。`,
-              formal: `【利率调整通知】\n尊敬的客户：受市场利率环境变化影响，我行将于[日期]起对${type}执行新利率标准（[利率]）。感谢您的理解与支持。`,
-              soft: `${name}您好，关于${type}利率的事先和您沟通下。近期全行业利率都在下行，行内也将于[日期]起做小幅调整。我帮您看了下，目前的方案在同业中仍具竞争力。`,
-              phone: `1. 行业背景说明（全行业下调）\n2. 告知具体调整日期及新利率\n3. 强调我行方案的相对优势\n4. 引导客户进行长期资金规划`
+              direct: `${greeting}，提前和您同步一下，根据市场利率定价自律机制要求，自${dateStr}起，${type}利率将调整为${rateStr}。这是全行业统一调整，建议您关注下资金安排。${channelSuffix}`,
+              formal: `【利率调整通知】\n尊敬的客户：受市场利率环境变化影响，我行将于${dateStr}起对${type}执行新利率标准（${rateStr}）。感谢您的理解与支持。${channelSuffix}`,
+              soft: `${greetingSoft}，关于${type}利率的事先和您沟通下。近期全行业利率都在下行，行内也将于${dateStr}起做小幅调整。我帮您看了下，目前的方案在同业中仍具竞争力。${channelSuffix}`,
+              phone: `1. 行业背景说明（全行业下调）\n2. 告知具体调整日期${dateStr}及新利率${rateStr}\n3. 强调我行方案的相对优势\n4. 引导客户进行长期资金规划`
             };
           }
           break;
@@ -199,18 +215,18 @@ const SensitiveCommAssistant: React.FC = () => {
         case 'credit-status': {
           const reason = scenarioParams.reason || '暂不符合准入条件';
           outputs = {
-            direct: `${name}好，关于您申请的业务，这边和您确认一下目前情况。现阶段暂不具备推进条件，建议待相关条件补足后再行评估。`,
-            formal: `【业务进度反馈】\n关于贵司申请的授信业务，经评估，当前方案按现有条件暂难落地。建议后续待相关经营数据完善后再行评估。`,
-            soft: `${name}您好，提前和您说明一下授信进度。结合目前情况，仍需补足相关条件后再评估，我会持续帮您关注政策变化。`,
-            phone: `1. 缓冲开头（已尽力协调）\n2. 专业表述：暂不具备推进条件\n3. 给出补件或替代建议\n4. 保留后续合作空间`
+            direct: `${greeting}，关于您申请的授信业务，这边先和您同步一下进度。目前处于暂缓阶段，原因是：${reason}。${isHard ? '需要您尽快补足相关条件后重新提交评估。' : '不过这并不是最终结论，待相关条件补足后可以重新评估。'}我这边会持续帮您跟进政策动态。${channelSuffix}`,
+            formal: `【授信进度反馈】\n关于贵司申请的授信业务，经审慎评估，当前因${reason}暂缓推进。此为阶段性结论，待后续条件完善后可重新发起评估。我行将持续关注贵司经营发展，并及时同步最新政策。${channelSuffix}`,
+            soft: `${greetingSoft}，关于授信的进度先和您通个气。目前因为${reason}，推进节奏会慢一些，但并不是走不通——只是需要再补足一些条件。${isSoft ? '您别着急，' : ''}我会一直帮您盯着，政策一有变化第一时间联系您。${channelSuffix}`,
+            phone: `1. 缓冲开头（已积极协调多方资源）\n2. 说明暂缓原因：${reason}\n3. 强调"暂缓≠拒绝"，明确后续可重新评估\n4. 给出具体补件/改进建议\n5. 保留合作空间，约定下次沟通节点`
           };
           break;
         }
         default:
           outputs = {
-            direct: `${name}好，关于${scenario}事项，提前和您说明一下目前情况...`,
-            formal: `尊敬的客户：\n关于${scenario}的正式说明...`,
-            soft: `${name}您好，关于${scenario}的事项先和您沟通下...`,
+            direct: `${greeting}，关于${scenario}事项，提前和您说明一下目前情况...${channelSuffix}`,
+            formal: `尊敬的客户：\n关于${scenario}的正式说明...${channelSuffix}`,
+            soft: `${greetingSoft}，关于${scenario}的事项先和您沟通下...${channelSuffix}`,
             phone: `1. 沟通背景\n2. 核心事项说明\n3. 客户需配合动作\n4. 后续安排`
           };
       }
@@ -222,6 +238,8 @@ const SensitiveCommAssistant: React.FC = () => {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
   };
 
   // --- Render Helpers ---
@@ -276,6 +294,7 @@ const SensitiveCommAssistant: React.FC = () => {
               <textarea 
                 placeholder="例如：年收入5000万以下、属于高新技术企业..."
                 className="w-full h-24 px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark resize-none"
+                onChange={(e) => handleScenarioChange('targetDesc', e.target.value)}
               />
             </div>
           </div>
@@ -618,9 +637,18 @@ const SensitiveCommAssistant: React.FC = () => {
                         </div>
                         <button 
                           onClick={() => copyToClipboard(result[activeTab])}
-                          className="w-full py-3.5 md:py-4 bg-brand-gold/10 text-brand-gold border border-brand-gold/20 rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-brand-gold hover:text-white transition-all flex items-center justify-center gap-2"
+                          className={cn(
+                            "w-full py-3.5 md:py-4 border rounded-xl font-bold text-[10px] md:text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2",
+                            copySuccess 
+                              ? "bg-emerald-500 text-white border-emerald-500" 
+                              : "bg-brand-gold/10 text-brand-gold border-brand-gold/20 hover:bg-brand-gold hover:text-white"
+                          )}
                         >
-                          <Copy size={14} className="md:w-4 md:h-4" /> 复制该版本
+                          {copySuccess ? (
+                            <><CheckCircle2 size={14} className="md:w-4 md:h-4" /> 已复制到剪贴板</>
+                          ) : (
+                            <><Copy size={14} className="md:w-4 md:h-4" /> 复制该版本</>
+                          )}
                         </button>
                       </motion.div>
                     ) : (

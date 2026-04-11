@@ -18,8 +18,6 @@ A business productivity platform for banking professionals (primarily in financi
 
 ```
 /                       # Root - flat component files
-├── App.tsx             # Main router
-├── index.tsx           # React entry point
 ├── index.html          # HTML template
 ├── vite.config.ts      # Vite config (port 5000, host 0.0.0.0, allowedHosts: true)
 ├── components/         # Core functional views
@@ -29,9 +27,12 @@ A business productivity platform for banking professionals (primarily in financi
 ├── lib/                # Utility functions (utils.ts)
 ├── skills/             # Markdown skill definitions
 ├── src/
+│   ├── App.tsx         # Main router
+│   ├── main.tsx        # React entry point
 │   ├── components/     # Layout components (AppLayout)
 │   ├── pages/          # Higher-level pages (Home, Feed, Profile)
 │   ├── services/       # API abstraction layer (mock data)
+│   ├── styles/         # Global styles
 │   ├── mock/           # Mock data for users/posts/notifications
 │   └── types/          # TypeScript interfaces
 └── types.ts            # Shared type definitions
@@ -53,6 +54,8 @@ npm run build  # Production build to dist/
 Configured as a **static site**:
 - Build command: `npm run build`
 - Public directory: `dist`
+- Production base path: `/Finish-work-early/`
+- Router mode: `HashRouter` for GitHub Pages compatibility
 
 ## Notes
 

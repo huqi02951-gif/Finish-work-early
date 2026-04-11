@@ -565,7 +565,7 @@ const GUIDE_DATA: BusinessGuideData = {
       advantages: ['深度洞察', '客户忠诚度极高', '能挖掘深层需求'],
       weaknesses: ['成交周期可能较长', '容易陷入细节讨论'],
       typicalOpening: '“陈总，我看咱们公司近三年的研发投入增长很快，这种‘厚积薄发’的过程一定很不容易。在目前这个阶段，您最希望金融机构能提供什么样的支持？”',
-      typicalFollowUp: '“关于上次讨论的授信方案，我已经完成了初步的测算，结果显示可以为您节约约15%的财务成本。”',
+      typicalFollowUp: '“陈总，上次您提到公司正在做产线升级，我这边研究了一些方案，结合咱们的研发投入和产业方向，有几条路径可以帮助拿到更优的政策支持，等您方便了咱们坐下来一起梳理下。”',
       typicalClose: '“这个方案是我们共同探讨的结果，它不仅是资金，更是对咱们技术价值的认可。我们一起把它落地？”',
       objectionHandling: '“我完全理解您的顾虑。其实每一个伟大的企业在扩张期都会面临这种抉择。我们可以分步走...”'
     },
@@ -596,6 +596,8 @@ const BusinessGuide: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'guide' | 'persona'>('guide');
   const [guideType, setGuideType] = useState<'product' | 'industry' | 'scenario'>('product');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [policyExpanded, setPolicyExpanded] = useState(false);
 
   useEffect(() => {
     const product = searchParams.get('product');
@@ -700,6 +702,8 @@ const BusinessGuide: React.FC = () => {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
   };
 
   // --- Sub-components ---
@@ -739,15 +743,22 @@ const BusinessGuide: React.FC = () => {
             </div>
 
           {/* Red Warning Box */}
-      <div className="mb-8 p-6 bg-red-50 border-2 border-red-200 rounded-2xl animate-pulse">
-        <div className="flex items-start gap-4">
+      <div className="mb-8 p-6 bg-red-50 border-2 border-red-200 rounded-2xl">
+        <button className="flex items-start gap-4 w-full text-left" onClick={() => setPolicyExpanded(!policyExpanded)}>
           <AlertCircle className="text-red-600 w-6 h-6 shrink-0 mt-1" />
-          <div>
-            <h4 className="text-red-800 font-bold text-lg mb-2">重要政策声明 (红线)</h4>
-            <p className="text-red-700 text-sm leading-relaxed font-medium">
+          <div className="flex-grow">
+            <div className="flex items-center justify-between">
+              <h4 className="text-red-800 font-bold text-lg">重要政策声明 (红线)</h4>
+              <ChevronRight className={cn("text-red-400 w-5 h-5 transition-transform", policyExpanded && "rotate-90")} />
+            </div>
+            <p className="text-red-700 text-sm leading-relaxed font-medium mt-1">
               “民间投资专项担保计划”<span className="underline font-black">不等于</span>自动享受贴息或担保费全额补贴。
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-xs text-red-900/80">
+          </div>
+        </button>
+        {policyExpanded && (
+          <div className="mt-4 ml-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-red-900/80">
               <div className="bg-white/50 p-3 rounded-lg">
                 <p className="font-bold mb-1">1. 担保费补贴</p>
                 <p>以地方财政当期口径为准，不能默认全额补贴。标准保费 0.5%/年需预付。</p>
@@ -759,7 +770,7 @@ const BusinessGuide: React.FC = () => {
             </div>
             <p className="mt-3 text-[10px] text-red-600 font-bold italic">※ 禁止向客户承诺“全额补贴”或“自动贴息”，仅可评估叠加空间。</p>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
@@ -1074,22 +1085,6 @@ const BusinessGuide: React.FC = () => {
                                   </div>
                                 </div>
                               </div>
-
-                              {(activeContent as ProductCard).details && (
-                                <ContentCard 
-                                  title="核心要素" 
-                                  icon={Settings} 
-                                  list={[
-                                    `利率：${(activeContent as ProductCard).details!.rate}`,
-                                    `期限：${(activeContent as ProductCard).details!.term}`,
-                                    `定价：${(activeContent as ProductCard).details!.pricing}`,
-                                    `贴补：${(activeContent as ProductCard).details!.subsidy}`,
-                                    `担保：${(activeContent as ProductCard).details!.guarantee}`,
-                                    `授信：${(activeContent as ProductCard).details!.creditMethod}`,
-                                    `条件：${(activeContent as ProductCard).details!.creditCriteria}`
-                                  ]} 
-                                />
-                              )}
                               {(activeContent as ProductCard).comparison && (
                                 <ContentCard 
                                   title={`与 ${(activeContent as ProductCard).comparison!.with} 的区别`} 
