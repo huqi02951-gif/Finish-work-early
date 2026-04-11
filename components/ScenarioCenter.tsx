@@ -8,6 +8,7 @@ import {
   LayoutDashboard, Target, User, Database, Star, Info, Clock, TrendingUp, Settings
 } from 'lucide-react';
 import { Solar, Lunar } from 'lunar-javascript';
+import ToMyselfSpace from './tools/ToMyselfSpace';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SKILLS } from '../constants/skills';
 import { cn } from '../lib/utils';
@@ -72,486 +73,9 @@ const AsciiProgress: React.FC<{ percent: number; width?: number; color?: string 
   );
 };
 
-const FengShuiCalendar = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDay, setSelectedDay] = useState<Solar | null>(null);
 
-  const solar = Solar.fromDate(currentDate);
-  const lunar = solar.getLunar();
 
-  const daysInMonth = () => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const days = [];
-    for (let i = 0; i < firstDay.getDay(); i++) days.push(null);
-    for (let i = 1; i <= lastDay.getDate(); i++) days.push(Solar.fromYmd(year, month + 1, i));
-    return days;
-  };
 
-  const getFengShuiInfo = (s: Solar) => {
-    const l = s.getLunar();
-    return {
-      lunarDay: l.getDayInChinese(),
-      lunarMonth: l.getMonthInChinese(),
-      ganZhiYear: l.getYearInGanZhi(),
-      ganZhiMonth: l.getMonthInGanZhi(),
-      ganZhiDay: l.getDayInGanZhi(),
-      zodiac: l.getYearShengXiao(),
-      yi: l.getDayYi(),
-      ji: l.getDayJi(),
-      wuXing: l.getDayNaYin(),
-      chong: l.getDayChongDesc(),
-      sha: l.getDaySha(),
-      position: l.getDayPositionXiDesc(),
-    };
-  };
-
-  return (
-    <div className="flex flex-col h-full bg-[#0a0a0a] rounded-xl overflow-hidden shadow-2xl border border-[#00ff41]/30 font-mono relative">
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-40 z-0"></div>
-      
-      {/* Header */}
-      <div className="p-3 border-b border-[#00ff41]/30 flex justify-between items-center bg-black relative z-10">
-        <div className="flex items-center gap-2 text-[#00ff41]">
-          <span className="text-gray-500">$</span>
-          <span className="text-[10px] font-bold uppercase tracking-widest">./oracle_module.sh</span>
-        </div>
-        <div className="flex items-center gap-4 text-[#00ff41]">
-          <button onClick={() => { const d = new Date(currentDate); d.setMonth(d.getMonth() - 1); setCurrentDate(d); }} className="hover:text-white transition-colors">{'<'}</button>
-          <span className="text-xs font-bold tracking-widest">{currentDate.getFullYear()}-{String(currentDate.getMonth() + 1).padStart(2,'0')}</span>
-          <button onClick={() => { const d = new Date(currentDate); d.setMonth(d.getMonth() + 1); setCurrentDate(d); }} className="hover:text-white transition-colors">{'>'}</button>
-        </div>
-      </div>
-
-      <div className="flex-grow overflow-y-auto custom-scrollbar p-4 space-y-4 relative z-10">
-        {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-1">
-          {['周日', '周一', '周二', '周三', '周四', '周五', '周六'].map(d => (
-            <div key={d} className="text-center text-[10px] font-bold text-[#00ff41]/50 py-1">{d}</div>
-          ))}
-          {daysInMonth().map((day, idx) => {
-            if (!day) return <div key={`empty-${idx}`} />;
-            const isToday = day.toYmd() === Solar.fromDate(new Date()).toYmd();
-            const isSelected = selectedDay?.toYmd() === day.toYmd();
-            
-            return (
-              <button
-                key={day.toYmd()}
-                onClick={() => setSelectedDay(day)}
-                className={cn(
-                  "aspect-square flex flex-col items-center justify-center transition-all relative border border-transparent hover:border-[#00ff41]/30",
-                  isSelected ? "bg-[#00ff41]/20 border-[#00ff41] shadow-[0_0_10px_rgba(0,255,65,0.3)] z-10" : 
-                  isToday ? "border-[#00ff41]/50 text-[#00ff41]" : "text-[#00ff41]/40"
-                )}
-              >
-                <span className={cn("text-[12px] font-bold", isSelected ? "text-[#00ff41]" : "")}>{day.getDay()}</span>
-                {isToday && !isSelected && <div className="absolute bottom-1 w-1.5 h-1.5 bg-[#00ff41] animate-pulse" />}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Selected Day Details */}
-        <AnimatePresence mode="wait">
-          {selectedDay && (
-            <motion.div
-              key={selectedDay.toYmd()}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-black/80 border border-[#00ff41]/30 p-3 space-y-3 relative overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 px-2 py-0.5 bg-[#00ff41] text-black text-[8px] font-bold">已解密数据</div>
-              <div className="flex justify-between items-start pt-2">
-                <div>
-                  <h5 className="text-[#00ff41] text-xs font-bold font-mono">查询日期: {selectedDay.toYmd()}</h5>
-                  <p className="text-[10px] text-[#00ff41]/70 uppercase tracking-widest mt-1">
-                    {getFengShuiInfo(selectedDay).ganZhiYear}年 / {getFengShuiInfo(selectedDay).lunarMonth}月 {getFengShuiInfo(selectedDay).lunarDay}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-2 text-[10px] leading-relaxed">
-                <div className="border border-[#00ff41]/20 p-2">
-                  <div className="text-[#00ff41] font-bold mb-1">系统授权 (宜):</div>
-                  <div className="text-[#00ff41]/80">{getFengShuiInfo(selectedDay).yi.join(' ')}</div>
-                </div>
-                <div className="border border-red-500/30 p-2 bg-red-950/20">
-                  <div className="text-red-500 font-bold mb-1">系统拦截 (忌):</div>
-                  <div className="text-red-400/80">{getFengShuiInfo(selectedDay).ji.join(' ')}</div>
-                </div>
-              </div>
-
-              <div className="space-y-1 text-[10px] pt-1 border-t border-[#00ff41]/20 mt-2 text-[#00ff41]/60">
-                <div className="flex justify-between"><span># 属性(五行):</span> <span className="text-[#00ff41]">{getFengShuiInfo(selectedDay).wuXing}</span></div>
-                <div className="flex justify-between"><span># 方位(喜神):</span> <span className="text-[#00ff41]">{getFengShuiInfo(selectedDay).position}</span></div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-};
-
-const FoodSelector = () => {
-  const foodGroups = [
-    { name: '快餐西式', items: ['麦当劳 1+1', '肯德基 疯狂星期四', '塔斯汀 中国汉堡', '汉堡王', '赛百味'] },
-    { name: '米饭便当', items: ['隆江猪脚饭', '湘式小炒肉', '照烧鸡腿饭', '台式卤肉饭', '广式烧腊饭', '咖喱牛肉饭', '日式肥牛饭'] },
-    { name: '粉面主食', items: ['兰州拉面', '重庆小面', '柳州螺蛳粉', '南昌拌粉', '山西刀削面', '老北京炸酱面', '河南烩面'] },
-    { name: '减脂轻食', items: ['鸡胸肉沙拉', '全麦三明治', '杂粮饭便当', '荞麦面', '瑞幸 吐司套餐'] },
-    { name: '重口过瘾', items: ['杨国福麻辣烫', '张亮麻辣烫', '一人食冒菜', '麻辣香锅', '酸菜鱼饭'] },
-    { name: '街边小吃', items: ['煎饼果子', '烤冷面', '便利店关东煮', '全家饭团', '萨莉亚'] }
-  ];
-
-  const allFoods = foodGroups.flatMap(g => g.items);
-  const [current, setCurrent] = useState('等待执行指令...');
-  const [isRolling, setIsRolling] = useState(false);
-  const [hasRolled, setHasRolled] = useState(false);
-
-  useEffect(() => {
-    let interval: any;
-    if (isRolling) {
-      interval = setInterval(() => {
-        const randomFood = allFoods[Math.floor(Math.random() * allFoods.length)];
-        const glitchChars = '!<>-_\\\\/[]{}—=+*^?#_';
-        const glitch = Array.from({length: randomFood.length}, () => glitchChars[Math.floor(Math.random()*glitchChars.length)]).join('');
-        setCurrent(Math.random() > 0.5 ? randomFood : glitch);
-      }, 50);
-    } else if (hasRolled) {
-      const finalFood = allFoods[Math.floor(Math.random() * allFoods.length)];
-      setCurrent(finalFood);
-    }
-    return () => clearInterval(interval);
-  }, [isRolling, allFoods, hasRolled]);
-
-  return (
-    <div className="bg-[#0a0a0a] p-6 rounded-xl border border-[#00ff41]/30 flex flex-col h-full relative font-mono text-[#00ff41] shadow-[inset_0_0_20px_rgba(0,255,65,0.05)] overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-40 z-0"></div>
-      
-      <div className="relative z-10 flex flex-col items-center flex-grow">
-        <div className="w-full text-[10px] text-gray-500 mb-6 flex justify-between border-b border-[#00ff41]/20 pb-2">
-          <span>$ ./rng_food.exe</span>
-          <span className="animate-pulse">_</span>
-        </div>
-        
-        <div className="w-full h-32 flex flex-col items-center justify-center border border-[#00ff41]/20 bg-[#00ff41]/5 mb-6 relative group overflow-hidden">
-          <div className="absolute inset-0 bg-[#00ff41]/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <span className={cn(
-            "text-xl sm:text-2xl font-bold transition-all px-4 text-center z-10",
-            isRolling ? "text-[#00ff41]/50 blur-[1px]" : "text-[#00ff41]"
-          )}>
-            {hasRolled && !isRolling ? <GlitchText text={current} /> : current}
-          </span>
-        </div>
-
-        <div className="w-full flex flex-wrap justify-center gap-1.5 mb-8">
-          {foodGroups.map(g => (
-            <span key={g.name} className="text-[9px] text-[#00ff41]/40 border border-[#00ff41]/20 px-1.5 py-0.5">
-              [{g.name}]
-            </span>
-          ))}
-        </div>
-
-        <div className="mt-auto w-full">
-          <button 
-            onClick={() => {
-              if (!isRolling) {
-                const currentXp = Number(localStorage.getItem('cl_hacker_xp')) || 8420;
-                if (currentXp >= 5) {
-                  localStorage.setItem('cl_hacker_xp', String(currentXp - 5));
-                  window.dispatchEvent(new Event('storage'));
-                  setHasRolled(true);
-                  setIsRolling(true);
-                } else {
-                  setCurrent('ERR: 算力不足(-5 XP)');
-                }
-              } else {
-                setIsRolling(false);
-              }
-            }}
-            className={cn(
-              "w-full py-3 border text-[12px] font-bold transition-all flex justify-center items-center gap-2",
-              !isRolling 
-                ? "bg-[#00ff41]/10 border-[#00ff41]/50 text-[#00ff41] hover:bg-[#00ff41]/20 shadow-[0_0_10px_rgba(0,255,65,0.2)]" 
-                : "bg-red-950/30 border-red-500/50 text-red-500 shadow-[0_0_10px_rgba(255,0,0,0.2)]"
-            )}
-          >
-            {isRolling ? "终止随机进程" : hasRolled ? "重新抽取 (-5 XP)" : "执行抽选程序 (-5 XP)"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const EfficientOffDutyGame = () => {
-  const [monthlySalary, setMonthlySalary] = useState(() => Number(localStorage.getItem('cl_monthly_salary')) || 6200);
-  const [now, setNow] = useState(new Date());
-  const [activeTab, setActiveTab] = useState<'calculator' | 'roast'>('calculator');
-  const [currentRoast, setCurrentRoast] = useState(0);
-
-  useEffect(() => {
-    localStorage.setItem('cl_monthly_salary', monthlySalary.toString());
-    window.dispatchEvent(new Event('storage'));
-  }, [monthlySalary]);
-
-  useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const workDays = 20;
-  const dailySalary = monthlySalary / workDays;
-  const hourlyRate = dailySalary / 8;
-  const minuteRate = hourlyRate / 60;
-  const secondRate = minuteRate / 60;
-
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  const workStart = 9 * 60; 
-  const workEnd = 17 * 60;  
-
-  const isWorkTime = currentMinutes >= workStart && currentMinutes < workEnd;
-  const isOvertime = currentMinutes >= workEnd;
-  
-  const overtimeMinutes = isOvertime ? currentMinutes - workEnd : 0;
-  const overtimeLoss = overtimeMinutes * minuteRate + now.getSeconds() * secondRate;
-  const earnedToday = Math.min(Math.max(currentMinutes - workStart, 0), 480) * minuteRate;
-
-  const roasts = [
-    { text: "正在榨取剩余价值... 老板已加购一杯【星巴克】", id: "0x1A" },
-    { text: "时间流逝警告：你的时薪并没有因为加班增加", id: "0x2B" },
-    { text: "严重警告：你的青春正在为老板的劳斯莱斯加油", id: "0x3C" },
-    { text: "加班不仅不会让你变强，只会让你的价格跳水", id: "0x4D" },
-    { text: "正常节点已进入【健身房】，你已进入【重症监护室】。", id: "0x5E" },
-  ];
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentRoast(p => (p + 1) % roasts.length), 4000);
-    return () => clearInterval(timer);
-  }, [roasts.length]);
-
-  return (
-    <div className="flex flex-col bg-[#0a0a0a] border border-[#00ff41]/30 rounded-xl overflow-hidden font-mono shadow-[0_0_15px_rgba(0,255,65,0.05)] relative">
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-40 z-0"></div>
-      
-      <div className="p-2 border-b border-[#00ff41]/30 bg-black flex justify-between items-center relative z-10">
-        <div className="text-[#00ff41] text-[10px] font-bold">
-          <span className="text-gray-500">$</span> ./monitor_salary.sh
-        </div>
-        <div className="flex border border-[#00ff41]/30">
-          <button onClick={() => setActiveTab('calculator')} className={cn("px-3 py-1 text-[10px]", activeTab === 'calculator' ? "bg-[#00ff41] text-black" : "text-[#00ff41]")}>监控板</button>
-          <button onClick={() => setActiveTab('roast')} className={cn("px-3 py-1 text-[10px]", activeTab === 'roast' ? "bg-[#00ff41] text-black" : "text-[#00ff41]")}>系统日志</button>
-        </div>
-      </div>
-
-      <div className="p-4 relative z-10 text-[#00ff41]">
-        {activeTab === 'calculator' ? (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center text-[11px] border-b border-[#00ff41]/20 pb-2">
-              <div className="flex items-center gap-2">
-                <span>[变量] 月薪:</span>
-                <input type="number" value={monthlySalary} onChange={e => setMonthlySalary(Number(e.target.value))} className="bg-transparent border-b border-[#00ff41] w-16 outline-none text-[#00ff41] text-center" />
-              </div>
-              <span className="font-bold">折合: ¥{hourlyRate.toFixed(1)}/时</span>
-            </div>
-
-            <div className={cn("p-4 border", isOvertime ? "border-red-500 bg-red-950/20" : "border-[#00ff41]/50 bg-[#00ff41]/5")}>
-              {isOvertime ? (
-                <>
-                  <div className="text-red-500 text-[11px] font-bold animate-pulse">警告：系统监测到无偿加班行为！</div>
-                  <div className="text-4xl font-bold text-red-500 mt-2">-¥{overtimeLoss.toFixed(2)}</div>
-                  <div className="text-red-400/70 text-[10px] mt-2 space-x-2">
-                    <span>已滞留: {Math.floor(overtimeMinutes/60)}小时 {overtimeMinutes%60}分钟 {now.getSeconds()}秒</span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="text-[#00ff41] text-[11px] font-bold">运行状态：正常创收中</div>
-                  <div className="text-3xl font-bold mt-2 text-[#00ff41]">¥{earnedToday.toFixed(2)}</div>
-                  <div className="text-[#00ff41]/70 text-[10px] mt-2">今日进度：{(earnedToday/dailySalary*100).toFixed(1)}%</div>
-                </>
-              )}
-            </div>
-
-            {isOvertime && (
-              <div className="border border-red-500/30 p-3 space-y-2">
-                <div className="text-[10px] text-red-500 font-bold">等价损失换算：</div>
-                {[
-                  { name: '一杯瑞幸咖啡', cost: 9.9 },
-                  { name: '一份外卖快餐', cost: 20 },
-                  { name: '一张电影票', cost: 50 },
-                ].map(i => (
-                  <div key={i.name} className="flex justify-between text-[10px]">
-                    <span className="text-red-400">-{'>'} {i.name}</span>
-                    <span className={overtimeLoss >= i.cost ? "text-red-500 bg-red-950 px-1 font-bold" : "text-gray-500"}>
-                      {overtimeLoss >= i.cost ? '[已彻底损失]' : `再加 ¥${(i.cost - overtimeLoss).toFixed(1)}`}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="border border-[#00ff41]/30 bg-[#00ff41]/5 p-4 min-h-[120px] relative">
-              <div className="absolute top-0 right-0 px-2 py-0.5 text-[9px] border-b border-l border-[#00ff41]/30 text-[#00ff41]/50 bg-black">日志流 TAIL -F</div>
-              <AnimatePresence mode="wait">
-                <motion.div key={currentRoast} initial={{opacity:0, x:-5}} animate={{opacity:1, x:0}} exit={{opacity:0}} className="mt-4">
-                  <div className="text-[#00ff41]/50 text-[10px] mb-1">[{roasts[currentRoast].id}] ERROR_DUMP:</div>
-                  <TypewriterText text={roasts[currentRoast].text} className="text-xs" />
-                </motion.div>
-              </AnimatePresence>
-            </div>
-            <div className="flex gap-1 justify-center">
-              {roasts.map((_, i) => <div key={i} className={cn("w-2 h-0.5", i === currentRoast ? "bg-[#00ff41]" : "bg-[#00ff41]/20")} />)}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-const FocusTimer = () => {
-  const [timeLeft, setTimeLeft] = useState(25 * 60);
-  const [focusDuration, setFocusDuration] = useState(25);
-  const [isActive, setIsActive] = useState(false);
-  const [mode, setMode] = useState<'focus' | 'rest'>('focus');
-  const [tasks, setTasks] = useState<{id: number, text: string, completed: boolean}[]>([]);
-  const [newTask, setNewTask] = useState('');
-  const [interruptions, setInterruptions] = useState(0);
-  const [sessionCompleted, setSessionCompleted] = useState(false);
-  const [trees, setTrees] = useState(() => Number(localStorage.getItem('cl_hacker_trees')) || 0);
-
-  useEffect(() => {
-    let interval: any;
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => setTimeLeft(p => p - 1), 1000);
-    } else if (timeLeft === 0 && isActive) {
-      setIsActive(false);
-      if (mode === 'focus') {
-        setSessionCompleted(true);
-        const newTrees = trees + 1;
-        setTrees(newTrees);
-        localStorage.setItem('cl_hacker_trees', newTrees.toString());
-        const currentXp = Number(localStorage.getItem('cl_hacker_xp')) || 8420;
-        localStorage.setItem('cl_hacker_xp', String(currentXp + 50));
-        window.dispatchEvent(new Event('storage'));
-      } else {
-        setMode('focus');
-        setTimeLeft(focusDuration * 60);
-      }
-    }
-    return () => clearInterval(interval);
-  }, [isActive, timeLeft, mode, focusDuration, trees]);
-
-  const m = Math.floor(timeLeft / 60);
-  const s = timeLeft % 60;
-  const timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-
-  const addTask = () => {
-    if (!newTask.trim()) return;
-    setTasks([...tasks, { id: Date.now(), text: newTask, completed: false }]);
-    setNewTask('');
-  };
-
-  return (
-    <div className="p-6 rounded-xl border border-[#00ff41]/30 h-full flex flex-col font-mono relative overflow-hidden bg-[#0a0a0a] shadow-[inset_0_0_30px_rgba(0,255,65,0.02)]">
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-40 z-0"></div>
-      
-      <div className="relative z-10 flex flex-col h-full text-[#00ff41]">
-        <div className="flex justify-between items-center text-[10px] mb-6 border-b border-[#00ff41]/20 pb-2 text-[#00ff41]/70">
-          <span>$ ./focus_node.exe {mode === 'focus' ? '--专注模式' : '--极速冷却'}</span>
-          <span>系统在线: {trees} 个运行节点</span>
-        </div>
-
-        <div className="flex justify-center text-5xl sm:text-7xl font-bold tracking-widest my-8 items-center border border-[#00ff41] py-4 bg-[#00ff41]/5 shadow-[0_0_15px_rgba(0,255,65,0.1)]">
-          <GlitchText text={timeStr} />
-        </div>
-
-        <div className="flex justify-center gap-3 mb-6">
-          {[15, 25, 45, 60].map(mins => (
-            <button
-              key={mins} disabled={isActive}
-              onClick={() => { setFocusDuration(mins); if (mode === 'focus') setTimeLeft(mins * 60); }}
-              className={cn("px-4 py-1.5 text-[11px] border transition-colors font-bold",
-                focusDuration === mins ? "bg-[#00ff41] text-black border-[#00ff41]" : "border-[#00ff41]/30 hover:bg-[#00ff41]/10 text-[#00ff41]",
-                isActive && "opacity-50"
-              )}
-            >
-              [{mins} 分钟]
-            </button>
-          ))}
-        </div>
-
-        <div className="flex gap-2">
-          <button 
-            onClick={() => setIsActive(!isActive)}
-            className={cn("flex-grow py-3 text-[13px] font-bold border transition-colors",
-              isActive ? "bg-red-950/40 text-red-500 border-red-500/50 hover:bg-red-900/40" : "bg-[#00ff41]/20 text-[#00ff41] border-[#00ff41]/50 hover:bg-[#00ff41]/30"
-            )}
-          >
-            {isActive ? '强行中断进程' : '执行代码流'}
-          </button>
-          {isActive && mode === 'focus' && (
-            <button onClick={() => {
-              setInterruptions(p => p + 1);
-              const currentXp = Number(localStorage.getItem('cl_hacker_xp')) || 8420;
-              localStorage.setItem('cl_hacker_xp', String(Math.max(0, currentXp - 5)));
-              window.dispatchEvent(new Event('storage'));
-            }} className="px-4 border border-yellow-500/50 text-yellow-500 bg-yellow-950/20 text-[11px] font-bold hover:bg-yellow-900/30">
-              干扰! (-5 XP)
-            </button>
-          )}
-        </div>
-
-        <div className="mt-8 border-t border-[#00ff41]/20 pt-4 flex-grow">
-          <div className="text-[11px] text-[#00ff41]/50 mb-3 font-bold">任务执行队列:</div>
-          <div className="space-y-3 mb-4">
-            {tasks.map(t => (
-              <div key={t.id} className="flex flex-wrap items-center gap-2 text-xs">
-                <button onClick={() => setTasks(tasks.map(x => x.id === t.id ? {...x, completed: !x.completed} : x))} className="text-[#00ff41]">
-                  [{t.completed ? 'X' : ' '}]
-                </button>
-                <span className={t.completed ? 'opacity-50 line-through' : ''}>{t.text}</span>
-              </div>
-            ))}
-            {tasks.length < 3 && (
-              <div className="flex items-center gap-2 text-xs">
-                <span>{'>'}</span>
-                <input type="text" value={newTask} onChange={e => setNewTask(e.target.value)} onKeyDown={e => e.key === 'Enter' && addTask()} placeholder="输入新进程..." className="bg-transparent border-b border-[#00ff41]/50 outline-none flex-grow text-[#00ff41] placeholder-[#00ff41]/30 pb-1" />
-              </div>
-            )}
-          </div>
-          
-          <div className="flex text-[9px] justify-between text-[#00ff41]/40 border-t border-[#00ff41]/10 pt-3 mt-auto font-bold tracking-widest">
-            <span>出错登记: {interruptions}次</span>
-            <span>算力结晶: {"🌲".repeat(trees)}</span>
-          </div>
-        </div>
-
-        {sessionCompleted && (
-          <div className="absolute inset-0 bg-black/90 backdrop-blur z-20 flex items-center justify-center p-6">
-            <div className="border border-[#00ff41] bg-black p-6 w-full text-center space-y-4 shadow-[0_0_20px_rgba(0,255,65,0.4)]">
-              <GlitchText text="进程执行完毕！" className="text-xl font-bold uppercase block text-[#00ff41]" />
-              <div className="text-[11px] border border-[#00ff41]/30 p-4 space-y-2 text-left">
-                <div className="text-[#00ff41] font-bold">{'>>>'} 系统已注入 +50 点成长经验</div>
-                <div className={interruptions > 0 ? "text-yellow-500" : "text-[#00ff41]/70"}>- 警告分析: 检测到 {interruptions} 次外来干扰 (自动扣除经验: {interruptions * 5}点)</div>
-                <div className="mt-4 border-t border-[#00ff41]/30 pt-2 text-[#00ff41]/50">建议返回「我的」页面查验黑客等级。</div>
-              </div>
-              <button onClick={() => { setSessionCompleted(false); setMode('rest'); setTimeLeft(5*60); setInterruptions(0); }} className="px-4 py-3 bg-[#00ff41] text-black text-xs font-bold w-full mt-4">
-                进入冷却休眠模式 [ENTER]
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
 
 
 const GossipZone = () => {
@@ -842,23 +366,23 @@ const ScenarioCenter: React.FC = () => {
 
   return (
     <AppLayout title="场景中心" showBack>
-      <div className={cn("pb-16 sm:pb-24 min-h-screen transition-colors duration-700", activeTab === 'self' ? "bg-[#050505]" : "bg-brand-offwhite")}>
+      <div className={cn("pb-16 sm:pb-24 min-h-screen transition-colors duration-700", "bg-brand-offwhite")}>
         {/* ChatGPT Style Header */}
         <header className="px-6 pt-10 sm:pt-16 pb-8 sm:pb-12 text-center max-w-2xl mx-auto">
-          <div className={cn("inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-2xl mb-6 shadow-2xl transform -rotate-3 transition-colors", activeTab === 'self' ? "bg-[#00ff41] text-black" : "bg-brand-dark text-white")}>
+          <div className={cn("inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-2xl mb-6 shadow-2xl transform -rotate-3 transition-colors", "bg-brand-dark text-white")}>
             <Compass size={28} className="sm:hidden" />
             <Compass size={36} className="hidden sm:block" />
           </div>
-          <h1 className={cn("text-3xl sm:text-5xl font-serif font-bold tracking-tight mb-4 transition-colors", activeTab === 'self' ? "text-[#00ff41]" : "text-brand-dark")}>场景中心</h1>
-          <p className={cn("font-medium text-sm sm:text-lg leading-relaxed opacity-70 transition-colors", activeTab === 'self' ? "text-[#00ff41]/70" : "text-brand-gray")}>
+          <h1 className={cn("text-3xl sm:text-5xl font-serif font-bold tracking-tight mb-4 transition-colors", "text-brand-dark")}>场景中心</h1>
+          <p className={cn("font-medium text-sm sm:text-lg leading-relaxed opacity-70 transition-colors", "text-brand-gray")}>
             按业务场景组织，直观展示每个环节下的实用工具。
             从客户沟通到内部审批，全方位提升作业效能。
           </p>
         </header>
 
         {/* Segmented Control Style Tabs */}
-        <div className={cn("px-6 mb-8 sm:mb-16 sticky top-0 z-40 backdrop-blur-md py-4", activeTab === 'self' ? "bg-black/80" : "bg-brand-offwhite/80")}>
-          <div className={cn("max-w-fit mx-auto p-1 rounded-2xl border flex gap-1", activeTab === 'self' ? "bg-[#1a1a1a] border-[#00ff41]/30" : "bg-brand-light-gray/50 border-brand-border/5")}>
+        <div className={cn("px-6 mb-8 sm:mb-16 sticky top-0 z-40 backdrop-blur-md py-4", "bg-brand-offwhite/80")}>
+          <div className={cn("max-w-fit mx-auto p-1 rounded-2xl border flex gap-1", "bg-brand-light-gray/50 border-brand-border/5")}>
             {scenarios.map((s) => (
               <button
                 key={s.id}
@@ -866,11 +390,11 @@ const ScenarioCenter: React.FC = () => {
                 className={cn(
                   "px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl text-[12px] sm:text-[14px] font-bold transition-all duration-500 whitespace-nowrap flex items-center gap-2",
                   activeTab === s.id 
-                    ? (s.id === 'self' ? "bg-[#00ff41] text-black shadow-[0_0_15px_rgba(0,255,65,0.4)] scale-100" : "bg-white text-brand-dark shadow-xl scale-100") 
-                    : (activeTab === 'self' ? "text-[#00ff41]/50 hover:text-[#00ff41] hover:bg-[#00ff41]/10" : "text-brand-gray hover:text-brand-dark hover:bg-white/50")
+                    ? "bg-white text-brand-dark shadow-xl scale-100" 
+                    : "text-brand-gray hover:text-brand-dark hover:bg-white/50"
                 )}
               >
-                <s.icon size={14} className={cn(activeTab === s.id ? (s.id === 'self' ? "text-black" : "text-brand-dark") : "opacity-40")} />
+                <s.icon size={14} className={cn(activeTab === s.id ? "text-brand-dark" : "opacity-40")} />
                 {s.title}
               </button>
             ))}
@@ -896,13 +420,7 @@ const ScenarioCenter: React.FC = () => {
                 )}
 
                 {s.id === 'self' ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10">
-                    <FoodSelector />
-                    <EfficientOffDutyGame />
-                    <FocusTimer />
-                    <GossipZone />
-                    <FengShuiCalendar />
-                  </div>
+                  <ToMyselfSpace />
                 ) : s.id === 'customer' ? (
                   <div className="space-y-8 sm:space-y-12 md:space-y-16">
                     <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
