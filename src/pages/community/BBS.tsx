@@ -196,17 +196,17 @@ const BBSPage: React.FC = () => {
         ) : null}
 
         {/* Stats */}
-        <section className="grid gap-3 md:grid-cols-4">
+        <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {[
             { label: '活跃探针', value: summary?.totalThreads ?? 0, icon: MessageSquare },
             { label: '专题索引', value: summary?.totalTopics ?? 0, icon: Sparkles },
             { label: 'Gossip 暗号', value: summary?.totalGossip ?? 0, icon: Lock },
             { label: '共鸣互动', value: summary?.totalReplies ?? 0, icon: TerminalSquare },
           ].map((item) => (
-            <div key={item.label} className="border border-[#00ff41]/30 bg-[#00ff41]/5 p-4 hover:bg-[#00ff41]/10 transition-colors">
-              <item.icon size={16} className="text-[#00ff41] mb-2" />
-              <div className="text-2xl font-bold text-[#00ff41] drop-shadow-[0_0_8px_rgba(0,255,65,0.8)]">{item.value}</div>
-              <div className="mt-1 text-[10px] uppercase tracking-widest text-[#00ff41]/60">{item.label}</div>
+            <div key={item.label} className="border border-[#00ff41]/30 bg-[#00ff41]/5 p-3 sm:p-4 hover:bg-[#00ff41]/10 transition-colors">
+              <item.icon size={14} className="text-[#00ff41] mb-2" />
+              <div className="text-xl sm:text-2xl font-bold text-[#00ff41] drop-shadow-[0_0_8px_rgba(0,255,65,0.8)]">{item.value}</div>
+              <div className="mt-1 text-[9px] uppercase tracking-widest text-[#00ff41]/60">{item.label}</div>
             </div>
           ))}
         </section>

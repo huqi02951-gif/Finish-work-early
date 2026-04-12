@@ -85,8 +85,8 @@ const CommunityThreadPage: React.FC = () => {
                 {detail.thread.expiresAt ? <span className="text-red-500">EXP // {formatExpiry(detail.thread.expiresAt)}</span> : null}
                 <span>AUTHOR // {detail.thread.author}</span>
               </div>
-              <h1 className="mt-4 text-2xl font-bold text-[#00ff41] shadow-[0_0_8px_rgba(0,255,65,0.2)]">{detail.thread.title}</h1>
-              <p className="mt-5 whitespace-pre-wrap text-sm leading-7 text-[#00ff41]/80">{detail.thread.content}</p>
+              <h1 className="mt-4 text-xl sm:text-2xl font-bold text-[#00ff41] shadow-[0_0_8px_rgba(0,255,65,0.2)]">{detail.thread.title}</h1>
+              <p className="mt-4 sm:mt-5 whitespace-pre-wrap text-xs sm:text-sm leading-6 sm:leading-7 text-[#00ff41]/80">{detail.thread.content}</p>
               <div className="mt-6 flex flex-wrap items-center gap-4 text-[10px] font-bold">
                 <span className="inline-flex items-center gap-1 text-[#00ff41]">
                   <MessageSquare size={13} />
@@ -97,7 +97,7 @@ const CommunityThreadPage: React.FC = () => {
                     type="button"
                     onClick={handlePromote}
                     disabled={promoting}
-                    className="inline-flex items-center gap-2 border border-purple-900/50 bg-purple-950/20 px-3 py-2 text-xs font-bold text-purple-400 transition-colors hover:border-purple-500 hover:bg-purple-900/30 disabled:opacity-50 tracking-widest"
+                    className="inline-flex items-center gap-2 border border-purple-900/50 bg-purple-950/20 px-3 py-2 text-[10px] font-bold text-purple-400 transition-colors hover:border-purple-500 hover:bg-purple-900/30 disabled:opacity-50 tracking-widest"
                   >
                     <Sparkles size={13} />
                     {promoting ? 'PROCESSING...' : 'PROMOTE_TO_TOPIC'}
@@ -105,7 +105,7 @@ const CommunityThreadPage: React.FC = () => {
                 ) : null}
                 <Link
                   to="/bbs"
-                  className="ml-auto text-xs text-[#00ff41]/50 hover:text-[#00ff41] hover:underline uppercase tracking-widest"
+                  className="ml-auto text-[10px] sm:text-xs text-[#00ff41]/50 hover:text-[#00ff41] hover:underline uppercase tracking-widest"
                 >
                   &lt; EXIT_NODE
                 </Link>

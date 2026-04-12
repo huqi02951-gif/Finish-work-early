@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   const isProduction = mode === 'production';
-  const pagesBase = env.VITE_BASE_PATH || '/Finish-work-early/';
+  const pagesBase = env.VITE_BASE_PATH || '/';
 
   return {
     base: isProduction ? pagesBase : '/',
