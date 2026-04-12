@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { Solar } from 'lunar-javascript';
 import { cn } from '../../lib/utils';
+import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber, writeLocalNumber } from '../../lib/localSignals';
 import {
   Settings, X, Check, Plus, Trash2, RotateCcw,
   Coffee, Heart, Zap, Gift, Sparkles,
@@ -22,6 +23,9 @@ const SK = {
 } as const;
 
 function loadNum(key: string, fallback: number) {
+  if (key === SK.SALARY) return readLocalNumber(LOCAL_NUMBER_KEYS.salary, fallback);
+  if (key === SK.XP) return readLocalNumber(LOCAL_NUMBER_KEYS.xp, fallback);
+  if (key === SK.TREES) return readLocalNumber(LOCAL_NUMBER_KEYS.trees, fallback);
   const raw = localStorage.getItem(key);
   const v = Number(raw);
   return raw !== null && !isNaN(v) ? v : fallback;
@@ -32,7 +36,7 @@ function loadJSON<T>(key: string, fallback: T): T {
 }
 // Emit XP change so all modules stay in sync via a custom event
 function emitXP(next: number) {
-  localStorage.setItem(SK.XP, String(next));
+  writeLocalNumber(LOCAL_NUMBER_KEYS.xp, next);
   window.dispatchEvent(new CustomEvent('cl_xp', { detail: next }));
 }
 
@@ -91,7 +95,7 @@ const SalaryMonitor: React.FC = () => {
     return () => clearInterval(id);
   }, []);
 
-  useEffect(() => { localStorage.setItem(SK.SALARY, String(salary)); }, [salary]);
+  useEffect(() => { writeLocalNumber(LOCAL_NUMBER_KEYS.salary, salary); }, [salary]);
 
   const { startMin, endMin } = useMemo(() => {
     const [sh, sm] = workStart.split(':').map(Number);
@@ -525,7 +529,7 @@ const FocusTimer: React.FC<{ onXPChange: (next: number) => void; xp: number }> =
       if (phase === 'work') {
         const next = sessions + 1;
         setSessions(next);
-        localStorage.setItem(SK.TREES, String(next));
+        writeLocalNumber(LOCAL_NUMBER_KEYS.trees, next);
         onXPChange(xp + 50);
         setTimeout(() => {
           setPhase('break');
@@ -955,6 +959,7 @@ const GossipBoard: React.FC = () => {
 // ─── MAIN: ToMyselfSpace ──────────────────────────────────────────────────────
 export default function ToMyselfSpace() {
   const [xp, setXpState] = useState(() => loadNum(SK.XP, 8420));
+  const [trees, setTrees] = useState(() => loadNum(SK.TREES, 0));
 
   // Listen for XP changes from any submodule
   useEffect(() => {
@@ -963,13 +968,13 @@ export default function ToMyselfSpace() {
     return () => window.removeEventListener('cl_xp', handler);
   }, []);
 
+  useEffect(() => subscribeLocalNumber(LOCAL_NUMBER_KEYS.trees, 0, setTrees), []);
+
   const handleXPChange = useCallback((next: number) => {
     const v = Math.max(0, next);
     emitXP(v);
     setXpState(v);
   }, []);
-
-  const trees = loadNum(SK.TREES, 0);
 
   return (
     <div className="w-full max-w-5xl mx-auto pb-10 space-y-5">

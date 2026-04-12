@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Image, Tag, Send, X, AlertCircle } from 'lucide-react';
+import { Image, Tag, Send, AlertCircle, Lock } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiService } from '../services/api';
 import { cn } from '../../lib/utils';
@@ -13,6 +13,7 @@ const Publish: React.FC = () => {
   const [category, setCategory] = useState('经验分享');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const redirectTimerRef = useRef<number | null>(null);
 
   const categories = ['政策解读', '业务打法', '经验分享', '行业动态'];
 
@@ -25,7 +26,7 @@ const Publish: React.FC = () => {
       // Future: POST to /api/posts
       await apiService.createPost({ title, content, category });
       setShowSuccess(true);
-      setTimeout(() => navigate('/feed'), 1500);
+      redirectTimerRef.current = window.setTimeout(() => navigate('/feed'), 1500);
     } catch (error) {
       console.error('Failed to publish:', error);
     } finally {
@@ -33,9 +34,23 @@ const Publish: React.FC = () => {
     }
   };
 
+  React.useEffect(() => {
+    return () => {
+      if (redirectTimerRef.current !== null) {
+        window.clearTimeout(redirectTimerRef.current);
+      }
+    };
+  }, []);
+
   return (
     <AppLayout title="发布内容">
       <div className="px-4 py-6">
+        <div className="mb-4 px-4 py-3 bg-amber-50 border border-amber-200/60 rounded-2xl flex items-start gap-3">
+          <span className="text-sm">🧪</span>
+          <p className="text-[11px] text-amber-700 font-medium leading-relaxed">
+            当前为本地演示发布模式。你发布的内容会立即保存在当前浏览器，并出现在“发现”页，不会提交到真实社区或审核系统。
+          </p>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in-up">
           {/* Category Selection */}
           <div className="space-y-3">
@@ -86,20 +101,34 @@ const Publish: React.FC = () => {
 
           {/* Media Upload Placeholder */}
           <div className="flex gap-4">
-            <button type="button" className="flex items-center gap-2 px-4 py-2 bg-brand-light-gray rounded-xl text-xs font-bold text-brand-gray opacity-60 hover:opacity-100 transition-all">
-              <Image size={16} /> 添加图片
+            <button
+              type="button"
+              disabled
+              title="当前前端-only 版本暂未开放图片上传"
+              className="flex items-center gap-2 px-4 py-2 bg-brand-light-gray rounded-xl text-xs font-bold text-brand-gray opacity-50 cursor-not-allowed"
+            >
+              <Image size={16} /> 图片上传未开放
             </button>
-            <button type="button" className="flex items-center gap-2 px-4 py-2 bg-brand-light-gray rounded-xl text-xs font-bold text-brand-gray opacity-60 hover:opacity-100 transition-all">
-              <Tag size={16} /> 添加标签
+            <button
+              type="button"
+              disabled
+              title="当前前端-only 版本暂未开放标签编辑"
+              className="flex items-center gap-2 px-4 py-2 bg-brand-light-gray rounded-xl text-xs font-bold text-brand-gray opacity-50 cursor-not-allowed"
+            >
+              <Tag size={16} /> 标签编辑未开放
             </button>
           </div>
 
-          {/* Audit Notice */}
+          {/* Local Demo Notice */}
           <div className="p-4 bg-brand-gold/5 border border-brand-gold/10 rounded-2xl flex gap-3">
             <AlertCircle size={18} className="text-brand-gold shrink-0" />
             <p className="text-[11px] text-brand-dark/70 leading-relaxed font-medium">
-              发布的内容将进入<span className="text-brand-gold font-bold">待审核</span>状态，审核通过后将展示在发现页。请确保内容合规。
+              发布后将<span className="text-brand-gold font-bold">直接保存到当前浏览器</span>并展示在“发现”页，用于前端演示与个人整理，不会发送到线上审核流程。
             </p>
+          </div>
+          <div className="flex items-center gap-2 text-[11px] text-brand-gray/70 px-1">
+            <Lock size={14} className="text-brand-gray/50" />
+            <span>当前可用能力：本地保存、发现页展示。图片、标签、真实社区分发暂未接入。</span>
           </div>
 
           {/* Submit Button */}
@@ -128,7 +157,7 @@ const Publish: React.FC = () => {
               <Send size={32} />
             </div>
             <h3 className="text-xl font-serif text-brand-dark">发布成功</h3>
-            <p className="text-sm text-brand-gray font-medium">内容已提交审核，请耐心等待。</p>
+            <p className="text-sm text-brand-gray font-medium">内容已保存到当前浏览器的本地发现页。</p>
           </div>
         </div>
       )}

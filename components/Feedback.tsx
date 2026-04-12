@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { MessageSquare, Send, CheckCircle2, AlertCircle, Sparkles, UserPlus, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
 import AppLayout from '../src/components/layout/AppLayout';
+import { saveLocalPost } from '../lib/localDB';
 
 const Feedback: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<'pain' | 'feature' | 'co-create' | 'trial'>('pain');
 
   const tabs = [
@@ -14,10 +16,34 @@ const Feedback: React.FC = () => {
     { id: 'trial', label: '申请试用', icon: UserPlus, desc: '申请加入内测名单，优先体验最新 Skills。' },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 5000);
+    setIsSubmitting(true);
+    try {
+      const formData = new FormData(e.currentTarget);
+      const name = String(formData.get('name') || '').trim();
+      const contact = String(formData.get('contact') || '').trim();
+      const department = String(formData.get('department') || '').trim();
+      const detail = String(formData.get('detail') || '').trim();
+
+      await saveLocalPost({
+        type: 'feedback',
+        title: tabs.find((tab) => tab.id === activeTab)?.label || '反馈',
+        content: detail,
+        author: name || '匿名用户',
+        likes: 0,
+        metadata: {
+          activeTab,
+          contact,
+          department,
+        },
+      });
+
+      setSubmitted(true);
+      e.currentTarget.reset();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -30,6 +56,9 @@ const Feedback: React.FC = () => {
             每一个伟大的 Skill 都源自一线的真实痛点。
             我们期待你的声音，无论是吐槽、建议还是共创申请。
           </p>
+          <div className="mt-4 px-4 py-3 bg-amber-50 border border-amber-200/60 rounded-2xl text-[11px] text-amber-700 font-medium leading-relaxed">
+            当前为本地演示模式。你提交的内容会保存在当前浏览器，便于后续整理和演示，不会自动发送给项目组。
+          </div>
         </header>
 
         <div className="px-6 space-y-8">
@@ -62,7 +91,7 @@ const Feedback: React.FC = () => {
                 </div>
                 <h3 className="text-2xl font-bold text-brand-dark mb-2 tracking-tight">提交成功！</h3>
                 <p className="text-brand-gray text-sm font-medium mb-8 max-w-xs mx-auto">
-                  感谢你的反馈。我们的项目组将在 3 个工作日内进行评估并与你取得联系。
+                  内容已保存到当前浏览器的本地反馈记录中，可作为后续整理和产品规划素材。
                 </p>
                 <button 
                   onClick={() => setSubmitted(false)}
@@ -76,7 +105,8 @@ const Feedback: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest ml-1">姓名</label>
-                    <input 
+                    <input
+                      name="name"
                       required
                       type="text" 
                       placeholder="请输入姓名" 
@@ -85,7 +115,8 @@ const Feedback: React.FC = () => {
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest ml-1">联系方式</label>
-                    <input 
+                    <input
+                      name="contact"
                       required
                       type="text" 
                       placeholder="手机或邮箱" 
@@ -96,7 +127,8 @@ const Feedback: React.FC = () => {
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest ml-1">所属机构/部门</label>
-                  <input 
+                  <input
+                    name="department"
                     required
                     type="text" 
                     placeholder="例如：XX分行 XX支行 普惠金融部" 
@@ -108,7 +140,8 @@ const Feedback: React.FC = () => {
                   <label className="text-[10px] font-bold text-brand-gray uppercase tracking-widest ml-1">
                     {activeTab === 'pain' ? '痛点描述' : activeTab === 'feature' ? '建议内容' : activeTab === 'co-create' ? '共创意向' : '申请理由'}
                   </label>
-                  <textarea 
+                  <textarea
+                    name="detail"
                     required
                     rows={5}
                     placeholder={activeTab === 'pain' ? '请描述你在业务中遇到的繁琐、重复性工作，以及你希望如何被解决...' : '请输入详细内容...'}
@@ -118,13 +151,17 @@ const Feedback: React.FC = () => {
 
                 <div className="pt-4">
                   <button 
-                    type="submit" 
-                    className="w-full py-4 bg-brand-dark text-white rounded-2xl font-bold text-sm hover:opacity-95 transition-all shadow-xl shadow-brand-dark/10 flex items-center justify-center gap-2"
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={cn(
+                      "w-full py-4 bg-brand-dark text-white rounded-2xl font-bold text-sm transition-all shadow-xl shadow-brand-dark/10 flex items-center justify-center gap-2",
+                      isSubmitting ? "opacity-60 cursor-not-allowed" : "hover:opacity-95",
+                    )}
                   >
-                    <Send size={18} /> 立即提交
+                    <Send size={18} /> {isSubmitting ? '保存中...' : '保存到本地'}
                   </button>
                   <p className="mt-4 text-center text-[10px] text-brand-gray font-medium">
-                    提交即代表你同意项目组在必要时与你联系以进一步了解详情。
+                    当前不会自动发给项目组；这是浏览器本地保存，用于梳理需求和演示流程。
                   </p>
                 </div>
               </form>

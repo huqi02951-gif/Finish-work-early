@@ -48,6 +48,7 @@ export interface LocalPost {
   content: string;
   author?: string;
   likes: number;
+  metadata?: Record<string, any>;
   createdAt: Date;
 }
 
@@ -119,4 +120,17 @@ export async function getRecentArtifacts(toolId?: string, limit = 20) {
 /** 获取工具的草稿列表 */
 export async function getDrafts(toolId: string) {
   return db.drafts.where('toolId').equals(toolId).reverse().sortBy('updatedAt');
+}
+
+/** 保存一条本地帖子/反馈 */
+export async function saveLocalPost(input: Omit<LocalPost, 'id' | 'createdAt'>) {
+  return db.posts.add({
+    ...input,
+    createdAt: new Date(),
+  });
+}
+
+/** 获取本地帖子/反馈 */
+export async function getLocalPosts(type: LocalPost['type']) {
+  return db.posts.where('type').equals(type).reverse().sortBy('createdAt');
 }

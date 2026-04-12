@@ -9,6 +9,7 @@ import { apiService } from '../services/api';
 import { User as UserType } from '../types';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber } from '../../lib/localSignals';
 
 // --- Cyberpunk / CLI Components ---
 
@@ -84,9 +85,9 @@ const Profile: React.FC = () => {
   const [now, setNow] = useState(new Date());
   
   // Game state
-  const [monthlySalary, setMonthlySalary] = useState(() => Number(localStorage.getItem('cl_monthly_salary')) || 6200);
-  const [xp, setXp] = useState(() => Number(localStorage.getItem('cl_hacker_xp')) || 8420);
-  const [trees, setTrees] = useState(() => Number(localStorage.getItem('cl_hacker_trees')) || 0);
+  const [monthlySalary, setMonthlySalary] = useState(() => readLocalNumber(LOCAL_NUMBER_KEYS.salary, 6200));
+  const [xp, setXp] = useState(() => readLocalNumber(LOCAL_NUMBER_KEYS.xp, 8420));
+  const [trees, setTrees] = useState(() => readLocalNumber(LOCAL_NUMBER_KEYS.trees, 0));
   const [level, setLevel] = useState(1);
   const nextLevelXp = level * 10000;
   const xpPercent = (xp % 10000) / 10000 * 100;
@@ -97,13 +98,14 @@ const Profile: React.FC = () => {
   }, [xp]);
 
   useEffect(() => {
-    const handleStorage = () => {
-      setMonthlySalary(Number(localStorage.getItem('cl_monthly_salary')) || 6200);
-      setXp(Number(localStorage.getItem('cl_hacker_xp')) || 8420);
-      setTrees(Number(localStorage.getItem('cl_hacker_trees')) || 0);
+    const unsubscribers = [
+      subscribeLocalNumber(LOCAL_NUMBER_KEYS.salary, 6200, setMonthlySalary),
+      subscribeLocalNumber(LOCAL_NUMBER_KEYS.xp, 8420, setXp),
+      subscribeLocalNumber(LOCAL_NUMBER_KEYS.trees, 0, setTrees),
+    ];
+    return () => {
+      unsubscribers.forEach((unsubscribe) => unsubscribe());
     };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   useEffect(() => {

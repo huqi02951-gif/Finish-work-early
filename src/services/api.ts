@@ -1,6 +1,7 @@
 
 import { MOCK_USER, MOCK_POSTS, MOCK_NOTIFICATIONS } from '../mock/data';
 import { Post, Notification, User } from '../types';
+import { getLocalPosts, saveLocalPost } from '../../lib/localDB';
 
 /**
  * API Service Layer
@@ -19,35 +20,66 @@ export const apiService = {
 
   // Post APIs
   getPosts: async (category?: string): Promise<Post[]> => {
-    // Future: GET /api/posts?category=${category}
-    let posts = [...MOCK_POSTS];
+    const localPosts = await getLocalPosts('feed');
+    const posts = [
+      ...localPosts.map((post): Post => ({
+        id: `local-${post.id}`,
+        userId: 'local-user',
+        title: post.title || '未命名内容',
+        content: post.content,
+        category: String(post.metadata?.category || '经验分享'),
+        tags: Array.isArray(post.metadata?.tags) ? post.metadata.tags : [],
+        images: Array.isArray(post.metadata?.images) ? post.metadata.images : [],
+        status: 'published',
+        createdAt: post.createdAt.toISOString(),
+        updatedAt: post.createdAt.toISOString(),
+        author: {
+          ...MOCK_USER,
+          id: 'local-user',
+          nickname: post.author || '当前浏览器',
+        },
+      })),
+      ...MOCK_POSTS,
+    ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
     if (category) {
-      posts = posts.filter(p => p.category === category);
+      return posts.filter(p => p.category === category);
     }
-    return Promise.resolve(posts);
+    return posts;
   },
 
   getPostById: async (id: string): Promise<Post | undefined> => {
-    // Future: GET /api/posts/${id}
-    return Promise.resolve(MOCK_POSTS.find(p => p.id === id));
+    const posts = await apiService.getPosts();
+    return posts.find(p => p.id === id);
   },
 
   createPost: async (post: Partial<Post>): Promise<Post> => {
-    // Future: POST /api/posts
     const newPost: Post = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: `local-${Math.random().toString(36).slice(2, 11)}`,
       userId: MOCK_USER.id,
       title: post.title || '',
       content: post.content || '',
       category: post.category || '未分类',
       tags: post.tags || [],
       images: post.images || [],
-      status: 'pending', // Default to pending for audit
+      status: 'published',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       author: MOCK_USER,
     };
-    return Promise.resolve(newPost);
+    await saveLocalPost({
+      type: 'feed',
+      title: newPost.title,
+      content: newPost.content,
+      author: MOCK_USER.nickname,
+      likes: 0,
+      metadata: {
+        category: newPost.category,
+        tags: newPost.tags,
+        images: newPost.images,
+      },
+    });
+    return newPost;
   },
 
   // Notification APIs

@@ -186,9 +186,19 @@ const BBSCenter: React.FC = () => {
 
   const hotTags = ['#长融保实战', '#利率战', '#专精特新', '#系统优化', '#吐槽大会', '#行业情报'];
 
-  const filteredPosts = activeCategory === '全部' 
-    ? posts 
-    : posts.filter(p => p.category === activeCategory);
+  const filteredPosts = posts.filter((post) => {
+    const matchesCategory = activeCategory === '全部' || post.category === activeCategory;
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    const matchesQuery = !normalizedQuery || [
+      post.title,
+      post.summary,
+      post.author,
+      post.category,
+      ...post.tags,
+    ].some((value) => value.toLowerCase().includes(normalizedQuery));
+    const matchesVisibility = !isAnonymousMode || post.isAnonymous;
+    return matchesCategory && matchesQuery && matchesVisibility;
+  });
 
   const getHotColor = (value: number) => {
     if (value >= 95) return 'text-[#ff0040]';
@@ -318,8 +328,13 @@ const BBSCenter: React.FC = () => {
                 </button>
               </div>
               
-              <button className="flex items-center gap-1.5 px-4 py-2 bg-[#00ff41]/10 border border-[#00ff41]/20 rounded-lg font-mono font-bold text-[10px] text-[#00ff41] hover:bg-[#00ff41]/20 active:scale-95 transition-all shadow-[0_0_15px_rgba(0,255,65,0.08)]">
-                <Plus className="w-3 h-3" /> NEW POST
+              <button
+                type="button"
+                disabled
+                title="当前前端-only 版本暂未开放 BBS 发帖"
+                className="flex items-center gap-1.5 px-4 py-2 bg-white/[0.03] border border-white/8 rounded-lg font-mono font-bold text-[10px] text-white/25 cursor-not-allowed"
+              >
+                <Plus className="w-3 h-3" /> READ ONLY
               </button>
             </div>
           </div>
