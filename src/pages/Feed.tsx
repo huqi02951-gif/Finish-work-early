@@ -5,6 +5,7 @@ import AppLayout from '../components/layout/AppLayout';
 import { apiService } from '../services/api';
 import { Post } from '../types';
 import { cn } from '../../lib/utils';
+import InitialBadge from '../components/common/InitialBadge';
 
 const Feed: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -121,32 +122,29 @@ const Feed: React.FC = () => {
           </div>
         ) : visiblePosts.length > 0 ? (
           visiblePosts.map((post) => (
-            <div key={post.id} className="bg-white rounded-2xl border border-brand-border/10 shadow-sm overflow-hidden animate-fade-in-up">
-              {/* Post Header */}
+            <div key={post.id} className="bg-white rounded-md border border-brand-border/40 shadow-sm animate-fade-in-up">
               <div className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-brand-light-gray overflow-hidden">
-                  <img src={post.author?.avatar} alt={post.author?.nickname} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                </div>
+                <InitialBadge label={post.author?.nickname || '本地'} />
                 <div>
                   <h4 className="text-sm font-bold text-brand-dark">{post.author?.nickname}</h4>
                   <p className="text-[10px] text-brand-gray font-medium opacity-60">{new Date(post.createdAt).toLocaleDateString()} • {post.category}</p>
                 </div>
               </div>
 
-              {/* Post Content */}
               <div className="px-4 pb-2">
                 <h3 className="text-base font-bold text-brand-dark mb-2">{post.title}</h3>
-                <p className="text-sm text-brand-gray line-clamp-3 leading-relaxed">{post.content}</p>
+                <p className="text-sm text-brand-gray line-clamp-4 leading-relaxed">{post.content}</p>
+                {post.tags.length > 0 ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {post.tags.map((tag) => (
+                      <span key={tag} className="rounded-md border border-brand-border/50 px-2 py-1 text-[11px] text-brand-gray">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
               </div>
 
-              {/* Post Image */}
-              {post.images.length > 0 && (
-                <div className="mt-2 aspect-video w-full bg-brand-light-gray">
-                  <img src={post.images[0]} alt="Post" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                </div>
-              )}
-
-              {/* Post Footer */}
               <div className="p-4 border-t border-brand-border/5 flex items-center justify-between">
                 <div className="flex items-center gap-6">
                   <button

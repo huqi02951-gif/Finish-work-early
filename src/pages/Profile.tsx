@@ -10,6 +10,7 @@ import { User as UserType } from '../types';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber } from '../../lib/localSignals';
+import InitialBadge from '../components/common/InitialBadge';
 
 // --- Cyberpunk / CLI Components ---
 
@@ -189,16 +190,8 @@ const Profile: React.FC = () => {
             </div>
             
             <div className="flex gap-4 items-start">
-              <div className="w-16 h-16 border-2 border-[#00ff41]/50 p-1 shrink-0 relative group cursor-pointer overflow-hidden bg-[#0A1A0F]">
-                <img 
-                  src={user?.avatar || 'https://picsum.photos/seed/hacker/200/200'} 
-                  alt="avatar" 
-                  className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all mix-blend-luminosity"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-[#00ff41]/20 mix-blend-overlay group-hover:opacity-0 transition-opacity"></div>
-                {/* Glitch overlay on hover */}
-                <div className="absolute -inset-1 bg-[#00ff41] opacity-0 group-hover:opacity-20 group-hover:clip-glitch-1 mix-blend-overlay pointer-events-none"></div>
+              <div className="w-16 h-16 border-2 border-[#00ff41]/50 shrink-0 relative grid place-items-center bg-[#0A1A0F]">
+                <InitialBadge label={user?.nickname || '暗网匿名者'} tone="cyber" className="h-12 w-12 text-sm" />
               </div>
               
               <div className="flex-grow space-y-1">

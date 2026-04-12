@@ -1,7 +1,6 @@
 import React from 'react';
 import { HashRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout';
-import BBSCenter from '../components/BBSCenter';
 import Feedback from '../components/Feedback';
 import MaterialChecklistCenter from '../components/MaterialChecklistCenter';
 import ScenarioCenter from '../components/ScenarioCenter';
@@ -22,6 +21,9 @@ import MessagesPage from './pages/Messages';
 import ProfilePage from './pages/Profile';
 import PublishPage from './pages/Publish';
 import WorkspacePage from './pages/Workspace';
+import BBSPage from './pages/community/BBS';
+import CommunityThreadPage from './pages/community/CommunityThread';
+import CommunityTopicPage from './pages/community/CommunityTopic';
 
 /* ─── 404 Not Found ─── */
 const NotFoundPage = () => (
@@ -69,7 +71,9 @@ const App: React.FC = () => {
         {/* ─── 信息页（组件内自带 AppLayout） ─── */}
         <Route path="/updates" element={<UpdateLog />} />
         <Route path="/feedback" element={<Feedback />} />
-        <Route path="/bbs" element={<BBSCenter />} />
+        <Route path="/bbs" element={<BBSPage />} />
+        <Route path="/bbs/thread/:id" element={<CommunityThreadPage />} />
+        <Route path="/bbs/topic/:id" element={<CommunityTopicPage />} />
         <Route path="/instructions" element={<AppLayout title="使用说明" showBack><UsageInstructions /></AppLayout>} />
 
         {/* ─── 工作台 ─── */}

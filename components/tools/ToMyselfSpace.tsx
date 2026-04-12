@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Solar } from 'lunar-javascript';
 import { cn } from '../../lib/utils';
 import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber, writeLocalNumber } from '../../lib/localSignals';
+import { createSelfGossipThread } from '../../lib/community';
 import {
   Settings, X, Check, Plus, Trash2, RotateCcw,
   Coffee, Heart, Zap, Gift, Sparkles,
@@ -898,6 +899,7 @@ const GossipBoard: React.FC = () => {
     if (!text) return;
     const c = NOTE_COLORS[notes.length % NOTE_COLORS.length];
     setNotes(prev => [{ id: Date.now(), text, color: c.bg }, ...prev].slice(0, 9));
+    void createSelfGossipThread(text);
     setInput('');
   };
 
