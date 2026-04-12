@@ -73,7 +73,7 @@ const Home: React.FC = () => {
               今天想处理什么业务？
             </h1>
             <p className="text-base sm:text-lg text-brand-gray/80 font-normal max-w-md mx-auto leading-relaxed">
-              选择一个场景，让专业能力信手拈来。
+              让工具拳拳到肉，让专业能力信手拈来。
             </p>
           </motion.div>
 

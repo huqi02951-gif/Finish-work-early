@@ -66,15 +66,14 @@ const cdb = new CommunityDB();
 
 // ─── 种子数据 ──────────────────────────────────
 
-const SEED_KEY = 'fwe:community-seeded';
+const SEED_KEY = 'fwe:community-seeded-v2';
 
 async function ensureSeed() {
   if (localStorage.getItem(SEED_KEY) === '1') return;
-  const count = await cdb.threads.count();
-  if (count > 0) {
-    localStorage.setItem(SEED_KEY, '1');
-    return;
-  }
+  
+  // Clear old data when upgrading to v2 seeds
+  await cdb.threads.clear();
+  await cdb.replies.clear();
 
   const now = new Date();
   const h = (hours: number) => new Date(now.getTime() - hours * 3600_000);
@@ -83,83 +82,126 @@ async function ensureSeed() {
   const seeds: CommunityEntry[] = [
     {
       uid: crypto.randomUUID(),
-      title: '手把手教：对公信贷系统全流程操作指南 (2026修订版)',
+      title: '如何营销高新制造企业进门打法 (避雷版)',
       content:
-        '各位新入行的客户经理：很多新手卡在贷前和审查录入环节。主要流程：\n1. 客户建档与评级：先走对公信息维护，确保财报导入正确。\n2. 发起授信申请：必须挂接最新的评级结果，审查意见里"是否新增授信"选是。\n3. 如果卡在【补充退回】：不需要撤销全流程！直接在待办页面选补充材料节点提交即可。\n有问题的直接下面回帖，每天下班前解答。',
+        '这周跑了三家高新制造企业，总结了几条进门话术和避雷点。千万别一上来就提流贷，没人缺你那点钱。切入点要放在“设备更新补贴”和“长易担的简易备案流程”上，告诉他们审批能在3天内走完。同时一定要前置看下纳税评级，别跑到最后发现是个C。',
       channel: '经验分享',
       author: '实名认证-张经理',
       anonymous: false,
       kind: 'thread',
-      likes: 42,
-      replyCount: 5,
+      likes: 65,
+      replyCount: 3,
       createdAt: h(24),
     },
     {
       uid: crypto.randomUUID(),
-      title: '银承汇票贴现业务具体操作步骤 (新手防坑必读)',
+      title: '对公批量打款/批量开户操作最后一步最容易错的事项总结',
       content:
-        '今天跑完了一笔3000万的银承贴现，把操作步骤固化下来供参考：\n\n一、前置检查\n1. 承兑行是否在总行准入白名单内（这是坑！有些城商行额度刚用满）。\n2. 贸易背景真实性：发票日期必须在汇票出票日之前或差不多，合同要验原件。\n\n二、系统操作\n主系统 -> 票据业务 -> 银承贴现申请 -> 输入票号自动跳出票面信息 -> 这里的[利率审批表]附件必须是双签版，否则复核必退回！\n如果报错"票据状态异常"，先让客户在网银点一下"贴现签收"，系统有20分钟延迟。',
-      channel: '系统操作',
-      author: '实名认证-李行长',
+        '各位刚入手对公的姐妹们看过来：批量开户上传明细表的时候，表头的格式一定不能动！尤其是身份证号那一列必须要设为文本格式，不然会有科学计数法导致校验全军覆没！还有，打款前让客户一定要先在网银上做一次小额测试验证，退票真的很麻烦！',
+      channel: '经验分享',
+      author: '网点-王主管',
       anonymous: false,
       kind: 'thread',
-      likes: 128,
-      replyCount: 12,
-      createdAt: h(12),
-    },
-    {
-      uid: crypto.randomUUID(),
-      title: '授信审批「一次退回不用重走全流程」的操作路径',
-      content:
-        '上周试了一下：如果审查只是退补材料而不是否决，系统里选「补充退回」而不是「审批退回」，客户经理端会保留已填信息，改完直接重新提交。之前一直不知道这两个按钮的区别，白白多走了好几次全流程。分享给大家参考。',
-      channel: '系统操作',
-      author: '实名认证-陈经理',
-      anonymous: false,
-      kind: 'thread',
-      likes: 85,
+      likes: 124,
       replyCount: 2,
-      createdAt: h(36),
-    },
-    {
-      uid: crypto.randomUUID(),
-      title: '合规预警：近期查严的几个贷款资金流向问题',
-      content:
-        '接分行通知，最近重点查这三个流向：\n1. 贷款发放后直接转入房地产开发企业账户。\n2. 流贷转入证券公司、理财公司。\n3. 小微贷款转入个人账户再购买豪车/私募。\n各位放款后7天内的受托支付凭证一定要看仔细了，不要只看第一手的流水，务必穿透查三层！',
-      channel: '合规探讨',
-      author: '合规部-王专员',
-      anonymous: false,
-      kind: 'thread',
-      likes: 67,
-      replyCount: 8,
       createdAt: h(5),
     },
     {
       uid: crypto.randomUUID(),
-      title: '',
-      content: '食堂三楼的麻辣烫今天加了新的菌菇拼盘，意外好吃，推荐。',
+      title: '厂工宝盒、长易担目前碰到的雷区及退件汇总专题',
+      content:
+        '汇总了分行最近长易担被退件的几个高频原因：\n1. 营授比超标，强行包装。\n2. 中小担白名单未准入直接发起了流程。\n3. 高新资质正在重新认定期内，没提供有效期延续证明。\n遇到这些情况应该怎么补救，建议都进来看看，持续更新。',
+      channel: '专题',
+      author: '审查部-老李',
+      anonymous: false,
+      kind: 'topic',
+      likes: 88,
+      replyCount: 2,
+      createdAt: h(20),
+    },
+    {
+      uid: crypto.randomUUID(),
+      title: '新人入行手册：如何使用工具解放双手？（具体每个工具保姆级剖析）',
+      content:
+        '刚入行怎么不熬夜？巧用工作台的工具！\n比如“利率优惠签报智能生成”，你只要输入客户名和痛点，它自动写官话，直接复制进OA，能省出半小时；再比如“敏感沟通助手”，催款怎么催得不伤和气，直接选语气生成发给客户就行。手把手帖子见评论区。',
+      channel: '专题',
+      author: '实名认证-陈行长',
+      anonymous: false,
+      kind: 'topic',
+      likes: 210,
+      replyCount: 0,
+      createdAt: h(48),
+    },
+    {
+      uid: crypto.randomUUID(),
+      title: '姐妹们有没有听说过XXD的瓜吗？',
+      content: '听说是上次去分中心汇报的时候因为什么指标的事大吵了一架？有人知道内情吗？吃瓜吃到一半好捉急。',
       channel: 'Gossip 贴板',
       author: '匿名节点',
       anonymous: true,
       kind: 'gossip',
-      likes: 5,
-      replyCount: 0,
-      expiresAt: exp(22),
-      source: 'self_gossip',
+      likes: 45,
+      replyCount: 2,
+      expiresAt: exp(4),
+      source: 'bbs',
+      createdAt: h(2),
+    },
+    {
+      uid: crypto.randomUUID(),
+      title: '客户经理的最新定级管理办法太不合理了！',
+      content: '凭什么我拼死拼活做进来的大额低成本存款就不计入核心评级了？难道只有放贷款算业绩？有没有人知道怎么才能在新办法下拿到高奖金？心累。',
+      channel: '匿名吐槽',
+      author: '匿名查水表',
+      anonymous: true,
+      kind: 'dark',
+      likes: 130,
+      replyCount: 1,
+      expiresAt: exp(8),
+      source: 'bbs',
+      createdAt: h(10),
+    },
+    {
+      uid: crypto.randomUUID(),
+      title: '闲置出个大F机械键盘和人体工学椅，救救老腰',
+      content: '退坑不当牛马了（不是）。换新装备，一把青轴FILCO和一把网易严选的椅子，500打包带走，或者请我喝10杯瑞幸生椰拿铁也行。同城自提。',
+      channel: '二手交易',
+      author: '键盘侠节点',
+      anonymous: true,
+      kind: 'dark',
+      likes: 8,
+      replyCount: 1,
+      expiresAt: exp(24),
+      source: 'bbs',
+      createdAt: h(3),
+    },
+    {
+      uid: crypto.randomUUID(),
+      title: '今年大家的工资发了多少？真的降了吗？',
+      content: '坐标某支行，怎么感觉上个月的绩效比去年同期缩水了30%...是不是因为大盘指标没完成所以统扣了？好焦虑啊。',
+      channel: 'Gossip 贴板',
+      author: '匿名破防',
+      anonymous: true,
+      kind: 'gossip',
+      likes: 315,
+      replyCount: 1,
+      expiresAt: exp(12),
+      source: 'bbs',
       createdAt: h(1),
     },
     {
       uid: crypto.randomUUID(),
-      title: '新人入行 30 天实战手册',
-      content:
-        '汇总了入行第一个月最高频遇到的 12 个场景（开户、授信、银承、利率签报……），每个场景附上操作路径和避坑点。持续更新中，欢迎补充。',
-      channel: '专题',
+      title: '去武汉出差的报销流程现在怎么走？求推荐咖啡店',
+      content: '明天要去武汉分行跟进个项目，现在跨省出差审批需要在新OA走哪条线？另外有姐妹知道那边哪家咖啡馆或者甜点好吃又有格调的吗？（能开正规餐饮专票的最好哈哈）',
+      channel: 'Gossip 贴板',
       author: '当前浏览器',
-      anonymous: false,
-      kind: 'topic',
-      likes: 18,
-      replyCount: 6,
-      createdAt: h(48),
-    },
+      anonymous: true,
+      kind: 'gossip',
+      likes: 12,
+      replyCount: 1,
+      expiresAt: exp(24),
+      source: 'bbs',
+      createdAt: h(5),
+    }
   ];
 
   await cdb.threads.bulkAdd(seeds);
@@ -170,27 +212,107 @@ async function ensureSeed() {
     {
       uid: crypto.randomUUID(),
       threadId: threadUids[0],
-      content: '真的有用！之前每次都要重新填一遍，太痛苦了。',
-      author: '当前浏览器',
+      content: '真的！第一句切入点太重要了，前两天去谈一家科技企业，刚说可以做贷款就被赶出来了...',
+      author: '李小妹',
+      anonymous: false,
+      createdAt: h(20),
+    },
+    {
+      uid: crypto.randomUUID(),
+      threadId: threadUids[0],
+      content: '请教下张经理，如果对方说自己有交行的低息贷了，我们还有什么突破口吗？',
+      author: '匿名节点',
+      anonymous: true,
+      createdAt: h(18),
+    },
+    {
+      uid: crypto.randomUUID(),
+      threadId: threadUids[0],
+      content: '回复楼上：用“政策性增信”的额度来打，交行的敞口额度不用占用，这个是纯新增的额度。',
+      author: '实名认证-张经理',
+      anonymous: false,
+      createdAt: h(15),
+    },
+    {
+      uid: crypto.randomUUID(),
+      threadId: threadUids[1],
+      content: '补充一下，科学计数法那个太坑了，上周整整导错了一下午。',
+      author: '匿名节点',
+      anonymous: true,
+      createdAt: h(3),
+    },
+    {
+      uid: crypto.randomUUID(),
+      threadId: threadUids[1],
+      content: '谢谢王姐救命之恩！',
+      author: '实名认证-小王',
       anonymous: false,
       createdAt: h(2),
     },
     {
       uid: crypto.randomUUID(),
-      threadId: threadUids[0],
-      content: '补充一下：如果涉及担保变更，还是得走全流程，这个快捷方式只适用于补材料。',
-      author: '匿名节点',
+      threadId: threadUids[2],
+      content: '昨天刚因为漏了高新证书延续被退件，老李总结得太准了。',
+      author: '匿名大冤种',
+      anonymous: true,
+      createdAt: h(10),
+    },
+    {
+      uid: crypto.randomUUID(),
+      threadId: threadUids[2],
+      content: '如果是营授比超了一点点，有什么话术能在审查那边通过吗？',
+      author: '想放款想疯了',
+      anonymous: true,
+      createdAt: h(8),
+    },
+    {
+      uid: crypto.randomUUID(),
+      threadId: threadUids[4],
+      content: '听说是争那个中收指标，好像还拍桌子了，这瓜太大了保熟！',
+      author: '冲浪第一人',
       anonymous: true,
       createdAt: h(1.5),
     },
     {
       uid: crypto.randomUUID(),
-      threadId: threadUids[1],
-      content: '试了一下确实可以！模板格式要注意日期列必须是 yyyy-mm-dd 格式，否则会报错。',
-      author: '匿名节点',
+      threadId: threadUids[4],
+      content: '别问了，问就是大家都要被连坐罚款了。',
+      author: '心累的搬砖工',
       anonymous: true,
-      createdAt: h(4),
+      createdAt: h(1),
     },
+    {
+      uid: crypto.randomUUID(),
+      threadId: threadUids[5],
+      content: '严重同感，现在做大资产全是苦力活，结果定级一看全在混！',
+      author: '底层牛马',
+      anonymous: true,
+      createdAt: h(9),
+    },
+    {
+      uid: crypto.randomUUID(),
+      threadId: threadUids[6],
+      content: '键盘单出吗？在二楼业务部可以直接面交！',
+      author: '打字如飞',
+      anonymous: true,
+      createdAt: h(1),
+    },
+    {
+      uid: crypto.randomUUID(),
+      threadId: threadUids[7],
+      content: '何止30%，我的算下来降了快一半，房贷都要都不上了。',
+      author: '匿名泪目',
+      anonymous: true,
+      createdAt: h(0.5),
+    },
+    {
+      uid: crypto.randomUUID(),
+      threadId: threadUids[8],
+      content: '走分行OA系统的【跨地区特别申请单】，甜点强烈推荐汉街上的那家Maison，凭发票能直接开报。',
+      author: '吃货大队长',
+      anonymous: true,
+      createdAt: h(2),
+    }
   ]);
 
   localStorage.setItem(SEED_KEY, '1');

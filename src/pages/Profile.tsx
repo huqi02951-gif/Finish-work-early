@@ -1,113 +1,35 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
-  Terminal, ShieldAlert, Cpu, HeartPulse, Activity, LogOut, 
-  Settings, FolderTree, ArrowRight, Zap, Target, Lock
+  Briefcase, Coffee, HeartPulse, Crosshair, Map,
+  MessageSquare, ThumbsUp, LogOut, ShieldAlert,
+  Flame, BatteryCharging, BatteryWarning, User as UserIcon
 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiService } from '../services/api';
 import { User as UserType } from '../types';
 import { cn } from '../../lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
 import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber } from '../../lib/localSignals';
 import InitialBadge from '../components/common/InitialBadge';
-
-// --- Cyberpunk / CLI Components ---
-
-const GlitchText: React.FC<{ text: string; className?: string; glitchHoverOnly?: boolean }> = ({ text, className, glitchHoverOnly }) => {
-  return (
-    <span className={cn("relative inline-block group", className)}>
-      <span className="relative z-10">{text}</span>
-      <span className={cn(
-        "absolute top-0 left-[1px] z-0 text-[#00ff41] opacity-30 select-none",
-        glitchHoverOnly ? "opacity-0 group-hover:opacity-30 group-hover:clip-glitch-1" : "clip-glitch-1"
-      )} aria-hidden>{text}</span>
-      <span className={cn(
-        "absolute top-0 left-[-1px] z-0 text-[#ff0040] opacity-20 select-none",
-        glitchHoverOnly ? "opacity-0 group-hover:opacity-20 group-hover:clip-glitch-2" : "clip-glitch-2"
-      )} aria-hidden>{text}</span>
-    </span>
-  );
-};
-
-const TypewriterText: React.FC<{ text: string; delay?: number; className?: string; onComplete?: () => void }> = ({ text, delay = 0, className, onComplete }) => {
-  const [displayText, setDisplayText] = useState('');
-  
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    let index = 0;
-    
-    const startTyping = () => {
-      timeout = setInterval(() => {
-        setDisplayText(text.substring(0, index + 1));
-        index++;
-        if (index === text.length) {
-          clearInterval(timeout);
-          if (onComplete) onComplete();
-        }
-      }, 50); // typing speed
-    };
-
-    if (delay > 0) {
-      setTimeout(startTyping, delay);
-    } else {
-      startTyping();
-    }
-
-    return () => clearInterval(timeout);
-  }, [text, delay]);
-
-  return (
-    <span className={className}>
-      {displayText}
-      <span className="animate-pulse bg-[#00ff41] w-2 h-4 inline-block ml-1 align-middle"></span>
-    </span>
-  );
-};
-
-const AsciiProgress: React.FC<{ percent: number; width?: number; color?: string }> = ({ percent, width = 15, color = "text-[#00ff41]" }) => {
-  const filledCount = Math.round((percent / 100) * width);
-  const emptyCount = width - filledCount;
-  const filled = "█".repeat(filledCount);
-  const empty = "░".repeat(emptyCount);
-  
-  return (
-    <span className={cn("font-mono tracking-tight", color)}>
-      [{filled}<span className="text-gray-600">{empty}</span>] {percent.toFixed(0)}%
-    </span>
-  );
-};
+import { listCommunityEntries } from '../../lib/community';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserType | null>(null);
-  const [activeScreen, setActiveScreen] = useState<'AUTH' | 'MAIN' | 'TOOLS' | 'LOGOUT'>('AUTH');
-  const [activeTab, setActiveTab] = useState<'SYS_STATS' | 'MODULES' | 'ACHIEVEMENTS'>('SYS_STATS');
+  
+  // Real-time calculation
   const [now, setNow] = useState(new Date());
   
-  // Game state
+  // Settings & Upgrades
   const [monthlySalary, setMonthlySalary] = useState(() => readLocalNumber(LOCAL_NUMBER_KEYS.salary, 6200));
-  const [xp, setXp] = useState(() => readLocalNumber(LOCAL_NUMBER_KEYS.xp, 8420));
-  const [trees, setTrees] = useState(() => readLocalNumber(LOCAL_NUMBER_KEYS.trees, 0));
-  const [level, setLevel] = useState(1);
-  const nextLevelXp = level * 10000;
-  const xpPercent = (xp % 10000) / 10000 * 100;
-
-  useEffect(() => {
-    // Automatically recalculate level based on XP
-    setLevel(Math.floor(xp / 10000) + 1);
-  }, [xp]);
-
-  useEffect(() => {
-    const unsubscribers = [
-      subscribeLocalNumber(LOCAL_NUMBER_KEYS.salary, 6200, setMonthlySalary),
-      subscribeLocalNumber(LOCAL_NUMBER_KEYS.xp, 8420, setXp),
-      subscribeLocalNumber(LOCAL_NUMBER_KEYS.trees, 0, setTrees),
-    ];
-    return () => {
-      unsubscribers.forEach((unsubscribe) => unsubscribe());
-    };
-  }, []);
+  
+  // Custom Interaction States
+  const [restoredLife, setRestoredLife] = useState(0);
+  
+  // Community stats
+  const [myPostCount, setMyPostCount] = useState(0);
+  const [myLikesReceived, setMyLikesReceived] = useState(0);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -116,312 +38,278 @@ const Profile: React.FC = () => {
     };
     fetchUser();
     
-    // Boot sequence mock
-    setTimeout(() => setActiveScreen('MAIN'), 1500);
+    // Fetch real community stats for "当前浏览器用户" or default
+    const fetchCommunityStats = async () => {
+      const all = await listCommunityEntries('全部');
+      // Approximate filter for user
+      const mine = all.filter(p => p.author === '当前浏览器用户' || p.author === '实名认证-张经理');
+      setMyPostCount(mine.length);
+      const likes = mine.reduce((acc, curr) => acc + curr.likes, 0);
+      setMyLikesReceived(likes);
+    };
+    fetchCommunityStats();
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
+    const timer = setInterval(() => setNow(new Date()), 1000); // UI update tick
     return () => clearInterval(timer);
   }, []);
 
-  // Salary calculations (synced with EfficientOffDutyGame)
-  const hourlyRate = monthlySalary / 20 / 8;
-  const minuteRate = hourlyRate / 60;
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  const isOvertime = currentMinutes >= 17 * 60;
-  const earnedToday = Math.min(Math.max(currentMinutes - 9 * 60, 0), 480) * minuteRate;
-  const overtimeLoss = isOvertime ? (currentMinutes - 17 * 60) * minuteRate : 0;
+  useEffect(() => {
+    const unsub = subscribeLocalNumber(LOCAL_NUMBER_KEYS.salary, 6200, setMonthlySalary);
+    return () => unsub();
+  }, []);
 
-  // Render Authentication screen
-  if (activeScreen === 'AUTH') {
-    return (
-      <AppLayout title="Terminal">
-        <div className="bg-[#050505] min-h-screen text-[#00ff41] font-mono p-4 flex flex-col justify-center items-center relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-50 z-50"></div>
-          
-          <div className="text-center z-10 w-full max-w-sm">
-            <Lock className="w-12 h-12 mx-auto mb-4 opacity-70 animate-pulse text-[#00ff41]" />
-            <div className="text-left bg-black p-4 border border-[#00ff41]/30 shadow-[0_0_15px_rgba(0,255,65,0.2)]">
-              <TypewriterText text="[正在接入终端主控核心...]" />
-              <br/>
-              <TypewriterText text="[校验赛博干员权限序列...]" delay={500} />
-              <br/>
-              <TypewriterText text="[权限确认，准许登入]" delay={1000} className="text-green-300 font-bold" />
+  // Time metrics computations
+  // Logic: 9:00 - 12:00 = 3h, 14:00 - 17:00 = 3h (Total 6h per day = 360 mins)
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+  const currentMinutesInDay = hour * 60 + minute;
+
+  let status: 'OFF_DUTY' | 'WORKING' | 'OVERTIME' = 'OFF_DUTY';
+  let workedMinutes = 0;
+  let overtimeMinutes = 0;
+
+  if (currentMinutesInDay < 9 * 60) {
+    status = 'OFF_DUTY';
+  } else if (currentMinutesInDay < 12 * 60) {
+    status = 'WORKING';
+    workedMinutes = currentMinutesInDay - 9 * 60;
+  } else if (currentMinutesInDay < 14 * 60) {
+    status = 'OFF_DUTY'; // Lunch break
+    workedMinutes = 180; // 3 hours in morning
+  } else if (currentMinutesInDay < 17 * 60) {
+    status = 'WORKING';
+    workedMinutes = 180 + (currentMinutesInDay - 14 * 60);
+  } else {
+    status = 'OVERTIME';
+    workedMinutes = 360;
+    overtimeMinutes = currentMinutesInDay - 17 * 60;
+  }
+
+  // Financial computations
+  // 6200 RMB / 20 days / 360 mins = 0.861 RMB/min
+  const minuteRate = monthlySalary / 20 / 360;
+  const earnedToday = workedMinutes * minuteRate;
+  const lostToOvertime = overtimeMinutes * minuteRate;
+
+  // Life Value (生命值 0 - 100)
+  // Baseline 100.
+  // Working drops at a rate of 30 total over 6 hours (-5/hour)
+  // Overtime drops at 1/min! (Super fast)
+  // Restore life via actions
+  let baseLife = 100;
+  if (status === 'WORKING') {
+    baseLife = 100 - (workedMinutes / 360) * 30; // Max drops to 70 normally
+  } else if (status === 'OVERTIME') {
+    baseLife = 100 - 30 - overtimeMinutes * 0.5; // Drops fast
+  } else if (status === 'OFF_DUTY') {
+    // Regenerating / Full
+    baseLife = 100; 
+  }
+  
+  const currentLifeRaw = baseLife + restoredLife;
+  const currentLife = Math.max(0, Math.min(100, currentLifeRaw));
+
+  // Determine Heartbeat / Avatar styling
+  const isDanger = currentLife < 40 || status === 'OVERTIME';
+  
+  let heartbeatDesc = '心如止水';
+  let badgeTone: "neutral" | "cyber" = 'neutral';
+  
+  if (status === 'OFF_DUTY') {
+    heartbeatDesc = '活力四射!!';
+    badgeTone = 'neutral';
+  } else if (status === 'OVERTIME') {
+    heartbeatDesc = '异常飙升 (心律不齐)';
+    badgeTone = 'cyber';
+  } else if (isDanger) {
+    heartbeatDesc = '亟待抢救';
+    badgeTone = 'cyber';
+  }
+
+  // Handlers
+  const handleTouchFish = () => {
+    setRestoredLife(prev => prev + 15);
+  };
+
+  const handleDrinkCoffee = () => {
+    setRestoredLife(prev => prev + 10);
+  };
+
+  const currentLevel = Math.floor((myPostCount * 50 + myLikesReceived * 10) / 100) + 1;
+
+  return (
+    <AppLayout title="打工人生存看板">
+      <div className="bg-brand-offwhite min-h-[100dvh] pb-24 font-sans text-brand-dark">
+        {/* Banner */}
+        <div className="bg-brand-dark pt-12 pb-6 px-6 text-white rounded-b-3xl shadow-md relative overflow-hidden">
+          {/* subtle background pulse if danger */}
+          {isDanger && (
+            <motion.div 
+              className="absolute inset-0 bg-red-600/20"
+              animate={{ opacity: [0.1, 0.4, 0.1] }}
+              transition={{ repeat: Infinity, duration: 1 }}
+            />
+          )}
+
+          <div className="flex items-center gap-5 relative z-10">
+            <div className="relative">
+              <div className={cn(
+                "w-20 h-20 rounded-full border-4 flex items-center justify-center bg-white",
+                status === 'OVERTIME' ? "border-red-500 animate-pulse" : "border-white"
+              )}>
+                <InitialBadge label={user?.nickname || '客户经理'} className="w-16 h-16 text-xl shadow-sm" tone={badgeTone} />
+              </div>
+              <div className={cn(
+                "absolute -bottom-2 -right-2 px-2 py-0.5 text-[10px] font-bold rounded-full border-2 border-brand-dark flex items-center gap-1",
+                status === 'OFF_DUTY' ? "bg-green-400 text-brand-dark" :
+                status === 'OVERTIME' ? "bg-red-500 text-white animate-bounce" : "bg-blue-400 text-brand-dark"
+              )}>
+                {status === 'OFF_DUTY' ? '🏄 下班' : status === 'OVERTIME' ? '🔥 爆肝' : '💼 搬砖'}
+              </div>
+            </div>
+            
+            <div className="flex-1">
+              <h1 className="text-xl font-bold mb-1 flex items-center gap-2">
+                {user?.nickname || '实名认证-客户经理'}
+                <span className="text-[10px] px-2 py-0.5 rounded-sm bg-white/20 text-white font-normal backdrop-blur-sm">LV.{currentLevel} 行家</span>
+              </h1>
+              <div className="text-sm text-white/80 flex items-center gap-1.5 font-medium">
+                <HeartPulse className="w-4 h-4 opacity-80" /> 
+                {heartbeatDesc}
+              </div>
             </div>
           </div>
         </div>
-      </AppLayout>
-    );
-  }
 
-  // Stats Grid Data
-  const sysStats = [
-    { label: '算力结晶分布', val: trees.toString() + ' 棵', icon: FolderTree },
-    { label: '系统拦截指令', val: '67', icon: ShieldAlert },
-    { label: '当前算力池', val: xp.toString(), icon: Zap },
-  ];
+        <div className="px-5 mt-6 max-w-lg mx-auto space-y-6">
 
-  const quickTools = [
-    { cmd: './execute --food', label: '今天吃什么', path: '/scenarios?tab=self', badge: 'v1.0' },
-    { cmd: './focus --tomato', label: '番茄时钟', path: '/scenarios?tab=self', badge: 'ACTIVE' },
-    { cmd: './calc --overtime', label: '加班计算器', path: '/scenarios?tab=self', badge: isOvertime ? 'CRITICAL' : 'OK' },
-    { cmd: './run --fengshui', label: '玄学日历', path: '/scenarios?tab=self', badge: 'Daily' },
-  ];
-
-  return (
-    <AppLayout title="SysOps">
-      <div className="bg-[#050505] min-h-[100dvh] text-gray-300 font-mono pb-24 relative overflow-hidden">
-        {/* CRT Scanline Overlay */}
-        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-40 z-50"></div>
-        
-        {/* Vim-like top bar */}
-        <div className="bg-[#1a1a1a] text-[#00ff41] px-2 py-1 flex justify-between text-[10px] border-b border-[#00ff41]/20 sticky top-0 z-40">
-          <span className="flex items-center gap-1"><Terminal className="w-3 h-3"/> tty_赛博节点1</span>
-          <span>root@{user?.nickname || '特工'} ~</span>
-        </div>
-
-        <div className="p-4 relative z-10 max-w-lg mx-auto space-y-6">
-          
-          {/* Identity Box */}
-          <section className="border border-[#00ff41]/30 bg-black p-3 shadow-[0_0_10px_rgba(0,255,65,0.1)]">
-            <div className="text-[#00ff41] text-[10px] mb-2 font-bold opacity-70">
-              <span className="text-gray-500">$</span> {'>'} 执行指令获取干员身份... (whoami --details)
+          {/* Life & Salary Monitor Widget */}
+          <section className="bg-white rounded-2xl p-5 shadow-sm border border-brand-border/60">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-sm font-bold text-brand-dark flex items-center gap-1.5">
+                <BatteryCharging className="w-4 h-4 text-brand-dark" /> 生命体态监控
+              </h2>
+              <div className="text-[10px] bg-brand-light-gray text-brand-gray px-2 py-1 rounded">时区同步正常</div>
             </div>
-            
-            <div className="flex gap-4 items-start">
-              <div className="w-16 h-16 border-2 border-[#00ff41]/50 shrink-0 relative grid place-items-center bg-[#0A1A0F]">
-                <InitialBadge label={user?.nickname || '匿名者'} tone="cyber" className="h-12 w-12 text-sm" />
-              </div>
-              
-              <div className="flex-grow space-y-1">
-                <div className="flex justify-between items-end">
-                  <GlitchText text={`特工代号: ${user?.nickname || '匿名者'}`} className="text-[#00ff41] text-lg font-bold tracking-tight" glitchHoverOnly />
-                  <span className="text-[#f5a623] text-[10px] border border-[#f5a623]/50 px-1">LVL.{level}</span>
+
+            <div className="space-y-4">
+              {/* Life Value Bar */}
+              <div>
+                <div className="flex justify-between text-xs font-semibold mb-1.5">
+                  <span className="text-brand-dark">剩余生命力</span>
+                  <span className={cn(currentLife < 30 ? "text-red-500" : "text-brand-dark")}>{currentLife.toFixed(0)} / 100</span>
                 </div>
-                
-                <div className="text-[10px] text-gray-400">权限组: 高级赛博打工人</div>
-                <div className="text-[10px] mt-1 space-y-0.5">
-                  <div className="flex justify-between text-[#00ff41]">
-                    <span>算力结晶池 (XP_SYNC)</span>
-                    <span>{xp % 10000}/10000</span>
-                  </div>
-                  <AsciiProgress percent={xpPercent} width={20} />
+                <div className="h-2.5 w-full bg-brand-light-gray rounded-full overflow-hidden">
+                  <motion.div 
+                    className={cn(
+                      "h-full rounded-full transition-all duration-300",
+                      currentLife > 60 ? "bg-green-500" : currentLife > 30 ? "bg-yellow-500" : "bg-red-500"
+                    )}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${currentLife}%` }}
+                  />
+                </div>
+                {status === 'OVERTIME' && <p className="text-[10px] text-red-500 mt-1 font-medium">⚠️ 警告：当前无偿加班正在剧烈消耗你的健康指标！</p>}
+              </div>
+
+              {/* Earnings Panel */}
+              <div className={cn(
+                "rounded-xl p-4 flex justify-between items-center transition-colors",
+                status === 'OVERTIME' ? "bg-red-50 border border-red-100" : "bg-brand-offwhite border border-brand-border/40"
+              )}>
+                <div>
+                  <div className="text-[10px] text-brand-gray mb-0.5">💰 今日到手 (按 {monthlySalary} 基准推算)</div>
+                  <div className="text-2xl font-bold text-brand-dark">¥{earnedToday.toFixed(2)}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[10px] text-brand-gray mb-0.5">无偿被剥削</div>
+                  <div className="text-sm font-bold text-red-500">¥{lostToOvertime.toFixed(2)}</div>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* Overtime Alert Monitor */}
-          <section>
-            <div className="text-[#00ff41] text-[10px] mb-1 font-bold opacity-70">
-              <span className="text-gray-500">$</span> ./monitor_salary.sh
-            </div>
-            
-            <motion.div 
-              className={cn(
-                "p-3 border text-xs", 
-                isOvertime 
-                  ? "border-red-500 bg-red-950/30 text-red-400 shadow-[0_0_15px_rgba(255,0,0,0.2)]" 
-                  : "border-[#00ff41]/30 bg-[#00ff41]/5 text-[#00ff41]"
-              )}
-              animate={isOvertime ? { boxShadow: ['0 0 5px #ff0000', '0 0 15px #ff0000', '0 0 5px #ff0000'] } : {}}
-              transition={{ repeat: Infinity, duration: 2 }}
-            >
-              <div className="flex justify-between items-center mb-1">
-                <span className="font-bold flex items-center gap-1">
-                  {isOvertime ? <ShieldAlert className="w-3.5 h-3.5 text-red-500 animate-pulse" /> : <Activity className="w-3.5 h-3.5" />}
-                  {isOvertime ? "红警: 无偿加班中" : "进程正常: 创收中"}
-                </span>
-                <span className="text-[10px] opacity-70">{now.toLocaleTimeString('en-US', { hour12: false })}</span>
-              </div>
-              
-              {isOvertime ? (
-                <div className="space-y-1 mt-2">
-                  <GlitchText text="严重警告: 您的剩余价值正在被剥削！" className="text-red-500 font-bold block" />
-                  <div className="flex justify-between mt-2 border-t border-red-900/50 pt-1">
-                    <span>本时段算力亏损评估:</span>
-                    <span className="font-bold text-red-400">¥ {overtimeLoss.toFixed(2)}</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-1 mt-2 border-l-2 border-[#00ff41] pl-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">节点状态</span>
-                    <span>活跃 (ACTIVE)</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">今日收益核算</span>
-                    <span className="text-[#00ff41]">¥ {earnedToday.toFixed(0)}</span>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          </section>
-
-          {/* Terminal Tabs */}
-          <section>
-            <div className="flex border-b border-[#00ff41]/30 mb-3">
-              {[
-                { id: 'SYS_STATS', label: 'SYS_STATS', cmd: 'top - 资源监控' },
-                { id: 'MODULES', label: 'SKILL_MAP', cmd: 'ls -l 技能挂载' },
-                { id: 'ACHIEVEMENTS', label: 'BADGES', cmd: 'cat 荣誉徽章.txt' },
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={cn(
-                    "px-3 py-1.5 text-[10px] md:text-xs font-bold transition-all relative",
-                    activeTab === tab.id 
-                      ? "text-black bg-[#00ff41]" 
-                      : "text-[#00ff41]/50 hover:text-[#00ff41]"
-                  )}
-                >
-                  {tab.cmd}
-                </button>
-              ))}
-            </div>
-
-            <AnimatePresence mode="wait">
-              {activeTab === 'SYS_STATS' && (
-                <motion.div key="stats" initial={{opacity:0, x:-5}} animate={{opacity:1, x:0}} exit={{opacity:0}} className="space-y-4">
-                  {/* Grid Metrics */}
-                  <div className="grid grid-cols-3 gap-2">
-                    {sysStats.map((stat, idx) => (
-                      <div key={idx} className="border border-[#00ff41]/20 bg-[#00ff41]/5 p-2 flex flex-col items-center justify-center relative overflow-hidden group cursor-crosshair">
-                        <stat.icon className="w-4 h-4 text-[#00ff41]/40 mb-1 group-hover:text-[#00ff41] transition-colors" />
-                        <span className="text-[#00ff41] font-bold">{stat.val}</span>
-                        <span className="text-[8px] text-gray-500 tracking-widest">{stat.label}</span>
-                        {/* Hover corner brackets */}
-                        <div className="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-[#00ff41] opacity-0 group-hover:opacity-100"></div>
-                        <div className="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-[#00ff41] opacity-0 group-hover:opacity-100"></div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* CPU / Usage bars */}
-                  <div className="border border-[#00ff41]/20 p-3">
-                    <div className="text-[10px] text-[#00ff41] mb-2 pb-1 border-b border-[#00ff41]/20 flex items-center gap-1">
-                      <Cpu className="w-3 h-3"/> 系统算力分配池 (ALLOCATION)
-                    </div>
-                    {[
-                      { label: '对客模块运算', val: 85 },
-                      { label: '审查网络嗅探', val: 62 },
-                      { label: '中后台数据处理', val: 45 },
-                      { label: '算力自我结晶', val: 78 },
-                    ].map((item, idx) => (
-                      <div key={idx} className="flex items-center text-[10px] my-1.5">
-                        <span className="w-20 text-[#00ff41]/70">{item.label}</span>
-                        <span>[</span>
-                        <span className="flex-grow text-[#00ff41]">
-                          {"#".repeat(Math.floor(item.val/5))}
-                          <span className="text-gray-700">{".".repeat(20 - Math.floor(item.val/5))}</span>
-                        </span>
-                        <span>]</span>
-                        <span className="w-8 text-right text-[#00ff41]">{item.val}%</span>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-
-              {activeTab === 'MODULES' && (
-                <motion.div key="modules" initial={{opacity:0, x:-5}} animate={{opacity:1, x:0}} exit={{opacity:0}} className="space-y-2">
-                  <div className="text-[#00ff41] text-[10px] mb-2 opacity-70">
-                    <span className="text-gray-500">$</span> ls -la ./可用权限模块/
-                  </div>
-                  {quickTools.map((tool, idx) => (
-                    <motion.div 
-                      key={idx}
-                      whileHover={{ x: 5 }}
-                      onClick={() => navigate(tool.path)}
-                      className="border border-[#00ff41]/20 hover:border-[#00ff41] bg-black p-2 flex items-center justify-between cursor-pointer group transition-all"
-                    >
-                      <div className="flex flex-col">
-                        <span className="text-[#00ff41] text-xs font-bold font-mono group-hover:hidden transition-all">{tool.cmd}</span>
-                        <span className="text-[#00ff41] text-xs font-bold font-mono hidden group-hover:block transition-all">
-                          <span className="bg-[#00ff41] text-black px-1.5 mr-1">运行</span> {tool.label}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className={cn(
-                          "text-[9px] px-1 border",
-                          tool.badge === 'CRITICAL' ? "border-red-500 text-red-500 animate-pulse" : "border-[#00ff41]/50 text-[#00ff41]/70"
-                        )}>
-                          {tool.badge}
-                        </span>
-                      </div>
-                    </motion.div>
-                  ))}
-                  
-                  {/* Additional directories */}
-                  <div className="pt-4 grid grid-cols-2 gap-2">
-                    {[
-                      { icon: FolderTree, label: '../系统配置', path: '/settings' },
-                      { icon: FolderTree, label: '../地下茶水间', path: '/bbs' },
-                    ].map((dir, idx) => (
-                      <Link key={idx} to={dir.path} className="flex items-center gap-1.5 text-[10px] text-gray-500 hover:text-[#00ff41] transition-colors cursor-pointer border border-transparent hover:border-[#00ff41]/30 bg-[#1a1a1a] p-2">
-                        <dir.icon className="w-3.5 h-3.5" /> {dir.label}
-                      </Link>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-
-              {activeTab === 'ACHIEVEMENTS' && (
-                <motion.div key="achievements" initial={{opacity:0, x:-5}} animate={{opacity:1, x:0}} exit={{opacity:0}}>
-                  <div className="border border-[#00ff41]/20 bg-black p-3 space-y-3">
-                    <div className="text-[10px] text-[#00ff41]/70 border-b border-[#00ff41]/20 pb-1 mb-2 font-mono font-bold">
-                      [已解密干员荣誉凭证]
-                    </div>
-                    {[
-                      { title: '初级黑客大师', stat: '调用超过10次权限模块', unlocked: true },
-                      { title: '准点下班真神', stat: '连续7天未被剥削剩余价值', unlocked: true },
-                      { title: '赛博广播放大器', stat: '帖文获得超过100次算力共鸣', unlocked: true },
-                      { title: '时间管理大师', stat: '累积挂载100个番茄防御节点', unlocked: false },
-                    ].map((ach, idx) => (
-                      <div key={idx} className={cn(
-                        "flex items-center justify-between p-2 border-l-2",
-                        ach.unlocked ? "border-[#00ff41] bg-[#00ff41]/5 text-[#00ff41]" : "border-gray-700 bg-gray-900 text-gray-600"
-                      )}>
-                        <div>
-                          <div className={cn("text-[10px] font-bold tracking-widest", ach.unlocked ? "text-[#00ff41]" : "text-gray-500")}>
-                            {ach.unlocked ? `[${ach.title}]` : '[权限受限_待解密区块]'}
-                          </div>
-                          <div className="text-[8px] opacity-70 mt-0.5">{ach.stat}</div>
-                        </div>
-                        <div className="text-xs">
-                          {ach.unlocked ? <Target className="w-4 h-4 text-[#00ff41]" /> : <Lock className="w-4 h-4 text-gray-600" />}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </section>
-
-          {/* Footer CLI Logout */}
-          <section className="pt-4 pb-8">
+          {/* Quick Actions / Touch Fish */}
+          <section className="grid grid-cols-2 gap-3">
             <button 
-              onClick={() => setActiveScreen('LOGOUT')}
-              className="w-full relative group bg-[#0A0A0A] border text-left flex justify-between items-center overflow-hidden border-red-900/50 hover:border-red-500/80 transition-all p-3"
+              onClick={handleTouchFish}
+              className="bg-white border border-brand-border/60 rounded-xl p-4 flex items-center justify-center gap-2 shadow-sm hover:bg-brand-offwhite hover:scale-[1.02] transition-all active:scale-95"
             >
-              <div className="absolute inset-0 bg-red-500/10 -translate-x-full group-hover:translate-x-0 transition-transform duration-300 pointer-events-none"></div>
-              <span className="text-[11px] text-red-500 font-bold font-mono group-hover:text-red-400 z-10 transition-colors">
-                <span className="text-gray-600 mr-2">$</span>
-                sudo poweroff --退出终端链接
-              </span>
-              <LogOut className="w-4 h-4 text-red-500 group-hover:text-red-400 z-10" />
+              <div className="bg-blue-100 p-2 rounded-full text-blue-600">
+                <Map className="w-4 h-4" />
+              </div>
+              <div className="text-left">
+                <div className="text-xs font-bold text-brand-dark">带薪发呆</div>
+                <div className="text-[9px] text-brand-gray">恢复 +15 生命</div>
+              </div>
             </button>
+
+            <button 
+              onClick={handleDrinkCoffee}
+              className="bg-white border border-brand-border/60 rounded-xl p-4 flex items-center justify-center gap-2 shadow-sm hover:bg-brand-offwhite hover:scale-[1.02] transition-all active:scale-95"
+            >
+              <div className="bg-amber-100 p-2 rounded-full text-amber-700">
+                <Coffee className="w-4 h-4" />
+              </div>
+              <div className="text-left">
+                <div className="text-xs font-bold text-brand-dark">续命咖啡</div>
+                <div className="text-[9px] text-brand-gray">脉动回来 +10</div>
+              </div>
+            </button>
+          </section>
+
+          {/* Community Nexus */}
+          <section className="bg-white rounded-2xl p-5 shadow-sm border border-brand-border/60">
+            <div className="flex justify-between items-center mb-4 border-b border-brand-border/40 pb-3">
+              <h2 className="text-sm font-bold text-brand-dark flex items-center gap-1.5">
+                <MessageSquare className="w-4 h-4 text-brand-dark" /> 职场威望中心
+              </h2>
+              <Link to="/workspace" className="text-[10px] text-brand-dark font-medium px-2 py-1 rounded bg-brand-light-gray hover:bg-brand-border/40 transition">
+                去发帖 &gt;
+              </Link>
+            </div>
             
-            <div className="text-center py-4 mt-6">
-              <p className="text-[8px] font-mono text-[#00ff41]/30">
-                F.W.E CORE_SYSTEM v2.0 <br/>
-                ©2026 OPENCLAW_AGENT_MATRIX
-              </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-brand-offwhite rounded-lg">
+                <div className="text-xl font-black text-brand-dark mb-1">{myPostCount}</div>
+                <div className="text-[10px] text-brand-gray">发布经验帖</div>
+              </div>
+              <div className="text-center p-3 bg-brand-offwhite rounded-lg">
+                <div className="text-xl font-black text-brand-dark mb-1">{myLikesReceived}</div>
+                <div className="text-[10px] text-brand-gray">获同事共鸣点赞</div>
+              </div>
+            </div>
+            <div className="mt-4 text-center">
+              <p className="text-[10px] text-brand-gray">每发一帖或获得点赞，均可提升系统职场行家段位。</p>
             </div>
           </section>
+
+          {/* System Configs */}
+          <section className="bg-white rounded-2xl p-2 shadow-sm border border-brand-border/60 divide-y divide-brand-border/30">
+            <Link to="/settings" className="flex items-center justify-between p-3 hover:bg-brand-offwhite rounded-t-xl transition-colors">
+              <div className="flex items-center gap-2">
+                <UserIcon className="w-4 h-4 text-brand-gray" />
+                <span className="text-xs font-semibold text-brand-dark">修改基础底薪池配置</span>
+              </div>
+              <div className="text-[10px] text-brand-gray font-medium">当前 ¥{monthlySalary} &gt;</div>
+            </Link>
+            
+            <button 
+              onClick={() => navigate('/')}
+              className="w-full flex items-center justify-center gap-2 p-4 text-red-500 hover:bg-red-50 rounded-b-xl transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="text-xs font-bold">打卡下班退出 (Logout)</span>
+            </button>
+          </section>
+          
+          <div className="text-center py-4">
+            <p className="text-[8px] font-medium tracking-widest text-brand-gray/40 uppercase">
+              WORK SMART, NOT HARD.<br/>FWE INTERNAL DAEMON V2.0
+            </p>
+          </div>
 
         </div>
       </div>
