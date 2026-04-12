@@ -26,7 +26,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack }) => {
     <div className="flex min-h-screen flex-col bg-white text-brand-dark font-sans selection:bg-brand-dark/5 selection:text-brand-dark">
       <header className="sticky top-0 z-50 border-b border-brand-border/40 bg-white/92 backdrop-blur px-4">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4">
-          <div className="flex min-w-0 items-center gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
           {showBack ? (
             <button 
               onClick={() => navigate(-1)}
@@ -45,7 +45,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack }) => {
             </div>
           </div>
 
-          <Link to="/profile" className="inline-flex items-center gap-2 rounded-md border border-brand-border/50 bg-white px-2 py-1.5 text-xs font-semibold text-brand-dark transition-colors hover:bg-brand-light-gray">
+          <Link to="/profile" className="inline-flex items-center gap-2 rounded-md border border-brand-border/50 bg-white px-2 py-1.5 text-xs font-semibold text-brand-dark transition-colors hover:bg-brand-light-gray shrink-0">
             <InitialBadge label="我" className="h-7 w-7" />
             <span className="hidden sm:inline">我的</span>
           </Link>
@@ -76,12 +76,12 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack }) => {
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex h-full w-full flex-col items-center justify-center gap-1 transition-colors",
+                  "flex h-full flex-1 flex-col items-center justify-center gap-1 transition-colors px-1",
                   isActive ? "text-brand-dark" : "text-brand-gray hover:text-brand-dark"
                 )}
               >
                 <item.icon size={18} className={cn("transition-transform", isActive && "scale-110")} />
-                <span className="text-[10px] font-bold tracking-tight">{item.label}</span>
+                <span className="text-[10px] font-bold tracking-tight whitespace-nowrap">{item.label}</span>
               </Link>
             );
           })}

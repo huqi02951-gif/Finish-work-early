@@ -12,6 +12,7 @@ const Feed: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('全部');
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [likedPostIds, setLikedPostIds] = useState<string[]>([]);
   const [shareTip, setShareTip] = useState<string | null>(null);
 
@@ -20,9 +21,17 @@ const Feed: React.FC = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       setIsLoading(true);
-      const data = await apiService.getPosts(activeCategory === '全部' ? undefined : activeCategory);
-      setPosts(data);
-      setIsLoading(false);
+      setLoadError(null);
+      try {
+        const data = await apiService.getPosts(activeCategory === '全部' ? undefined : activeCategory);
+        setPosts(data);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : '加载失败';
+        setLoadError(message);
+        setPosts([]);
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchPosts();
   }, [activeCategory]);
@@ -71,15 +80,19 @@ const Feed: React.FC = () => {
 
   return (
     <AppLayout title="发现">
-      {/* 🧪 本地演示标签 */}
-      <div className="mx-4 mt-3 px-4 py-2.5 bg-amber-50 border border-amber-200/60 rounded-2xl flex items-center gap-2">
-        <span className="text-sm">🧪</span>
-        <span className="text-[11px] text-amber-700 font-medium">本地演示模式 · 数据仅保存在当前浏览器中</span>
+      <div className="mx-4 mt-3 px-4 py-2.5 bg-emerald-50 border border-emerald-200/60 rounded-2xl flex items-center gap-2">
+        <span className="text-sm">●</span>
+        <span className="text-[11px] text-emerald-700 font-medium">Phase 1 后端联通模式 · 内容来自真实 API 和数据库</span>
       </div>
       <div className="sticky top-14 z-40 bg-brand-offwhite/80 backdrop-blur-md border-b border-brand-border/5 px-4 py-3 space-y-3">
         {shareTip && (
           <div className="px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200/70 text-[11px] text-emerald-700 font-medium">
             {shareTip}
+          </div>
+        )}
+        {loadError && (
+          <div className="px-4 py-2 rounded-xl bg-rose-50 border border-rose-200/70 text-[11px] text-rose-700 font-medium">
+            发现页加载失败：{loadError}
           </div>
         )}
         {/* Search Bar */}
@@ -161,11 +174,11 @@ const Feed: React.FC = () => {
                   <button
                     type="button"
                     disabled
-                    title="当前前端-only 版本暂未开放评论"
+                    title="评论详情将在下一阶段接入前端"
                     className="flex items-center gap-1.5 text-brand-gray/40 cursor-not-allowed"
                   >
                     <MessageCircle size={18} />
-                    <span className="text-xs font-bold">3</span>
+                    <span className="text-xs font-bold">-</span>
                   </button>
                 </div>
                 <button

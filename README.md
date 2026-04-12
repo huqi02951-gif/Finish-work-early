@@ -19,6 +19,34 @@ View your app in AI Studio: https://ai.studio/apps/0d4a0812-1781-4e44-a2c0-705ba
 3. Run the app:
    `npm run dev`
 
+## Run Full Stack Locally
+
+前端原型已经接入一个独立的 NestJS 后端目录 [backend](./backend)。
+
+1. 启动后端
+   ```bash
+   cd backend
+   npm install
+   cp .env.example .env
+   npm run prisma:generate
+   npm run start:dev
+   ```
+2. 配置前端 API 地址
+   ```bash
+   cp .env.example .env.local
+   ```
+   默认 `VITE_API_BASE_URL=http://localhost:3000`
+3. 启动前端
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+当前已经打通的链路：
+- 发现页从后端 API 读取帖子列表
+- 发布页通过后端 API 写入 PostgreSQL
+- 前端会自动创建一个演示用户身份，用于本地联调
+
 ## Deploy to GitHub Pages
 
 This repo now deploys through GitHub Actions and publishes the Vite `dist/` output to GitHub Pages.

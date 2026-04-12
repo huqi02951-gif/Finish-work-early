@@ -29,75 +29,17 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import AppLayout from '../../src/components/layout/AppLayout';
+import { ProductGuideCard } from '../../types';
+import { BUSINESS_GUIDE_PRODUCTS } from '../../content/businessGuideProducts';
+import { getProducts } from '../../src/services/contentApi';
 
 // --- Types & Data ---
 
 interface BusinessGuideData {
-  products: ProductCard[];
+  products: ProductGuideCard[];
   industries: IndustryCard[];
   scenarios: ScenarioCard[];
   personas: PersonaCard[];
-}
-
-interface ProductCard {
-  id: string;
-  name: string;
-  category: string;
-  targetCustomers: string[];
-  suitableIndustries: string[];
-  overview: string;
-  sellingPoints: string[];
-  entryCriteria: string[];
-  commonBlockers: string[];
-  openingTalk: string;
-  mustAskQuestions: string[];
-  needRecognition: string;
-  materials: string[];
-  steps: string[];
-  objections: { q: string; a: string }[];
-  forbiddenPhrases: string[];
-  details?: {
-    rate: string;
-    term: string;
-    pricing: string;
-    subsidy: string;
-    guarantee: string;
-    creditMethod: string;
-    creditCriteria: string;
-  };
-  comparison?: {
-    with: string;
-    points: string[];
-  };
-  relatedSkill?: {
-    name: string;
-    path: string;
-  };
-  // New professional fields
-  productBoundary?: {
-    suitable: string[];
-    unsuitable: string[];
-  };
-  highFreqQA?: {
-    question: string;
-    answer: string;
-    internalLogic: string;
-    prohibited: string;
-  }[];
-  speedUpChecklist?: {
-    rmActions: string[];
-    customerCooperation: string[];
-  };
-  industryMarketing?: {
-    manufacturing: string;
-    tech: string;
-  };
-  scripts?: {
-    initial: string;
-    deep: string;
-    followUp: string;
-  };
-  practicalLogic?: string[];
 }
 
 interface IndustryCard {
@@ -598,6 +540,27 @@ const BusinessGuide: React.FC = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const [policyExpanded, setPolicyExpanded] = useState(false);
+  const [productCards, setProductCards] = useState<ProductGuideCard[]>(BUSINESS_GUIDE_PRODUCTS);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getProducts()
+      .then((products) => {
+        if (!cancelled && products.length > 0) {
+          setProductCards(products);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setProductCards(BUSINESS_GUIDE_PRODUCTS);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const product = searchParams.get('product');
@@ -689,7 +652,7 @@ const BusinessGuide: React.FC = () => {
 
   const getActiveContent = () => {
     if (activeTab === 'guide') {
-      if (guideType === 'product') return GUIDE_DATA.products.find(p => p.id === selectedId);
+      if (guideType === 'product') return productCards.find(p => p.id === selectedId);
       if (guideType === 'industry') return GUIDE_DATA.industries.find(i => i.id === selectedId);
       if (guideType === 'scenario') return GUIDE_DATA.scenarios.find(s => s.id === selectedId);
     } else {
@@ -833,7 +796,7 @@ const BusinessGuide: React.FC = () => {
                       {guideType === 'product' && (
                         <SidebarItem id="product_comparison" name="产品实战对比" icon={RefreshCcw} active={selectedId === 'product_comparison'} />
                       )}
-                      {guideType === 'product' && GUIDE_DATA.products.map(p => (
+                      {guideType === 'product' && productCards.map(p => (
                         <SidebarItem key={p.id} id={p.id} name={p.name} icon={Briefcase} active={selectedId === p.id} />
                       ))}
                       {guideType === 'industry' && GUIDE_DATA.industries.map(i => (
@@ -928,20 +891,20 @@ const BusinessGuide: React.FC = () => {
                             </span>
                             <h2 className="text-xl md:text-3xl font-serif text-brand-dark">{(activeContent as any).name}</h2>
                           </div>
-                          {activeTab === 'guide' && guideType === 'product' && (activeContent as ProductCard).relatedSkill && (
+                          {activeTab === 'guide' && guideType === 'product' && (activeContent as ProductGuideCard).relatedSkill && (
                             <button 
-                              onClick={() => navigate((activeContent as ProductCard).relatedSkill!.path)}
+                              onClick={() => navigate((activeContent as ProductGuideCard).relatedSkill!.path)}
                               className="flex items-center justify-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-brand-dark text-white rounded-lg md:rounded-xl font-bold text-[10px] md:text-xs hover:bg-brand-dark/90 transition-all shadow-lg group/btn self-start sm:self-auto"
                             >
                               <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 text-brand-gold" />
-                              立即调用: {(activeContent as ProductCard).relatedSkill!.name}
+                              立即调用: {(activeContent as ProductGuideCard).relatedSkill!.name}
                               <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 group-hover/btn:translate-x-1 transition-transform" />
                             </button>
                           )}
                         </div>
-                        <p className="text-sm md:text-lg text-brand-gray font-medium leading-relaxed max-w-3xl">
+                          <p className="text-sm md:text-lg text-brand-gray font-medium leading-relaxed max-w-3xl">
                           {activeTab === 'guide' 
-                            ? (guideType === 'product' ? (activeContent as ProductCard).overview : guideType === 'industry' ? (activeContent as IndustryCard).businessModel : (activeContent as ScenarioCard).goal)
+                            ? (guideType === 'product' ? (activeContent as ProductGuideCard).overview : guideType === 'industry' ? (activeContent as IndustryCard).businessModel : (activeContent as ScenarioCard).goal)
                             : (activeContent as PersonaCard).style}
                         </p>
                       </div>
@@ -953,34 +916,34 @@ const BusinessGuide: React.FC = () => {
                         <>
                           {guideType === 'product' && (
                             <>
-                              <ContentCard title="产品概况" icon={Info} content={(activeContent as ProductCard).overview} />
-                              <ContentCard title="准入判断" icon={ShieldCheck} list={(activeContent as ProductCard).entryCriteria} />
-                              <ContentCard title="进门对话" icon={MessageSquare} content={(activeContent as ProductCard).openingTalk} copyable />
-                              <ContentCard title="需求识别" icon={Target} content={(activeContent as ProductCard).needRecognition} />
+                              <ContentCard title="产品概况" icon={Info} content={(activeContent as ProductGuideCard).overview} />
+                              <ContentCard title="准入判断" icon={ShieldCheck} list={(activeContent as ProductGuideCard).entryCriteria} />
+                              <ContentCard title="进门对话" icon={MessageSquare} content={(activeContent as ProductGuideCard).openingTalk} copyable />
+                              <ContentCard title="需求识别" icon={Target} content={(activeContent as ProductGuideCard).needRecognition} />
                               <ContentCard 
                                 title="材料清单" 
                                 icon={FileText} 
-                                list={(activeContent as ProductCard).materials} 
+                                list={(activeContent as ProductGuideCard).materials} 
                                 copyable 
-                                action={(activeContent as ProductCard).relatedSkill?.path.includes('material-checklist') ? {
+                                action={(activeContent as ProductGuideCard).relatedSkill?.path.includes('material-checklist') ? {
                                   label: '去生成授信清单',
-                                  onClick: () => navigate((activeContent as ProductCard).relatedSkill!.path)
+                                  onClick: () => navigate((activeContent as ProductGuideCard).relatedSkill!.path)
                                 } : undefined}
                               />
-                              <ContentCard title="推进路径" icon={TrendingUp} list={(activeContent as ProductCard).steps} />
+                              <ContentCard title="推进路径" icon={TrendingUp} list={(activeContent as ProductGuideCard).steps} />
                               
                               {/* Product Stats */}
-                              {(activeContent as ProductCard).details && (
+                              {(activeContent as ProductGuideCard).details && (
                                 <ContentCard 
                                   title="产品核心要素" 
                                   icon={Star} 
                                   list={[
-                                    `利率：${(activeContent as ProductCard).details?.rate}`,
-                                    `期限：${(activeContent as ProductCard).details?.term}`,
-                                    `费率：${(activeContent as ProductCard).details?.pricing}`,
-                                    `担保：${(activeContent as ProductCard).details?.guarantee}`,
-                                    `审批：${(activeContent as ProductCard).details?.creditMethod}`,
-                                    `补贴：${(activeContent as ProductCard).details?.subsidy}`
+                                    `利率：${(activeContent as ProductGuideCard).details?.rate}`,
+                                    `期限：${(activeContent as ProductGuideCard).details?.term}`,
+                                    `费率：${(activeContent as ProductGuideCard).details?.pricing}`,
+                                    `担保：${(activeContent as ProductGuideCard).details?.guarantee}`,
+                                    `审批：${(activeContent as ProductGuideCard).details?.creditMethod}`,
+                                    `补贴：${(activeContent as ProductGuideCard).details?.subsidy}`
                                   ]} 
                                 />
                               )}
@@ -991,48 +954,48 @@ const BusinessGuide: React.FC = () => {
                                 icon={Target} 
                                 list={[
                                   "【适合客群】",
-                                  ...(activeContent as ProductCard).productBoundary?.suitable.map(s => `· ${s}`) || [],
+                                  ...(activeContent as ProductGuideCard).productBoundary?.suitable.map(s => `· ${s}`) || [],
                                   "\n【不适合客群】",
-                                  ...(activeContent as ProductCard).productBoundary?.unsuitable.map(u => `· ${u}`) || []
+                                  ...(activeContent as ProductGuideCard).productBoundary?.unsuitable.map(u => `· ${u}`) || []
                                 ]} 
                               />
 
                               <ContentCard 
                                 title="实战判断逻辑" 
                                 icon={Zap} 
-                                list={(activeContent as ProductCard).practicalLogic?.map((l, i) => `${i + 1}. ${l}`)} 
+                                list={(activeContent as ProductGuideCard).practicalLogic?.map((l, i) => `${i + 1}. ${l}`)} 
                               />
 
                               <ContentCard 
                                 title="客户高频问题 (对客版)" 
                                 icon={MessageSquare} 
-                                list={(activeContent as ProductCard).highFreqQA?.map(qa => `问：${qa.question}\n答：${qa.answer}`)} 
+                                list={(activeContent as ProductGuideCard).highFreqQA?.map(qa => `问：${qa.question}\n答：${qa.answer}`)} 
                                 copyable
                               />
 
                               <ContentCard 
                                 title="客户经理内部逻辑" 
                                 icon={ShieldCheck} 
-                                list={(activeContent as ProductCard).highFreqQA?.map(qa => `针对：${qa.question}\n逻辑：${qa.internalLogic}`)} 
+                                list={(activeContent as ProductGuideCard).highFreqQA?.map(qa => `针对：${qa.question}\n逻辑：${qa.internalLogic}`)} 
                               />
 
                               <ContentCard 
                                 title="禁止承诺口径" 
                                 icon={Ban} 
-                                list={(activeContent as ProductCard).highFreqQA?.map(qa => `警告：${qa.prohibited}`)} 
+                                list={(activeContent as ProductGuideCard).highFreqQA?.map(qa => `警告：${qa.prohibited}`)} 
                                 warning
                               />
 
                               <ContentCard 
                                 title="提速放款清单 (RM动作)" 
                                 icon={Clock} 
-                                list={(activeContent as ProductCard).speedUpChecklist?.rmActions} 
+                                list={(activeContent as ProductGuideCard).speedUpChecklist?.rmActions} 
                               />
 
                               <ContentCard 
                                 title="提速放款清单 (客户配合)" 
                                 icon={Users} 
-                                list={(activeContent as ProductCard).speedUpChecklist?.customerCooperation} 
+                                list={(activeContent as ProductGuideCard).speedUpChecklist?.customerCooperation} 
                                 copyable
                               />
 
@@ -1040,29 +1003,29 @@ const BusinessGuide: React.FC = () => {
                                 title="行业营销打法" 
                                 icon={Briefcase} 
                                 list={[
-                                  `【制造业】\n${(activeContent as ProductCard).industryMarketing?.manufacturing}`,
-                                  `\n【科技型】\n${(activeContent as ProductCard).industryMarketing?.tech}`
+                                  `【制造业】\n${(activeContent as ProductGuideCard).industryMarketing?.manufacturing}`,
+                                  `\n【科技型】\n${(activeContent as ProductGuideCard).industryMarketing?.tech}`
                                 ]} 
                               />
 
                               <ContentCard 
                                 title="对客话术 (初次触达)" 
                                 icon={MessageSquare} 
-                                content={(activeContent as ProductCard).scripts?.initial} 
+                                content={(activeContent as ProductGuideCard).scripts?.initial} 
                                 copyable
                               />
 
                               <ContentCard 
                                 title="对客话术 (深入沟通)" 
                                 icon={MessageSquare} 
-                                content={(activeContent as ProductCard).scripts?.deep} 
+                                content={(activeContent as ProductGuideCard).scripts?.deep} 
                                 copyable
                               />
 
                               <ContentCard 
                                 title="对客话术 (补件推进)" 
                                 icon={MessageSquare} 
-                                content={(activeContent as ProductCard).scripts?.followUp} 
+                                content={(activeContent as ProductGuideCard).scripts?.followUp} 
                                 copyable
                               />
 
@@ -1085,16 +1048,16 @@ const BusinessGuide: React.FC = () => {
                                   </div>
                                 </div>
                               </div>
-                              {(activeContent as ProductCard).comparison && (
+                              {(activeContent as ProductGuideCard).comparison && (
                                 <ContentCard 
-                                  title={`与 ${(activeContent as ProductCard).comparison!.with} 的区别`} 
+                                  title={`与 ${(activeContent as ProductGuideCard).comparison!.with} 的区别`} 
                                   icon={RefreshCcw} 
-                                  list={(activeContent as ProductCard).comparison!.points} 
+                                  list={(activeContent as ProductGuideCard).comparison!.points} 
                                   warning
                                 />
                               )}
-                              <ContentCard title="异议处理" icon={MessageSquare} list={(activeContent as ProductCard).objections.map(o => `问：${o.q}\n答：${o.a}`)} />
-                              <ContentCard title="禁忌表达" icon={Ban} list={(activeContent as ProductCard).forbiddenPhrases} warning />
+                              <ContentCard title="异议处理" icon={MessageSquare} list={(activeContent as ProductGuideCard).objections.map(o => `问：${o.q}\n答：${o.a}`)} />
+                              <ContentCard title="禁忌表达" icon={Ban} list={(activeContent as ProductGuideCard).forbiddenPhrases} warning />
                             </>
                           )}
                           {guideType === 'industry' && (
@@ -1143,7 +1106,7 @@ const BusinessGuide: React.FC = () => {
                           <p className="text-[10px] font-bold text-brand-gray uppercase tracking-[0.25em] opacity-60">主打产品 · 快速导览</p>
                         </div>
                         {['chang_rong_bao', 'chang_yi_dan'].map(pid => {
-                          const p = GUIDE_DATA.products.find(x => x.id === pid);
+                          const p = productCards.find(x => x.id === pid);
                           if (!p) return null;
                           const isCRB = pid === 'chang_rong_bao';
                           return (

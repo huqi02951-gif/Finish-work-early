@@ -1,85 +1,216 @@
-
-import { MOCK_USER, MOCK_POSTS, MOCK_NOTIFICATIONS } from '../mock/data';
+import { MOCK_NOTIFICATIONS } from '../mock/data';
 import { Post, Notification, User } from '../types';
-import { getLocalPosts, saveLocalPost } from '../../lib/localDB';
 
 /**
  * API Service Layer
  * 
  * Future Integration:
- * - Replace mock returns with fetch/axios calls to your backend (Firebase, Supabase, etc.)
- * - Use environment variables for API base URLs
+ * Phase 1:
+ * - Feed / publish 已切到真实后端
+ * - 通知仍保留 mock，下一阶段接入
  */
+
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
+const API_ROOT = `${API_BASE_URL}/api/v1`;
+const DEMO_CLIENT_KEY_STORAGE = 'fwe:demo-client-key';
+const DEMO_SESSION_STORAGE = 'fwe:demo-session';
+
+type BackendRole = 'USER' | 'ADMIN' | 'MANAGER';
+type BackendPostStatus = 'PUBLISHED' | 'PENDING' | 'ARCHIVED';
+
+interface BackendUser {
+  id: number;
+  username: string;
+  nickname: string;
+  role: BackendRole;
+  createdAt: string;
+}
+
+interface BackendPost {
+  id: number;
+  authorId: number;
+  title: string;
+  content: string;
+  category: string;
+  status: BackendPostStatus;
+  createdAt: string;
+  updatedAt: string;
+  author: BackendUser;
+  _count?: {
+    comments: number;
+  };
+}
+
+interface DemoSession {
+  accessToken: string;
+  user: User;
+}
+
+let demoSessionPromise: Promise<DemoSession> | null = null;
+
+function getDemoClientKey(): string {
+  const stored = localStorage.getItem(DEMO_CLIENT_KEY_STORAGE);
+  if (stored) return stored;
+
+  const next = crypto.randomUUID();
+  localStorage.setItem(DEMO_CLIENT_KEY_STORAGE, next);
+  return next;
+}
+
+function mapBackendRole(role: BackendRole): User['role'] {
+  if (role === 'ADMIN') return 'admin';
+  if (role === 'MANAGER') return 'manager';
+  return 'user';
+}
+
+function mapBackendStatus(status: BackendPostStatus): Post['status'] {
+  if (status === 'PENDING') return 'pending';
+  if (status === 'ARCHIVED') return 'archived';
+  return 'published';
+}
+
+function mapBackendUser(user: BackendUser): User {
+  return {
+    id: String(user.id),
+    nickname: user.nickname || user.username,
+    avatar: '',
+    role: mapBackendRole(user.role),
+    createdAt: user.createdAt,
+  };
+}
+
+function mapBackendPost(post: BackendPost): Post {
+  return {
+    id: String(post.id),
+    userId: String(post.authorId),
+    title: post.title,
+    content: post.content,
+    category: post.category || '经验分享',
+    tags: [],
+    images: [],
+    status: mapBackendStatus(post.status),
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+    author: mapBackendUser(post.author),
+  };
+}
+
+async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_ROOT}${path}`, {
+    ...init,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(init?.headers || {}),
+    },
+  });
+
+  if (!response.ok) {
+    let message = `Request failed with status ${response.status}`;
+    try {
+      const payload = await response.json();
+      if (payload?.message) {
+        message = Array.isArray(payload.message) ? payload.message.join(', ') : String(payload.message);
+      }
+    } catch {
+      const text = await response.text();
+      if (text) message = text;
+    }
+    throw new Error(message);
+  }
+
+  return response.json() as Promise<T>;
+}
+
+async function createDemoSession(): Promise<DemoSession> {
+  const payload = await requestJson<{
+    access_token: string;
+    user: BackendUser;
+  }>('/auth/demo-session', {
+    method: 'POST',
+    body: JSON.stringify({
+      clientKey: getDemoClientKey(),
+      nickname: '当前浏览器用户',
+    }),
+  });
+
+  const session: DemoSession = {
+    accessToken: payload.access_token,
+    user: mapBackendUser(payload.user),
+  };
+  localStorage.setItem(DEMO_SESSION_STORAGE, JSON.stringify(session));
+  return session;
+}
+
+async function ensureDemoSession(forceRefresh = false): Promise<DemoSession> {
+  if (!forceRefresh) {
+    const stored = localStorage.getItem(DEMO_SESSION_STORAGE);
+    if (stored) {
+      try {
+        return JSON.parse(stored) as DemoSession;
+      } catch {
+        localStorage.removeItem(DEMO_SESSION_STORAGE);
+      }
+    }
+  }
+
+  if (!demoSessionPromise || forceRefresh) {
+    demoSessionPromise = createDemoSession().finally(() => {
+      demoSessionPromise = null;
+    });
+  }
+
+  return demoSessionPromise;
+}
+
+async function withAuth<T>(builder: (token: string) => Promise<T>): Promise<T> {
+  try {
+    const session = await ensureDemoSession();
+    return await builder(session.accessToken);
+  } catch (error) {
+    if (error instanceof Error && /401|Unauthorized/i.test(error.message)) {
+      const refreshed = await ensureDemoSession(true);
+      return builder(refreshed.accessToken);
+    }
+    throw error;
+  }
+}
 
 export const apiService = {
   // User APIs
   getCurrentUser: async (): Promise<User> => {
-    // Future: GET /api/me
-    return Promise.resolve(MOCK_USER);
+    const session = await ensureDemoSession();
+    return session.user;
   },
 
   // Post APIs
   getPosts: async (category?: string): Promise<Post[]> => {
-    const localPosts = await getLocalPosts('feed');
-    const posts = [
-      ...localPosts.map((post): Post => ({
-        id: `local-${post.id}`,
-        userId: 'local-user',
-        title: post.title || '未命名内容',
-        content: post.content,
-        category: String(post.metadata?.category || '经验分享'),
-        tags: Array.isArray(post.metadata?.tags) ? post.metadata.tags : [],
-        images: Array.isArray(post.metadata?.images) ? post.metadata.images : [],
-        status: 'published',
-        createdAt: post.createdAt.toISOString(),
-        updatedAt: post.createdAt.toISOString(),
-        author: {
-          ...MOCK_USER,
-          id: 'local-user',
-          nickname: post.author || '当前浏览器',
-        },
-      })),
-      ...MOCK_POSTS,
-    ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-    if (category) {
-      return posts.filter(p => p.category === category);
-    }
-    return posts;
+    const search = category ? `?category=${encodeURIComponent(category)}` : '';
+    const posts = await requestJson<BackendPost[]>(`/posts${search}`);
+    return posts.map(mapBackendPost);
   },
 
   getPostById: async (id: string): Promise<Post | undefined> => {
-    const posts = await apiService.getPosts();
-    return posts.find(p => p.id === id);
+    if (!id) return undefined;
+    const post = await requestJson<BackendPost>(`/posts/${id}`);
+    return mapBackendPost(post);
   },
 
   createPost: async (post: Partial<Post>): Promise<Post> => {
-    const newPost: Post = {
-      id: `local-${Math.random().toString(36).slice(2, 11)}`,
-      userId: MOCK_USER.id,
-      title: post.title || '',
-      content: post.content || '',
-      category: post.category || '未分类',
-      tags: post.tags || [],
-      images: post.images || [],
-      status: 'published',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      author: MOCK_USER,
-    };
-    await saveLocalPost({
-      type: 'feed',
-      title: newPost.title,
-      content: newPost.content,
-      author: MOCK_USER.nickname,
-      likes: 0,
-      metadata: {
-        category: newPost.category,
-        tags: newPost.tags,
-        images: newPost.images,
-      },
-    });
-    return newPost;
+    const created = await withAuth((token) =>
+      requestJson<BackendPost>('/posts', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: post.title || '',
+          content: post.content || '',
+          category: post.category || '经验分享',
+        }),
+      }),
+    );
+
+    return mapBackendPost(created);
   },
 
   // Notification APIs

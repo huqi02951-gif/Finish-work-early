@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, CheckCircle2, Zap, LayoutDashboard, Users, FileText, 
@@ -9,11 +9,52 @@ import { SKILLS } from '../constants/skills';
 import { cn } from '../lib/utils';
 import { motion } from 'framer-motion';
 import AppLayout from '../src/components/layout/AppLayout';
+import { getSkillDetail } from '../src/services/contentApi';
+import type { Skill } from '../types';
 
 const SkillDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const skill = SKILLS.find(s => s.id === id);
+  const fallbackSkill = useMemo(() => SKILLS.find((item) => item.id === id), [id]);
+  const [skill, setSkill] = useState<Skill | undefined>(fallbackSkill);
+  const [loading, setLoading] = useState<boolean>(Boolean(id && !fallbackSkill));
+
+  useEffect(() => {
+    if (!id) {
+      setSkill(undefined);
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(!fallbackSkill);
+
+    getSkillDetail(id)
+      .then((response) => {
+        if (!cancelled) {
+          setSkill(response);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSkill(fallbackSkill);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fallbackSkill, id]);
+
+  if (loading && !skill) {
+    return (
+      <div className="py-40 text-center bg-brand-offwhite min-h-screen">
+        <h2 className="font-serif text-4xl text-brand-dark mb-6 tracking-tight">正在加载 Skill...</h2>
+      </div>
+    );
+  }
 
   if (!skill) {
     return (
@@ -27,6 +68,9 @@ const SkillDetail: React.FC = () => {
   }
 
   const guide = skill.marketingGuide;
+  const skillStatuses = Array.isArray(skill.status) ? skill.status : [skill.status];
+  const primaryStatus = skillStatuses[0];
+  const isOnline = skillStatuses.includes('在线可用');
 
   return (
     <AppLayout title={skill.name} showBack>
@@ -44,9 +88,9 @@ const SkillDetail: React.FC = () => {
                       {skill.category}
                     </span>
                     <div className="flex items-center gap-1">
-                      <div className={cn("w-1.5 h-1.5 rounded-full", skill.status === '在线可用' ? "bg-emerald-500" : "bg-brand-gray")}></div>
+                      <div className={cn("w-1.5 h-1.5 rounded-full", isOnline ? "bg-emerald-500" : "bg-brand-gray")}></div>
                       <span className="text-[9px] font-bold text-brand-dark uppercase tracking-widest">
-                        {skill.status}
+                        {primaryStatus}
                       </span>
                     </div>
                   </div>
@@ -239,12 +283,12 @@ const SkillDetail: React.FC = () => {
                   </div>
                   <h3 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white mb-6 sm:mb-8 tracking-tight">立即开始使用</h3>
                   <p className="text-base sm:text-lg text-white/60 mb-10 sm:mb-12 leading-relaxed font-medium">
-                    {skill.status === '在线可用' 
+                    {isOnline
                       ? '该工具已在线部署，你可以直接输入参数并生成结果。' 
                       : '该工具目前需要特定的运行环境，请根据下方指引进行操作。'}
                   </p>
                   <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
-                    {skill.status === '在线可用' ? (
+                    {isOnline ? (
                       <button 
                         onClick={() => skill.toolRoute ? navigate(skill.toolRoute) : alert('该工具正在部署中...')}
                         className="px-8 py-4 sm:px-12 sm:py-5 bg-brand-gold text-brand-dark rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:shadow-2xl hover:shadow-brand-gold/40 transition-all flex items-center justify-center gap-3 active:scale-95"

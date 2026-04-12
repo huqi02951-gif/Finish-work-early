@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  MANAGER
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum PostStatus {
+  PUBLISHED
+  PENDING
+  ARCHIVED
+}
+
+enum CommentStatus {
+  PUBLISHED
+  HIDDEN
+}
+
+enum CatalogStatus {
+  DRAFT
+  PUBLISHED
+  OFFLINE
+}
+
+model User {
+  id                 Int          @id @default(autoincrement())
+  username           String       @unique
+  nickname           String
+  passwordHash       String       @map("password_hash")
+  role               UserRole     @default(USER)
+  status             UserStatus   @default(ACTIVE)
+  clientKey          String?      @unique @map("client_key")
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
+
+  posts              Post[]
+  comments           Comment[]
+  updatedPageConfigs PageConfig[] @relation("PageConfigUpdatedBy")
+
+  @@map("users")
+}
+
+model Post {
+  id        Int        @id @default(autoincrement())
+  title     String
+  content   String     @db.Text
+  category  String     @default("经验分享")
+  status    PostStatus @default(PUBLISHED)
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  deletedAt DateTime?  @map("deleted_at")
+
+  authorId  Int        @map("author_id")
+  author    User       @relation(fields: [authorId], references: [id])
+  comments  Comment[]
+
+  @@index([authorId])
+  @@index([status, createdAt])
+
+  @@map("posts")
+}
+
+model Comment {
+  id        Int           @id @default(autoincrement())
+  content   String        @db.Text
+  status    CommentStatus @default(PUBLISHED)
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+  deletedAt DateTime?     @map("deleted_at")
+
+  postId    Int           @map("post_id")
+  post      Post          @relation(fields: [postId], references: [id])
+
+  authorId  Int           @map("author_id")
+  author    User          @relation(fields: [authorId], references: [id])
+
+  @@index([postId, createdAt])
+  @@index([authorId])
+
+  @@map("comments")
+}
+
+model PageConfig {
+  id            Int       @id @default(autoincrement())
+  pageKey       String    @unique @map("page_key")
+  configData    Json      @map("config_data")
+  version       Int       @default(1)
+  schemaVersion Int       @default(1) @map("schema_version")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  publishedAt   DateTime? @map("published_at")
+  deletedAt     DateTime? @map("deleted_at")
+  updatedById   Int?      @map("updated_by_id")
+  updatedBy     User?     @relation("PageConfigUpdatedBy", fields: [updatedById], references: [id])
+
+  @@index([deletedAt])
+  @@map("page_configs")
+}
+
+model Product {
+  id         Int               @id @default(autoincrement())
+  slug       String            @unique
+  name       String            @db.VarChar(100)
+  category   String            @db.VarChar(100)
+  summary    String            @db.Text
+  coverUrl   String?           @map("cover_url")
+  targetUrl  String?           @map("target_url")
+  status     CatalogStatus     @default(DRAFT)
+  sortOrder  Int               @default(0) @map("sort_order")
+  detailData Json              @map("detail_data")
+  createdAt  DateTime          @default(now()) @map("created_at")
+  updatedAt  DateTime          @updatedAt @map("updated_at")
+  deletedAt  DateTime?         @map("deleted_at")
+  skills     ProductSkillRel[]
+
+  @@index([status, sortOrder])
+  @@index([deletedAt])
+  @@map("products")
+}
+
+model Skill {
+  id         Int               @id @default(autoincrement())
+  slug       String            @unique
+  title      String            @db.VarChar(100)
+  category   String            @db.VarChar(100)
+  summary    String            @db.Text
+  toolRoute  String?           @map("tool_route")
+  formLabel  String?           @map("form_label")
+  status     CatalogStatus     @default(DRAFT)
+  sortOrder  Int               @default(0) @map("sort_order")
+  detailData Json              @map("detail_data")
+  createdAt  DateTime          @default(now()) @map("created_at")
+  updatedAt  DateTime          @updatedAt @map("updated_at")
+  deletedAt  DateTime?         @map("deleted_at")
+  products   ProductSkillRel[]
+
+  @@index([status, sortOrder])
+  @@index([deletedAt])
+  @@map("skills")
+}
+
+model ProductSkillRel {
+  productId Int     @map("product_id")
+  skillId   Int     @map("skill_id")
+  sortOrder Int     @default(0) @map("sort_order")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  skill     Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([productId, skillId])
+  @@index([productId, sortOrder])
+  @@index([skillId, sortOrder])
+  @@map("product_skill_rel")
+}
