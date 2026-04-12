@@ -96,12 +96,35 @@ const WorkspacePage: React.FC = () => {
     <AppLayout title="工作台">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
         <section className="flex flex-col gap-3 border-b border-brand-border/40 pb-6">
-          <div>
-            <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-gray">workspace</div>
-            <h1 className="mt-3 text-3xl font-semibold text-brand-dark">正式与效率的专业前台。</h1>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-brand-gray">
-              工作台是你处理业务的数字总台。汇集历史记录、高频工具，并在业务社区沉淀真实的经验与操作指南。
-            </p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="flex-grow">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-gray">workspace</div>
+              <h1 className="mt-3 text-2xl sm:text-3xl font-bold text-brand-dark">正式与效率的专业前台。</h1>
+              <p className="mt-2 max-w-2xl text-xs sm:text-sm leading-6 text-brand-gray">
+                工作台是你处理业务的数字总台，汇集历史记录与高频工具。
+              </p>
+            </div>
+
+            {/* The Pantry Portal - Featured for quick access */}
+            <section className="w-full md:w-[320px] shrink-0 relative overflow-hidden rounded-xl border border-[#2d1b0d] bg-[#0c0805] shadow-[0_4px_20px_rgba(247,185,141,0.12)]">
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')] opacity-20 pointer-events-none"></div>
+              <div className="relative p-4 sm:p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-[#f7b98d] animate-pulse"></div>
+                    <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#8a6b57]">地下茶水间</div>
+                  </div>
+                  <Lock size={12} className="text-[#f7b98d]/40" />
+                </div>
+                <Link
+                  to="/bbs"
+                  className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-[#2d1b0d] px-4 py-2.5 text-xs font-bold text-[#f7b98d] transition-all hover:bg-[#3d2512]"
+                >
+                  <span className="relative z-10 flex items-center gap-2">验证匿名身份</span>
+                  <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-[#f7b98d]/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                </Link>
+              </div>
+            </section>
           </div>
         </section>
 
@@ -180,46 +203,18 @@ const WorkspacePage: React.FC = () => {
             </section>
           </div>
 
-          {/* Right Column: Tools, Context, Exports & Pantry */}
+          {/* Right Column: Tools, Context, Exports */}
           <div className="flex flex-col gap-6">
-            
-            {/* The Pantry Portal */}
-            <section className="relative overflow-hidden rounded-xl border border-[#2d1b0d] bg-[#0c0805] shadow-[0_4px_30px_rgba(247,185,141,0.08)]">
-              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')] opacity-20 pointer-events-none"></div>
-              <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-[#f7b98d] opacity-[0.05] blur-2xl"></div>
-              
-              <div className="relative p-6">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="h-2 w-2 rounded-full bg-[#f7b98d] animate-pulse"></div>
-                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#8a6b57]">The Secret Node</div>
-                </div>
-                <h3 className="text-xl font-bold text-[#f7b98d] mb-2 tracking-tight">前往地下茶水间</h3>
-                <p className="text-[13px] leading-6 text-[#a68670] mb-5">
-                  这里是正经工作区。如果想匿名发疯、吐槽找瓜、或者出个闲置，请戴上面具，进入另一个世界。
-                </p>
-                
-                <Link
-                  to="/bbs"
-                  className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-[#2d1b0d] px-4 py-3 text-sm font-bold text-[#f7b98d] transition-all hover:bg-[#3d2512] hover:shadow-[0_0_20px_rgba(247,185,141,0.2)]"
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    <Lock size={15} className="group-hover:unlock-icon-animate" />
-                    验证匿名身份
-                  </span>
-                  <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-[#f7b98d]/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-                </Link>
-              </div>
-            </section>
 
             {/* Tools Area */}
             <section className="rounded-md border border-brand-border/60 bg-white">
               <div className="border-b border-brand-border/40 px-4 py-3 pb-2">
                 <h3 className="text-sm font-semibold text-brand-dark">工兵连</h3>
               </div>
-              <div className="p-4 grid gap-4">
+              <div className="p-4 grid gap-3">
                 {/* 热门推荐 */}
                 <div>
-                  <div className="text-[11px] mb-2 font-semibold uppercase tracking-[0.12em] text-brand-gray/80 flex items-center gap-1.5"><Sparkles size={11} className="text-amber-500" /> 热门推荐</div>
+                  <div className="text-[10px] mb-1.5 font-semibold uppercase tracking-[0.12em] text-brand-gray/80 flex items-center gap-1.5"><Sparkles size={10} className="text-amber-500" /> 热门推荐</div>
                   <div className="grid grid-cols-2 gap-2">
                     {quickTools.slice(0, 2).map((tool) => (
                       <Link key={tool.id} to={tool.path} className="flex items-center justify-between rounded border border-brand-border/50 bg-brand-offwhite px-3 py-2 transition-colors hover:bg-white hover:shadow-sm">

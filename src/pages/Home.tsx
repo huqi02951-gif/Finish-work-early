@@ -59,7 +59,7 @@ const itemVariants = {
 const Home: React.FC = () => {
   return (
     <AppLayout title="首页">
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] relative overflow-hidden bg-white px-6 py-12">
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-6rem)] relative overflow-hidden bg-white px-4 py-8 sm:py-12">
         <div className="w-full max-w-3xl mx-auto flex flex-col items-center">
           
           {/* Header Section - ChatGPT Style */}
@@ -67,22 +67,22 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="text-center mb-12 sm:mb-16"
+            className="text-center mb-8 sm:mb-14"
           >
-            <h1 className="text-3xl sm:text-[2.75rem] font-medium tracking-tight mb-4 text-brand-dark leading-tight">
+            <h1 className="text-2xl sm:text-[2.75rem] font-medium tracking-tight mb-3 text-brand-dark leading-tight">
               今天想处理什么业务？
             </h1>
-            <p className="text-base sm:text-lg text-brand-gray/80 font-normal max-w-md mx-auto leading-relaxed">
+            <p className="text-sm sm:text-lg text-brand-gray/80 font-normal max-w-md mx-auto leading-relaxed">
               让工具拳拳到肉，让专业能力信手拈来。
             </p>
           </motion.div>
 
           {/* 4 Modules Grid */}
-          <motion.variants
+          <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full"
+            className="grid grid-cols-2 gap-3 sm:gap-4 w-full"
           >
             {scenarios.map((item) => (
               <motion.div key={item.id} variants={itemVariants}>
@@ -90,17 +90,17 @@ const Home: React.FC = () => {
                   to={item.path}
                   className="group flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 p-5 sm:p-6 rounded-2xl border border-brand-border/40 bg-white hover:bg-brand-offwhite hover:border-brand-border/80 transition-all duration-300 active:scale-[0.98] shadow-sm hover:shadow-md"
                 >
-                  <div className="w-12 h-12 rounded-full border border-brand-border/60 flex items-center justify-center bg-brand-light-gray group-hover:bg-white group-hover:scale-110 transition-transform duration-300 shrink-0">
-                    <item.icon size={22} className="text-brand-dark opacity-80" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-brand-border/60 flex items-center justify-center bg-brand-light-gray group-hover:bg-white group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <item.icon size={20} className="text-brand-dark opacity-80" />
                   </div>
-                  <div className="flex-grow">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-base font-semibold text-brand-dark tracking-tight">
+                  <div className="flex-grow min-w-0">
+                    <div className="flex items-center justify-between mb-0.5 sm:mb-1">
+                      <h3 className="text-sm sm:text-base font-bold text-brand-dark tracking-tight truncate">
                         {item.title}
                       </h3>
-                      <ArrowRight size={16} className="text-brand-gray opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300" />
+                      <ArrowRight size={14} className="text-brand-gray opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300 hidden sm:block" />
                     </div>
-                    <p className="text-xs sm:text-sm text-brand-gray leading-relaxed opacity-80">
+                    <p className="text-[10px] sm:text-sm text-brand-gray leading-tight sm:leading-relaxed opacity-80 line-clamp-1 sm:line-clamp-2">
                       {item.desc}
                     </p>
                   </div>
@@ -113,7 +113,7 @@ const Home: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 1 }}
-            className="mt-16 text-center space-y-4"
+            className="mt-10 sm:mt-16 text-center space-y-3 sm:space-y-4"
           >
             <div className="inline-block px-4 py-1.5 rounded-full bg-brand-offwhite border border-brand-border/30 text-[10px] font-medium tracking-[0.2em] uppercase text-brand-gray/60">
               Finish Work Early
