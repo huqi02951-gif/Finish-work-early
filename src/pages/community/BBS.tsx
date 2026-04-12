@@ -50,14 +50,11 @@ const BBSPage: React.FC = () => {
   });
 
   const load = async () => {
-    const [items, nextSummary] = await Promise.all([
-      listCommunityEntries(activeChannel),
-      getCommunitySummary(),
-    ]);
-    const items = await listCommunityEntries(activeChannel === '全部' ? undefined : activeChannel);
+    const nextSummary = await getCommunitySummary();
+    const loadedItems = await listCommunityEntries(activeChannel === '全部' ? undefined : activeChannel);
     const filteredItems = activeChannel === '全部' 
-      ? items.filter((item) => PANTRY_CHANNELS.includes(item.channel as any))
-      : items;
+      ? loadedItems.filter((item) => PANTRY_CHANNELS.includes(item.channel as any))
+      : loadedItems;
 
     setEntries(filteredItems);
     setSummary(nextSummary);

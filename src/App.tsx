@@ -24,6 +24,8 @@ import WorkspacePage from './pages/Workspace';
 import BBSPage from './pages/community/BBS';
 import CommunityThreadPage from './pages/community/CommunityThread';
 import CommunityTopicPage from './pages/community/CommunityTopic';
+import FormalThreadPage from './pages/community/FormalThread';
+import FormalTopicPage from './pages/community/FormalTopic';
 
 /* ─── 404 Not Found ─── */
 const NotFoundPage = () => (
@@ -78,6 +80,8 @@ const App: React.FC = () => {
 
         {/* ─── 工作台 ─── */}
         <Route path="/workspace" element={<WorkspacePage />} />
+        <Route path="/formal/thread/:id" element={<FormalThreadPage />} />
+        <Route path="/formal/topic/:id" element={<FormalTopicPage />} />
 
         {/* ─── 404 Fallback ─── */}
         <Route path="*" element={<NotFoundPage />} />
