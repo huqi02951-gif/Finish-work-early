@@ -6,7 +6,7 @@ import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber, writeLocalNum
 import { createSelfGossipThread } from '../../lib/community';
 import {
   Settings, X, Check, Plus, Trash2, RotateCcw,
-  Coffee, Heart, Zap, Gift, Sparkles,
+  Coffee, Heart, Zap, Gift, Sparkles, Terminal,
 } from 'lucide-react';
 
 // ─── Storage helpers ──────────────────────────────────────────────────────────
