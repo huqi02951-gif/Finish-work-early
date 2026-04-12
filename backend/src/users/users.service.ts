@@ -12,6 +12,8 @@ export class UsersService {
         id: true,
         username: true,
         nickname: true,
+        email: true,
+        phone: true,
         role: true,
         status: true,
         createdAt: true,

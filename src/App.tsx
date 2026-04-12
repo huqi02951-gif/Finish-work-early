@@ -26,6 +26,7 @@ import CommunityThreadPage from './pages/community/CommunityThread';
 import CommunityTopicPage from './pages/community/CommunityTopic';
 import FormalThreadPage from './pages/community/FormalThread';
 import FormalTopicPage from './pages/community/FormalTopic';
+import LoginPage from './pages/auth/LoginPage';
 
 /* ─── 404 Not Found ─── */
 const NotFoundPage = () => (
@@ -48,6 +49,9 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
+        {/* ─── 登录页 ─── */}
+        <Route path="/login" element={<LoginPage />} />
+
         {/* ─── 首页 & 社交页（自带 AppLayout） ─── */}
         <Route path="/" element={<HomePage />} />
         <Route path="/profile" element={<ProfilePage />} />

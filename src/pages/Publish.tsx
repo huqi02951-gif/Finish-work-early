@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Image, Tag, Send, AlertCircle, Lock } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiService } from '../services/api';
+import { getAuthSession } from '../services/authService';
 import { cn } from '../../lib/utils';
 
 const Publish: React.FC = () => {
@@ -14,6 +15,7 @@ const Publish: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const redirectTimerRef = useRef<number | null>(null);
 
   const categories = ['政策解读', '业务打法', '经验分享', '行业动态'];
@@ -21,6 +23,13 @@ const Publish: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !content) return;
+
+    // Check if user is authenticated
+    const session = getAuthSession();
+    if (!session || session.loginMethod === 'demo') {
+      setShowLoginModal(true);
+      return;
+    }
 
     setIsSubmitting(true);
     setSubmitError(null);
@@ -133,12 +142,12 @@ const Publish: React.FC = () => {
           <div className="p-4 bg-brand-gold/5 border border-brand-gold/10 rounded-2xl flex gap-3">
             <AlertCircle size={18} className="text-brand-gold shrink-0" />
             <p className="text-[11px] text-brand-dark/70 leading-relaxed font-medium">
-              当前阶段会以自动创建的演示身份发帖，并<span className="text-brand-gold font-bold">直接写入后端数据库</span>。审核、标签、图片上传在下一阶段补齐。
+              当前阶段请以<span className="text-brand-gold font-bold">邮箱登录</span>后发帖，你的帖子将持久化到数据库，跨设备可见。
             </p>
           </div>
           <div className="flex items-center gap-2 text-[11px] text-brand-gray/70 px-1">
             <Lock size={14} className="text-brand-gray/50" />
-            <span>当前可用能力：数据库发帖、发现页展示。图片、标签、真实社区评论前端暂未接入。</span>
+            <span>登录后发帖绑定账号，退出再登录仍可见。图片、标签前端暂未接入。</span>
           </div>
 
           {/* Submit Button */}
@@ -158,6 +167,36 @@ const Publish: React.FC = () => {
           </button>
         </form>
       </div>
+
+      {/* Login Required Modal */}
+      {showLoginModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-brand-dark/20 backdrop-blur-sm">
+          <div className="bg-white p-8 rounded-[2rem] shadow-2xl text-center space-y-5 animate-scale-in max-w-sm w-full">
+            <div className="w-16 h-16 bg-brand-dark text-white rounded-full flex items-center justify-center mx-auto shadow-lg">
+              <Lock size={28} />
+            </div>
+            <h3 className="text-lg font-bold text-brand-dark">需要登录后发帖</h3>
+            <p className="text-sm text-brand-gray leading-relaxed">
+              登录后你的帖子将持久化到数据库，换设备也能看到。<br/>
+              游客模式发的帖子仅当前浏览器可见。
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowLoginModal(false)}
+                className="flex-1 py-3 bg-white border-2 border-brand-dark text-brand-dark rounded-2xl font-bold text-sm hover:bg-brand-dark hover:text-white transition-all"
+              >
+                稍后再说
+              </button>
+              <button
+                onClick={() => navigate('/login')}
+                className="flex-1 py-3 bg-brand-dark text-white rounded-2xl font-bold text-sm hover:bg-brand-dark/90 transition-all"
+              >
+                去登录
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Success Modal */}
       {showSuccess && (

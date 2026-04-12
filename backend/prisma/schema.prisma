@@ -40,6 +40,10 @@ model User {
   username           String       @unique
   nickname           String
   passwordHash       String       @map("password_hash")
+  email              String?      @unique
+  phone              String?      @unique
+  avatarUrl          String?      @map("avatar_url")
+  bio                String?      @db.Text
   role               UserRole     @default(USER)
   status             UserStatus   @default(ACTIVE)
   clientKey          String?      @unique @map("client_key")
@@ -49,6 +53,7 @@ model User {
   posts              Post[]
   comments           Comment[]
   updatedPageConfigs PageConfig[] @relation("PageConfigUpdatedBy")
+  sessions           UserSession[]
 
   @@map("users")
 }
@@ -162,4 +167,32 @@ model ProductSkillRel {
   @@index([productId, sortOrder])
   @@index([skillId, sortOrder])
   @@map("product_skill_rel")
+}
+
+model VerificationCode {
+  id        Int       @id @default(autoincrement())
+  type      String    // 'email' | 'phone'
+  target    String    // 邮箱地址或手机号
+  code      String    @db.VarChar(6)  // 6 位验证码
+  purpose   String    @default("login")  // 'login' | 'register'
+  used      Boolean   @default(false)
+  expiresAt DateTime  @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([type, target, purpose, used, expiresAt])
+  @@map("verification_codes")
+}
+
+model UserSession {
+  id         Int       @id @default(autoincrement())
+  userId     Int       @map("user_id")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceInfo String?   @map("device_info")
+  ipAddress  String?   @map("ip_address")
+  tokenHash  String?   @unique @map("token_hash")
+  expiresAt  DateTime  @map("expires_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  @@index([userId, expiresAt])
+  @@map("user_sessions")
 }

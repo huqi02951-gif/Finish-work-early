@@ -1,19 +1,18 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { EmailAuthModule } from './email-auth.module';
+import { EmailAuthService } from './email-auth.service';
+import { EmailAuthController } from './email-auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
-    EmailAuthModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET || 'FINISH_WORK_PHASE_1_SECRET',
       signOptions: { expiresIn: '7d' },
     }),
   ],
-  controllers: [AuthController],
-  providers: [AuthService],
+  controllers: [EmailAuthController],
+  providers: [EmailAuthService],
+  exports: [EmailAuthService],
 })
-export class AuthModule {}
+export class EmailAuthModule {}

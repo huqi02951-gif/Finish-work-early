@@ -1,5 +1,6 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -18,5 +19,13 @@ export class AuthController {
   @Post('demo-session')
   async createDemoSession(@Body() body: any) {
     return this.authService.createOrLoginDemoSession(body.clientKey, body.nickname);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('logout')
+  async logout(@Req() req) {
+    // Client-side token removal is sufficient for JWT
+    // Server-side session revocation can be added when user_sessions table is actively managed
+    return { success: true, message: '已退出登录' };
   }
 }

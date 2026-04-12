@@ -76,6 +76,37 @@ export class PostsService {
     });
   }
 
+  async findByAuthorId(authorId: number) {
+    return this.prisma.post.findMany({
+      where: {
+        authorId,
+        deletedAt: null,
+      },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            nickname: true,
+            role: true,
+            createdAt: true,
+          },
+        },
+        _count: {
+          select: {
+            comments: {
+              where: {
+                deletedAt: null,
+                status: 'PUBLISHED',
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
   async findById(id: number) {
     const post = await this.prisma.post.findFirst({
       where: {

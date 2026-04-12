@@ -1,5 +1,6 @@
 import { MOCK_NOTIFICATIONS } from '../mock/data';
 import { Post, Notification, User } from '../types';
+import { getAuthSession, getBestToken, getBestUser, isDemoSession } from './authService';
 
 /**
  * API Service Layer
@@ -10,7 +11,12 @@ import { Post, Notification, User } from '../types';
  * - 通知仍保留 mock，下一阶段接入
  */
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL || 
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:3000' 
+    : '')
+).replace(/\/$/, '');
 const API_ROOT = `${API_BASE_URL}/api/v1`;
 const DEMO_CLIENT_KEY_STORAGE = 'fwe:demo-client-key';
 const DEMO_SESSION_STORAGE = 'fwe:demo-session';
@@ -22,6 +28,8 @@ interface BackendUser {
   id: number;
   username: string;
   nickname: string;
+  email?: string;
+  phone?: string;
   role: BackendRole;
   createdAt: string;
 }
@@ -163,6 +171,12 @@ async function ensureDemoSession(forceRefresh = false): Promise<DemoSession> {
 }
 
 async function withAuth<T>(builder: (token: string) => Promise<T>): Promise<T> {
+  // Prefer real auth token first
+  const realToken = getBestToken();
+  if (realToken) {
+    return builder(realToken);
+  }
+  // Fallback to demo session
   try {
     const session = await ensureDemoSession();
     return await builder(session.accessToken);
@@ -176,10 +190,40 @@ async function withAuth<T>(builder: (token: string) => Promise<T>): Promise<T> {
 }
 
 export const apiService = {
+  // Auth APIs
+  sendEmailCode: async (email: string): Promise<{ success: boolean; message: string }> => {
+    return requestJson('/auth/email/send-code', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  },
+
+  verifyEmailCode: async (email: string, code: string): Promise<{ access_token: string; user: BackendUser }> => {
+    return requestJson('/auth/email/verify', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
+    });
+  },
+
+  logout: async (): Promise<{ success: boolean; message: string }> => {
+    const token = getBestToken();
+    if (!token) return { success: true, message: '已退出' };
+    return requestJson('/auth/logout', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+
   // User APIs
   getCurrentUser: async (): Promise<User> => {
-    const session = await ensureDemoSession();
-    return session.user;
+    // Prefer real auth user
+    const session = getAuthSession();
+    if (session) return session.user;
+    const realUser = getBestUser();
+    if (realUser) return realUser;
+    // Fallback to demo session
+    const demoSession = await ensureDemoSession();
+    return demoSession.user;
   },
 
   // Post APIs
@@ -211,6 +255,29 @@ export const apiService = {
     );
 
     return mapBackendPost(created);
+  },
+
+  getMyPosts: async (): Promise<Post[]> => {
+    const posts = await withAuth((token) =>
+      requestJson<BackendPost[]>('/users/me/posts', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    );
+    return posts.map(mapBackendPost);
+  },
+
+  createComment: async (postId: string, content: string): Promise<any> => {
+    return withAuth((token) =>
+      requestJson(`/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content }),
+      }),
+    );
   },
 
   // Notification APIs

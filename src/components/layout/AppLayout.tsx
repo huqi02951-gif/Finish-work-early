@@ -1,9 +1,11 @@
-import React from 'react';
-import { ChevronLeft, Home as HomeIcon, LayoutDashboard, User, Briefcase } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronLeft, Home as HomeIcon, LayoutDashboard, User, Briefcase, LogOut } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import { motion } from 'framer-motion';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import InitialBadge from '../common/InitialBadge';
+import { getAuthSession, clearAuthSession } from '../../services/authService';
+import { apiService } from '../../services/api';
 
 const NAV_ITEMS = [
   { path: '/', label: '首页', icon: HomeIcon },
@@ -21,6 +23,18 @@ interface AppLayoutProps {
 const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const authSession = getAuthSession();
+  const isLoggedIn = authSession !== null && authSession.loginMethod !== 'demo';
+
+  const handleLogout = async () => {
+    try {
+      await apiService.logout();
+    } catch { /* ignore */ }
+    clearAuthSession();
+    setShowUserMenu(false);
+    navigate('/', { replace: true });
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-white text-brand-dark font-sans selection:bg-brand-dark/5 selection:text-brand-dark">
@@ -45,10 +59,56 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack }) => {
             </div>
           </div>
 
-          <Link to="/profile" className="inline-flex items-center gap-2 rounded-md border border-brand-border/50 bg-white px-2 py-1.5 text-xs font-semibold text-brand-dark transition-colors hover:bg-brand-light-gray shrink-0">
-            <InitialBadge label="我" className="h-7 w-7" />
-            <span className="hidden sm:inline">我的</span>
-          </Link>
+          <div className="relative shrink-0">
+            <button
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="flex items-center gap-2 rounded-md border border-brand-border/50 bg-white px-2 py-1.5 text-xs font-semibold text-brand-dark transition-colors hover:bg-brand-light-gray"
+            >
+              <InitialBadge label={authSession?.user?.nickname?.[0] || '我'} className="h-7 w-7" />
+              <span className="hidden sm:inline truncate max-w-[100px]">
+                {authSession?.user?.nickname || (isLoggedIn ? '已登录' : '未登录')}
+              </span>
+            </button>
+
+            {showUserMenu && (
+              <>
+                <div className="fixed inset-0 z-[60]" onClick={() => setShowUserMenu(false)} />
+                <div className="absolute right-0 top-full mt-2 z-[70] w-56 rounded-2xl border border-brand-border/10 bg-white p-2 shadow-xl">
+                  {isLoggedIn ? (
+                    <>
+                      <div className="px-3 py-2 border-b border-brand-border/10">
+                        <p className="text-xs font-bold truncate">{authSession?.user?.nickname}</p>
+                        {authSession?.user?.email && (
+                          <p className="text-[10px] text-brand-gray truncate">{authSession.user.email}</p>
+                        )}
+                      </div>
+                      <Link
+                        to="/profile"
+                        onClick={() => setShowUserMenu(false)}
+                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium hover:bg-brand-light-gray transition-colors"
+                      >
+                        <User size={14} /> 个人主页
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 transition-colors"
+                      >
+                        <LogOut size={14} /> 退出登录
+                      </button>
+                    </>
+                  ) : (
+                    <Link
+                      to="/login"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-brand-dark hover:bg-brand-light-gray transition-colors"
+                    >
+                      <User size={14} /> 登录 / 注册
+                    </Link>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </header>
 

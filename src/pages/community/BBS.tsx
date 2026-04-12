@@ -15,17 +15,9 @@ import {
 } from 'lucide-react';
 import CyberLayout from '../../components/layout/CyberLayout';
 import CommunityAccessGate from '../../components/community/CommunityAccessGate';
-import {
-  COMMUNITY_CHANNELS,
-  type CommunityChannel,
-  type CommunityEntry,
-  createCommunityThread,
-  formatExpiry,
-  formatRelativeTime,
-  getCommunitySummary,
-  listCommunityEntries,
-} from '../../../lib/community';
 import { cn } from '../../../lib/utils';
+import { apiService } from '../../services/api';
+import { Post as BackendPost } from '../../types';
 
 const PANTRY_CHANNELS: CommunityChannel[] = ['匿名吐槽', 'Gossip 贴板', '二手交易'];
 const CHANNEL_FILTERS: Array<CommunityChannel | '全部'> = ['全部', ...PANTRY_CHANNELS];
@@ -37,28 +29,34 @@ const channelColorMap: Record<string, string> = {
 };
 
 const BBSPage: React.FC = () => {
-  const [entries, setEntries] = useState<CommunityEntry[]>([]);
-  const [activeChannel, setActiveChannel] = useState<CommunityChannel | '全部'>('全部');
+  const [entries, setEntries] = useState<BackendPost[]>([]);
+  const [activeChannel, setActiveChannel] = useState<string | '全部'>('全部');
   const [searchQuery, setSearchQuery] = useState('');
-  const [summary, setSummary] = useState<Awaited<ReturnType<typeof getCommunitySummary>> | null>(null);
+  const [loading, setLoading] = useState(true);
   const [composerOpen, setComposerOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
-    channel: '匿名吐槽' as CommunityChannel,
+    channel: '匿名吐槽',
     anonymous: true,
     title: '',
     content: '',
   });
 
   const load = async () => {
-    const nextSummary = await getCommunitySummary();
-    const loadedItems = await listCommunityEntries(activeChannel === '全部' ? undefined : activeChannel);
-    const filteredItems = activeChannel === '全部' 
-      ? loadedItems.filter((item) => PANTRY_CHANNELS.includes(item.channel as any))
-      : loadedItems;
-
-    setEntries(filteredItems);
-    setSummary(nextSummary);
+    setLoading(true);
+    try {
+      const category = activeChannel === '全部' ? undefined : activeChannel;
+      const loadedItems = await apiService.getPosts(category);
+      // For the BBS page, we mainly focus on the "pantry" categories if it's "All"
+      const filteredItems = activeChannel === '全部' 
+        ? loadedItems.filter((item) => PANTRY_CHANNELS.includes(item.category as any))
+        : loadedItems;
+      setEntries(filteredItems);
+    } catch (err) {
+      console.error('Failed to load posts:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -82,16 +80,16 @@ const BBSPage: React.FC = () => {
 
     setSubmitting(true);
     try {
-      await createCommunityThread({
+      await apiService.createPost({
         title: form.title.trim(),
         content: form.content.trim(),
-        channel: form.channel,
-        anonymous: form.anonymous,
-        author: form.anonymous ? '匿名节点' : '当前浏览器',
+        category: form.channel,
       });
       setForm({ channel: form.channel, anonymous: true, title: '', content: '' });
       setComposerOpen(false);
       await load();
+    } catch (err) {
+      alert('发布失败，请检查网络连接');
     } finally {
       setSubmitting(false);
     }
@@ -198,10 +196,10 @@ const BBSPage: React.FC = () => {
         {/* Stats */}
         <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {[
-            { label: '活跃探针', value: summary?.totalThreads ?? 0, icon: MessageSquare },
-            { label: '专题索引', value: summary?.totalTopics ?? 0, icon: Sparkles },
-            { label: 'Gossip 暗号', value: summary?.totalGossip ?? 0, icon: Lock },
-            { label: '共鸣互动', value: summary?.totalReplies ?? 0, icon: TerminalSquare },
+            { label: '活跃探针', value: entries.length, icon: MessageSquare },
+            { label: '专题索引', value: entries.filter(e => e.category === '专题').length, icon: Sparkles },
+            { label: 'Gossip 暗号', value: entries.filter(e => e.category === 'Gossip 贴板').length, icon: Lock },
+            { label: '全网节点', value: 'ONLINE', icon: TerminalSquare },
           ].map((item) => (
             <div key={item.label} className="border border-[#00ff41]/30 bg-[#00ff41]/5 p-3 sm:p-4 hover:bg-[#00ff41]/10 transition-colors">
               <item.icon size={14} className="text-[#00ff41] mb-2" />
@@ -244,11 +242,13 @@ const BBSPage: React.FC = () => {
             </div>
 
             <div className="grid gap-3">
-              {visibleEntries.length > 0 ? (
+              {loading ? (
+                <div className="p-8 text-center text-[#00ff41]/40 animate-pulse">正在同步数据节点...</div>
+              ) : visibleEntries.length > 0 ? (
                 visibleEntries.map((entry) => (
                   <Link
-                    key={entry.uid}
-                    to={entry.kind === 'topic' ? `/bbs/topic/${entry.uid}` : `/bbs/thread/${entry.uid}`}
+                    key={entry.id}
+                    to={entry.category === '专题' ? `/bbs/topic/${entry.id}` : `/bbs/thread/${entry.id}`}
                     className="group border border-[#00ff41]/20 bg-black p-4 transition-all hover:border-[#00ff41] hover:bg-[#00ff41]/5 relative overflow-hidden"
                   >
                     {/* Corners */}
@@ -256,11 +256,10 @@ const BBSPage: React.FC = () => {
                     <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#00ff41] opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                     <div className="flex flex-wrap items-center gap-2 text-[10px] text-[#00ff41]/60 font-bold tracking-wider uppercase">
-                      <span className={cn('border px-1.5 py-0.5', channelColorMap[entry.channel] || 'text-[#00ff41] border-[#00ff41]/50 bg-[#00ff41]/10')}>
-                        {entry.channel === 'Gossip 贴板' ? 'GOSSIP' : entry.channel === '匿名吐槽' ? 'RANT' : 'TRADE'}
+                      <span className={cn('border px-1.5 py-0.5', channelColorMap[entry.category] || 'text-[#00ff41] border-[#00ff41]/50 bg-[#00ff41]/10')}>
+                        {entry.category === 'Gossip 贴板' ? 'GOSSIP' : entry.category === '匿名吐槽' ? 'RANT' : 'TRADE'}
                       </span>
-                      <span>SYS.TIME // {formatRelativeTime(entry.createdAt)}</span>
-                      {entry.expiresAt ? <span className="text-red-400">EXP // {formatExpiry(entry.expiresAt)}</span> : null}
+                      <span>SYS.TIME // {new Date(entry.createdAt).toLocaleString()}</span>
                     </div>
                     <div className="mt-3 flex items-start justify-between gap-3">
                       <div>
@@ -272,9 +271,8 @@ const BBSPage: React.FC = () => {
                       <ArrowRight size={16} className="shrink-0 text-[#00ff41]/30 group-hover:text-[#00ff41] transition-colors" />
                     </div>
                     <div className="mt-4 flex flex-wrap items-center gap-3 sm:gap-4 text-[9px] sm:text-[10px] text-[#00ff41]/50 font-bold">
-                      <span className="text-[#00ff41] bg-[#00ff41]/10 px-1 py-0.5 max-w-[120px] truncate">AUTHOR: {entry.author}</span>
-                      <span className="inline-flex items-center gap-1"><MessageSquare size={10} /> REPS: {entry.replyCount}</span>
-                      <span className="inline-flex items-center gap-1"><Flame size={10} /> RESONANCE: {entry.likes}</span>
+                      <span className="text-[#00ff41] bg-[#00ff41]/10 px-1 py-0.5 max-w-[120px] truncate">AUTHOR: {entry.author.nickname}</span>
+                      <span className="inline-flex items-center gap-1"><MessageSquare size={10} /> REPS: {entry.replyCount || 0}</span>
                     </div>
                   </Link>
                 ))
