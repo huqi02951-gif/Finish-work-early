@@ -107,7 +107,7 @@ const Home: React.FC = () => {
                 </Link>
               </motion.div>
             ))}
-          </motion.variants>
+          </motion.div>
 
           <motion.div 
             initial={{ opacity: 0 }}
