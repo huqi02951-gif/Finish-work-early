@@ -42,24 +42,41 @@ function emitXP(next: number) {
 }
 
 // ─── Pet system ───────────────────────────────────────────────────────────────
-interface PetDef { emoji: string; name: string; rarity: 'normal' | 'rare' | 'legendary'; bg: string }
-interface ActivePet { id: string; def: PetDef; mood: number; hunger: number; lastFed: number; createdAt: number }
+interface PetDef { 
+  emoji: string; 
+  name: string; 
+  rarity: 'normal' | 'rare' | 'legendary'; 
+  bg: string;
+  evolutions: string[]; // [baby, child, adult]
+}
+interface ActivePet { 
+  id: string; 
+  def: PetDef; 
+  mood: number; 
+  hunger: number; 
+  health: number;
+  level: number;
+  exp: number;
+  stage: number; // 0: eggs, 1: baby, 2: child, 3: adult
+  lastFed: number; 
+  createdAt: number; 
+}
 
 const PET_POOL: PetDef[] = [
   // normal 60%
-  { emoji: '🐱', name: '橘猫',   rarity: 'normal',    bg: 'from-orange-50 to-yellow-50' },
-  { emoji: '🐶', name: '柴犬',   rarity: 'normal',    bg: 'from-amber-50 to-orange-50'  },
-  { emoji: '🐹', name: '仓鼠',   rarity: 'normal',    bg: 'from-pink-50 to-rose-50'     },
-  { emoji: '🐰', name: '兔兔',   rarity: 'normal',    bg: 'from-slate-50 to-gray-100'   },
-  { emoji: '🐸', name: '青蛙君', rarity: 'normal',    bg: 'from-green-50 to-emerald-50' },
+  { emoji: '🐱', name: '波波猫',   rarity: 'normal',    bg: 'from-orange-50 to-yellow-50', evolutions: ['🥚', '🐱', '🐈', '🦁'] },
+  { emoji: '🐶', name: '豆柴',     rarity: 'normal',    bg: 'from-amber-50 to-orange-50',  evolutions: ['🥚', '🐶', '🐕', '🐺'] },
+  { emoji: '🐹', name: '奶糖仓鼠', rarity: 'normal',    bg: 'from-pink-50 to-rose-50',     evolutions: ['🥚', '🐹', '🐭', '🐿️'] },
+  { emoji: '🐰', name: '长耳兔',   rarity: 'normal',    bg: 'from-slate-50 to-gray-100',   evolutions: ['🥚', '🐰', '🐇', '🦌'] },
+  { emoji: '🐸', name: '旅行青蛙', rarity: 'normal',    bg: 'from-green-50 to-emerald-50', evolutions: ['🥚', '🐸', '🐢', '🦖'] },
   // rare 30%
-  { emoji: '🦊', name: '狐狸',   rarity: 'rare',      bg: 'from-orange-100 to-red-50'   },
-  { emoji: '🐼', name: '熊猫',   rarity: 'rare',      bg: 'from-gray-100 to-slate-50'   },
-  { emoji: '🦋', name: '蝴蝶',   rarity: 'rare',      bg: 'from-purple-50 to-violet-50' },
-  { emoji: '🦜', name: '鹦鹉',   rarity: 'rare',      bg: 'from-cyan-50 to-teal-50'     },
+  { emoji: '🦊', name: '幻影狐',   rarity: 'rare',      bg: 'from-orange-100 to-red-50',   evolutions: ['🥚', '🦊', '🐕‍🦺', '🏮'] },
+  { emoji: '🐼', name: '功夫熊猫', rarity: 'rare',      bg: 'from-gray-100 to-slate-50',   evolutions: ['🥚', '🐼', '🐻', '🐻‍❄️'] },
+  { emoji: '🦋', name: '星光蝶',   rarity: 'rare',      bg: 'from-purple-50 to-violet-50', evolutions: ['🥚', '🦋', '🐝', '🧚'] },
+  { emoji: '🦜', name: '话痨鹦鹉', rarity: 'rare',      bg: 'from-cyan-50 to-teal-50',     evolutions: ['🥚', '🦜', '🐧', '🦅'] },
   // legendary 10%
-  { emoji: '🐉', name: '小青龙', rarity: 'legendary', bg: 'from-yellow-50 to-amber-100' },
-  { emoji: '🦄', name: '独角兽', rarity: 'legendary', bg: 'from-pink-50 to-purple-50'   },
+  { emoji: '🐉', name: '应龙',     rarity: 'legendary', bg: 'from-yellow-50 to-amber-100', evolutions: ['🥚', '🐉', '🦖', '🐲'] },
+  { emoji: '🦄', name: '星辰独角兽', rarity: 'legendary', bg: 'from-pink-50 to-purple-50',   evolutions: ['🥚', '🦄', '🐎', '🎠'] },
 ];
 
 const RARITY_STYLE = {
@@ -79,7 +96,18 @@ function rollPet(): PetDef {
 }
 
 function makePet(def: PetDef): ActivePet {
-  return { id: `${Date.now()}`, def, mood: 80, hunger: 20, lastFed: Date.now(), createdAt: Date.now() };
+  return { 
+    id: `${Date.now()}`, 
+    def, 
+    mood: 80, 
+    hunger: 20, 
+    health: 100,
+    level: 1,
+    exp: 0,
+    stage: 0, // start as Egg
+    lastFed: Date.now(), 
+    createdAt: Date.now() 
+  };
 }
 
 // ─── MODULE 1 · Salary Monitor ────────────────────────────────────────────────
@@ -279,29 +307,36 @@ const PetModule: React.FC<{ xp: number; onXPChange: (next: number) => void }> = 
   const [pet, setPet]           = useState<ActivePet | null>(() => loadJSON(SK.PET, null));
   const [collection, setCollection] = useState<PetDef[]>(() => loadJSON(SK.PET_COLL, []));
   const [boxesOpened, setBoxesOpened] = useState(() => loadNum(SK.PET_BOXES, 0));
-  const [phase, setPhase]       = useState<'idle' | 'shaking' | 'reveal'>('idle');
+  const [phase, setPhase]       = useState<'idle' | 'shaking' | 'reveal' | 'evolving'>('idle');
   const [revealDef, setRevealDef] = useState<PetDef | null>(null);
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
+  
   const BOX_COST = 100;
+  const LEVEL_UP_EXP = 100;
 
   useEffect(() => { localStorage.setItem(SK.PET, JSON.stringify(pet)); }, [pet]);
   useEffect(() => { localStorage.setItem(SK.PET_COLL, JSON.stringify(collection)); }, [collection]);
   useEffect(() => { localStorage.setItem(SK.PET_BOXES, String(boxesOpened)); }, [boxesOpened]);
 
-  // Decay mood/hunger over time
+  // Decay mood/hunger/health over time
   useEffect(() => {
     if (!pet) return;
     const id = setInterval(() => {
       setPet(p => {
         if (!p) return p;
-        const hoursSinceFed = (Date.now() - p.lastFed) / 3_600_000;
-        return {
-          ...p,
-          hunger: Math.min(100, p.hunger + hoursSinceFed * 5),
-          mood:   Math.max(0,   p.mood   - hoursSinceFed * 3),
-        };
+        const hoursSinceLastFed = (Date.now() - p.lastFed) / 3_600_000;
+        
+        let nextHunger = Math.min(100, p.hunger + hoursSinceLastFed * 8);
+        let nextMood = Math.max(0, p.mood - hoursSinceLastFed * 5);
+        let nextHealth = p.health;
+        
+        // Health drops if starving
+        if (nextHunger > 80) nextHealth = Math.max(0, nextHealth - 2);
+        if (nextMood < 20) nextHealth = Math.max(0, nextHealth - 1);
+
+        return { ...p, hunger: nextHunger, mood: nextMood, health: nextHealth };
       });
-    }, 30_000);
+    }, 60000); // check every minute
     return () => clearInterval(id);
   }, [pet?.id]);
 
@@ -322,186 +357,243 @@ const PetModule: React.FC<{ xp: number; onXPChange: (next: number) => void }> = 
         setPet(makePet(def));
         setPhase('idle');
         setRevealDef(null);
-      }, 2800);
-    }, 1400);
+      }, 3000);
+    }, 1500);
   };
 
-  const doAction = (type: 'pat' | 'feed' | 'play') => {
-    if (!pet) return;
-    if (type === 'feed' && xp < 30) { setActionFeedback('能量不足！'); setTimeout(() => setActionFeedback(null), 1500); return; }
+  const doAction = (type: 'pat' | 'feed' | 'play' | 'clean') => {
+    if (!pet || phase !== 'idle') return;
+    
     setPet(p => {
       if (!p) return p;
-      if (type === 'pat')  return { ...p, mood: Math.min(100, p.mood + 10) };
-      if (type === 'feed') return { ...p, hunger: Math.max(0, p.hunger - 40), mood: Math.min(100, p.mood + 15), lastFed: Date.now() };
-      return { ...p, mood: Math.min(100, p.mood + 20) };
+      let { mood, hunger, health, exp, level, stage } = p;
+      
+      if (type === 'pat') {
+        mood = Math.min(100, mood + 15);
+        exp += 5;
+      } else if (type === 'feed') {
+        if (xp < 20) { setActionFeedback('能量不足!'); return p; }
+        onXPChange(xp - 20);
+        hunger = Math.max(0, hunger - 40);
+        health = Math.min(100, health + 5);
+        exp += 15;
+      } else if (type === 'play') {
+        mood = Math.min(100, mood + 25);
+        hunger = Math.min(100, hunger + 10);
+        exp += 20;
+      } else if (type === 'clean') {
+        health = Math.min(100, health + 20);
+        exp += 10;
+      }
+
+      // Handle Level Up
+      if (exp >= LEVEL_UP_EXP) {
+        level += 1;
+        exp -= LEVEL_UP_EXP;
+        setActionFeedback('LEVEL UP! ⬆️');
+        
+        // Evolution Stages
+        if (level === 5 && stage === 0) stage = 1;
+        if (level === 15 && stage === 1) stage = 2;
+        if (level === 30 && stage === 2) stage = 3;
+      }
+
+      return { ...p, mood, hunger, health, exp, level, stage, lastFed: type === 'feed' ? Date.now() : p.lastFed };
     });
-    if (type === 'feed') onXPChange(xp - 30);
-    const msgs = { pat: '摸了摸头 🥰', feed: '吃饱啦！', play: '玩得好开心 🎉' };
-    setActionFeedback(msgs[type]);
-    setTimeout(() => setActionFeedback(null), 1500);
+
+    const msgs = { pat: '摸了摸头 🥰', feed: '真好吃! 🍎', play: '太好玩啦! 🎾', clean: '变得亮晶晶 ✨' };
+    if (!actionFeedback) {
+      setActionFeedback(msgs[type as keyof typeof msgs]);
+      setTimeout(() => setActionFeedback(null), 2000);
+    }
   };
 
-  const moodLabel = (m: number) => m >= 80 ? '超开心 😊' : m >= 50 ? '还不错 🙂' : m >= 30 ? '有点累 😐' : '不高兴 😢';
-  const hungerLabel = (h: number) => h >= 70 ? '超级饿 😫' : h >= 40 ? '有点饿 🍽️' : '吃饱了 😌';
+  const getStatusEmoji = (p: ActivePet) => {
+    if (p.health < 30) return '🤕';
+    if (p.hunger > 80) return '😫';
+    if (p.mood < 30) return '😢';
+    return p.def.evolutions[p.stage] || p.def.emoji;
+  };
+
   const ageInDays = pet ? Math.max(0, Math.floor((Date.now() - pet.createdAt) / 86_400_000)) : 0;
 
   return (
-    <div className="bg-white rounded-3xl border border-brand-border/10 shadow-sm p-5 flex flex-col h-full relative overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <p className="text-[9px] font-bold text-brand-gray/50 uppercase tracking-[.2em] mb-1">电子宠物</p>
-          <div className="flex items-center gap-1.5">
-            <Gift size={13} className="text-apple-pink" />
-            <span className="text-xs font-bold text-brand-dark">宠物盲盒</span>
-          </div>
+    <div className="bg-[#1a1a1a] rounded-[2.5rem] border-[12px] border-[#2a2a2a] shadow-2xl p-4 flex flex-col h-full relative overflow-hidden ring-1 ring-white/10">
+      {/* Console Decoration */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-1.5 bg-[#333] rounded-b-full"></div>
+      
+      {/* Header Info */}
+      <div className="flex items-center justify-between mb-3 px-1">
+        <div className="flex items-center gap-1.5">
+          <Terminal size={14} className="text-[#00ff41]/60" />
+          <span className="text-[10px] font-black text-[#00ff41]/40 uppercase tracking-tighter">PET_OS v2.4.0</span>
         </div>
-        <div className="text-right">
-          <p className="text-[9px] text-brand-gray/40 font-bold">已集 {collection.length} 只</p>
-          <div className="flex gap-0.5 mt-1 justify-end">
-            {collection.slice(-5).map((p, i) => (
-              <span key={i} className="text-base leading-none">{p.emoji}</span>
-            ))}
-          </div>
+        <div className="flex gap-1">
+          {collection.slice(-3).map((p, i) => (
+            <span key={i} className="text-xs opacity-40 grayscale">{p.emoji}</span>
+          ))}
         </div>
       </div>
 
-      {/* No pet yet → blind box */}
-      {!pet && phase === 'idle' && (
-        <div className="flex-grow flex flex-col items-center justify-center gap-4">
-          <motion.div
-            className="w-24 h-24 bg-gradient-to-br from-apple-pink/10 to-apple-purple/10 rounded-3xl border-2 border-dashed border-brand-border/20 flex items-center justify-center text-5xl cursor-pointer select-none"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={openBox}
-          >
-            🎁
-          </motion.div>
-          <div className="text-center">
-            <p className="text-sm font-bold text-brand-dark mb-1">开个宠物盲盒</p>
-            <p className="text-[10px] text-brand-gray opacity-60">消耗 {BOX_COST} 能量</p>
-            {xp < BOX_COST && (
-              <p className="text-[10px] text-red-400 font-bold mt-1">能量不足（当前 {xp}）</p>
-            )}
-          </div>
-          <button onClick={openBox} disabled={xp < BOX_COST}
-            className={cn(
-              'px-6 py-2.5 rounded-2xl text-xs font-bold transition-all',
-              xp >= BOX_COST
-                ? 'bg-brand-dark text-white hover:bg-brand-dark/90 shadow-lg'
-                : 'bg-brand-light-gray text-brand-gray/40 cursor-not-allowed'
-            )}>
-            开盲盒 · {BOX_COST} 能量
-          </button>
-        </div>
-      )}
-
-      {/* Shaking box animation */}
-      {phase === 'shaking' && (
-        <div className="flex-grow flex flex-col items-center justify-center gap-4">
-          <motion.div
-            className="text-7xl"
-            animate={{ rotate: [-8, 8, -8, 8, -4, 4, 0], scale: [1, 1.1, 1, 1.1, 1] }}
-            transition={{ duration: 1.4, ease: 'easeInOut' }}
-          >
-            🎁
-          </motion.div>
-          <p className="text-sm font-bold text-brand-dark animate-pulse">正在开盒...</p>
-        </div>
-      )}
-
-      {/* Reveal animation */}
-      {phase === 'reveal' && revealDef && (
-        <motion.div
-          initial={{ opacity: 0, scale: .5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: 'spring', stiffness: 260, damping: 18 }}
-          className="flex-grow flex flex-col items-center justify-center gap-3"
-        >
-          <motion.div
-            animate={{ y: [0, -8, 0] }}
-            transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
-            className={cn('w-24 h-24 rounded-3xl bg-gradient-to-br flex items-center justify-center text-5xl shadow-lg', revealDef.bg)}
-          >
-            {revealDef.emoji}
-          </motion.div>
-          <p className="text-xl font-black text-brand-dark">{revealDef.name}</p>
-          <span className={cn('px-3 py-1 rounded-full text-[10px] font-bold border', RARITY_STYLE[revealDef.rarity].badge)}>
-            {RARITY_STYLE[revealDef.rarity].label}
-          </span>
-          <p className="text-[10px] text-brand-gray opacity-60">它选择了你！</p>
-        </motion.div>
-      )}
-
-      {/* Active pet */}
-      {pet && phase === 'idle' && (
-        <div className="flex-grow flex flex-col">
-          {/* Pet display */}
-          <div className={cn('flex-grow flex flex-col items-center justify-center rounded-2xl bg-gradient-to-br mb-4 p-4 relative', pet.def.bg)}>
+      {/* The LCD Screen */}
+      <div className="relative flex-grow rounded-xl bg-[#9bbc0f] border-4 border-[#0f380f] overflow-hidden flex flex-col p-3 shadow-inner">
+        {/* CRT Scanline effect */}
+        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(15,56,15,0.05)_50%,transparent_50%)] bg-[length:100%_2px] z-10"></div>
+        
+        {!pet && phase === 'idle' && (
+          <div className="flex-grow flex flex-col items-center justify-center text-[#0f380f]">
             <motion.div
-              animate={{ y: [0, -5, 0] }}
-              transition={{ repeat: Infinity, duration: 2.4, ease: 'easeInOut' }}
-              className="text-6xl mb-2"
+              className="text-5xl mb-3 cursor-pointer"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              onClick={openBox}
             >
-              {pet.def.emoji}
+              🥚
             </motion.div>
-            <p className="text-sm font-black text-brand-dark">{pet.def.name}</p>
-            <p className="text-[9px] text-brand-gray/60 font-bold">{ageInDays} 天大</p>
-
-            {/* Action feedback toast */}
-            <AnimatePresence>
-              {actionFeedback && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8, scale: .9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  className="absolute top-2 left-1/2 -translate-x-1/2 bg-brand-dark/80 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap"
-                >
-                  {actionFeedback}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <p className="text-[10px] font-black uppercase text-center leading-tight">
+              NO_PET_DETECTED<br />
+              <span className="opacity-60 text-[8px]">PRESS START (100E)</span>
+            </p>
           </div>
+        )}
 
-          {/* Mood & hunger bars */}
-          <div className="space-y-2 mb-3">
-            <div className="flex items-center gap-2">
-              <Heart size={11} className="text-apple-pink shrink-0" />
-              <div className="flex-grow h-1.5 bg-brand-light-gray rounded-full overflow-hidden">
-                <motion.div className="h-full bg-apple-pink rounded-full" animate={{ width: `${pet.mood}%` }} transition={{ duration: .6 }} />
-              </div>
-              <span className="text-[9px] text-brand-gray font-bold shrink-0 w-16 text-right">{moodLabel(pet.mood)}</span>
+        {phase === 'shaking' && (
+          <div className="flex-grow flex flex-col items-center justify-center text-[#0f380f]">
+            <motion.div
+              className="text-5xl"
+              animate={{ rotate: [-10, 10, -10, 10, 0], scale: [1, 1.1, 1] }}
+              transition={{ repeat: Infinity, duration: 0.5 }}
+            >
+              📦
+            </motion.div>
+            <p className="mt-4 text-[10px] font-black uppercase tracking-widest animate-pulse">Decrypting...</p>
+          </div>
+        )}
+
+        {phase === 'reveal' && revealDef && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }}
+            className="flex-grow flex flex-col items-center justify-center text-[#0f380f]"
+          >
+            <div className="text-5xl mb-2">{revealDef.emoji}</div>
+            <p className="text-xs font-black uppercase tracking-tighter">{revealDef.name}</p>
+            <p className="text-[8px] font-bold opacity-60">NEW COMPANION SYNCED</p>
+          </motion.div>
+        )}
+
+        {pet && phase === 'idle' && (
+          <div className="flex-grow flex flex-col h-full">
+            {/* Top Bar */}
+            <div className="flex justify-between items-center text-[#0f380f] text-[8px] font-black mb-1">
+              <span>LVL.{pet.level}</span>
+              <span className="truncate max-w-[60px]">{pet.def.name}</span>
+              <span>{ageInDays}D</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Coffee size={11} className="text-amber-500 shrink-0" />
-              <div className="flex-grow h-1.5 bg-brand-light-gray rounded-full overflow-hidden">
-                <motion.div className={cn('h-full rounded-full', pet.hunger > 60 ? 'bg-red-400' : 'bg-amber-400')} animate={{ width: `${pet.hunger}%` }} transition={{ duration: .6 }} />
+
+            {/* Pet Sprite Area */}
+            <div className="flex-grow flex flex-col items-center justify-center relative">
+              <motion.div
+                animate={{ 
+                  y: [0, -4, 0],
+                  scaleY: [1, 0.95, 1],
+                  rotate: pet.mood < 30 ? [-2, 2, -2] : 0
+                }}
+                transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+                className="text-6xl drop-shadow-sm select-none"
+              >
+                {getStatusEmoji(pet)}
+              </motion.div>
+
+              {/* Action Feedback Overlay */}
+              <AnimatePresence>
+                {actionFeedback && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                    className="absolute bottom-0 left-1/2 -translate-x-1/2 bg-[#0f380f] text-[#9bbc0f] text-[8px] font-black px-2 py-0.5 rounded whitespace-nowrap z-20"
+                  >
+                    {actionFeedback}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Pixel Status Bars */}
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-2">
+              <div className="flex flex-col gap-0.5">
+                <div className="flex justify-between text-[#0f380f] text-[7px] font-black">
+                  <span>HNG</span><span>{Math.round(pet.hunger)}%</span>
+                </div>
+                <div className="h-1 bg-[#0f380f]/20 rounded-full overflow-hidden">
+                  <motion.div className="h-full bg-[#0f380f]" animate={{ width: `${pet.hunger}%` }} />
+                </div>
               </div>
-              <span className="text-[9px] text-brand-gray font-bold shrink-0 w-16 text-right">{hungerLabel(pet.hunger)}</span>
+              <div className="flex flex-col gap-0.5">
+                <div className="flex justify-between text-[#0f380f] text-[7px] font-black">
+                  <span>MOD</span><span>{Math.round(pet.mood)}%</span>
+                </div>
+                <div className="h-1 bg-[#0f380f]/20 rounded-full overflow-hidden">
+                  <motion.div className="h-full bg-[#0f380f]" animate={{ width: `${pet.mood}%` }} />
+                </div>
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <div className="flex justify-between text-[#0f380f] text-[7px] font-black">
+                  <span>HLT</span><span>{Math.round(pet.health)}%</span>
+                </div>
+                <div className="h-1 bg-[#0f380f]/20 rounded-full overflow-hidden">
+                  <motion.div className="h-full bg-[#0f380f]" animate={{ width: `${pet.health}%` }} />
+                </div>
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <div className="flex justify-between text-[#0f380f] text-[7px] font-black">
+                  <span>EXP</span><span>{Math.round(pet.exp)}%</span>
+                </div>
+                <div className="h-1 bg-[#0f380f]/20 rounded-full overflow-hidden">
+                  <motion.div className="h-full bg-[#0f380f] opacity-60" animate={{ width: `${pet.exp}%` }} />
+                </div>
+              </div>
             </div>
           </div>
+        )}
+      </div>
 
-          {/* Actions */}
-          <div className="grid grid-cols-3 gap-1.5">
+      {/* Control Buttons (GameBoy style) */}
+      <div className="mt-5 grid grid-cols-4 gap-2">
+        {!pet ? (
+          <button
+            onClick={openBox}
+            disabled={xp < BOX_COST || phase !== 'idle'}
+            className="col-span-4 bg-[#cc3333] hover:bg-[#b32d2d] active:shadow-inner p-3 rounded-xl flex flex-col items-center justify-center gap-1 shadow-[0_4px_0_#992626] transition-all disabled:opacity-50 disabled:grayscale"
+          >
+            <div className="w-8 h-8 rounded-full bg-[#992626]/20 flex items-center justify-center text-white">
+              <Gift size={16} />
+            </div>
+            <span className="text-[10px] font-black text-white uppercase tracking-tighter">Start (100E)</span>
+          </button>
+        ) : (
+          <>
             {[
-              { type: 'pat' as const,  label: '摸头',  icon: '🤚', cost: null },
-              { type: 'feed' as const, label: '喂食',  icon: '🍎', cost: 30   },
-              { type: 'play' as const, label: '玩耍',  icon: '🎾', cost: null },
-            ].map(({ type, label, icon, cost }) => (
-              <button key={type} onClick={() => doAction(type)}
-                className="flex flex-col items-center py-2 rounded-xl bg-brand-light-gray/60 hover:bg-brand-light-gray border border-brand-border/10 transition-all active:scale-95 gap-1">
-                <span className="text-base leading-none">{icon}</span>
-                <span className="text-[9px] font-bold text-brand-dark">{label}</span>
-                {cost && <span className="text-[8px] text-brand-gray/50">-{cost}</span>}
+              { type: 'feed' as const, icon: Coffee, label: 'Feed' },
+              { type: 'pat' as const, icon: Heart, label: 'Pat' },
+              { type: 'play' as const, icon: Zap, label: 'Play' },
+              { type: 'clean' as const, icon: Sparkles, label: 'Clean' },
+            ].map(({ type, icon: Icon, label }) => (
+              <button
+                key={type}
+                onClick={() => doAction(type)}
+                className="flex flex-col items-center justify-center gap-1 bg-[#333] hover:bg-[#444] p-2 rounded-xl shadow-[0_3px_0_#1a1a1a] active:shadow-none active:translate-y-[2px] transition-all group"
+              >
+                <div className="w-6 h-6 rounded-full bg-[#222] flex items-center justify-center text-[#555] group-hover:text-[#00ff41] transition-colors">
+                  <Icon size={12} />
+                </div>
+                <span className="text-[8px] font-black text-white px-1">{label}</span>
               </button>
             ))}
-          </div>
+          </>
+        )}
+      </div>
 
-          {/* Replace pet */}
-          <button onClick={() => setPet(null)}
-            className="mt-2 w-full text-[9px] text-brand-gray/40 hover:text-brand-gray font-bold transition-colors">
-            送走 · 重新开盒
-          </button>
+      {pet && (
+        <div className="mt-4 flex justify-center gap-3">
+          <button onClick={() => setPet(null)} className="text-[8px] font-black text-white/20 hover:text-red-500/50 uppercase">Transfer Pet</button>
         </div>
       )}
     </div>

@@ -108,20 +108,20 @@ const BBSPage: React.FC = () => {
           <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(0,255,65,0.02),rgba(0,255,65,0.02))] bg-[length:100%_4px,3px_100%] opacity-20 z-0"></div>
 
           <div className="relative z-10 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div>
+            <div className="flex-grow min-w-0">
               <div className="text-[10px] uppercase tracking-[0.18em] text-[#00ff41]/50 flex items-center gap-2">
-                <Terminal className="w-3 h-3 text-[#00ff41]/70" /> the pantry / local only
+                <Terminal className="w-3 h-3 text-[#00ff41]/70" /> the pantry / anonymous
               </div>
-              <h1 className="mt-2 text-2xl font-bold text-[#00ff41] glitch-hover">这里是真实的地下世界。</h1>
-              <p className="mt-2 max-w-3xl text-xs leading-6 text-[#00ff41]/70">
-                各种八卦、降薪吐槽、闲置交易在此畅所欲言。默认 24 小时后自动销毁，不留痕迹。
+              <h1 className="mt-2 text-xl sm:text-2xl font-bold text-[#00ff41] glitch-hover">这里是真实的地下世界。</h1>
+              <p className="mt-1.5 max-w-2xl text-[10px] sm:text-xs leading-5 sm:leading-6 text-[#00ff41]/70">
+                各种八卦、降薪吐槽、闲置交易在此畅所欲言。24h 自动抹除。
               </p>
             </div>
 
             <button
               type="button"
               onClick={() => setComposerOpen((current) => !current)}
-              className="inline-flex items-center gap-2 border border-[#00ff41] bg-[#00ff41]/10 px-4 py-2 text-sm font-bold text-[#00ff41] transition-all hover:bg-[#00ff41] hover:text-black group"
+              className="w-full md:w-auto inline-flex items-center justify-center gap-2 border border-[#00ff41] bg-[#00ff41]/10 px-4 py-2.5 text-xs sm:text-sm font-bold text-[#00ff41] transition-all hover:bg-[#00ff41] hover:text-black group active:scale-95"
             >
               <Plus size={15} className="group-hover:animate-spin" />
               发布加密贴
@@ -214,14 +214,14 @@ const BBSPage: React.FC = () => {
         <section className="grid gap-4 xl:grid-cols-[1.3fr_0.7fr]">
           <div className="border border-[#00ff41]/30 bg-black p-4">
             <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-nowrap overflow-x-auto gap-2 pb-1 scrollbar-hide -mx-1 px-1">
                 {CHANNEL_FILTERS.map((channel) => (
                   <button
                     key={channel}
                     type="button"
                     onClick={() => setActiveChannel(channel)}
                     className={cn(
-                      'border px-3 py-1.5 text-xs font-bold transition-colors',
+                      'border px-3 py-1.5 text-[10px] sm:text-xs font-bold transition-all whitespace-nowrap active:scale-95',
                       activeChannel === channel
                         ? 'border-[#00ff41] bg-[#00ff41] text-black shadow-[0_0_10px_rgba(0,255,65,0.4)]'
                         : 'border-[#00ff41]/30 bg-[#00ff41]/5 text-[#00ff41]/70 hover:border-[#00ff41]',
@@ -271,8 +271,8 @@ const BBSPage: React.FC = () => {
                       </div>
                       <ArrowRight size={16} className="shrink-0 text-[#00ff41]/30 group-hover:text-[#00ff41] transition-colors" />
                     </div>
-                    <div className="mt-4 flex flex-wrap items-center gap-4 text-[10px] text-[#00ff41]/50 font-bold">
-                      <span className="text-[#00ff41] bg-[#00ff41]/10 px-1 py-0.5">AUTHOR: {entry.author}</span>
+                    <div className="mt-4 flex flex-wrap items-center gap-3 sm:gap-4 text-[9px] sm:text-[10px] text-[#00ff41]/50 font-bold">
+                      <span className="text-[#00ff41] bg-[#00ff41]/10 px-1 py-0.5 max-w-[120px] truncate">AUTHOR: {entry.author}</span>
                       <span className="inline-flex items-center gap-1"><MessageSquare size={10} /> REPS: {entry.replyCount}</span>
                       <span className="inline-flex items-center gap-1"><Flame size={10} /> RESONANCE: {entry.likes}</span>
                     </div>
