@@ -314,6 +314,27 @@ const PetModule: React.FC<{ xp: number; onXPChange: (next: number) => void }> = 
   const BOX_COST = 100;
   const LEVEL_UP_EXP = 100;
 
+  // Migration & State initialization
+  useEffect(() => {
+    if (pet) {
+      setPet(p => {
+        if (!p) return null;
+        // Check for missing properties from old save data
+        if (p.health === undefined || p.stage === undefined) {
+          return {
+            ...p,
+            health: p.health ?? 100,
+            level: p.level ?? 1,
+            exp: p.exp ?? 0,
+            stage: p.stage ?? (p.level && p.level >= 30 ? 3 : p.level && p.level >= 15 ? 2 : p.level && p.level >= 5 ? 1 : 1), // Default to stage 1 if already level high, else baby
+            lastFed: p.lastFed || Date.now(),
+          };
+        }
+        return p;
+      });
+    }
+  }, []);
+
   useEffect(() => { localStorage.setItem(SK.PET, JSON.stringify(pet)); }, [pet]);
   useEffect(() => { localStorage.setItem(SK.PET_COLL, JSON.stringify(collection)); }, [collection]);
   useEffect(() => { localStorage.setItem(SK.PET_BOXES, String(boxesOpened)); }, [boxesOpened]);
@@ -412,7 +433,8 @@ const PetModule: React.FC<{ xp: number; onXPChange: (next: number) => void }> = 
     if (p.health < 30) return '🤕';
     if (p.hunger > 80) return '😫';
     if (p.mood < 30) return '😢';
-    return p.def.evolutions[p.stage] || p.def.emoji;
+    const stage = p.stage ?? 0;
+    return (p.def && p.def.evolutions && p.def.evolutions[stage]) ? p.def.evolutions[stage] : (p.def?.emoji || '🐾');
   };
 
   const ageInDays = pet ? Math.max(0, Math.floor((Date.now() - pet.createdAt) / 86_400_000)) : 0;
