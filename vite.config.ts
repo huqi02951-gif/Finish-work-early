@@ -6,11 +6,9 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   const isProduction = mode === 'production';
-  const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
-  const pagesBase = env.VITE_BASE_PATH || (isGitHubActions ? '/Finish-work-early/' : '/');
 
   return {
-    base: isProduction ? pagesBase : '/',
+    base: isProduction ? './' : '/',
     server: {
       port: parseInt(env.PORT || '5000'),
       host: '0.0.0.0',
