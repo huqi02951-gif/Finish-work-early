@@ -780,7 +780,7 @@ const FoodSelector: React.FC = () => {
   const current = FOODS[isRolling ? displayIdx : (idx ?? displayIdx)];
 
   return (
-    <div className="bg-gradient-to-br from-rose-50 to-orange-50 rounded-3xl border border-rose-100 p-5 flex flex-col h-full">
+    <div className="bg-gradient-to-br from-rose-50 to-orange-50 rounded-3xl border border-rose-100 p-5 flex flex-col h-full min-h-[280px]">
       <div className="flex items-center gap-2 mb-4">
         <Coffee size={14} className="text-rose-400" />
         <p className="text-xs font-bold text-rose-700">今天吃什么</p>
@@ -818,6 +818,76 @@ const FoodSelector: React.FC = () => {
   );
 };
 
+// ─── MODULE 8 · Paid Poop Monitor ─────────────────────────────────────────────
+const PaidPoopMonitor: React.FC = () => {
+  const [isActive, setIsActive] = useState(false);
+  const [seconds, setSeconds] = useState(0);
+  const [salary] = useState(() => loadNum(SK.SALARY, 8000));
+  const hourlyRate = (salary / 22) / 8; 
+  const earned = (seconds / 3600) * hourlyRate;
+
+  useEffect(() => {
+    let interval: any;
+    if (isActive) {
+      interval = setInterval(() => setSeconds(s => s + 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isActive]);
+
+  const formatTime = (s: number) => {
+    const mins = Math.floor(s / 60);
+    const secs = s % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="bg-gradient-to-br from-amber-700/5 to-orange-950/5 rounded-3xl border border-amber-900/10 p-5 flex flex-col h-full min-h-[280px] overflow-hidden relative">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-[9px] font-bold text-amber-800/50 uppercase tracking-[.2em] mb-1">正在薅资本主义羊毛</p>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-bold text-amber-900">带薪拉屎赚差价模块</span>
+          </div>
+        </div>
+        {isActive && (
+           <motion.div animate={{ y: [0, -5, 0], rotate: [0, 5, -5, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="text-2xl">💩</motion.div>
+        )}
+      </div>
+
+      <div className="flex-grow flex flex-col items-center justify-center gap-1">
+        <div className="text-4xl font-black text-amber-900 tabular-nums font-mono">
+          {formatTime(seconds)}
+        </div>
+        <div className="text-emerald-600 font-black text-xl flex items-center gap-1">
+          <span className="text-sm">已赚</span>
+          ¥{earned.toFixed(3)}
+        </div>
+        
+        {isActive && (
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="flex gap-4 mt-2"
+          >
+            <span className="animate-pulse">🚽</span>
+            <span className="animate-pulse delay-75">🧻</span>
+            <span className="animate-pulse delay-150">📱</span>
+          </motion.div>
+        )}
+      </div>
+
+      <motion.button
+        whileTap={{ scale: .94 }} 
+        onClick={() => setIsActive(!isActive)}
+        className={cn(
+          "mt-4 w-full py-3 rounded-2xl font-black text-sm transition-all shadow-lg active:scale-95",
+          isActive ? "bg-red-500 text-white shadow-red-200" : "bg-amber-600 text-white shadow-amber-200"
+        )}
+      >
+        {isActive ? "结算并撤离" : "开始带薪拉屎"}
+      </motion.button>
+    </div>
+  );
+};
 // ─── MODULE 6 · Daily Oracle ──────────────────────────────────────────────────
 const DailyOracle: React.FC = () => {
   const { solar, lunar, yi, ji, wuXing, luckLevel } = useMemo(() => {
@@ -996,33 +1066,36 @@ export default function ToMyselfSpace() {
       </div>
 
       {/* Bento Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-[300px]">
-        {/* Salary — 2/3 wide */}
-        <div className="lg:col-span-2">
-          <SalaryMonitor />
-        </div>
-        {/* Pet */}
-        <div>
-          <PetModule xp={xp} onXPChange={handleXPChange} />
-        </div>
-        {/* Focus — 2/3 wide */}
-        <div className="lg:col-span-2">
-          <FocusTimer xp={xp} onXPChange={handleXPChange} />
-        </div>
-        {/* Oracle */}
-        <div>
-          <DailyOracle />
-        </div>
-        {/* Todo — 1/2 wide */}
-        <div style={{ height: '320px' }}>
-          <TodayTodo />
-        </div>
-        {/* Food — 1/4 wide (fits in 1 col) */}
-        <div style={{ height: '320px' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-auto">
+        {/* Row 1: High Frequency Fun */}
+        <div className="order-1">
           <FoodSelector />
         </div>
+        <div className="order-2">
+          <PaidPoopMonitor />
+        </div>
+        <div className="order-3">
+          <PetModule xp={xp} onXPChange={handleXPChange} />
+        </div>
+
+        {/* Row 2: Hardcore Stats */}
+        <div className="order-4 lg:col-span-2">
+          <SalaryMonitor />
+        </div>
+        <div className="order-5">
+          <DailyOracle />
+        </div>
+
+        {/* Row 3: Getting things done */}
+        <div className="order-6 min-h-[350px]">
+          <TodayTodo />
+        </div>
+        <div className="order-7 lg:col-span-2 min-h-[350px]">
+          <FocusTimer xp={xp} onXPChange={handleXPChange} />
+        </div>
+
         {/* Gossip — full width */}
-        <div className="md:col-span-2 lg:col-span-3" style={{ height: '320px' }}>
+        <div className="order-8 md:col-span-2 lg:col-span-3 min-h-[350px]">
           <GossipBoard />
         </div>
       </div>

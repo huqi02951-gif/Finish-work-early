@@ -67,88 +67,91 @@ const CommunityThreadPage: React.FC = () => {
 
   return (
     <CyberLayout title="帖子详情" subtitle="本地线程 · 匿名回复" showBack>
-      <CommunityAccessGate />
-      <div className="mx-auto max-w-4xl px-4 py-5">
+      <CommunityAccessGate moduleName={`解密节点残留数据碎片_${id?.slice(0,6)}`} />
+      <div className="mx-auto max-w-4xl px-4 py-5 font-mono">
         {loading ? (
-          <div className="rounded-lg border border-[#21432f] bg-[#07110d] p-6 text-sm text-[#70a17f]">正在读取节点...</div>
+          <div className="border border-[#00ff41]/30 bg-[#00ff41]/5 p-6 text-sm text-[#00ff41]/60 animate-pulse">正在提取底层碎片...</div>
         ) : !detail ? (
-          <div className="rounded-lg border border-[#21432f] bg-[#07110d] p-6 text-sm text-[#70a17f]">未找到这个本地帖子。</div>
+          <div className="border border-red-900/50 bg-red-950/20 p-6 text-sm text-red-500">404 - 节点由于时间限制已被销毁。</div>
         ) : (
           <div className="grid gap-4">
-            <section className="rounded-lg border border-[#21432f] bg-[#07110d] p-5">
-              <div className="flex flex-wrap items-center gap-3 text-[11px] text-[#70a17f]">
-                <span>{detail.thread.channel}</span>
-                <span>{formatRelativeTime(detail.thread.createdAt)}</span>
-                {detail.thread.expiresAt ? <span>{formatExpiry(detail.thread.expiresAt)}</span> : null}
-                <span>{detail.thread.author}</span>
+            <section className="border border-[#00ff41]/30 bg-black p-5 relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#00ff41] opacity-50"></div>
+              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#00ff41] opacity-50"></div>
+              
+              <div className="flex flex-wrap items-center gap-3 text-[10px] text-[#00ff41]/60 font-bold uppercase tracking-widest">
+                <span className="border border-[#00ff41] px-1.5 py-0.5 bg-[#00ff41]/10 text-[#00ff41] shadow-[0_0_8px_rgba(0,255,65,0.4)]">{detail.thread.channel}</span>
+                <span>SYS.TIME // {formatRelativeTime(detail.thread.createdAt)}</span>
+                {detail.thread.expiresAt ? <span className="text-red-500">EXP // {formatExpiry(detail.thread.expiresAt)}</span> : null}
+                <span>AUTHOR // {detail.thread.author}</span>
               </div>
-              <h1 className="mt-3 text-2xl font-semibold text-[#f2fff5]">{detail.thread.title}</h1>
-              <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-[#a6c6b0]">{detail.thread.content}</p>
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <span className="inline-flex items-center gap-1 text-xs text-[#70a17f]">
+              <h1 className="mt-4 text-2xl font-bold text-[#00ff41] shadow-[0_0_8px_rgba(0,255,65,0.2)]">{detail.thread.title}</h1>
+              <p className="mt-5 whitespace-pre-wrap text-sm leading-7 text-[#00ff41]/80">{detail.thread.content}</p>
+              <div className="mt-6 flex flex-wrap items-center gap-4 text-[10px] font-bold">
+                <span className="inline-flex items-center gap-1 text-[#00ff41]">
                   <MessageSquare size={13} />
-                  {detail.thread.replyCount} 条回复
+                  REPLIES: {detail.thread.replyCount}
                 </span>
                 {detail.thread.kind !== 'topic' ? (
                   <button
                     type="button"
                     onClick={handlePromote}
                     disabled={promoting}
-                    className="inline-flex items-center gap-2 rounded-md border border-[#372852] bg-[#0f0b19] px-3 py-2 text-xs font-semibold text-[#e3d7ff] transition-colors hover:border-[#5b4390] disabled:opacity-50"
+                    className="inline-flex items-center gap-2 border border-purple-900/50 bg-purple-950/20 px-3 py-2 text-xs font-bold text-purple-400 transition-colors hover:border-purple-500 hover:bg-purple-900/30 disabled:opacity-50 tracking-widest"
                   >
                     <Sparkles size={13} />
-                    {promoting ? '处理中...' : '转为专题'}
+                    {promoting ? 'PROCESSING...' : 'PROMOTE_TO_TOPIC'}
                   </button>
                 ) : null}
                 <Link
                   to="/bbs"
-                  className="text-xs text-[#8cffb0] hover:underline"
+                  className="ml-auto text-xs text-[#00ff41]/50 hover:text-[#00ff41] hover:underline uppercase tracking-widest"
                 >
-                  返回社区
+                  &lt; EXIT_NODE
                 </Link>
               </div>
             </section>
 
-            <section className="rounded-lg border border-[#21432f] bg-[#07110d] p-5">
-              <div className="text-xs uppercase tracking-[0.16em] text-[#70a17f]">写一条本地回复</div>
-              <form className="mt-3 grid gap-3" onSubmit={handleReply}>
+            <section className="border border-[#00ff41]/30 bg-black p-5">
+              <div className="text-[10px] uppercase tracking-widest text-[#00ff41]/60 font-bold border-b border-[#00ff41]/30 pb-2 mb-4">&gt; 接入本地共鸣网络</div>
+              <form className="grid gap-3" onSubmit={handleReply}>
                 <textarea
                   value={content}
                   onChange={(event) => setContent(event.target.value)}
-                  className="min-h-24 rounded-md border border-[#21432f] bg-[#0b1711] px-3 py-2 text-sm leading-6 text-[#f2fff5] outline-none"
-                  placeholder="继续讨论这个主题。"
+                  className="min-h-24 border border-[#00ff41]/50 bg-black px-3 py-2 text-sm leading-6 text-[#00ff41] outline-none placeholder:text-[#00ff41]/30 focus:border-[#00ff41]"
+                  placeholder="注入信息碎片..."
                 />
-                <label className="inline-flex items-center gap-2 text-sm text-[#c8ffd7]">
-                  <input type="checkbox" checked={anonymous} onChange={(event) => setAnonymous(event.target.checked)} />
-                  匿名回复
+                <label className="inline-flex items-center gap-2 text-sm text-[#00ff41]">
+                  <input type="checkbox" checked={anonymous} onChange={(event) => setAnonymous(event.target.checked)} className="accent-[#00ff41] bg-black border-[#00ff41]" />
+                  启用洋葱路由隐藏身份
                 </label>
                 <div className="flex justify-end">
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="inline-flex items-center gap-2 rounded-md border border-[#21432f] bg-[#0f1d15] px-4 py-2 text-sm font-semibold text-[#c8ffd7] transition-colors hover:border-[#2d6541] disabled:opacity-50"
+                    className="inline-flex items-center gap-2 border border-[#00ff41] bg-black px-4 py-2 text-sm font-bold text-[#00ff41] transition-colors hover:bg-[#00ff41] hover:text-black disabled:opacity-50"
                   >
                     <Send size={14} />
-                    {submitting ? '提交中...' : '写入回复'}
+                    {submitting ? '传输中...' : '提交数据'}
                   </button>
                 </div>
               </form>
             </section>
 
-            <section className="rounded-lg border border-[#21432f] bg-[#07110d] p-5">
-              <div className="text-xs uppercase tracking-[0.16em] text-[#70a17f]">回复串</div>
-              <div className="mt-3 grid gap-3">
+            <section className="border border-[#00ff41]/30 bg-black p-5">
+              <div className="text-[10px] uppercase tracking-widest text-[#00ff41]/60 font-bold border-b border-[#00ff41]/30 pb-2 mb-4">&gt; 返回信号</div>
+              <div className="grid gap-3">
                 {detail.replies.length ? detail.replies.map((reply) => (
-                  <div key={reply.uid} className="rounded-md border border-[#21432f] bg-[#0b1711] p-4">
-                    <div className="flex flex-wrap items-center gap-3 text-[11px] text-[#70a17f]">
-                      <span>{reply.author}</span>
-                      <span>{formatRelativeTime(reply.createdAt)}</span>
+                  <div key={reply.uid} className="border border-[#00ff41]/20 bg-[#00ff41]/5 p-4 hover:border-[#00ff41]/50 transition-colors">
+                    <div className="flex flex-wrap items-center gap-3 text-[10px] uppercase tracking-widest font-bold">
+                      <span className="text-[#00ff41] break-all">{reply.author}</span>
+                      <span className="text-[#00ff41]/50">{formatRelativeTime(reply.createdAt)}</span>
                     </div>
-                    <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#d7ffe3]">{reply.content}</p>
+                    <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[#00ff41]/80">{reply.content}</p>
                   </div>
                 )) : (
-                  <div className="rounded-md border border-dashed border-[#21432f] bg-[#0b1711] p-4 text-sm text-[#70a17f]">
-                    还没有回复，第一条就从这里开始。
+                  <div className="border border-dashed border-[#00ff41]/30 p-8 text-center text-sm text-[#00ff41]/40 font-bold uppercase tracking-widest">
+                    NO_SIGNAL_RECEIVED.
                   </div>
                 )}
               </div>

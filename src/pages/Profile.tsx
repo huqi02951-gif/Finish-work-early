@@ -10,7 +10,7 @@ import CommunityAccessGate from '../components/community/CommunityAccessGate';
 import { apiService } from '../services/api';
 import { User as UserType } from '../types';
 import { cn } from '../../lib/utils';
-import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber } from '../../lib/localSignals';
+import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber, writeLocalNumber } from '../../lib/localSignals';
 import InitialBadge from '../components/common/InitialBadge';
 import { listCommunityEntries } from '../../lib/community';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -57,6 +57,10 @@ const Profile: React.FC = () => {
   const [myPostCount, setMyPostCount] = useState(0);
   const [myLikesReceived, setMyLikesReceived] = useState(0);
 
+  const [isEditingSalary, setIsEditingSalary] = useState(false);
+  const [salaryInput, setSalaryInput] = useState(String(monthlySalary));
+  const [pet, setPet] = useState<any>(null);
+
   useEffect(() => {
     const fetchUser = async () => {
       const data = await apiService.getCurrentUser();
@@ -73,6 +77,11 @@ const Profile: React.FC = () => {
       setMyLikesReceived(likes);
     };
     fetchCommunityStats();
+
+    const p = localStorage.getItem('cl_active_pet');
+    if (p) {
+      try { setPet(JSON.parse(p)); } catch (e) {}
+    }
   }, []);
 
   useEffect(() => {
@@ -144,6 +153,15 @@ const Profile: React.FC = () => {
   const handleDrinkCoffee = () => setRestoredLife(prev => prev + 10);
   const currentLevel = Math.floor((myPostCount * 50 + myLikesReceived * 10) / 100) + 1;
 
+  const saveSalary = () => {
+    const val = Number(salaryInput);
+    if (!isNaN(val) && val > 0) {
+      writeLocalNumber(LOCAL_NUMBER_KEYS.salary, val);
+      setMonthlySalary(val);
+    }
+    setIsEditingSalary(false);
+  };
+
   return (
     <CyberLayout title="SysOps" subtitle="生命维持终端 (Daemon_V2)">
       <CommunityAccessGate moduleName="执行底层逻辑管控模块" />
@@ -163,8 +181,13 @@ const Profile: React.FC = () => {
             />
           )}
 
-          <div className="text-[#00ff41] text-[10px] mb-3 font-bold opacity-70">
-            <span className="text-gray-500">$</span> ./check_health_status.sh -v
+          <div className="text-[#00ff41] text-[10px] mb-3 font-bold opacity-70 flex justify-between items-center">
+            <span><span className="text-gray-500">$</span> ./check_health_status.sh -v</span>
+            {pet && (
+              <span className="text-[#00ff41] animate-pulse">
+                [DAEMON: {pet.def.emoji} {pet.def.name}]
+              </span>
+            )}
           </div>
           
           <div className="flex gap-4 items-start relative z-10">
@@ -206,7 +229,28 @@ const Profile: React.FC = () => {
               {status === 'OVERTIME' ? <ShieldAlert className="w-3 h-3 text-red-500" /> : <Terminal className="w-3 h-3"/>}
               <span>Sys.Crypto_Value 收益引擎</span>
             </span>
-            <span>BASE_{monthlySalary}</span>
+            <div className="flex items-center gap-2">
+              <span className="opacity-50 text-[8px]">BASE_VAL:</span>
+              {isEditingSalary ? (
+                <div className="flex items-center gap-1">
+                  <input 
+                    autoFocus
+                    value={salaryInput}
+                    onChange={(e) => setSalaryInput(e.target.value)}
+                    onBlur={saveSalary}
+                    onKeyDown={(e) => e.key === 'Enter' && saveSalary()}
+                    className="bg-[#00ff41]/10 border border-[#00ff41]/50 text-[#00ff41] text-[10px] w-16 px-1 outline-none"
+                  />
+                </div>
+              ) : (
+                <span 
+                  onClick={() => setIsEditingSalary(true)}
+                  className="cursor-pointer hover:bg-[#00ff41]/20 px-1 border border-dashed border-[#00ff41]/30"
+                >
+                  {monthlySalary}
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="flex justify-between items-center py-2">
