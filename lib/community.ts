@@ -11,9 +11,10 @@ import Dexie, { type EntityTable } from 'dexie';
 export const COMMUNITY_CHANNELS = [
   '经验分享',
   '系统操作',
-  '今日生活',
-  '暗帖区',
+  '合规探讨',
+  '匿名吐槽',
   'Gossip 贴板',
+  '二手交易',
   '专题',
 ] as const;
 
@@ -111,7 +112,7 @@ async function ensureSeed() {
       title: '听说年中考核要改成季度制了？',
       content:
         '今天开会的时候领导提了一嘴，说总行在推季度考核试点。不知道是不是所有分行都会跟进。有人听到更多消息吗？',
-      channel: '暗帖区',
+      channel: '匿名吐槽',
       author: '匿名节点',
       anonymous: true,
       kind: 'dark',
@@ -282,7 +283,7 @@ export async function createCommunityThread(input: {
   author: string;
 }): Promise<string> {
   const isGossip = input.channel === 'Gossip 贴板';
-  const isDark = input.channel === '暗帖区';
+  const isDark = input.channel === '匿名吐槽' || input.channel === '二手交易';
 
   const kind: CommunityKind = isGossip
     ? 'gossip'

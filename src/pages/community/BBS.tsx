@@ -26,15 +26,13 @@ import {
 } from '../../../lib/community';
 import { cn } from '../../../lib/utils';
 
-const CHANNEL_FILTERS: Array<CommunityChannel | '全部'> = ['全部', ...COMMUNITY_CHANNELS];
+const PANTRY_CHANNELS: CommunityChannel[] = ['匿名吐槽', 'Gossip 贴板', '二手交易'];
+const CHANNEL_FILTERS: Array<CommunityChannel | '全部'> = ['全部', ...PANTRY_CHANNELS];
 
-const channelColorMap: Record<CommunityChannel, string> = {
-  '经验分享': 'text-[#94f7b8] border-[#21432f] bg-[#0b1711]',
-  '系统操作': 'text-[#8fd8ff] border-[#1f3c4d] bg-[#09141b]',
-  '今日生活': 'text-[#f7d28d] border-[#4a3620] bg-[#171109]',
-  '暗帖区': 'text-[#ff8ca7] border-[#5b2230] bg-[#1a0d12]',
+const channelColorMap: Record<string, string> = {
+  '匿名吐槽': 'text-[#ff8ca7] border-[#5b2230] bg-[#1a0d12]',
   'Gossip 贴板': 'text-[#ffc78a] border-[#5b3b22] bg-[#1a120c]',
-  '专题': 'text-[#d6c2ff] border-[#372852] bg-[#0f0b19]',
+  '二手交易': 'text-[#d6c2ff] border-[#372852] bg-[#0f0b19]',
 };
 
 const BBSPage: React.FC = () => {
@@ -45,7 +43,7 @@ const BBSPage: React.FC = () => {
   const [composerOpen, setComposerOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
-    channel: '经验分享' as CommunityChannel,
+    channel: '匿名吐槽' as CommunityChannel,
     anonymous: false,
     title: '',
     content: '',
@@ -56,7 +54,12 @@ const BBSPage: React.FC = () => {
       listCommunityEntries(activeChannel),
       getCommunitySummary(),
     ]);
-    setEntries(items);
+    const items = await listCommunityEntries(activeChannel === '全部' ? undefined : activeChannel);
+    const filteredItems = activeChannel === '全部' 
+      ? items.filter((item) => PANTRY_CHANNELS.includes(item.channel as any))
+      : items;
+
+    setEntries(filteredItems);
     setSummary(nextSummary);
   };
 
@@ -97,17 +100,17 @@ const BBSPage: React.FC = () => {
   };
 
   return (
-    <CyberLayout title="暗网社区" subtitle="本地原型 · 匿名发帖 · Gossip 汇总">
+    <CyberLayout title="茶水间" subtitle="另一个世界 · 匿名吐槽 · 闲置交易">
       <CommunityAccessGate />
 
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-5">
         <section className="rounded-lg border border-[#21432f] bg-[#07110d] p-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-[#70a17f]">open node / local only</div>
-              <h1 className="mt-2 text-2xl font-semibold text-[#f2fff5]">经验、系统、生活和暗帖，都在同一个本地节点里。</h1>
+              <div className="text-[10px] uppercase tracking-[0.18em] text-[#70a17f]">the pantry / local only</div>
+              <h1 className="mt-2 text-2xl font-semibold text-[#f2fff5]">离开了工作台，这里是真实的另一个世界。</h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#8fb09a]">
-                当前是浏览器本地社区原型。帖子、回复、专题与 gossip 只保存在当前设备，不代表真实全员共享社区。
+                欢迎来到茶水间。各种八卦、吐槽、交易等等都可以在这里畅所欲言。默认 24 小时后自动销毁，不留痕迹。
               </p>
             </div>
 
@@ -133,7 +136,7 @@ const BBSPage: React.FC = () => {
                     onChange={(event) => setForm((current) => ({ ...current, channel: event.target.value as CommunityChannel }))}
                     className="rounded-md border border-[#21432f] bg-[#0b1711] px-3 py-2 text-sm text-[#f2fff5] outline-none"
                   >
-                    {COMMUNITY_CHANNELS.filter((item) => item !== '专题').map((channel) => (
+                    {PANTRY_CHANNELS.map((channel) => (
                       <option key={channel} value={channel}>{channel}</option>
                     ))}
                   </select>
@@ -156,7 +159,7 @@ const BBSPage: React.FC = () => {
                   value={form.content}
                   onChange={(event) => setForm((current) => ({ ...current, content: event.target.value }))}
                   className="min-h-28 rounded-md border border-[#21432f] bg-[#0b1711] px-3 py-2 text-sm leading-6 text-[#f2fff5] outline-none"
-                  placeholder="描述经验、系统入口、今天的观察，或者一条匿名暗帖。"
+                  placeholder="吐个槽，爆个料，或者出个闲置。"
                 />
               </label>
 
@@ -170,7 +173,7 @@ const BBSPage: React.FC = () => {
               </label>
 
               <div className="flex items-center justify-between gap-3 text-[11px] text-[#70a17f]">
-                <span>暗帖区与 Gossip 贴板默认 24 小时后自动销毁。</span>
+                <span>吐槽与 Gossip 默认 24 小时后自动销毁。</span>
                 <button
                   type="submit"
                   disabled={submitting}
@@ -240,7 +243,7 @@ const BBSPage: React.FC = () => {
                     className="rounded-lg border border-[#21432f] bg-[#0b1711] p-4 transition-colors hover:border-[#2d6541]"
                   >
                     <div className="flex flex-wrap items-center gap-2 text-[11px] text-[#70a17f]">
-                      <span className={cn('rounded-md border px-2 py-1', channelColorMap[entry.channel])}>
+                      <span className={cn('rounded-md border px-2 py-1', channelColorMap[entry.channel] || 'text-[#70a17f] border-[#21432f] bg-[#0b1711]')}>
                         {entry.channel}
                       </span>
                       <span>{formatRelativeTime(entry.createdAt)}</span>
@@ -302,7 +305,7 @@ const BBSPage: React.FC = () => {
             </section>
 
             <section className="rounded-lg border border-[#21432f] bg-[#07110d] p-4">
-              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[#70a17f]">待销毁暗帖</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-[#70a17f]">24小时限时帖子</div>
               <div className="mt-3 grid gap-2">
                 {summary?.expiringThreads.length ? summary.expiringThreads.map((item) => (
                   <Link

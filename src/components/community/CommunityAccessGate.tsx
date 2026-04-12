@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react';
 const SESSION_KEY = 'fwe:community-access-granted';
 
 const ACCESS_STEPS = [
-  '正在接入暗网节点...',
-  '验证本地原型会话...',
-  '启用匿名频道与临时贴板...',
+  '正在进入茶水间...',
+  '验证本地状态...',
+  '启用匿名频道...',
 ];
 
 interface CommunityAccessGateProps {
@@ -48,7 +48,7 @@ const CommunityAccessGate: React.FC<CommunityAccessGateProps> = ({ forceOpen = f
           ))}
         </div>
         <div className="mt-4 text-[11px] leading-relaxed text-[#70a17f]">
-          当前为浏览器本地社区原型，仅在当前设备可见。
+          当前为浏览器本地原型，仅在当前设备可见。
         </div>
       </div>
     </div>

@@ -65,22 +65,25 @@ const WorkspacePage: React.FC = () => {
     await load();
   };
 
+  const formalChannels: string[] = ['经验分享', '系统操作', '合规探讨', '专题'];
+  const formalHotThreads = (communitySummary?.hotThreads || []).filter(t => formalChannels.includes(t.channel));
+
   return (
     <AppLayout title="工作台">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
         <section className="flex flex-col gap-3 border-b border-brand-border/40 pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-gray">workspace</div>
-            <h1 className="mt-3 text-3xl font-semibold text-brand-dark">正式工作流在前，暗网社区在后。</h1>
+            <h1 className="mt-3 text-3xl font-semibold text-brand-dark">正式与效率的专业前台。</h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-brand-gray">
-              工作台保留一级入口。默认汇总正式记录、客户上下文和高频工具，同时给出暗网社区的热帖、gossip 和专题摘要。
+              工作台是你处理业务的数字总台。汇集历史记录、客户上下文、高频工具，并在业务社区沉淀真实的经验与操作指南。
             </p>
           </div>
 
           <div className="inline-flex rounded-md border border-brand-border/60 bg-white p-1">
             {[
-              { id: 'overview' as const, label: '总览' },
-              { id: 'community' as const, label: '暗网社区' },
+              { id: 'overview' as const, label: '工具总览' },
+              { id: 'community' as const, label: '业务社区' },
             ].map((item) => (
               <button
                 key={item.id}
@@ -223,10 +226,10 @@ const WorkspacePage: React.FC = () => {
               <div className="rounded-md border border-brand-border/60 bg-white">
                 <div className="flex items-center justify-between border-b border-brand-border/40 px-4 py-3">
                   <div className="text-sm font-semibold text-brand-dark">社区脉冲摘要</div>
-                  <Link to="/bbs" className="text-xs text-brand-dark hover:underline">进入社区</Link>
+                  <button type="button" onClick={() => setActiveTab('community')} className="text-xs text-brand-dark hover:underline">查看社区</button>
                 </div>
                 <div className="grid gap-3 p-4">
-                  {(communitySummary?.hotThreads || []).slice(0, 3).map((item) => (
+                  {formalHotThreads.slice(0, 3).map((item) => (
                     <Link key={item.uid} to={item.kind === 'topic' ? `/bbs/topic/${item.uid}` : `/bbs/thread/${item.uid}`} className="rounded-md border border-brand-border/50 bg-brand-offwhite p-4 transition-colors hover:bg-white">
                       <div className="text-[11px] text-brand-gray">{item.channel}</div>
                       <div className="mt-2 text-sm font-semibold text-brand-dark">{item.title}</div>
@@ -240,19 +243,19 @@ const WorkspacePage: React.FC = () => {
         ) : (
           <div className="grid gap-6">
             <section className="rounded-md border border-brand-border/60 bg-white p-5">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-gray">community gateway</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-gray">formal community</div>
               <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                 <div>
-                  <h2 className="text-2xl font-semibold text-brand-dark">这里先做汇总，不把社区直接塞进主站壳里。</h2>
+                  <h2 className="text-2xl font-semibold text-brand-dark">专业、效率、共享的业务前台。</h2>
                   <p className="mt-3 max-w-3xl text-sm leading-7 text-brand-gray">
-                    暗网社区继续保持独立赛博感。工作台这里只展示热帖、最新 gossip、待销毁暗帖和专题入口，点进去再做加密接入。
+                    大家分享的经验、系统操作在这里汇总。如果你想找个地方八卦吐槽或者二手交易...去茶水间看看吧，那是另一个世界。
                   </p>
                 </div>
                 <Link
                   to="/bbs"
-                  className="inline-flex items-center gap-2 rounded-md border border-brand-dark bg-brand-dark px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-black"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-md border border-[#2d1b0d] bg-[#1a0e05] px-4 py-2.5 text-sm font-semibold text-[#f7b98d] transition-colors hover:bg-black hover:border-[#f7b98d]/30"
                 >
-                  进入暗网社区
+                  去往茶水间
                   <Lock size={15} />
                 </Link>
               </div>

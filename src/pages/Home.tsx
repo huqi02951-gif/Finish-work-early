@@ -113,10 +113,13 @@ const Home: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 1 }}
-            className="mt-16 text-center"
+            className="mt-16 text-center space-y-4"
           >
             <div className="inline-block px-4 py-1.5 rounded-full bg-brand-offwhite border border-brand-border/30 text-[10px] font-medium tracking-[0.2em] uppercase text-brand-gray/60">
               Finish Work Early
+            </div>
+            <div className="text-[9px] font-medium tracking-[0.1em] text-brand-gray/40 uppercase">
+              Designed by XD.HU & PHYLLIS FENG
             </div>
           </motion.div>
 

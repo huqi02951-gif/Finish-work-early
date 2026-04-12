@@ -143,7 +143,7 @@ const Profile: React.FC = () => {
           <div className="text-center z-10 w-full max-w-sm">
             <Lock className="w-12 h-12 mx-auto mb-4 opacity-70 animate-pulse text-[#00ff41]" />
             <div className="text-left bg-black p-4 border border-[#00ff41]/30 shadow-[0_0_15px_rgba(0,255,65,0.2)]">
-              <TypewriterText text="[正在接入暗网主控核心...]" />
+              <TypewriterText text="[正在接入终端主控核心...]" />
               <br/>
               <TypewriterText text="[校验赛博干员权限序列...]" delay={500} />
               <br/>
@@ -177,7 +177,7 @@ const Profile: React.FC = () => {
         
         {/* Vim-like top bar */}
         <div className="bg-[#1a1a1a] text-[#00ff41] px-2 py-1 flex justify-between text-[10px] border-b border-[#00ff41]/20 sticky top-0 z-40">
-          <span className="flex items-center gap-1"><Terminal className="w-3 h-3"/> tty_暗网节点1</span>
+          <span className="flex items-center gap-1"><Terminal className="w-3 h-3"/> tty_赛博节点1</span>
           <span>root@{user?.nickname || '特工'} ~</span>
         </div>
 
@@ -191,12 +191,12 @@ const Profile: React.FC = () => {
             
             <div className="flex gap-4 items-start">
               <div className="w-16 h-16 border-2 border-[#00ff41]/50 shrink-0 relative grid place-items-center bg-[#0A1A0F]">
-                <InitialBadge label={user?.nickname || '暗网匿名者'} tone="cyber" className="h-12 w-12 text-sm" />
+                <InitialBadge label={user?.nickname || '匿名者'} tone="cyber" className="h-12 w-12 text-sm" />
               </div>
               
               <div className="flex-grow space-y-1">
                 <div className="flex justify-between items-end">
-                  <GlitchText text={`特工代号: ${user?.nickname || '暗网匿名者'}`} className="text-[#00ff41] text-lg font-bold tracking-tight" glitchHoverOnly />
+                  <GlitchText text={`特工代号: ${user?.nickname || '匿名者'}`} className="text-[#00ff41] text-lg font-bold tracking-tight" glitchHoverOnly />
                   <span className="text-[#f5a623] text-[10px] border border-[#f5a623]/50 px-1">LVL.{level}</span>
                 </div>
                 
@@ -358,7 +358,7 @@ const Profile: React.FC = () => {
                   <div className="pt-4 grid grid-cols-2 gap-2">
                     {[
                       { icon: FolderTree, label: '../系统配置', path: '/settings' },
-                      { icon: FolderTree, label: '../暗网交流区', path: '/bbs' },
+                      { icon: FolderTree, label: '../地下茶水间', path: '/bbs' },
                     ].map((dir, idx) => (
                       <Link key={idx} to={dir.path} className="flex items-center gap-1.5 text-[10px] text-gray-500 hover:text-[#00ff41] transition-colors cursor-pointer border border-transparent hover:border-[#00ff41]/30 bg-[#1a1a1a] p-2">
                         <dir.icon className="w-3.5 h-3.5" /> {dir.label}
@@ -410,7 +410,7 @@ const Profile: React.FC = () => {
               <div className="absolute inset-0 bg-red-500/10 -translate-x-full group-hover:translate-x-0 transition-transform duration-300 pointer-events-none"></div>
               <span className="text-[11px] text-red-500 font-bold font-mono group-hover:text-red-400 z-10 transition-colors">
                 <span className="text-gray-600 mr-2">$</span>
-                sudo poweroff --退出暗网链接
+                sudo poweroff --退出终端链接
               </span>
               <LogOut className="w-4 h-4 text-red-500 group-hover:text-red-400 z-10" />
             </button>
