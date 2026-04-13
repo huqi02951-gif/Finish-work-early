@@ -364,25 +364,29 @@ const makeCell = (text: string, bold = false, size = 20, widthPct?: number, bgCo
 };
 
 // 表头行：跨2列 + 灰色底色 + 居中 + 加粗 + 稍大字号
+// tableHeader: true → header repeats on every page
 const makeSectionRow = (text: string) =>
   new TableRow({
+    tableHeader: true,
+    cantSplit: true,
     children: [
       new TableCell({
         children: [new Paragraph({
           children: [new TextRun({ text, bold: true, size: 22, font: '宋体' })],
           alignment: AlignmentType.CENTER,
-          spacing: { after: 40, before: 80 },
+          spacing: { after: 60, before: 60 },
         })],
         columnSpan: 2,
         shading: { type: ShadingType.CLEAR, color: 'E8E8E8', fill: 'E8E8E8' },
-        margins: { top: 60, bottom: 60, left: 80, right: 80 },
+        margins: { top: 80, bottom: 80, left: 100, right: 100 },
       }),
     ],
   });
 
-// 数据行：左列 75%，右列 25%，右列加粗
+// 数据行：左列 75%，右列 25%，右列加粗，cantSplit 防止行内分页
 const makeDataRow = (label: string, answer: string) =>
   new TableRow({
+    cantSplit: true,
     children: [
       makeCell(label, false, 20, 75),
       makeCell(answer, true, 20, 25),
@@ -455,7 +459,16 @@ async function buildChecklistWordDoc(product: ProductType, info: FormInfo): Prom
 
   children.push(table);
 
-  const doc = new Document({ sections: [{ properties: {}, children }] });
+  const doc = new Document({
+    sections: [{
+      properties: {
+        page: {
+          margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 },
+        },
+      },
+      children,
+    }],
+  });
   return Packer.toBlob(doc);
 }
 
@@ -467,26 +480,57 @@ async function buildCreditPlanWordDoc(product: ProductType, info: FormInfo): Pro
   const text = generateCreditPlanText(product, info);
   const productName = product === 'chang_yi_dan' ? '长易担' : '长融保';
 
+  // Section heading keywords — render as bold + slightly larger
+  const HEADING_STARTS = ['授信申请人', '授信方案（', '担保方式', '资金用途', '贷款支用条件', '合同限制性条款', '贷后管理', '签订仲裁协议'];
+
   const children: any[] = [
+    // Document title
     new Paragraph({
       children: [new TextRun({ text: `授信方案（${productName}）`, bold: true, size: 32, font: '宋体' })],
-      spacing: { after: 240 },
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 300 },
     }),
   ];
 
   text.split('\n').forEach((line) => {
     if (!line.trim()) {
-      children.push(new Paragraph({ text: '' }));
+      children.push(new Paragraph({ children: [new TextRun({ text: '' })], spacing: { after: 60 } }));
       return;
     }
-    const isHeading = line.includes('授信申请人') || line.includes('授信方案（') || line.includes('担保方式') || line.includes('资金用途') || line.includes('贷款支用条件') || line.includes('合同限制性条款') || line.includes('贷后管理');
-    children.push(new Paragraph({
-      children: [new TextRun({ text: line, size: 24, bold: isHeading, font: '宋体' })],
-      spacing: { after: 100, line: 400, lineRule: 'auto' },
-    }));
+
+    const isHeading = HEADING_STARTS.some(k => line.startsWith(k));
+    const isNumbered = /^\d+\./.test(line.trim()); // e.g. "1. ..." "2. ..."
+
+    if (isHeading) {
+      children.push(new Paragraph({
+        children: [new TextRun({ text: line, size: 24, bold: true, font: '宋体' })],
+        spacing: { before: 200, after: 80, line: 400, lineRule: 'auto' },
+        border: { bottom: { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' } },
+      }));
+    } else if (isNumbered) {
+      children.push(new Paragraph({
+        children: [new TextRun({ text: line, size: 22, font: '宋体' })],
+        spacing: { after: 80, line: 380, lineRule: 'auto' },
+        indent: { left: 220 },
+      }));
+    } else {
+      children.push(new Paragraph({
+        children: [new TextRun({ text: line, size: 22, font: '宋体' })],
+        spacing: { after: 80, line: 380, lineRule: 'auto' },
+      }));
+    }
   });
 
-  const doc = new Document({ sections: [{ properties: {}, children }] });
+  const doc = new Document({
+    sections: [{
+      properties: {
+        page: {
+          margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 }, // ~2cm margins
+        },
+      },
+      children,
+    }],
+  });
   return Packer.toBlob(doc);
 }
 
@@ -509,6 +553,9 @@ const ChecklistGenerator: React.FC = () => {
   const [hasPreview, setHasPreview] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [previewTab, setPreviewTab] = useState<'checklist' | 'creditPlan'>('checklist');
+  // Mobile-only tab state
+  const [mobileTab, setMobileTab] = useState<'form' | 'preview'>('form');
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Auto-save
   useEffect(() => {
@@ -657,20 +704,305 @@ const ChecklistGenerator: React.FC = () => {
     );
   };
 
+  /* ── Shared form field blocks (render-functions, not components, to avoid remount on keystroke) ── */
+  const renderFieldsCore = () => (
+    <>
+      <div className="text-[10px] font-bold text-brand-dark uppercase tracking-widest mb-1.5">基本信息</div>
+      <div className="grid grid-cols-2 gap-2.5 mb-3">
+        <div className="col-span-2">
+          <label className={labelClass}>企业名称</label>
+          <input value={info.enterpriseName} onChange={e => updateInfo('enterpriseName', e.target.value)} className={inputClass} placeholder="XX有限公司" />
+        </div>
+        <div>
+          <label className={labelClass}>法定代表人</label>
+          <input value={info.legalRep} onChange={e => updateInfo('legalRep', e.target.value)} className={inputClass} placeholder="姓名" />
+        </div>
+        <div>
+          <label className={labelClass}>实际控制人</label>
+          <input value={info.actualController} onChange={e => updateInfo('actualController', e.target.value)} className={inputClass} placeholder="姓名" />
+        </div>
+      </div>
+      <div className="text-[10px] font-bold text-brand-dark uppercase tracking-widest mb-1.5">授信信息</div>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <label className={labelClass}>授信金额（万元）</label>
+          <input value={info.creditAmount} onChange={e => updateInfo('creditAmount', e.target.value)} className={inputClass} placeholder="500" />
+        </div>
+        <div>
+          <label className={labelClass}>授信期限</label>
+          <input value={info.creditTerm} onChange={e => updateInfo('creditTerm', e.target.value)} className={inputClass} placeholder="36个月" />
+        </div>
+        <div className="col-span-2">
+          <label className={labelClass}>资金用途</label>
+          <input value={info.fundPurpose} onChange={e => updateInfo('fundPurpose', e.target.value)} className={inputClass} placeholder="经营周转/购买设备/原材料等" />
+        </div>
+      </div>
+    </>
+  );
+
+  const renderFieldsAdvanced = () => (
+    <>
+      <div className="text-[10px] font-bold text-brand-dark uppercase tracking-widest mb-1.5 mt-3">其他基本信息</div>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <label className={labelClass}>配偶姓名</label>
+          <input value={info.spouseName} onChange={e => updateInfo('spouseName', e.target.value)} className={inputClass} placeholder="可选" />
+        </div>
+        <div>
+          <label className={labelClass}>成立时间</label>
+          <input value={info.establishedDate} onChange={e => updateInfo('establishedDate', e.target.value)} className={inputClass} placeholder="2020年6月" />
+        </div>
+        <div>
+          <label className={labelClass}>本次申请额度</label>
+          <input value={info.currentApplyAmount} onChange={e => updateInfo('currentApplyAmount', e.target.value)} className={inputClass} placeholder="500" />
+        </div>
+        <div>
+          <label className={labelClass}>他行已获批额度</label>
+          <input value={info.otherBankApproved} onChange={e => updateInfo('otherBankApproved', e.target.value)} className={inputClass} placeholder="0" />
+        </div>
+      </div>
+
+      <div className="text-[10px] font-bold text-brand-dark uppercase tracking-widest mb-1.5 mt-3">还本付息 &amp; 利率</div>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <label className={labelClass}>还本方式</label>
+          <select value={info.repayMethod} onChange={e => updateInfo('repayMethod', e.target.value)} className={inputClass}>
+            <option value="quarterly">按季还本</option>
+            <option value="monthly">按月还本</option>
+            <option value="bullet">到期一次性还本</option>
+          </select>
+        </div>
+        <div>
+          <label className={labelClass}>每季度还本金额（万元）</label>
+          <input value={info.quarterlyRepayAmount} onChange={e => updateInfo('quarterlyRepayAmount', e.target.value)} className={inputClass} placeholder="50" />
+        </div>
+        <div className="col-span-2">
+          <label className={labelClass}>利率表述</label>
+          <input value={info.rateExpression} onChange={e => updateInfo('rateExpression', e.target.value)} className={inputClass} placeholder="不低于五年期LPR-50b.p." />
+        </div>
+        <div>
+          <label className={labelClass}>支付方式</label>
+          <select value={info.payMethod} onChange={e => updateInfo('payMethod', e.target.value)} className={inputClass}>
+            <option value="entrusted">受托支付</option>
+            <option value="autonomous">自主支付</option>
+          </select>
+        </div>
+        <div>
+          <label className={labelClass}>其他担保补充</label>
+          <input value={info.extraGuarantee} onChange={e => updateInfo('extraGuarantee', e.target.value)} className={inputClass} placeholder="可选" />
+        </div>
+      </div>
+
+      <div className="text-[10px] font-bold text-brand-dark uppercase tracking-widest mb-1.5 mt-3">财务指标</div>
+      <div className="grid grid-cols-2 gap-2.5">
+        <div>
+          <label className={labelClass}>纳税等级</label>
+          <select value={info.taxGrade} onChange={e => updateInfo('taxGrade', e.target.value)} className={inputClass}>
+            <option value="">请选择</option>
+            <option value="A">A级</option><option value="B">B级</option><option value="M">M级</option><option value="C">C级</option><option value="D">D级</option>
+          </select>
+        </div>
+        <div>
+          <label className={labelClass}>上年度纳税等级</label>
+          <input value={info.taxGradePrevYear} onChange={e => updateInfo('taxGradePrevYear', e.target.value)} className={inputClass} placeholder="B" />
+        </div>
+        <div>
+          <label className={labelClass}>近12个月缴税总额（万元）</label>
+          <input value={info.taxAmount12m} onChange={e => updateInfo('taxAmount12m', e.target.value)} className={inputClass} placeholder="20" />
+        </div>
+        <div>
+          <label className={labelClass}>上年度缴税总额（万元）</label>
+          <input value={info.taxAmountPrevYear} onChange={e => updateInfo('taxAmountPrevYear', e.target.value)} className={inputClass} placeholder="20" />
+        </div>
+        <div>
+          <label className={labelClass}>营授比（%）</label>
+          <input value={info.creditLoanRatio} onChange={e => updateInfo('creditLoanRatio', e.target.value)} className={inputClass} placeholder="25" />
+        </div>
+        <div>
+          <label className={labelClass}>资产负债率（%）</label>
+          <input value={info.assetLiabilityRatio} onChange={e => updateInfo('assetLiabilityRatio', e.target.value)} className={inputClass} placeholder="50" />
+        </div>
+      </div>
+
+      <div className="text-[10px] font-bold text-brand-dark uppercase tracking-widest mb-1.5 mt-3">企业标签</div>
+      <div className="flex flex-col gap-2">
+        {([
+          ['isTechEnterprise', '科技型企业（国家级/省级高新）'],
+          ['isSpecialized', '专精特新企业'],
+          ['isProduction', '生产型企业（自有厂房）'],
+          ['isOver300w', '超过300万元'],
+          ['hasThirdPartyGuarantee', '第三方保证/共同借款'],
+          ['hasMortgage', '涉及抵押物'],
+        ] as [keyof FormInfo, string][]).map(([field, label]) => (
+          <label key={field} className="flex items-center gap-2 text-xs text-brand-dark">
+            <input type="checkbox" checked={!!info[field]} onChange={e => updateInfo(field, e.target.checked)} className="rounded border-brand-border/20 text-brand-dark" />
+            {label}
+          </label>
+        ))}
+      </div>
+    </>
+  );
+
+  /* ── Credit plan rendered as styled document (not raw pre) ── */
+  const renderCreditPlanDoc = () => {
+    const HEADING_KEYS = ['授信申请人', '授信方案（', '担保方式', '资金用途', '贷款支用条件', '合同限制性条款', '贷后管理', '签订仲裁协议'];
+    return (
+      <div className="bg-white rounded-xl border border-brand-border/10 shadow-sm overflow-hidden">
+        {/* Document header */}
+        <div className="bg-brand-dark px-5 py-3 flex items-center justify-between">
+          <span className="text-sm font-black text-white">授信方案（{productName}）</span>
+          <span className="text-[10px] text-white/60 font-mono">{info.enterpriseName || '—'}</span>
+        </div>
+        <div className="p-4 max-h-[60vh] overflow-y-auto space-y-1">
+          {generatedCreditPlanText.split('\n').map((line, i) => {
+            if (!line.trim()) return <div key={i} className="h-2" />;
+            const isHeading = HEADING_KEYS.some(k => line.startsWith(k));
+            const isNumbered = /^\d+\./.test(line.trim());
+            if (isHeading) {
+              return (
+                <div key={i} className="pt-3 pb-1">
+                  <span className="text-xs font-black text-brand-dark border-b-2 border-brand-gold pb-0.5">{line}</span>
+                </div>
+              );
+            }
+            if (isNumbered) {
+              return (
+                <div key={i} className="flex gap-2 text-[12px] leading-relaxed text-brand-dark pl-2">
+                  <span>{line}</span>
+                </div>
+              );
+            }
+            return (
+              <p key={i} className="text-[12px] leading-relaxed text-brand-dark/90">{line}</p>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  /* ── Shared preview content ── */
+  const renderPreviewContent = () => (
+    <>
+      <div className="mb-3 flex items-center gap-2 text-[11px] text-brand-gray">
+        <Sparkles size={12} className="text-brand-gold shrink-0" />
+        已生成预览，切换 Tab 查看检核表和授信方案，确认无误后可复制或下载
+      </div>
+
+      {/* Tab switcher */}
+      <div className="flex gap-1 mb-4 bg-brand-offwhite rounded-lg p-1">
+        <button onClick={() => setPreviewTab('checklist')}
+          className={cn('flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-bold transition-all',
+            previewTab === 'checklist' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-gray')}>
+          <FileText size={12} /> 检核表预览
+        </button>
+        <button onClick={() => setPreviewTab('creditPlan')}
+          className={cn('flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-bold transition-all',
+            previewTab === 'creditPlan' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-gray')}>
+          <FileBarChart size={12} /> 授信方案预览
+        </button>
+      </div>
+
+      {/* Checklist preview */}
+      {previewTab === 'checklist' && (
+        <div className="bg-white rounded-xl border border-brand-border/10 p-4 shadow-sm">
+          <ChecklistEditSection title="（一）业务项目准入条件检视" rows={accessRows} />
+          {product === 'chang_yi_dan' && <ChecklistEditSection title="（二）长易担业务的特殊准入要求" rows={specialRows} />}
+          {info.isOver300w && <ChecklistEditSection title="8、单户授信额度高于300万元附加要求" rows={overRows} />}
+          <ChecklistEditSection title="授信方案" rows={schemeRows} />
+          <div className="mt-4 pt-4 border-t border-brand-border/10">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xs font-bold text-brand-dark">文本预览（可直接复制粘贴）</h3>
+              <button onClick={() => navigator.clipboard.writeText(generatedChecklistText)}
+                className="flex items-center gap-1 text-[10px] font-bold text-brand-gray hover:text-brand-dark">
+                <Clipboard size={10} /> 复制全文
+              </button>
+            </div>
+            <pre className="whitespace-pre-wrap text-[11px] leading-5 text-brand-dark bg-brand-offwhite rounded-lg p-3 max-h-[40vh] overflow-y-auto font-mono">
+              {generatedChecklistText}
+            </pre>
+          </div>
+        </div>
+      )}
+
+      {/* Credit plan rendered as styled document */}
+      {previewTab === 'creditPlan' && (
+        <div className="space-y-3">
+          {renderCreditPlanDoc()}
+          <div className="bg-brand-offwhite/50 rounded-xl border border-brand-border/10 p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold text-brand-gray">原始文本（复制用）</span>
+              <button onClick={() => navigator.clipboard.writeText(generatedCreditPlanText)}
+                className="flex items-center gap-1 text-[10px] font-bold text-brand-gray hover:text-brand-dark">
+                <Clipboard size={10} /> 复制全文
+              </button>
+            </div>
+            <pre className="whitespace-pre-wrap text-[10px] leading-4 text-brand-dark/70 max-h-[30vh] overflow-y-auto font-mono">
+              {generatedCreditPlanText}
+            </pre>
+          </div>
+        </div>
+      )}
+
+      {/* Action bar */}
+      <div className="mt-4 bg-white rounded-xl border border-brand-border/10 shadow-sm overflow-hidden">
+        <div className="px-4 py-3 border-b border-brand-border/10 flex items-center gap-2">
+          <Download size={13} className="text-brand-gold" />
+          <span className="text-xs font-black text-brand-dark">导出文件</span>
+        </div>
+        <div className="p-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {/* Checklist group */}
+          <div className="flex flex-col gap-1.5">
+            <div className="text-[9px] font-bold text-brand-gray uppercase tracking-widest px-1">检核表</div>
+            <button onClick={() => navigator.clipboard.writeText(generatedChecklistText)}
+              className="flex items-center gap-1.5 px-3 py-2 bg-brand-offwhite rounded-lg text-xs font-bold text-brand-dark hover:bg-brand-border/10 transition-colors">
+              <Clipboard size={11} /> 复制文本
+            </button>
+            <button onClick={handleDownloadChecklist} disabled={isGenerating}
+              className="flex items-center gap-1.5 px-3 py-2 bg-brand-dark text-white rounded-lg text-xs font-bold hover:opacity-90 disabled:opacity-50 transition-opacity">
+              <Download size={11} /> {isGenerating ? '生成中...' : '下载 Word'}
+            </button>
+          </div>
+          {/* Credit plan group */}
+          <div className="flex flex-col gap-1.5">
+            <div className="text-[9px] font-bold text-brand-gray uppercase tracking-widest px-1">授信方案</div>
+            <button onClick={() => navigator.clipboard.writeText(generatedCreditPlanText)}
+              className="flex items-center gap-1.5 px-3 py-2 bg-brand-offwhite rounded-lg text-xs font-bold text-brand-dark hover:bg-brand-border/10 transition-colors">
+              <Clipboard size={11} /> 复制文本
+            </button>
+            <button onClick={handleDownloadCreditPlan} disabled={isGenerating}
+              className="flex items-center gap-1.5 px-3 py-2 bg-brand-dark text-white rounded-lg text-xs font-bold hover:opacity-90 disabled:opacity-50 transition-opacity">
+              <Download size={11} /> {isGenerating ? '生成中...' : '下载 Word'}
+            </button>
+          </div>
+          {/* All-in-one */}
+          <div className="flex flex-col gap-1.5">
+            <div className="text-[9px] font-bold text-brand-gray uppercase tracking-widest px-1">一键全部</div>
+            <button onClick={handleDownloadAll} disabled={isGenerating}
+              className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 bg-gradient-to-br from-brand-dark via-brand-dark to-brand-dark/80 text-white rounded-lg text-xs font-bold hover:opacity-90 disabled:opacity-50 shadow-md transition-opacity min-h-[4.5rem]">
+              <Package size={14} />
+              <span>{isGenerating ? '生成中...' : '一键下载\n全部文件'}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <AppLayout title={`${productName} - 生成中心`} showBack>
       <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6 pb-24">
 
         {/* ─── Header ─── */}
-        <div className="flex items-center gap-3 mb-5">
+        <div className="flex items-center gap-3 mb-4">
           <h1 className="text-lg sm:text-xl font-black text-brand-dark">{productName} · 智能生成中心</h1>
-          <span className="text-[10px] font-bold text-brand-gray bg-brand-offwhite px-2 py-1 rounded-md">填写一次信息，同时生成检核表+授信方案</span>
+          <span className="hidden sm:inline text-[10px] font-bold text-brand-gray bg-brand-offwhite px-2 py-1 rounded-md">填写一次信息，同时生成检核表+授信方案</span>
         </div>
 
         {/* ─── Product Selector ─── */}
-        <div className="flex gap-2 mb-5">
+        <div className="flex gap-2 mb-4">
           {([['chang_yi_dan', '长易担'], ['chang_rong_bao', '长融保']] as [ProductType, string][]).map(([p, label]) => (
-            <button key={p} onClick={() => { setProduct(p); setHasPreview(false); }}
+            <button key={p} onClick={() => { setProduct(p); setHasPreview(false); setMobileTab('form'); }}
               className={cn('flex-1 py-2.5 rounded-lg text-xs font-bold transition-all border',
                 product === p ? 'bg-brand-dark text-white border-brand-dark' : 'bg-white text-brand-gray border-brand-border/20 hover:bg-brand-offwhite')}>
               {label}
@@ -678,11 +1010,85 @@ const ChecklistGenerator: React.FC = () => {
           ))}
         </div>
 
-        {/* ─── Two-column layout ─── */}
-        <div className="flex flex-col lg:flex-row gap-5">
+        {/* ════════════════════════════════════
+            MOBILE LAYOUT  (hidden on lg+)
+            ════════════════════════════════════ */}
+        <div className="lg:hidden">
+
+          {/* Mobile Tab Switcher */}
+          <div className="flex gap-1 mb-4 bg-brand-offwhite rounded-lg p-1">
+            <button onClick={() => setMobileTab('form')}
+              className={cn('flex-1 py-2.5 rounded-md text-sm font-bold transition-all',
+                mobileTab === 'form' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-gray')}>
+              ✏️ 填写信息
+            </button>
+            <button onClick={() => setMobileTab('preview')}
+              className={cn('flex-1 py-2.5 rounded-md text-sm font-bold transition-all relative',
+                mobileTab === 'preview' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-gray')}>
+              📄 查看结果
+              {hasPreview && <span className="absolute top-1.5 right-2 w-1.5 h-1.5 bg-emerald-500 rounded-full" />}
+            </button>
+          </div>
+
+          {/* Mobile: Form Tab */}
+          {mobileTab === 'form' && (
+            <div className="space-y-3">
+              {/* Key fields + CTA */}
+              <div className="bg-white rounded-xl border border-brand-border/10 p-4 shadow-sm">
+                {renderFieldsCore()}
+                <button
+                  onClick={() => { handleGeneratePreview(); setMobileTab('preview'); }}
+                  className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 bg-brand-dark text-white rounded-xl text-sm font-bold hover:opacity-90 transition-opacity shadow-lg"
+                >
+                  <Sparkles size={16} />
+                  生成检核表 + 授信方案
+                </button>
+                <p className="text-[10px] text-brand-gray text-center mt-2">已自动保存，可先生成再精调检核项</p>
+              </div>
+
+              {/* Collapsible advanced fields */}
+              <button
+                onClick={() => setShowAdvanced(v => !v)}
+                className="w-full flex items-center justify-between px-4 py-3 bg-white rounded-xl border border-brand-border/10 text-xs font-bold text-brand-dark shadow-sm"
+              >
+                <span>更多信息（还本付息、财务指标、担保等）</span>
+                <span className="text-brand-gray text-[10px]">{showAdvanced ? '收起 ▲' : '展开 ▼'}</span>
+              </button>
+
+              {showAdvanced && (
+                <div className="bg-white rounded-xl border border-brand-border/10 p-4 shadow-sm">
+                  {renderFieldsAdvanced()}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Mobile: Preview Tab */}
+          {mobileTab === 'preview' && (
+            <div>
+              {!hasPreview ? (
+                <div className="flex flex-col items-center justify-center h-64 bg-white rounded-xl border border-brand-border/10 border-dashed">
+                  <Eye size={36} className="text-brand-border mb-3" />
+                  <p className="text-sm font-bold text-brand-gray text-center px-6">还没有生成结果</p>
+                  <button onClick={() => setMobileTab('form')}
+                    className="mt-4 px-5 py-2.5 bg-brand-dark text-white rounded-xl text-xs font-bold">
+                    去填写信息
+                  </button>
+                </div>
+              ) : (
+                renderPreviewContent()
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ════════════════════════════════════
+            DESKTOP LAYOUT  (hidden on mobile)
+            ════════════════════════════════════ */}
+        <div className="hidden lg:flex gap-5">
 
           {/* ═══ LEFT: Input Panel ═══ */}
-          <div className="w-full lg:w-[22rem] shrink-0">
+          <div className="w-[22rem] shrink-0">
             <div className="bg-white rounded-xl border border-brand-border/10 p-4 shadow-sm sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
               <h3 className="text-sm font-bold text-brand-dark mb-3 flex items-center gap-2">
                 <Sparkles size={14} className="text-brand-gold" />
@@ -700,150 +1106,9 @@ const ChecklistGenerator: React.FC = () => {
                 </div>
               </div>
 
-              {/* Section 1: 基本信息 */}
-              <div className="text-[10px] font-bold text-brand-dark uppercase tracking-widest mb-1.5 mt-1">基本信息</div>
-              <div className="grid grid-cols-2 gap-2.5">
-                <div className="col-span-2">
-                  <label className={labelClass}>企业名称</label>
-                  <input value={info.enterpriseName} onChange={e => updateInfo('enterpriseName', e.target.value)} className={inputClass} placeholder="XX有限公司" />
-                </div>
-                <div>
-                  <label className={labelClass}>法定代表人</label>
-                  <input value={info.legalRep} onChange={e => updateInfo('legalRep', e.target.value)} className={inputClass} placeholder="姓名" />
-                </div>
-                <div>
-                  <label className={labelClass}>实际控制人</label>
-                  <input value={info.actualController} onChange={e => updateInfo('actualController', e.target.value)} className={inputClass} placeholder="姓名" />
-                </div>
-                <div>
-                  <label className={labelClass}>配偶姓名</label>
-                  <input value={info.spouseName} onChange={e => updateInfo('spouseName', e.target.value)} className={inputClass} placeholder="可选" />
-                </div>
-                <div>
-                  <label className={labelClass}>成立时间</label>
-                  <input value={info.establishedDate} onChange={e => updateInfo('establishedDate', e.target.value)} className={inputClass} placeholder="2020年6月" />
-                </div>
-              </div>
+              {renderFieldsCore()}
+              {renderFieldsAdvanced()}
 
-              {/* Section 2: 授信信息 */}
-              <div className="text-[10px] font-bold text-brand-dark uppercase tracking-widest mb-1.5 mt-3">授信信息</div>
-              <div className="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label className={labelClass}>授信金额（万元）</label>
-                  <input value={info.creditAmount} onChange={e => updateInfo('creditAmount', e.target.value)} className={inputClass} placeholder="500" />
-                </div>
-                <div>
-                  <label className={labelClass}>授信期限</label>
-                  <input value={info.creditTerm} onChange={e => updateInfo('creditTerm', e.target.value)} className={inputClass} placeholder="36个月" />
-                </div>
-                <div>
-                  <label className={labelClass}>本次申请额度</label>
-                  <input value={info.currentApplyAmount} onChange={e => updateInfo('currentApplyAmount', e.target.value)} className={inputClass} placeholder="500" />
-                </div>
-                <div>
-                  <label className={labelClass}>他行已获批额度</label>
-                  <input value={info.otherBankApproved} onChange={e => updateInfo('otherBankApproved', e.target.value)} className={inputClass} placeholder="0" />
-                </div>
-                <div className="col-span-2">
-                  <label className={labelClass}>资金用途</label>
-                  <input value={info.fundPurpose} onChange={e => updateInfo('fundPurpose', e.target.value)} className={inputClass} placeholder="经营周转/购买设备/原材料等" />
-                </div>
-              </div>
-
-              {/* Section 3: 还本付息 & 利率 */}
-              <div className="text-[10px] font-bold text-brand-dark uppercase tracking-widest mb-1.5 mt-3">还本付息 & 利率</div>
-              <div className="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label className={labelClass}>还本方式</label>
-                  <select value={info.repayMethod} onChange={e => updateInfo('repayMethod', e.target.value)} className={inputClass}>
-                    <option value="quarterly">按季还本</option>
-                    <option value="monthly">按月还本</option>
-                    <option value="bullet">到期一次性还本</option>
-                  </select>
-                </div>
-                <div>
-                  <label className={labelClass}>每季度还本金额（万元）</label>
-                  <input value={info.quarterlyRepayAmount} onChange={e => updateInfo('quarterlyRepayAmount', e.target.value)} className={inputClass} placeholder="50" />
-                </div>
-                <div className="col-span-2">
-                  <label className={labelClass}>利率表述</label>
-                  <input value={info.rateExpression} onChange={e => updateInfo('rateExpression', e.target.value)} className={inputClass} placeholder="不低于五年期LPR-50b.p." />
-                </div>
-                <div>
-                  <label className={labelClass}>支付方式</label>
-                  <select value={info.payMethod} onChange={e => updateInfo('payMethod', e.target.value)} className={inputClass}>
-                    <option value="entrusted">受托支付</option>
-                    <option value="autonomous">自主支付</option>
-                  </select>
-                </div>
-                <div>
-                  <label className={labelClass}>其他担保补充</label>
-                  <input value={info.extraGuarantee} onChange={e => updateInfo('extraGuarantee', e.target.value)} className={inputClass} placeholder="可选" />
-                </div>
-              </div>
-
-              {/* Section 4: 财务指标 */}
-              <div className="text-[10px] font-bold text-brand-dark uppercase tracking-widest mb-1.5 mt-3">财务指标</div>
-              <div className="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label className={labelClass}>纳税等级</label>
-                  <select value={info.taxGrade} onChange={e => updateInfo('taxGrade', e.target.value)} className={inputClass}>
-                    <option value="">请选择</option>
-                    <option value="A">A级</option><option value="B">B级</option><option value="M">M级</option><option value="C">C级</option><option value="D">D级</option>
-                  </select>
-                </div>
-                <div>
-                  <label className={labelClass}>上年度纳税等级</label>
-                  <input value={info.taxGradePrevYear} onChange={e => updateInfo('taxGradePrevYear', e.target.value)} className={inputClass} placeholder="B" />
-                </div>
-                <div>
-                  <label className={labelClass}>近12个月缴税总额（万元）</label>
-                  <input value={info.taxAmount12m} onChange={e => updateInfo('taxAmount12m', e.target.value)} className={inputClass} placeholder="20" />
-                </div>
-                <div>
-                  <label className={labelClass}>上年度缴税总额（万元）</label>
-                  <input value={info.taxAmountPrevYear} onChange={e => updateInfo('taxAmountPrevYear', e.target.value)} className={inputClass} placeholder="20" />
-                </div>
-                <div>
-                  <label className={labelClass}>营授比（%）</label>
-                  <input value={info.creditLoanRatio} onChange={e => updateInfo('creditLoanRatio', e.target.value)} className={inputClass} placeholder="25" />
-                </div>
-                <div>
-                  <label className={labelClass}>资产负债率（%）</label>
-                  <input value={info.assetLiabilityRatio} onChange={e => updateInfo('assetLiabilityRatio', e.target.value)} className={inputClass} placeholder="50" />
-                </div>
-              </div>
-
-              {/* Section 5: 企业标签 */}
-              <div className="text-[10px] font-bold text-brand-dark uppercase tracking-widest mb-1.5 mt-3">企业标签</div>
-              <div className="flex flex-col gap-2">
-                <label className="flex items-center gap-2 text-xs text-brand-dark">
-                  <input type="checkbox" checked={info.isTechEnterprise} onChange={e => updateInfo('isTechEnterprise', e.target.checked)} className="rounded border-brand-border/20 text-brand-dark" />
-                  科技型企业（国家级/省级高新）
-                </label>
-                <label className="flex items-center gap-2 text-xs text-brand-dark">
-                  <input type="checkbox" checked={info.isSpecialized} onChange={e => updateInfo('isSpecialized', e.target.checked)} className="rounded border-brand-border/20 text-brand-dark" />
-                  专精特新企业
-                </label>
-                <label className="flex items-center gap-2 text-xs text-brand-dark">
-                  <input type="checkbox" checked={info.isProduction} onChange={e => updateInfo('isProduction', e.target.checked)} className="rounded border-brand-border/20 text-brand-dark" />
-                  生产型企业（自有厂房）
-                </label>
-                <label className="flex items-center gap-2 text-xs text-brand-dark">
-                  <input type="checkbox" checked={info.isOver300w} onChange={e => updateInfo('isOver300w', e.target.checked)} className="rounded border-brand-border/20 text-brand-dark" />
-                  超过300万元
-                </label>
-                <label className="flex items-center gap-2 text-xs text-brand-dark">
-                  <input type="checkbox" checked={info.hasThirdPartyGuarantee} onChange={e => updateInfo('hasThirdPartyGuarantee', e.target.checked)} className="rounded border-brand-border/20 text-brand-dark" />
-                  第三方保证/共同借款
-                </label>
-                <label className="flex items-center gap-2 text-xs text-brand-dark">
-                  <input type="checkbox" checked={info.hasMortgage} onChange={e => updateInfo('hasMortgage', e.target.checked)} className="rounded border-brand-border/20 text-brand-dark" />
-                  涉及抵押物
-                </label>
-              </div>
-
-              {/* Generate Preview button */}
               <button
                 onClick={handleGeneratePreview}
                 className="w-full mt-4 flex items-center justify-center gap-2 py-3 bg-brand-dark text-white rounded-xl text-sm font-bold hover:opacity-90 transition-opacity shadow-lg"
@@ -851,7 +1116,6 @@ const ChecklistGenerator: React.FC = () => {
                 <Eye size={16} />
                 生成预览
               </button>
-
               <p className="text-[10px] text-brand-gray text-center mt-2">已自动保存填写内容，下次打开可直接使用</p>
             </div>
           </div>
@@ -859,97 +1123,17 @@ const ChecklistGenerator: React.FC = () => {
           {/* ═══ RIGHT: Preview Panel ═══ */}
           <div className="flex-1 min-w-0">
             {!hasPreview ? (
-              /* ─── Placeholder before preview ─── */
               <div className="flex flex-col items-center justify-center h-80 bg-white rounded-xl border border-brand-border/10 border-dashed">
                 <Eye size={40} className="text-brand-border mb-3" />
                 <p className="text-sm font-bold text-brand-gray text-center px-6">请先填写企业信息并点击"生成预览"</p>
                 <p className="text-[11px] text-brand-gray mt-2 text-center px-6">预览将同时展示检核表和授信方案，生成后可在下方切换 Tab 查看</p>
               </div>
             ) : (
-              <>
-                {/* Preview hint */}
-                <div className="mb-3 flex items-center gap-2 text-[11px] text-brand-gray">
-                  <Sparkles size={12} className="text-brand-gold shrink-0" />
-                  已生成预览，请在下方切换 Tab 查看检核表和授信方案，确认无误后可复制或下载
-                </div>
-
-                {/* Preview tabs */}
-                <div className="flex gap-1 mb-4 bg-brand-offwhite rounded-lg p-1">
-                  <button onClick={() => setPreviewTab('checklist')}
-                    className={cn('flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-bold transition-all',
-                      previewTab === 'checklist' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-gray')}>
-                    <FileText size={12} /> 检核表预览
-                  </button>
-                  <button onClick={() => setPreviewTab('creditPlan')}
-                    className={cn('flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-bold transition-all',
-                      previewTab === 'creditPlan' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-gray')}>
-                    <FileBarChart size={12} /> 授信方案预览
-                  </button>
-                </div>
-
-                {/* ─── Checklist Preview ─── */}
-                {previewTab === 'checklist' && (
-                  <div className="bg-white rounded-xl border border-brand-border/10 p-4 shadow-sm">
-                    <ChecklistEditSection title="（一）业务项目准入条件检视" rows={accessRows} />
-                    {product === 'chang_yi_dan' && <ChecklistEditSection title="（二）长易担业务的特殊准入要求" rows={specialRows} />}
-                    {info.isOver300w && <ChecklistEditSection title="8、单户授信额度高于300万元附加要求" rows={overRows} />}
-                    <ChecklistEditSection title="授信方案" rows={schemeRows} />
-
-                    <div className="mt-4 pt-4 border-t border-brand-border/10">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-xs font-bold text-brand-dark">检核表文本预览（编辑上方条目后自动更新）</h3>
-                      </div>
-                      <pre className="whitespace-pre-wrap text-[11px] leading-5 text-brand-dark bg-brand-offwhite rounded-lg p-3 max-h-[40vh] overflow-y-auto font-mono">
-                        {generatedChecklistText}
-                      </pre>
-                    </div>
-                  </div>
-                )}
-
-                {/* ─── Credit Plan Preview ─── */}
-                {previewTab === 'creditPlan' && (
-                  <div className="bg-white rounded-xl border border-brand-border/10 p-4 shadow-sm">
-                    <pre className="whitespace-pre-wrap text-[11px] leading-5 text-brand-dark bg-brand-offwhite rounded-lg p-3 max-h-[60vh] overflow-y-auto font-mono">
-                      {generatedCreditPlanText}
-                    </pre>
-                  </div>
-                )}
-
-                {/* ─── ACTION BAR (only shown after preview) ─── */}
-                <div className="mt-4 bg-white rounded-xl border border-brand-border/10 p-4 shadow-sm">
-                  <h3 className="text-xs font-bold text-brand-dark mb-3 flex items-center gap-2">
-                    <Download size={14} className="text-brand-gold" />
-                    导出操作
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    <button onClick={() => navigator.clipboard.writeText(generatedChecklistText)}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-white border border-brand-border/20 rounded-lg text-xs font-bold text-brand-dark hover:bg-brand-offwhite">
-                      <Clipboard size={12} /> 复制检核表
-                    </button>
-                    <button onClick={handleDownloadChecklist} disabled={isGenerating}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-brand-dark text-white rounded-lg text-xs font-bold hover:opacity-90 disabled:opacity-50">
-                      <Download size={12} /> {isGenerating ? '生成中...' : '下载检核表 Word'}
-                    </button>
-                    <div className="w-px h-8 bg-brand-border/20 mx-1" />
-                    <button onClick={() => navigator.clipboard.writeText(generatedCreditPlanText)}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-white border border-brand-border/20 rounded-lg text-xs font-bold text-brand-dark hover:bg-brand-offwhite">
-                      <Clipboard size={12} /> 复制授信方案
-                    </button>
-                    <button onClick={handleDownloadCreditPlan} disabled={isGenerating}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-brand-dark text-white rounded-lg text-xs font-bold hover:opacity-90 disabled:opacity-50">
-                      <Download size={12} /> {isGenerating ? '生成中...' : '下载授信方案 Word'}
-                    </button>
-                    <div className="w-px h-8 bg-brand-border/20 mx-1" />
-                    <button onClick={handleDownloadAll} disabled={isGenerating}
-                      className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-brand-dark to-brand-dark/80 text-white rounded-lg text-xs font-bold hover:opacity-90 disabled:opacity-50 shadow-md">
-                      <Package size={12} /> {isGenerating ? '生成中...' : '一键下载全部'}
-                    </button>
-                  </div>
-                </div>
-              </>
+              renderPreviewContent()
             )}
           </div>
         </div>
+
       </div>
     </AppLayout>
   );
