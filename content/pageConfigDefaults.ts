@@ -48,3 +48,6 @@ export const SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG: SkillsLibraryPageConfig = {
     resetLabel: '重置搜索',
   },
 };
+
+/** 场景标签筛选选项 — 用于 Skills 列表页 */
+export const SCENE_TAG_OPTIONS = ['全部场景', '对客户', '对审查', '对中后台', '对自己'] as const;

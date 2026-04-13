@@ -134,6 +134,9 @@ function mapProduct(product: BackendProduct): ProductGuideCard {
     industryMarketing: product.detailData.industryMarketing,
     scripts: product.detailData.scripts,
     practicalLogic: product.detailData.practicalLogic,
+    messagingPack: product.detailData.messagingPack,
+    checklistTemplateCode: product.detailData.checklistTemplateCode,
+    reviewSubmissionTemplateCode: product.detailData.reviewSubmissionTemplateCode,
   };
 }
 

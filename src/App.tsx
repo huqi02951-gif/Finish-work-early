@@ -2,12 +2,15 @@ import React from 'react';
 import { HashRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout';
 import Feedback from '../components/Feedback';
+import ApexPreviewPage from '../components/ApexPreviewPage';
 import MaterialChecklistCenter from '../components/MaterialChecklistCenter';
 import ScenarioCenter from '../components/ScenarioCenter';
 import SkillDetail from '../components/SkillDetail';
 import SkillsLibrary from '../components/SkillsLibrary';
 import UpdateLog from '../components/UpdateLog';
 import UsageInstructions from '../components/UsageInstructions';
+import ProductScenePage from '../components/ProductScenePage';
+import UserManual from '../components/UserManual';
 import AcceptanceCalculator from '../components/tools/AcceptanceCalculator';
 import BatchBillingTool from '../components/tools/BatchBillingTool';
 import BusinessGuide from '../components/tools/BusinessGuide';
@@ -72,6 +75,8 @@ const App: React.FC = () => {
         <Route path="/batch-billing" element={<BatchBillingTool />} />
         <Route path="/sensitive-comm" element={<SensitiveCommAssistant />} />
         <Route path="/business-guide" element={<BusinessGuide />} />
+        <Route path="/product-scene" element={<ProductScenePage />} />
+        <Route path="/apex-preview" element={<ApexPreviewPage />} />
         <Route path="/material-checklist" element={<AppLayout title="材料清单中心" showBack><MaterialChecklistCenter /></AppLayout>} />
 
         {/* ─── 信息页（组件内自带 AppLayout） ─── */}
@@ -81,6 +86,7 @@ const App: React.FC = () => {
         <Route path="/bbs/thread/:id" element={<CommunityThreadPage />} />
         <Route path="/bbs/topic/:id" element={<CommunityTopicPage />} />
         <Route path="/instructions" element={<AppLayout title="使用说明" showBack><UsageInstructions /></AppLayout>} />
+        <Route path="/manual" element={<UserManual />} />
 
         {/* ─── 工作台 ─── */}
         <Route path="/workspace" element={<WorkspacePage />} />

@@ -908,6 +908,30 @@ const BusinessGuide: React.FC = () => {
                             : (activeContent as PersonaCard).style}
                         </p>
                       </div>
+
+                      {/* 场景入口 — 长融保/长易担支持直接进入实战场景页 */}
+                      {activeTab === 'guide' && guideType === 'product' && (activeContent as ProductGuideCard).scenes && (
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          <button
+                            onClick={() => navigate(`/product-scene?product=${(activeContent as ProductGuideCard).id}&scene=customer`)}
+                            className="flex items-center gap-1.5 px-4 py-2 bg-apple-blue/10 text-apple-blue border border-apple-blue/20 rounded-xl text-xs font-bold hover:bg-apple-blue/20 transition-all"
+                          >
+                            <Users className="w-3.5 h-3.5" /> 对客户实战
+                          </button>
+                          <button
+                            onClick={() => navigate(`/product-scene?product=${(activeContent as ProductGuideCard).id}&scene=review`)}
+                            className="flex items-center gap-1.5 px-4 py-2 bg-apple-purple/10 text-apple-purple border border-apple-purple/20 rounded-xl text-xs font-bold hover:bg-apple-purple/20 transition-all"
+                          >
+                            <ShieldCheck className="w-3.5 h-3.5" /> 对审查实战
+                          </button>
+                          <button
+                            onClick={() => navigate('/material-checklist')}
+                            className="flex items-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl text-xs font-bold hover:bg-emerald-100 transition-all"
+                          >
+                            <FileText className="w-3.5 h-3.5" /> 材料清单
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     {/* Detailed Cards Grid */}
@@ -917,9 +941,36 @@ const BusinessGuide: React.FC = () => {
                           {guideType === 'product' && (
                             <>
                               <ContentCard title="产品概况" icon={Info} content={(activeContent as ProductGuideCard).overview} />
+                              {(activeContent as ProductGuideCard).messagingPack?.oneLineSellingPoint ? (
+                                <ContentCard
+                                  title="一句话卖点"
+                                  icon={Sparkles}
+                                  content={(activeContent as ProductGuideCard).messagingPack?.oneLineSellingPoint}
+                                  copyable
+                                />
+                              ) : null}
                               <ContentCard title="准入判断" icon={ShieldCheck} list={(activeContent as ProductGuideCard).entryCriteria} />
                               <ContentCard title="进门对话" icon={MessageSquare} content={(activeContent as ProductGuideCard).openingTalk} copyable />
+                              {(activeContent as ProductGuideCard).messagingPack?.directCustomerScripts?.length ? (
+                                <ContentCard
+                                  title="新版对客话术包"
+                                  icon={Users}
+                                  list={(activeContent as ProductGuideCard).messagingPack?.directCustomerScripts.map((item) => {
+                                    const variantLabel = item.variant ? ` / ${item.variant === 'short' ? '短版' : '中版'}` : '';
+                                    return `【${item.title}${variantLabel}】\n${item.content}`;
+                                  })}
+                                  copyable
+                                />
+                              ) : null}
                               <ContentCard title="需求识别" icon={Target} content={(activeContent as ProductGuideCard).needRecognition} />
+                              {(activeContent as ProductGuideCard).messagingPack?.marketingEntryPoints?.length ? (
+                                <ContentCard
+                                  title="营销切入模板"
+                                  icon={MessageSquare}
+                                  list={(activeContent as ProductGuideCard).messagingPack?.marketingEntryPoints.map((item) => `【${item.title}】\n${item.content}`)}
+                                  copyable
+                                />
+                              ) : null}
                               <ContentCard 
                                 title="材料清单" 
                                 icon={FileText} 
@@ -979,12 +1030,34 @@ const BusinessGuide: React.FC = () => {
                                 list={(activeContent as ProductGuideCard).highFreqQA?.map(qa => `针对：${qa.question}\n逻辑：${qa.internalLogic}`)} 
                               />
 
+                              {(activeContent as ProductGuideCard).messagingPack?.reviewSubmissionScripts?.length ? (
+                                <ContentCard
+                                  title="对审查可复制话术"
+                                  icon={FileText}
+                                  list={(activeContent as ProductGuideCard).messagingPack?.reviewSubmissionScripts.map((item) => `【${item.title}】\n${item.content}`)}
+                                  copyable
+                                />
+                              ) : null}
+
                               <ContentCard 
                                 title="禁止承诺口径" 
                                 icon={Ban} 
                                 list={(activeContent as ProductGuideCard).highFreqQA?.map(qa => `警告：${qa.prohibited}`)} 
                                 warning
                               />
+
+                              {((activeContent as ProductGuideCard).messagingPack?.canSay?.length || (activeContent as ProductGuideCard).messagingPack?.shouldNotSayDead?.length) ? (
+                                <ContentCard
+                                  title="表达边界"
+                                  icon={Ban}
+                                  list={[
+                                    ...(((activeContent as ProductGuideCard).messagingPack?.canSay || []).map((item) => `【可以说】${item}`)),
+                                    ...(((activeContent as ProductGuideCard).messagingPack?.shouldNotSayDead || []).map((item) => `【不要说死】${item}`)),
+                                  ]}
+                                  warning
+                                  copyable
+                                />
+                              ) : null}
 
                               <ContentCard 
                                 title="提速放款清单 (RM动作)" 
@@ -1028,6 +1101,21 @@ const BusinessGuide: React.FC = () => {
                                 content={(activeContent as ProductGuideCard).scripts?.followUp} 
                                 copyable
                               />
+
+                              {(activeContent as ProductGuideCard).messagingPack?.marketingTemplates ? (
+                                <ContentCard
+                                  title="客户沟通追问模板"
+                                  icon={MessageSquare}
+                                  list={[
+                                    `【第一次拜访】\n${(activeContent as ProductGuideCard).messagingPack!.marketingTemplates!.firstVisit}`,
+                                    `【客户说先看看】\n${(activeContent as ProductGuideCard).messagingPack!.marketingTemplates!.followUp}`,
+                                    `【客户问利率】\n${(activeContent as ProductGuideCard).messagingPack!.marketingTemplates!.rateReply}`,
+                                    `【客户问贴补】\n${(activeContent as ProductGuideCard).messagingPack!.marketingTemplates!.subsidyReply}`,
+                                    `【客户问为什么要报税资料】\n${(activeContent as ProductGuideCard).messagingPack!.marketingTemplates!.taxDocsReply}`,
+                                  ]}
+                                  copyable
+                                />
+                              ) : null}
 
                               <div className="md:col-span-2 p-6 bg-red-50 border border-red-200 rounded-[2rem]">
                                 <div className="flex items-center gap-3 mb-4 text-red-600">

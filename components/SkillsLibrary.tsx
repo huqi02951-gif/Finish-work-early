@@ -1,15 +1,42 @@
+/**
+ * SkillsLibrary — Skills 工具库
+ *
+ * 改造点：
+ * 1. 新增场景标签筛选（对客户/对审查/对中后台/对自己）
+ * 2. 卡片风格从宣传式改为工具式紧凑风格
+ * 3. 强化：名称、标签、适用场景、核心输入、立即使用
+ * 4. 弱化：大段描述文案
+ *
+ * 数据来源优先级：API > 本地 SKILLS 常量
+ * 后续接数据库时，只需调整 getSkills() 即可。
+ */
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Database, LayoutDashboard, Zap, ChevronRight } from 'lucide-react';
+import { Search, ChevronRight, Zap, Users, ShieldCheck, Briefcase, User } from 'lucide-react';
 import AppLayout from '../src/components/layout/AppLayout';
 import { SKILLS } from '../constants/skills';
-import { SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG } from '../content/pageConfigDefaults';
+import { SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG, SCENE_TAG_OPTIONS } from '../content/pageConfigDefaults';
 import { cn } from '../lib/utils';
 import { getPageConfig, getSkills } from '../src/services/contentApi';
-import type { Skill } from '../types';
+import type { Skill, SceneTag } from '../types';
+
+/* ─── Scene tag icon mapping ─── */
+const SCENE_ICON: Record<string, React.ElementType> = {
+  '对客户': Users,
+  '对审查': ShieldCheck,
+  '对中后台': Briefcase,
+  '对自己': User,
+};
+const SCENE_COLOR: Record<string, string> = {
+  '对客户': 'bg-apple-blue/10 text-apple-blue border-apple-blue/20',
+  '对审查': 'bg-apple-purple/10 text-apple-purple border-apple-purple/20',
+  '对中后台': 'bg-apple-indigo/10 text-apple-indigo border-apple-indigo/20',
+  '对自己': 'bg-apple-pink/10 text-apple-pink border-apple-pink/20',
+};
 
 const SkillsLibrary: React.FC = () => {
-  const [filter, setFilter] = useState<string>('全部');
+  const [statusFilter, setStatusFilter] = useState<string>('全部');
+  const [sceneFilter, setSceneFilter] = useState<string>('全部场景');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [skills, setSkills] = useState<Skill[]>(SKILLS);
   const [pageConfig, setPageConfig] = useState(SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG);
@@ -19,88 +46,104 @@ const SkillsLibrary: React.FC = () => {
 
     getSkills()
       .then((response) => {
-        if (!cancelled && response.length > 0) {
-          setSkills(response);
-        }
+        if (!cancelled && response.length > 0) setSkills(response);
       })
       .catch(() => {
-        if (!cancelled) {
-          setSkills(SKILLS);
-        }
+        if (!cancelled) setSkills(SKILLS);
       });
 
     getPageConfig('skills_library_page')
       .then((config) => {
-        if (!cancelled) {
-          setPageConfig(config);
-        }
+        if (!cancelled) setPageConfig(config);
       })
       .catch(() => {
-        if (!cancelled) {
-          setPageConfig(SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG);
-        }
+        if (!cancelled) setPageConfig(SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG);
       });
 
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   const filterOptions = useMemo(
-    () =>
-      pageConfig.filterOptions?.length
-        ? pageConfig.filterOptions
-        : SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG.filterOptions,
+    () => pageConfig.filterOptions?.length ? pageConfig.filterOptions : SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG.filterOptions,
     [pageConfig.filterOptions],
   );
 
-  const filteredSkills = skills.filter((skill) => {
-    const skillStatuses = Array.isArray(skill.status) ? skill.status : [skill.status];
-    const matchesFilter = filter === '全部' || skillStatuses.includes(filter as any);
-    const keyword = searchQuery.toLowerCase();
-    const matchesSearch =
-      skill.name.toLowerCase().includes(keyword) || skill.description.toLowerCase().includes(keyword);
+  const filteredSkills = useMemo(() => {
+    return skills.filter((skill) => {
+      // Status filter
+      const skillStatuses = Array.isArray(skill.status) ? skill.status : [skill.status];
+      const matchesStatus = statusFilter === '全部' || skillStatuses.includes(statusFilter as any);
 
-    return matchesFilter && matchesSearch;
-  });
+      // Scene tag filter
+      const matchesScene = sceneFilter === '全部场景' ||
+        (skill.sceneTags && skill.sceneTags.includes(sceneFilter as SceneTag));
+
+      // Search
+      const keyword = searchQuery.toLowerCase();
+      const matchesSearch = skill.name.toLowerCase().includes(keyword) ||
+        skill.description.toLowerCase().includes(keyword) ||
+        skill.category.toLowerCase().includes(keyword);
+
+      return matchesStatus && matchesScene && matchesSearch;
+    });
+  }, [skills, statusFilter, sceneFilter, searchQuery]);
 
   return (
     <AppLayout title="Skills 工具库" showBack>
       <div className="pb-24 bg-brand-offwhite min-h-screen">
-        <header className="px-6 pt-10 sm:pt-12 pb-6 sm:pb-8">
-          <div className="inline-block px-3 py-1 rounded-full bg-brand-dark/5 text-[8px] sm:text-[9px] font-bold tracking-[0.2em] sm:tracking-[0.3em] uppercase mb-4 sm:mb-6 opacity-40">
-            {pageConfig.badgeText}
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-brand-dark mb-2">
-            {pageConfig.title}
-          </h1>
-          <p className="text-brand-gray font-medium text-xs sm:text-sm max-w-md opacity-70">
-            {pageConfig.subtitle}
-          </p>
+        {/* Header */}
+        <header className="px-6 pt-8 pb-4">
+          <h1 className="text-2xl font-bold tracking-tight text-brand-dark mb-1">{pageConfig.title}</h1>
+          <p className="text-brand-gray font-medium text-xs opacity-70">{pageConfig.subtitle}</p>
         </header>
 
-        <div className="px-6 mb-6 sm:mb-8 space-y-3 sm:space-y-4">
+        {/* Filters */}
+        <div className="px-6 mb-4 space-y-3">
+          {/* Search */}
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-gray w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-gray w-4 h-4" />
             <input
               type="text"
-              placeholder="搜索技能名称、描述 or 关键词..."
-              className="w-full pl-11 pr-4 py-2.5 sm:py-3 bg-brand-light-gray border border-brand-border/5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-apple-blue/20 transition-all text-xs sm:text-sm font-medium"
+              placeholder="搜索工具名称或关键词..."
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-brand-border/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-apple-blue/20 transition-all text-xs font-medium"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          <div className="flex gap-2 flex-wrap pb-2">
+          {/* Scene Tag Filter — 核心新增 */}
+          <div className="flex gap-1.5 flex-wrap">
+            {SCENE_TAG_OPTIONS.map((tag) => {
+              const Icon = SCENE_ICON[tag];
+              return (
+                <button
+                  key={tag}
+                  onClick={() => setSceneFilter(tag)}
+                  className={cn(
+                    'px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap border flex items-center gap-1.5',
+                    sceneFilter === tag
+                      ? 'bg-brand-dark text-white border-brand-dark shadow-sm'
+                      : 'bg-white text-brand-gray border-brand-border/10 hover:bg-brand-light-gray',
+                  )}
+                >
+                  {Icon && <Icon size={12} />}
+                  {tag}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Status Filter */}
+          <div className="flex gap-1.5 flex-wrap">
             {filterOptions.map((option) => (
               <button
                 key={option}
-                onClick={() => setFilter(option)}
+                onClick={() => setStatusFilter(option)}
                 className={cn(
-                  'px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold transition-all whitespace-nowrap border',
-                  filter === option
-                    ? 'bg-brand-dark text-white border-brand-dark shadow-md'
-                    : 'bg-white text-brand-gray border-brand-border/10 hover:bg-brand-light-gray',
+                  'px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap border',
+                  statusFilter === option
+                    ? 'bg-brand-dark/80 text-white border-brand-dark/80'
+                    : 'bg-white text-brand-gray/60 border-brand-border/5 hover:bg-brand-light-gray',
                 )}
               >
                 {option}
@@ -109,13 +152,15 @@ const SkillsLibrary: React.FC = () => {
           </div>
         </div>
 
-        <div className="px-6 mb-4 flex justify-between items-center animate-fade-in">
-          <span className="text-[10px] sm:text-xs text-brand-gray font-bold tracking-widest uppercase">
-            {searchQuery || filter !== '全部' ? `共找到 ${filteredSkills.length} 个结果` : `共 ${filteredSkills.length} 个工具`}
+        {/* Count */}
+        <div className="px-6 mb-3">
+          <span className="text-[10px] text-brand-gray font-bold tracking-widest uppercase">
+            共 {filteredSkills.length} 个工具
           </span>
         </div>
 
-        <div className="px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        {/* Skills Grid — 紧凑工具式卡片 */}
+        <div className="px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {filteredSkills.length > 0 ? (
             filteredSkills.map((skill) => {
               const skillStatuses = Array.isArray(skill.status) ? skill.status : [skill.status];
@@ -124,84 +169,59 @@ const SkillsLibrary: React.FC = () => {
               return (
                 <div
                   key={skill.id}
-                  className="bg-white p-5 sm:p-6 rounded-3xl border border-brand-border/5 shadow-sm hover:shadow-xl transition-all group flex flex-col"
+                  className="bg-white p-4 rounded-xl border border-brand-border/5 shadow-sm hover:shadow-md transition-all group flex flex-col"
                 >
-                  <div className="flex justify-between items-start mb-4 sm:mb-6">
-                    <span className="px-2.5 py-0.5 bg-brand-light-gray text-brand-dark text-[8px] sm:text-[9px] font-bold uppercase tracking-widest rounded-full border border-brand-border/10">
-                      {skill.category}
-                    </span>
-                    <div className="flex flex-wrap gap-1 justify-end">
-                      {skillStatuses.map((status, idx) => (
+                  {/* Top: Name + Status */}
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="text-sm font-bold text-brand-dark tracking-tight group-hover:text-apple-blue transition-colors leading-tight flex-1 mr-2">
+                      {skill.name}
+                    </h4>
+                    <div className={cn(
+                      'shrink-0 w-2 h-2 rounded-full mt-1.5',
+                      isOnline ? 'bg-emerald-500' : 'bg-brand-gray/30',
+                    )} />
+                  </div>
+
+                  {/* Scene Tags */}
+                  {skill.sceneTags && skill.sceneTags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {skill.sceneTags.map((tag) => (
                         <span
-                          key={`${skill.id}-${idx}`}
+                          key={tag}
                           className={cn(
-                            'text-[8px] sm:text-[9px] font-bold px-2 py-0.5 rounded-full border',
-                            status === '在线可用'
-                              ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                              : status === '需后端支持'
-                                ? 'bg-apple-blue/5 text-apple-blue border-apple-blue/10'
-                                : status === '本地工具'
-                                  ? 'bg-orange-50 text-orange-600 border-orange-100'
-                                  : 'bg-brand-light-gray text-brand-gray border-brand-border/10',
+                            'text-[8px] font-bold px-1.5 py-0.5 rounded border',
+                            SCENE_COLOR[tag] || 'bg-brand-light-gray text-brand-gray border-brand-border/10',
                           )}
                         >
-                          {status}
+                          {tag}
                         </span>
                       ))}
                     </div>
+                  )}
+
+                  {/* Brief: scene + input */}
+                  <div className="text-[10px] text-brand-gray/70 font-medium mb-3 space-y-0.5">
+                    <p className="truncate"><span className="text-brand-gray/40 mr-1">输入:</span>{skill.input.slice(0, 3).join('、')}{skill.input.length > 3 ? '...' : ''}</p>
                   </div>
 
-                  <h4 className="text-base sm:text-lg font-bold text-brand-dark mb-1.5 sm:mb-2 tracking-tight group-hover:text-apple-blue transition-colors">
-                    {skill.name}
-                  </h4>
-                  <p className="text-[11px] sm:text-xs text-brand-gray mb-6 leading-relaxed flex-grow font-medium opacity-80">
-                    {skill.description}
-                  </p>
-
-                  <div className="space-y-2.5 sm:space-y-3 mb-5 sm:mb-6 pt-4 border-t border-brand-border/5">
-                    <div className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-lg bg-brand-light-gray flex items-center justify-center text-brand-gray mt-0.5 shrink-0">
-                        <LayoutDashboard size={12} />
-                      </div>
-                      <div>
-                        <p className="text-[8px] sm:text-[9px] font-bold text-brand-gray/50 uppercase tracking-widest mb-0.5">
-                          适用场景
-                        </p>
-                        <p className="text-[10px] sm:text-[11px] text-brand-dark font-bold">{skill.scene}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-lg bg-brand-light-gray flex items-center justify-center text-brand-gray mt-0.5 shrink-0">
-                        <Zap size={12} />
-                      </div>
-                      <div>
-                        <p className="text-[8px] sm:text-[9px] font-bold text-brand-gray/50 uppercase tracking-widest mb-0.5">
-                          核心输入
-                        </p>
-                        <p className="text-[10px] sm:text-[11px] text-brand-dark font-bold line-clamp-1">
-                          {skill.input.join('、')}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-4 border-t border-brand-border/5">
-                    <span className="text-[9px] text-brand-gray/40 font-bold uppercase tracking-widest">
-                      {skill.form}
+                  {/* Bottom: category + actions */}
+                  <div className="flex items-center justify-between mt-auto pt-2.5 border-t border-brand-border/5">
+                    <span className="text-[8px] text-brand-gray/40 font-bold uppercase tracking-widest truncate max-w-[40%]">
+                      {skill.category}
                     </span>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       <Link
                         to={`/skills/${skill.id}`}
-                        className="text-brand-gray text-[11px] font-bold hover:text-brand-dark transition-all"
+                        className="text-brand-gray text-[10px] font-bold hover:text-brand-dark transition-all"
                       >
                         详情
                       </Link>
                       {isOnline && skill.toolRoute && (
                         <Link
                           to={skill.toolRoute}
-                          className="text-apple-blue text-[11px] font-bold flex items-center gap-1 hover:gap-2 transition-all bg-apple-blue/5 px-3 py-1.5 rounded-lg"
+                          className="text-apple-blue text-[10px] font-bold flex items-center gap-0.5 hover:gap-1 transition-all bg-apple-blue/5 px-2 py-1 rounded-lg"
                         >
-                          立即运行 <ChevronRight size={14} />
+                          使用 <ChevronRight size={12} />
                         </Link>
                       )}
                     </div>
@@ -210,22 +230,16 @@ const SkillsLibrary: React.FC = () => {
               );
             })
           ) : (
-            <div className="col-span-full py-20 px-6 bg-white border border-brand-border/5 rounded-3xl text-center shadow-sm">
-              <div className="w-16 h-16 bg-brand-light-gray rounded-full flex items-center justify-center mx-auto mb-6 text-brand-gray/30">
-                <Database size={32} />
-              </div>
-              <h3 className="text-xl font-bold text-brand-dark mb-2 tracking-tight">
+            <div className="col-span-full py-16 px-6 bg-white border border-brand-border/5 rounded-2xl text-center shadow-sm">
+              <h3 className="text-lg font-bold text-brand-dark mb-2 tracking-tight">
                 {pageConfig.emptyState.title}
               </h3>
-              <p className="text-sm text-brand-gray mb-8 font-medium opacity-60">
+              <p className="text-sm text-brand-gray mb-6 font-medium opacity-60">
                 {pageConfig.emptyState.description}
               </p>
               <button
-                onClick={() => {
-                  setFilter('全部');
-                  setSearchQuery('');
-                }}
-                className="px-8 py-3 bg-brand-dark text-white rounded-full text-xs font-bold hover:bg-brand-dark/90 transition-all shadow-lg"
+                onClick={() => { setStatusFilter('全部'); setSceneFilter('全部场景'); setSearchQuery(''); }}
+                className="px-6 py-2.5 bg-brand-dark text-white rounded-xl text-xs font-bold hover:bg-brand-dark/90 transition-all shadow-lg"
               >
                 {pageConfig.emptyState.resetLabel}
               </button>

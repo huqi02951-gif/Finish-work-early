@@ -10,7 +10,6 @@ import ToMyselfSpace from './tools/ToMyselfSpace';
 import { motion } from 'framer-motion';
 import { SKILLS } from '../constants/skills';
 import { cn } from '../lib/utils';
-import MaterialChecklistCenter from './MaterialChecklistCenter';
 import AppLayout from '../src/components/layout/AppLayout';
 
 const ANIM_DELAY_1 = { animationDelay: '0.3s' };
@@ -285,7 +284,19 @@ const ScenarioCenter: React.FC = () => {
                 )}
 
                 {s.id === 'self' ? (
-                  <ToMyselfSpace />
+                  <div className="w-full overflow-x-hidden">
+                    <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+                      <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shrink-0", s.color)}>
+                        <s.icon size={20} className="text-white sm:hidden" />
+                        <s.icon size={24} className="text-white hidden sm:block" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl sm:text-2xl font-bold text-brand-dark tracking-tight">{s.title}</h2>
+                        <p className="text-[10px] sm:text-xs text-brand-gray font-medium opacity-80">{s.desc}</p>
+                      </div>
+                    </div>
+                    <ToMyselfSpace />
+                  </div>
                 ) : s.id === 'customer' ? (
                   <div className="space-y-8 sm:space-y-12 md:space-y-16">
                     <div className="animate-fade-in-up" style={ANIM_DELAY_1}>
@@ -300,12 +311,64 @@ const ScenarioCenter: React.FC = () => {
                       <SensitiveCommModule />
                     </div>
 
+                    {/* 产品实战场景入口 */}
                     <div className="animate-fade-in-up" style={ANIM_DELAY_3}>
                       <div className="flex items-center mb-6 sm:mb-10 gap-4">
-                        <h3 className="font-serif text-xl sm:text-2xl md:text-3xl text-brand-dark tracking-tight shrink-0">材料清单中心</h3>
+                        <h3 className="font-serif text-xl sm:text-2xl md:text-3xl text-brand-dark tracking-tight shrink-0">产品实战场景</h3>
                         <div className="h-px flex-grow bg-brand-border/10" />
                       </div>
-                      <MaterialChecklistCenter />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {[
+                          { id: 'chang_rong_bao', name: '长融保', desc: '稳健型银担合作 · 80%担保 · 适配面广', tag: '传统模式' },
+                          { id: 'chang_yi_dan', name: '长易担', desc: '简易备案制 · 效率极高 · 优质客户专属', tag: '高效模式' },
+                        ].map((p) => (
+                          <Link
+                            key={p.id}
+                            to={`/product-scene?product=${p.id}`}
+                            className="bg-white p-5 sm:p-6 rounded-2xl border border-brand-border/5 shadow-sm hover:shadow-xl transition-all group flex flex-col"
+                          >
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="text-lg font-bold text-brand-dark group-hover:text-apple-blue transition-colors">{p.name}</h4>
+                              <span className="px-2.5 py-0.5 bg-brand-gold/10 text-brand-gold text-[9px] font-bold rounded-full">{p.tag}</span>
+                            </div>
+                            <p className="text-xs text-brand-gray font-medium mb-4 opacity-70">{p.desc}</p>
+                            <div className="flex gap-2 mt-auto">
+                              <Link
+                                to={`/product-scene?product=${p.id}&scene=customer`}
+                                className="flex-1 py-2 bg-apple-blue/5 text-apple-blue rounded-lg text-[11px] font-bold text-center hover:bg-apple-blue/10 transition-colors"
+                              >
+                                对客户
+                              </Link>
+                              <Link
+                                to={`/product-scene?product=${p.id}&scene=review`}
+                                className="flex-1 py-2 bg-apple-purple/5 text-apple-purple rounded-lg text-[11px] font-bold text-center hover:bg-apple-purple/10 transition-colors"
+                              >
+                                对审查
+                              </Link>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 材料清单中心 — 改为独立页面链接 */}
+                    <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+                      <Link
+                        to="/material-checklist"
+                        className="flex items-center justify-between bg-white p-5 sm:p-6 rounded-2xl border border-brand-border/5 shadow-sm hover:shadow-xl transition-all group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-brand-dark text-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shrink-0">
+                            <Briefcase size={20} className="sm:hidden" />
+                            <Briefcase size={24} className="hidden sm:block" />
+                          </div>
+                          <div>
+                            <h3 className="text-base sm:text-lg font-bold text-brand-dark group-hover:text-apple-blue transition-colors">材料清单中心</h3>
+                            <p className="text-[10px] sm:text-xs text-brand-gray font-medium opacity-70">自动生成对客材料清单，支持一键导出 Word / Excel</p>
+                          </div>
+                        </div>
+                        <ArrowRight size={18} className="text-brand-gray group-hover:text-apple-blue group-hover:translate-x-1 transition-all shrink-0" />
+                      </Link>
                     </div>
 
                     <div className="pt-8 sm:pt-10 md:pt-16 border-t border-brand-border/5">

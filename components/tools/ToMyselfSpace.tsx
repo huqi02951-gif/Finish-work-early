@@ -1163,7 +1163,7 @@ export default function ToMyselfSpace() {
   }, []);
 
   return (
-    <div className="w-full max-w-5xl mx-auto pb-10 space-y-5">
+    <div className="w-full max-w-full mx-auto pb-10 space-y-5 overflow-x-hidden">
       {/* HUD */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full px-4 py-2 shadow-md border-2 border-yellow-300">

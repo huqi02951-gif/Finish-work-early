@@ -53,13 +53,17 @@ chmod +x deploy.sh
 
 或手动执行：
 ```bash
-npm install --production
+npm install
 npx prisma generate
-npx prisma db push --accept-data-loss
+export PSQL_DATABASE_URL="${DATABASE_URL%\?schema=public}"
+psql "$PSQL_DATABASE_URL" -f prisma/manual/20260412_legacy_dev_upgrade.sql || true
+psql "$PSQL_DATABASE_URL" -f prisma/manual/20260412_phase2_content_platform.sql
+node prisma/seed.js
 npm run build
-pm2 delete finishwork-api 2>/dev/null || true
-pm2 start dist/main.js --name "finishwork-api"
-pm2 save
+if [ ! -x ./node_modules/.bin/pm2 ]; then npm install --no-save pm2; fi
+./node_modules/.bin/pm2 delete finishwork-api 2>/dev/null || true
+./node_modules/.bin/pm2 start dist/main.js --name "finishwork-api" --update-env
+./node_modules/.bin/pm2 save || true
 ```
 
 ## Step 5: 配置子域名代理

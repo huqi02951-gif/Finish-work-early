@@ -3,6 +3,7 @@ const path = require('path');
 const vm = require('vm');
 const bcrypt = require('bcrypt');
 const ts = require('typescript');
+const { PrismaPg } = require('@prisma/adapter-pg');
 const {
   CatalogStatus,
   PrismaClient,
@@ -10,7 +11,15 @@ const {
   UserStatus,
 } = require('@prisma/client');
 
-const prisma = new PrismaClient();
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error('DATABASE_URL is required');
+}
+
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString }),
+});
 
 function loadNamedExport(filePath, exportName) {
   const source = fs.readFileSync(filePath, 'utf8');
