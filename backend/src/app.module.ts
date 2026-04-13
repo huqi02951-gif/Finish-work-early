@@ -8,6 +8,7 @@ import { AppController } from './app.controller';
 import { PageConfigsModule } from './page-configs/page-configs.module';
 import { CatalogProductsModule } from './catalog-products/catalog-products.module';
 import { CatalogSkillsModule } from './catalog-skills/catalog-skills.module';
+import { ForumModule } from './forum/forum.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { CatalogSkillsModule } from './catalog-skills/catalog-skills.module';
     PageConfigsModule,
     CatalogProductsModule,
     CatalogSkillsModule,
+    ForumModule,
   ],
   controllers: [AppController],
   providers: [],

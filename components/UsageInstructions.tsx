@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
@@ -12,6 +12,8 @@ import {
 import { FORUM_GUIDE_POSTS } from '../content/forumGuidePosts';
 import { MANUAL_QUICK_GUIDES } from '../content/manualQuickGuides';
 import { cn } from '../lib/utils';
+import { forumApi } from '../src/services/forumApi';
+import type { Post } from '../src/types';
 
 const GUIDE_LINKS: Record<string, { label: string; path: string }> = {
   home: { label: '去首页', path: '/' },
@@ -28,9 +30,20 @@ const guideIconMap: Record<string, React.ComponentType<{ size?: number; classNam
 };
 
 const UsageInstructions: React.FC = () => {
+  const [officialPosts, setOfficialPosts] = useState<Post[]>([]);
   const quickGuides = MANUAL_QUICK_GUIDES.filter((item) => item.moduleCode !== 'scene_usage');
   const sceneGuide = MANUAL_QUICK_GUIDES.find((item) => item.moduleCode === 'scene_usage');
-  const forumPosts = [...FORUM_GUIDE_POSTS].sort((a, b) => a.sortOrder - b.sortOrder);
+  const fallbackForumPosts = useMemo(
+    () => [...FORUM_GUIDE_POSTS].sort((a, b) => a.sortOrder - b.sortOrder),
+    [],
+  );
+
+  useEffect(() => {
+    forumApi
+      .getOfficialPosts({ boardSlug: 'official-help', pageSize: 6 })
+      .then((response) => setOfficialPosts(response.items))
+      .catch(() => setOfficialPosts([]));
+  }, []);
 
   return (
     <div className="min-h-screen bg-brand-offwhite py-10">
@@ -181,13 +194,38 @@ const UsageInstructions: React.FC = () => {
           </section>
         ) : null}
 
+        <section className="mb-8 rounded-3xl border border-brand-border/10 bg-white p-6 shadow-sm sm:p-8">
+          <div className="mb-5 flex items-center gap-2 text-sm font-bold text-brand-dark">
+            <BookOpen size={16} className="text-brand-gold" />
+            论坛官方帮助帖
+          </div>
+          <div className="grid gap-3 lg:grid-cols-2">
+            {officialPosts.length ? (
+              officialPosts.map((post) => (
+                <Link
+                  key={post.id}
+                  to={post.postType === 'TOPIC' ? `/formal/topic/${post.id}` : `/formal/thread/${post.id}`}
+                  className="rounded-2xl border border-brand-border/10 bg-brand-light-gray/20 p-4 hover:bg-white transition-colors"
+                >
+                  <div className="text-sm font-bold text-brand-dark">{post.title}</div>
+                  <div className="mt-2 text-sm leading-7 text-brand-gray">{post.summary || post.content}</div>
+                </Link>
+              ))
+            ) : (
+              <div className="rounded-2xl border border-dashed border-brand-border/20 bg-brand-light-gray/10 p-4 text-sm text-brand-gray">
+                当前未连接到论坛官方帖数据，下面继续显示本地帮助帖备用内容。
+              </div>
+            )}
+          </div>
+        </section>
+
         <section className="rounded-3xl border border-brand-border/10 bg-white p-6 shadow-sm sm:p-8">
           <div className="mb-5 flex items-center gap-2 text-sm font-bold text-brand-dark">
             <BookOpen size={16} className="text-brand-gold" />
-            论坛挂载版帮助帖
+            论坛挂载版帮助帖（本地回退）
           </div>
           <div className="space-y-5">
-            {forumPosts.map((post) => (
+            {fallbackForumPosts.map((post) => (
               <article key={post.slug} className="rounded-2xl border border-brand-border/10 bg-brand-light-gray/15 p-5">
                 <div className="mb-3 flex flex-wrap items-center gap-2">
                   {post.tags.map((tag) => (

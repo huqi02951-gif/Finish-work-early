@@ -1,314 +1,408 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
   Briefcase,
-  Clock3,
-  Download,
   FileText,
-  Lock,
   MessageSquare,
+  Pin,
+  Plus,
   Sparkles,
-  Trash2,
-  Users,
+  Wrench,
 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
-import { cn } from '../../lib/utils';
-import { db, type ExportRecord, type GeneratedArtifact } from '../../lib/localDB';
+import { db, type GeneratedArtifact } from '../../lib/localDB';
 import { useCustomer } from '../../lib/CustomerContext';
-import { formatExpiry, formatRelativeTime, getCommunitySummary } from '../../lib/community';
+import { forumApi } from '../services/forumApi';
+import { getAuthSession } from '../services/authService';
+import type { ForumBoard, Post } from '../types';
 
 const TOOL_META: Record<string, { name: string; path: string }> = {
   'sensitive-comm': { name: '敏感沟通助手', path: '/sensitive-comm' },
   'rate-offer': { name: '利率优惠签报', path: '/rate-offer' },
   'acceptance-calc': { name: '银承/存单测算', path: '/acceptance-calculator' },
   'material-checklist': { name: '材料清单中心', path: '/material-checklist' },
-  'news-assistant': { name: '宣传稿排版', path: '/news-assistant' },
-  'batch-billing': { name: '批量开票', path: '/batch-billing' },
 };
 
-type WorkspaceTab = 'overview' | 'community';
+const DEFAULT_BOARD = 'experience-sharing';
 
 const WorkspacePage: React.FC = () => {
+  const navigate = useNavigate();
   const { customer, setCustomer, clearCustomer, hasCustomer } = useCustomer();
-  const [artifacts, setArtifacts] = useState<GeneratedArtifact[]>([]);
-  const [exports, setExports] = useState<ExportRecord[]>([]);
-  const [stats, setStats] = useState({ totalArtifacts: 0, totalExports: 0 });
-  const [communitySummary, setCommunitySummary] = useState<Awaited<ReturnType<typeof getCommunitySummary>> | null>(null);
-  const [formalEntries, setFormalEntries] = useState<any[]>([]);
+  const [boards, setBoards] = useState<ForumBoard[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [officialPosts, setOfficialPosts] = useState<Post[]>([]);
+  const [recentArtifacts, setRecentArtifacts] = useState<GeneratedArtifact[]>([]);
+  const [loading, setLoading] = useState(true);
   const [composing, setComposing] = useState(false);
-  const [form, setForm] = useState({ channel: '经验分享', title: '', content: '' });
-
-  const load = async () => {
-    const [arts, exps, totalArtifacts, totalExports, summary] = await Promise.all([
-      db.artifacts.orderBy('createdAt').reverse().limit(8).toArray(),
-      db.exports.orderBy('createdAt').reverse().limit(5).toArray(),
-      db.artifacts.count(),
-      db.exports.count(),
-      getCommunitySummary(),
-      db.threads.toArray().then(arr => arr.filter(t => ['经验分享', '系统操作', '合规探讨', '专题'].includes(t.channel)).sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())),
-    ].map(p => p.catch(() => [])) as Promise<any>); // Safely resolve db.threads which might not be imported correctly yet so let's import listCommunityEntries instead
-
-  };
-
-  const loadFormal = async () => {
-    const { listCommunityEntries } = await import('../../lib/community');
-    const items = await listCommunityEntries();
-    setFormalEntries(items.filter((item) => ['经验分享', '系统操作', '合规探讨', '专题'].includes(item.channel as string)));
-  };
-
-  useEffect(() => {
-    load();
-    loadFormal();
-  }, []);
+  const [activeBoard, setActiveBoard] = useState<string>('all');
+  const [form, setForm] = useState({
+    boardSlug: DEFAULT_BOARD,
+    title: '',
+    content: '',
+    tags: '',
+  });
 
   const quickTools = useMemo(
     () => ['sensitive-comm', 'rate-offer', 'acceptance-calc', 'material-checklist'].map((id) => ({ id, ...TOOL_META[id] })),
     [],
   );
 
-  const deleteArtifact = async (id: number) => {
-    await db.artifacts.delete(id);
-    await load();
+  const displayBoards = useMemo(
+    () => boards.filter((item) => !item.isOfficial),
+    [boards],
+  );
+
+  const loadCommunity = async () => {
+    setLoading(true);
+    try {
+      const [boardList, postList, officialList, artifacts] = await Promise.all([
+        forumApi.getBoards(),
+        forumApi.getPosts({
+          boardSlug: activeBoard === 'all' ? undefined : activeBoard,
+          pageSize: 20,
+        }),
+        forumApi.getOfficialPosts({
+          pageSize: 4,
+        }),
+        db.artifacts.orderBy('createdAt').reverse().limit(4).toArray(),
+      ]);
+
+      setBoards(boardList);
+      setPosts(postList.items);
+      setOfficialPosts(officialList.items);
+      setRecentArtifacts(artifacts);
+
+      if (!boardList.find((item) => item.slug === form.boardSlug && !item.isOfficial)) {
+        const fallbackBoard = boardList.find((item) => !item.isOfficial)?.slug || DEFAULT_BOARD;
+        setForm((current) => ({ ...current, boardSlug: fallbackBoard }));
+      }
+    } catch (error) {
+      console.error('Failed to load workspace community', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleCreatePost = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    loadCommunity();
+  }, [activeBoard]);
+
+  const handleCreatePost = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (!form.title.trim() || !form.content.trim()) return;
-    const { createCommunityThread } = await import('../../lib/community');
-    await createCommunityThread({
-      title: form.title.trim(),
-      content: form.content.trim(),
-      channel: form.channel as any,
-      anonymous: false,
-      author: '当前浏览器用户',
-    });
-    setForm({ channel: '经验分享', title: '', content: '' });
-    setComposing(false);
-    await loadFormal();
-    const summary = await getCommunitySummary();
-    setCommunitySummary(summary);
+
+    const session = getAuthSession();
+    if (!session || session.loginMethod === 'demo') {
+      alert('请先登录后再发帖');
+      navigate('/login');
+      return;
+    }
+
+    try {
+      await forumApi.createPost({
+        boardSlug: form.boardSlug,
+        title: form.title.trim(),
+        content: form.content.trim(),
+        tags: form.tags
+          .split(/[，,]/)
+          .map((item) => item.trim())
+          .filter(Boolean),
+        postType: form.boardSlug === 'system-operations' ? 'TOPIC' : 'DISCUSSION',
+      });
+      setForm({
+        boardSlug: form.boardSlug,
+        title: '',
+        content: '',
+        tags: '',
+      });
+      setComposing(false);
+      await loadCommunity();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '发帖失败';
+      alert(message);
+    }
   };
 
-  const formalChannels: string[] = ['经验分享', '系统操作', '合规探讨', '专题'];
+  const getPostPath = (post: Post) =>
+    post.postType === 'TOPIC' ? `/formal/topic/${post.id}` : `/formal/thread/${post.id}`;
 
   return (
     <AppLayout title="工作台">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
-        <section className="flex flex-col gap-3 border-b border-brand-border/40 pb-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:gap-6 px-4 py-4 sm:px-6 sm:py-6">
+        <section className="flex flex-col gap-3 border-b border-brand-border/40 pb-4 sm:pb-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="flex-grow">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-gray">workspace</div>
-              <h1 className="mt-3 text-2xl sm:text-3xl font-bold text-brand-dark">正式与效率的专业前台。</h1>
-              <p className="mt-2 max-w-2xl text-xs sm:text-sm leading-6 text-brand-gray">
-                工作台是你处理业务的数字总台，汇集历史记录与高频工具。
+              <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-brand-gray">workspace</div>
+              <h1 className="mt-2 text-xl sm:text-3xl font-bold text-brand-dark">正式业务社区与经验库</h1>
+              <p className="mt-1 max-w-2xl text-xs leading-6 text-brand-gray">
+                这里是 APEX 的经验沉淀中心、官方帮助中心和客户经理实战交流区。游客可看，登录后可发帖、评论、沉淀经验。
               </p>
             </div>
 
-            {/* The Pantry Portal - Featured for quick access */}
-            <section className="w-full md:w-[320px] shrink-0 relative overflow-hidden rounded-xl border border-[#2d1b0d] bg-[#0c0805] shadow-[0_4px_20px_rgba(247,185,141,0.12)]">
-              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')] opacity-20 pointer-events-none"></div>
-              <div className="relative p-4 sm:p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="h-1.5 w-1.5 rounded-full bg-[#f7b98d] animate-pulse"></div>
-                    <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#8a6b57]">地下茶水间</div>
-                  </div>
-                  <Lock size={12} className="text-[#f7b98d]/40" />
-                </div>
-                <Link
-                  to="/bbs"
-                  className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-[#2d1b0d] px-4 py-2.5 text-xs font-bold text-[#f7b98d] transition-all hover:bg-[#3d2512]"
-                >
-                  <span className="relative z-10 flex items-center gap-2">验证匿名身份</span>
-                  <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-[#f7b98d]/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-                </Link>
-              </div>
-            </section>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                to="/instructions"
+                className="inline-flex items-center gap-2 rounded-lg border border-brand-border/40 bg-white px-3 py-2 text-xs font-semibold text-brand-dark hover:bg-brand-offwhite transition-colors"
+              >
+                <FileText size={14} />
+                官方帮助
+              </Link>
+              <button
+                onClick={() => setComposing((current) => !current)}
+                className="inline-flex items-center gap-2 rounded-lg bg-brand-dark px-3 py-2 text-xs font-semibold text-white hover:bg-black transition-colors"
+              >
+                <Plus size={14} />
+                发布经验帖
+              </button>
+            </div>
           </div>
         </section>
 
-        <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-          {/* Left Column: Formal Feed & Community */}
+        <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
           <div className="flex flex-col gap-6">
-            <section className="rounded-md border border-brand-border/60 bg-white p-5">
-              <div className="flex items-center justify-between border-b border-brand-border/40 pb-4">
-                <div>
-                  <h2 className="text-xl font-semibold text-brand-dark">业务社区与经验库</h2>
-                  <p className="mt-1 text-xs text-brand-gray">专业、效率、共享。在这里沉淀系统的操作指引和过件经验。</p>
-                </div>
+            <section className="rounded-xl border border-brand-border/50 bg-white p-5">
+              <div className="flex flex-wrap gap-2">
                 <button
-                  onClick={() => setComposing(!composing)}
-                  className="inline-flex items-center gap-2 rounded-md border border-brand-dark bg-brand-dark px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-black"
+                  type="button"
+                  onClick={() => setActiveBoard('all')}
+                  className={`rounded-full px-4 py-2 text-xs font-bold transition-colors ${
+                    activeBoard === 'all'
+                      ? 'bg-brand-dark text-white'
+                      : 'bg-brand-offwhite text-brand-dark hover:bg-brand-light-gray'
+                  }`}
                 >
-                  固化我的经验
+                  全部
                 </button>
+                {displayBoards.map((board) => (
+                  <button
+                    key={board.slug}
+                    type="button"
+                    onClick={() => setActiveBoard(board.slug)}
+                    className={`rounded-full px-4 py-2 text-xs font-bold transition-colors ${
+                      activeBoard === board.slug
+                        ? 'bg-brand-dark text-white'
+                        : 'bg-brand-offwhite text-brand-dark hover:bg-brand-light-gray'
+                    }`}
+                  >
+                    {board.name}
+                  </button>
+                ))}
               </div>
+            </section>
 
-              {composing && (
-                <form onSubmit={handleCreatePost} className="mt-4 rounded-md border border-brand-dark/20 bg-brand-offwhite p-4">
-                  <div className="mb-3 grid gap-3 sm:grid-cols-[120px_1fr]">
-                    <select 
-                      value={form.channel}
-                      onChange={e => setForm({...form, channel: e.target.value})}
-                      className="rounded-md border border-brand-border/60 bg-white px-3 py-2 text-sm outline-none"
+            {composing ? (
+              <section className="rounded-xl border border-brand-border/50 bg-white p-5">
+                <form className="grid gap-3" onSubmit={handleCreatePost}>
+                  <div className="grid gap-3 md:grid-cols-[180px_1fr]">
+                    <select
+                      value={form.boardSlug}
+                      onChange={(event) => setForm((current) => ({ ...current, boardSlug: event.target.value }))}
+                      className="rounded-xl border border-brand-border/50 bg-white px-3 py-2 text-sm outline-none"
                     >
-                      {formalChannels.filter(c => c !== '专题').map(c => <option key={c} value={c}>{c}</option>)}
+                      {displayBoards.map((board) => (
+                        <option key={board.slug} value={board.slug}>
+                          {board.name}
+                        </option>
+                      ))}
                     </select>
-                    <input 
-                      placeholder="一句话概括你的经验或指引（必填）" 
+                    <input
                       value={form.title}
-                      onChange={e => setForm({...form, title: e.target.value})}
-                      className="rounded-md border border-brand-border/60 bg-white px-3 py-2 text-sm outline-none"
+                      onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
+                      className="rounded-xl border border-brand-border/50 bg-white px-3 py-2 text-sm outline-none"
+                      placeholder="一句话概括你的经验或问题"
                       required
                     />
                   </div>
-                  <textarea 
-                    placeholder="详细描述具体的操作步骤、防坑指南，手把手教同事怎么做..." 
+                  <textarea
                     value={form.content}
-                    onChange={e => setForm({...form, content: e.target.value})}
-                    className="min-h-24 w-full rounded-md border border-brand-border/60 bg-white px-3 py-2 text-sm leading-6 outline-none"
+                    onChange={(event) => setForm((current) => ({ ...current, content: event.target.value }))}
+                    className="min-h-28 rounded-xl border border-brand-border/50 bg-white px-3 py-2 text-sm leading-6 outline-none"
+                    placeholder="写清楚场景、客户情况、你的判断和实际结果，后面的同事才真能用。"
                     required
                   />
-                  <div className="mt-3 flex justify-end gap-3">
-                    <button type="button" onClick={() => setComposing(false)} className="text-sm text-brand-gray hover:text-brand-dark">取消</button>
-                    <button type="submit" className="rounded-md bg-brand-dark px-4 py-1.5 text-sm font-semibold text-white hover:bg-black">发布经验帖</button>
+                  <input
+                    value={form.tags}
+                    onChange={(event) => setForm((current) => ({ ...current, tags: event.target.value }))}
+                    className="rounded-xl border border-brand-border/50 bg-white px-3 py-2 text-sm outline-none"
+                    placeholder="标签，多个用逗号分隔，例如：长易担, 制造业, 进门打法"
+                  />
+                  <div className="flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setComposing(false)}
+                      className="px-4 py-2 text-sm text-brand-gray hover:text-brand-dark"
+                    >
+                      取消
+                    </button>
+                    <button
+                      type="submit"
+                      className="rounded-xl bg-brand-dark px-4 py-2 text-sm font-semibold text-white hover:bg-black transition-colors"
+                    >
+                      发布
+                    </button>
                   </div>
                 </form>
-              )}
+              </section>
+            ) : null}
 
-              <div className="mt-4 grid gap-4">
-                {formalEntries.map((item) => (
-                  <div key={item.uid} className="rounded-md border border-brand-border/50 bg-brand-offwhite p-4 transition-colors hover:bg-brand-light-gray/20">
-                    <div className="flex flex-wrap items-center gap-3 text-[11px] text-brand-gray">
-                      <span className="font-semibold text-brand-dark">{item.channel}</span>
-                      <span>{formatRelativeTime(item.createdAt)}</span>
-                      <span>{item.author}</span>
-                    </div>
-                    <Link to={item.kind === 'topic' ? `/formal/topic/${item.uid}` : `/formal/thread/${item.uid}`} className="mt-2 block">
-                      <h3 className="text-lg font-semibold text-brand-dark">{item.title}</h3>
-                      <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-brand-gray line-clamp-3">{item.content}</p>
-                    </Link>
-                    <div className="mt-3 flex items-center gap-1 text-[11px] text-brand-gray">
-                      <MessageSquare size={13} className="mr-1" /> {item.replyCount} 条回帖与补充
-                    </div>
+            <section className="rounded-xl border border-brand-border/50 bg-white p-5">
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold text-brand-dark">最新帖子</h2>
+                  <p className="mt-1 text-xs text-brand-gray">置顶和官方内容会优先展示，后面是最新的实战帖子。</p>
+                </div>
+              </div>
+
+              <div className="grid gap-4">
+                {loading ? (
+                  <div className="rounded-xl border border-dashed border-brand-border/50 p-8 text-center text-sm text-brand-gray">
+                    正在读取论坛内容...
                   </div>
-                ))}
-                {formalEntries.length === 0 && !composing && (
-                  <div className="rounded-md border border-dashed border-brand-border/60 p-8 text-center text-sm text-brand-gray">
-                    还没有业务经验帖，点击右上角分享第一条。
+                ) : posts.length ? (
+                  posts.map((post) => (
+                    <article key={post.id} className="rounded-xl border border-brand-border/50 bg-brand-offwhite p-4 transition-colors hover:bg-white">
+                      <div className="flex flex-wrap items-center gap-2 text-[11px] text-brand-gray">
+                        {post.isPinned ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-brand-gold/10 px-2 py-1 font-semibold text-brand-gold">
+                            <Pin size={12} />
+                            置顶
+                          </span>
+                        ) : null}
+                        {post.board ? (
+                          <span className="font-semibold text-brand-dark">{post.board.name}</span>
+                        ) : null}
+                        {post.isOfficial ? <span>官方帖</span> : null}
+                        <span>{post.author?.nickname || '未知用户'}</span>
+                        <span>{new Date(post.createdAt).toLocaleString('zh-CN')}</span>
+                      </div>
+
+                      <Link to={getPostPath(post)} className="mt-3 block">
+                        <h3 className="text-lg font-semibold text-brand-dark">{post.title}</h3>
+                        <p className="mt-2 line-clamp-3 whitespace-pre-wrap text-sm leading-6 text-brand-gray">
+                          {post.summary || post.content}
+                        </p>
+                      </Link>
+
+                      <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-brand-gray">
+                        <span className="inline-flex items-center gap-1">
+                          <MessageSquare size={13} />
+                          {post.commentCount || 0} 条评论
+                        </span>
+                        {post.tags.slice(0, 4).map((tag) => (
+                          <span key={tag} className="rounded-full bg-white px-2 py-1 text-[10px] font-semibold text-brand-dark">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <div className="rounded-xl border border-dashed border-brand-border/50 p-8 text-center text-sm text-brand-gray">
+                    还没有帖子，登录后可以发第一条经验帖。
                   </div>
                 )}
               </div>
             </section>
           </div>
 
-          {/* Right Column: Tools, Context, Exports */}
           <div className="flex flex-col gap-6">
-
-            {/* Tools Area */}
-            <section className="rounded-md border border-brand-border/60 bg-white">
-              <div className="border-b border-brand-border/40 px-4 py-3 pb-2">
-                <h3 className="text-sm font-semibold text-brand-dark">工兵连</h3>
+            <section className="rounded-xl border border-brand-border/50 bg-white p-5">
+              <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-brand-dark">
+                <Sparkles size={16} className="text-brand-gold" />
+                官方帮助帖
               </div>
-              <div className="p-4 grid gap-3">
-                {/* 热门推荐 */}
-                <div>
-                  <div className="text-[10px] mb-1.5 font-semibold uppercase tracking-[0.12em] text-brand-gray/80 flex items-center gap-1.5"><Sparkles size={10} className="text-amber-500" /> 热门推荐</div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {quickTools.slice(0, 2).map((tool) => (
-                      <Link key={tool.id} to={tool.path} className="flex items-center justify-between rounded border border-brand-border/50 bg-brand-offwhite px-3 py-2 transition-colors hover:bg-white hover:shadow-sm">
-                        <span className="text-xs font-semibold text-brand-dark">{tool.name}</span>
-                        <ArrowRight size={12} className="text-brand-gray" />
-                      </Link>
-                    ))}
+              <div className="grid gap-3">
+                {officialPosts.map((post) => (
+                  <Link key={post.id} to={getPostPath(post)} className="rounded-xl border border-brand-border/40 bg-brand-offwhite p-3 hover:bg-white transition-colors">
+                    <div className="text-sm font-semibold text-brand-dark">{post.title}</div>
+                    <div className="mt-1 text-xs leading-5 text-brand-gray">{post.summary || post.content}</div>
+                  </Link>
+                ))}
+                {!officialPosts.length ? (
+                  <div className="rounded-xl border border-dashed border-brand-border/50 p-4 text-sm text-brand-gray">
+                    暂无官方帮助帖。
                   </div>
-                </div>
-                {/* 今日上新 */}
-                <div>
-                  <div className="text-[11px] mb-2 font-semibold uppercase tracking-[0.12em] text-brand-gray/80 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div> 今日上新</div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {quickTools.slice(2, 4).map((tool) => (
-                      <Link key={tool.id} to={tool.path} className="flex items-center justify-between rounded border border-brand-border/50 bg-brand-offwhite px-3 py-2 transition-colors hover:bg-white hover:shadow-sm">
-                        <span className="text-xs font-semibold text-brand-dark">{tool.name}</span>
-                        <ArrowRight size={12} className="text-brand-gray" />
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Customer Context */}
-            <section className="rounded-md border border-brand-border/60 bg-white">
-              <div className="flex items-center justify-between border-b border-brand-border/40 px-4 py-3">
-                <div className="text-sm font-semibold text-brand-dark">当前客户上下文</div>
-                {hasCustomer ? (
-                  <button type="button" onClick={clearCustomer} className="text-[10px] text-brand-gray hover:text-brand-dark">清除</button>
                 ) : null}
               </div>
-              <div className="p-4">
-                {hasCustomer ? (
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {[
-                      { label: '客户名称', value: customer.name },
-                      { label: '联系人', value: customer.contactPerson },
-                    ].filter((item) => item.value).map((item) => (
-                      <div key={item.label}>
-                        <div className="text-[10px] text-brand-gray">{item.label}</div>
-                        <div className="mt-0.5 text-xs font-semibold text-brand-dark truncate">{item.value}</div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="grid gap-3">
-                    <input
-                      placeholder="输入名称锁定上下文 (回车)"
-                      className="rounded border border-brand-border/60 bg-brand-offwhite px-3 py-2 text-xs outline-none"
-                      onKeyDown={(event) => {
-                        const value = (event.target as HTMLInputElement).value.trim();
-                        if (event.key === 'Enter' && value) {
-                          setCustomer({ name: value });
-                          (event.target as HTMLInputElement).value = '';
-                        }
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
             </section>
 
-            {/* Artifacts & Topics */}
-            <section className="rounded-md border border-brand-border/60 bg-white p-4">
-              <div className="text-[11px] uppercase tracking-[0.12em] text-brand-gray mb-3 pb-2 border-b border-brand-border/40 flex justify-between items-center">
-                <span>最近生成</span>
-                <span className="font-semibold">{stats.totalArtifacts}</span>
+            <section className="rounded-xl border border-brand-border/50 bg-white p-5">
+              <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-brand-dark">
+                <Wrench size={16} />
+                高频工具
               </div>
               <div className="grid gap-2">
-                {artifacts.slice(0, 3).map((item) => (
-                  <div key={item.id} className="flex flex-col justify-center rounded border border-brand-border/40 bg-brand-offwhite p-2">
-                    <div className="flex items-center justify-between">
-                      <div className="truncate text-xs font-semibold text-brand-dark">{item.title}</div>
-                      <div className="text-[9px] text-brand-gray">{new Date(item.createdAt).toLocaleDateString()}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <section className="rounded-md border border-brand-border/60 bg-white p-4">
-              <div className="text-[11px] uppercase tracking-[0.12em] text-brand-gray mb-3 pb-2 border-b border-brand-border/40 flex justify-between items-center">
-                <span>近期专题汇总</span>
-              </div>
-              <div className="grid gap-2">
-                {(communitySummary?.topics || []).slice(0, 3).map((item) => (
-                  <Link key={item.uid} to={`/formal/topic/${item.uid}`} className="rounded border border-brand-border/50 bg-brand-offwhite p-2 transition-colors hover:bg-white truncate">
-                    <div className="font-semibold text-brand-dark text-xs truncate">{item.title}</div>
+                {quickTools.map((tool) => (
+                  <Link
+                    key={tool.id}
+                    to={tool.path}
+                    className="flex items-center justify-between rounded-xl border border-brand-border/40 bg-brand-offwhite px-3 py-2 text-sm text-brand-dark hover:bg-white transition-colors"
+                  >
+                    <span>{tool.name}</span>
+                    <ArrowRight size={14} className="text-brand-gray" />
                   </Link>
                 ))}
               </div>
             </section>
 
+            <section className="rounded-xl border border-brand-border/50 bg-white p-5">
+              <div className="mb-4 flex items-center justify-between">
+                <div className="text-sm font-semibold text-brand-dark">当前客户上下文</div>
+                {hasCustomer ? (
+                  <button type="button" onClick={clearCustomer} className="text-[11px] text-brand-gray hover:text-brand-dark">
+                    清除
+                  </button>
+                ) : null}
+              </div>
+              {hasCustomer ? (
+                <div className="grid gap-3">
+                  <div>
+                    <div className="text-[11px] text-brand-gray">客户名称</div>
+                    <div className="mt-1 text-sm font-semibold text-brand-dark">{customer.name}</div>
+                  </div>
+                  {customer.contactPerson ? (
+                    <div>
+                      <div className="text-[11px] text-brand-gray">联系人</div>
+                      <div className="mt-1 text-sm font-semibold text-brand-dark">{customer.contactPerson}</div>
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                <input
+                  placeholder="输入名称后回车，锁定客户上下文"
+                  className="w-full rounded-xl border border-brand-border/50 bg-brand-offwhite px-3 py-2 text-sm outline-none"
+                  onKeyDown={(event) => {
+                    const value = (event.target as HTMLInputElement).value.trim();
+                    if (event.key === 'Enter' && value) {
+                      setCustomer({ name: value });
+                      (event.target as HTMLInputElement).value = '';
+                    }
+                  }}
+                />
+              )}
+            </section>
+
+            <section className="rounded-xl border border-brand-border/50 bg-white p-5">
+              <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-brand-dark">
+                <Briefcase size={16} />
+                最近生成
+              </div>
+              <div className="grid gap-3">
+                {recentArtifacts.length ? (
+                  recentArtifacts.map((item) => (
+                    <div key={item.id} className="rounded-xl border border-brand-border/40 bg-brand-offwhite px-3 py-2">
+                      <div className="text-sm font-semibold text-brand-dark">{item.title}</div>
+                      <div className="mt-1 text-[11px] text-brand-gray">{new Date(item.createdAt).toLocaleString('zh-CN')}</div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-xl border border-dashed border-brand-border/50 p-4 text-sm text-brand-gray">
+                    还没有最近生成记录。
+                  </div>
+                )}
+              </div>
+            </section>
           </div>
         </div>
       </div>

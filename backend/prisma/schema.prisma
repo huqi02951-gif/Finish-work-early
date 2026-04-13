@@ -22,6 +22,8 @@ enum UserStatus {
 enum PostStatus {
   PUBLISHED
   PENDING
+  HIDDEN
+  REJECTED
   ARCHIVED
 }
 
@@ -30,10 +32,46 @@ enum CommentStatus {
   HIDDEN
 }
 
+enum BoardStatus {
+  ACTIVE
+  HIDDEN
+}
+
+enum TagStatus {
+  ACTIVE
+  HIDDEN
+}
+
 enum CatalogStatus {
   DRAFT
   PUBLISHED
   OFFLINE
+}
+
+enum PostType {
+  DISCUSSION
+  TOPIC
+  GUIDE
+  FAQ
+  UPDATE
+}
+
+enum PostSourceType {
+  USER
+  ADMIN
+  SEED
+}
+
+enum ModerationAction {
+  APPROVE
+  REJECT
+  HIDE
+  RESTORE
+  DELETE
+  PIN
+  UNPIN
+  LOCK_COMMENTS
+  UNLOCK_COMMENTS
 }
 
 model User {
@@ -53,28 +91,73 @@ model User {
 
   posts              Post[]
   comments           Comment[]
+  reviewedPosts      Post[]       @relation("PostReviewedBy")
   updatedPageConfigs PageConfig[] @relation("PageConfigUpdatedBy")
   sessions           UserSession[]
+  moderationLogs     ModerationLog[] @relation("ModerationLogOperator")
 
   @@map("users")
 }
 
-model Post {
-  id        Int        @id @default(autoincrement())
-  title     String
-  content   String     @db.Text
-  category  String     @default("经验分享")
-  status    PostStatus @default(PUBLISHED)
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @updatedAt @map("updated_at")
-  deletedAt DateTime?  @map("deleted_at")
+model Board {
+  id             Int         @id @default(autoincrement())
+  slug           String      @unique
+  name           String
+  description    String?     @db.Text
+  sortOrder      Int         @default(0) @map("sort_order")
+  isOfficial     Boolean     @default(false) @map("is_official")
+  requiresReview Boolean     @default(false) @map("requires_review")
+  status         BoardStatus @default(ACTIVE)
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+  deletedAt      DateTime?   @map("deleted_at")
+  posts          Post[]
 
-  authorId  Int        @map("author_id")
-  author    User       @relation(fields: [authorId], references: [id])
-  comments  Comment[]
+  @@index([status, sortOrder])
+  @@map("boards")
+}
+
+model Post {
+  id                Int            @id @default(autoincrement())
+  title             String
+  summary           String?        @db.Text
+  content           String         @db.Text
+  contentData       Json?          @map("content_data")
+  category          String         @default("经验分享")
+  externalKey       String?        @unique @map("external_key")
+  postType          PostType       @default(DISCUSSION) @map("post_type")
+  sourceType        PostSourceType @default(USER) @map("source_type")
+  isOfficial        Boolean        @default(false) @map("is_official")
+  isPinned          Boolean        @default(false) @map("is_pinned")
+  pinnedAt          DateTime?      @map("pinned_at")
+  status            PostStatus     @default(PUBLISHED)
+  commentsLockedAt  DateTime?      @map("comments_locked_at")
+  reviewedAt        DateTime?      @map("reviewed_at")
+  reviewReason      String?        @db.Text @map("review_reason")
+  relatedProductSlug String?       @map("related_product_slug")
+  relatedSkillSlug  String?        @map("related_skill_slug")
+  relatedPageKey    String?        @map("related_page_key")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+  deletedAt         DateTime?      @map("deleted_at")
+
+  boardId           Int?           @map("board_id")
+  board             Board?         @relation(fields: [boardId], references: [id])
+  authorId          Int            @map("author_id")
+  author            User           @relation(fields: [authorId], references: [id])
+  reviewedById      Int?           @map("reviewed_by_id")
+  reviewedBy        User?          @relation("PostReviewedBy", fields: [reviewedById], references: [id])
+  comments          Comment[]
+  tags              PostTag[]
+  moderationLogs    ModerationLog[]
 
   @@index([authorId])
   @@index([status, createdAt])
+  @@index([boardId, status, isPinned, createdAt])
+  @@index([isOfficial, status, isPinned, createdAt])
+  @@index([postType, status, createdAt])
+  @@index([relatedProductSlug])
+  @@index([relatedSkillSlug])
 
   @@map("posts")
 }
@@ -92,11 +175,55 @@ model Comment {
 
   authorId  Int           @map("author_id")
   author    User          @relation(fields: [authorId], references: [id])
+  moderationLogs ModerationLog[]
 
-  @@index([postId, createdAt])
-  @@index([authorId])
+  @@index([postId, status, createdAt])
+  @@index([authorId, createdAt])
 
   @@map("comments")
+}
+
+model Tag {
+  id        Int       @id @default(autoincrement())
+  slug      String    @unique
+  name      String    @unique
+  sortOrder Int       @default(0) @map("sort_order")
+  status    TagStatus @default(ACTIVE)
+  createdAt DateTime  @default(now()) @map("created_at")
+  postTags  PostTag[]
+
+  @@index([status, sortOrder])
+  @@map("tags")
+}
+
+model PostTag {
+  postId Int  @map("post_id")
+  tagId  Int  @map("tag_id")
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@index([tagId, postId])
+  @@map("post_tags")
+}
+
+model ModerationLog {
+  id         Int              @id @default(autoincrement())
+  postId     Int?             @map("post_id")
+  commentId  Int?             @map("comment_id")
+  operatorId Int              @map("operator_id")
+  action     ModerationAction
+  reason     String?          @db.Text
+  meta       Json?
+  createdAt  DateTime         @default(now()) @map("created_at")
+  post       Post?            @relation(fields: [postId], references: [id], onDelete: SetNull)
+  comment    Comment?         @relation(fields: [commentId], references: [id], onDelete: SetNull)
+  operator   User             @relation("ModerationLogOperator", fields: [operatorId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt])
+  @@index([commentId, createdAt])
+  @@index([operatorId, createdAt])
+  @@map("moderation_logs")
 }
 
 model PageConfig {

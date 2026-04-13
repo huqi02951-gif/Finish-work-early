@@ -17,6 +17,7 @@ import BusinessGuide from '../components/tools/BusinessGuide';
 import FeeDiscountTool from '../components/tools/FeeDiscountTool';
 import NewsTypesettingAssistant from '../components/tools/NewsTypesettingAssistant';
 import RateOfferTool from '../components/tools/RateOfferTool';
+import ChecklistGenerator from '../components/tools/ChecklistGenerator';
 import SensitiveCommAssistant from '../components/tools/SensitiveCommAssistant';
 import FeedPage from './pages/Feed';
 import HomePage from './pages/Home';
@@ -78,6 +79,7 @@ const App: React.FC = () => {
         <Route path="/product-scene" element={<ProductScenePage />} />
         <Route path="/apex-preview" element={<ApexPreviewPage />} />
         <Route path="/material-checklist" element={<AppLayout title="材料清单中心" showBack><MaterialChecklistCenter /></AppLayout>} />
+        <Route path="/checklist-generator" element={<AppLayout title="检核表生成器" showBack><ChecklistGenerator /></AppLayout>} />
 
         {/* ─── 信息页（组件内自带 AppLayout） ─── */}
         <Route path="/updates" element={<UpdateLog />} />

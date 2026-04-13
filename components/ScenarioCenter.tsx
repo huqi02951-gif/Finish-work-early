@@ -319,8 +319,8 @@ const ScenarioCenter: React.FC = () => {
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {[
-                          { id: 'chang_rong_bao', name: '长融保', desc: '稳健型银担合作 · 80%担保 · 适配面广', tag: '传统模式' },
                           { id: 'chang_yi_dan', name: '长易担', desc: '简易备案制 · 效率极高 · 优质客户专属', tag: '高效模式' },
+                          { id: 'chang_rong_bao', name: '长融保', desc: '稳健型银担合作 · 80%担保 · 适配面广', tag: '传统模式' },
                         ].map((p) => (
                           <Link
                             key={p.id}
@@ -332,6 +332,14 @@ const ScenarioCenter: React.FC = () => {
                               <span className="px-2.5 py-0.5 bg-brand-gold/10 text-brand-gold text-[9px] font-bold rounded-full">{p.tag}</span>
                             </div>
                             <p className="text-xs text-brand-gray font-medium mb-4 opacity-70">{p.desc}</p>
+                            <div className="mb-3">
+                              <Link
+                                to={`/checklist-generator?product=${p.id}`}
+                                className="block py-2 bg-brand-dark text-white rounded-lg text-[11px] font-bold text-center hover:opacity-90 transition-colors"
+                              >
+                                生成材料
+                              </Link>
+                            </div>
                             <div className="flex gap-2 mt-auto">
                               <Link
                                 to={`/product-scene?product=${p.id}&scene=customer`}
@@ -354,7 +362,7 @@ const ScenarioCenter: React.FC = () => {
                     {/* 材料清单中心 — 改为独立页面链接 */}
                     <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
                       <Link
-                        to="/material-checklist"
+                        to="/material-checklist?type=credit"
                         className="flex items-center justify-between bg-white p-5 sm:p-6 rounded-2xl border border-brand-border/5 shadow-sm hover:shadow-xl transition-all group"
                       >
                         <div className="flex items-center gap-4">

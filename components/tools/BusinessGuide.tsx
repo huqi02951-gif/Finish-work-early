@@ -23,7 +23,9 @@ import {
   Ban,
   Settings,
   RefreshCcw,
-  Star
+  Star,
+  ClipboardList,
+  FileBarChart,
 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { cn } from '../../lib/utils';
@@ -129,7 +131,6 @@ const GUIDE_DATA: BusinessGuideData = {
         { q: '“利率能再低点吗？”', a: '“这款产品本身就是政策性的，利率已经非常优惠。加上保费补贴，您的综合融资成本在市场上是非常有竞争力的。”' }
       ],
       forbiddenPhrases: ['“随借随还”', '“循环贷”', '“100% 成功”'],
-      relatedSkill: { name: '利率报价工具', path: '/rate-offer' },
       productBoundary: {
         suitable: ["厦门注册民营企业", "真实经营且有报税流水", "有明确的设备/原材料采购需求", "信用记录良好但抵押物不足"],
         unsuitable: ["国企或政府融资平台", "经营异常或有重大处罚记录", "随借随还需求客户", "非真实经营用途"]
@@ -214,7 +215,6 @@ const GUIDE_DATA: BusinessGuideData = {
         { q: '“如果纳税不够 5 万能办吗？”', a: '“如果纳税稍欠，我们可以考虑转为‘长融保’模式，虽然流程稍多，但准入更灵活，同样能享受政策红利。”' }
       ],
       forbiddenPhrases: ['“建筑施工类企业”', '“逾期客户”', '“不看报税”'],
-      relatedSkill: { name: '费率优惠测算', path: '/fee-discount' },
       productBoundary: {
         suitable: ["优质制造业、科技型企业", "成立满2年且报税规范", "纳税信用等级非D", "无当前逾期、展期或借新还旧记录"],
         unsuitable: ["建筑施工类企业（高新除外）", "中小担及其关联担保主体在保客户", "实收资本/营业收入为0的企业", "近6个月实控人重大变更"]
@@ -540,7 +540,12 @@ const BusinessGuide: React.FC = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const [policyExpanded, setPolicyExpanded] = useState(false);
-  const [productCards, setProductCards] = useState<ProductGuideCard[]>(BUSINESS_GUIDE_PRODUCTS);
+  const [productCards, setProductCards] = useState<ProductGuideCard[]>([...BUSINESS_GUIDE_PRODUCTS].sort((a, b) => {
+    // 长易担放在长融保前面
+    if (a.id === 'chang_yi_dan') return -1;
+    if (b.id === 'chang_yi_dan') return 1;
+    return 0;
+  }));
 
   useEffect(() => {
     let cancelled = false;
@@ -891,16 +896,6 @@ const BusinessGuide: React.FC = () => {
                             </span>
                             <h2 className="text-xl md:text-3xl font-serif text-brand-dark">{(activeContent as any).name}</h2>
                           </div>
-                          {activeTab === 'guide' && guideType === 'product' && (activeContent as ProductGuideCard).relatedSkill && (
-                            <button 
-                              onClick={() => navigate((activeContent as ProductGuideCard).relatedSkill!.path)}
-                              className="flex items-center justify-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-brand-dark text-white rounded-lg md:rounded-xl font-bold text-[10px] md:text-xs hover:bg-brand-dark/90 transition-all shadow-lg group/btn self-start sm:self-auto"
-                            >
-                              <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 text-brand-gold" />
-                              立即调用: {(activeContent as ProductGuideCard).relatedSkill!.name}
-                              <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 group-hover/btn:translate-x-1 transition-transform" />
-                            </button>
-                          )}
                         </div>
                           <p className="text-sm md:text-lg text-brand-gray font-medium leading-relaxed max-w-3xl">
                           {activeTab === 'guide' 
@@ -912,6 +907,12 @@ const BusinessGuide: React.FC = () => {
                       {/* 场景入口 — 长融保/长易担支持直接进入实战场景页 */}
                       {activeTab === 'guide' && guideType === 'product' && (activeContent as ProductGuideCard).scenes && (
                         <div className="flex flex-wrap gap-2 mt-4">
+                          <button
+                            onClick={() => navigate(`/checklist-generator?product=${(activeContent as ProductGuideCard).id}`)}
+                            className="flex items-center gap-1.5 px-5 py-2.5 bg-brand-dark text-white rounded-xl text-xs font-bold hover:opacity-90 transition-all shadow-sm"
+                          >
+                            <FileText className="w-3.5 h-3.5" /> 生成材料（检核表+授信方案）
+                          </button>
                           <button
                             onClick={() => navigate(`/product-scene?product=${(activeContent as ProductGuideCard).id}&scene=customer`)}
                             className="flex items-center gap-1.5 px-4 py-2 bg-apple-blue/10 text-apple-blue border border-apple-blue/20 rounded-xl text-xs font-bold hover:bg-apple-blue/20 transition-all"
@@ -976,10 +977,10 @@ const BusinessGuide: React.FC = () => {
                                 icon={FileText} 
                                 list={(activeContent as ProductGuideCard).materials} 
                                 copyable 
-                                action={(activeContent as ProductGuideCard).relatedSkill?.path.includes('material-checklist') ? {
-                                  label: '去生成授信清单',
-                                  onClick: () => navigate((activeContent as ProductGuideCard).relatedSkill!.path)
-                                } : undefined}
+                                action={{
+                                  label: '去生成检核表+授信方案',
+                                  onClick: () => navigate(`/checklist-generator?product=${(activeContent as ProductGuideCard).id}`)
+                                }}
                               />
                               <ContentCard title="推进路径" icon={TrendingUp} list={(activeContent as ProductGuideCard).steps} />
                               
@@ -1193,7 +1194,7 @@ const BusinessGuide: React.FC = () => {
                           <Star size={16} className="text-brand-gold" />
                           <p className="text-[10px] font-bold text-brand-gray uppercase tracking-[0.25em] opacity-60">主打产品 · 快速导览</p>
                         </div>
-                        {['chang_rong_bao', 'chang_yi_dan'].map(pid => {
+                        {['chang_yi_dan', 'chang_rong_bao'].map(pid => {
                           const p = productCards.find(x => x.id === pid);
                           if (!p) return null;
                           const isCRB = pid === 'chang_rong_bao';

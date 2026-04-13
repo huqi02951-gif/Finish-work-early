@@ -13,7 +13,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import {
   Users, ShieldCheck, Copy, Check, ChevronRight, ArrowRight,
   MessageSquare, FileText, ClipboardList, AlertTriangle, Sparkles,
-  CheckCircle2, Ban, HelpCircle,
+  CheckCircle2, Ban, HelpCircle, ListChecks,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import AppLayout from '../src/components/layout/AppLayout';
@@ -58,70 +58,70 @@ const CustomerTab: React.FC<{ product: ProductGuideCard; scene: ProductSceneCust
   const shouldNotSayDead = messagingPack?.shouldNotSayDead || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 sm:space-y-6">
       {/* 产品卖点 */}
-      <section className="bg-white rounded-2xl border border-brand-border/5 p-5 shadow-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <Sparkles size={16} className="text-brand-gold" />
-          <h3 className="text-sm font-bold text-brand-dark">核心卖点</h3>
+      <section className="bg-white rounded-xl border border-brand-border/5 p-3 sm:rounded-2xl sm:p-5 shadow-sm">
+        <div className="flex items-center gap-1.5 mb-2 sm:mb-3">
+          <Sparkles size={12} className="text-brand-gold shrink-0" />
+          <h3 className="text-[11px] sm:text-xs font-bold text-brand-dark">核心卖点</h3>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 sm:gap-2">
           {highlights.map((h, i) => (
-            <div key={i} className="flex items-start gap-2 p-3 bg-brand-light-gray/30 rounded-xl">
-              <CheckCircle2 size={14} className="text-emerald-500 mt-0.5 shrink-0" />
-              <span className="text-xs text-brand-dark font-medium">{h}</span>
+            <div key={i} className="flex items-start gap-1.5 p-2 sm:p-3 bg-brand-light-gray/30 rounded-lg sm:rounded-xl">
+              <CheckCircle2 size={12} className="text-emerald-500 mt-0.5 shrink-0" />
+              <span className="text-[11px] sm:text-xs text-brand-dark font-medium leading-snug">{h}</span>
             </div>
           ))}
         </div>
       </section>
 
       {/* 营销切入 */}
-      <section className="bg-white rounded-2xl border border-brand-border/5 p-5 shadow-sm">
-        <div className="flex items-center gap-2 mb-3">
-          <MessageSquare size={16} className="text-apple-blue" />
-          <h3 className="text-sm font-bold text-brand-dark">营销切入点</h3>
+      <section className="bg-white rounded-xl border border-brand-border/5 p-3 sm:rounded-2xl sm:p-5 shadow-sm">
+        <div className="flex items-center gap-1.5 mb-2 sm:mb-3">
+          <MessageSquare size={12} className="text-apple-blue shrink-0" />
+          <h3 className="text-[11px] sm:text-sm font-bold text-brand-dark">营销切入点</h3>
         </div>
-        <p className="text-xs text-brand-gray font-medium leading-relaxed bg-apple-blue/5 rounded-xl p-4 border border-apple-blue/10">
+        <p className="text-[11px] sm:text-xs text-brand-gray font-medium leading-snug sm:leading-relaxed bg-apple-blue/5 rounded-lg sm:rounded-xl p-2.5 sm:p-4 border border-apple-blue/10">
           {marketingEntry}
         </p>
       </section>
 
       {/* 可直接发客户的话术 */}
-      <section className="bg-white rounded-2xl border border-brand-border/5 p-5 shadow-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <FileText size={16} className="text-apple-purple" />
-          <h3 className="text-sm font-bold text-brand-dark">话术模板（可复制发客户）</h3>
+      <section className="bg-white rounded-xl border border-brand-border/5 p-3 sm:rounded-2xl sm:p-5 shadow-sm">
+        <div className="flex items-center gap-1.5 mb-3 sm:mb-4">
+          <FileText size={12} className="text-apple-purple shrink-0" />
+          <h3 className="text-[11px] sm:text-sm font-bold text-brand-dark">话术模板（可复制发客户）</h3>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {customerScripts.map((s, i) => (
-            <div key={i} className="bg-brand-light-gray/30 rounded-xl p-4 border border-brand-border/5 relative group">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-bold text-brand-gold uppercase tracking-widest">{s.label}</span>
+            <div key={i} className="bg-brand-light-gray/30 rounded-lg sm:rounded-xl p-2.5 sm:p-4 border border-brand-border/5 relative group">
+              <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                <span className="text-[9px] sm:text-[10px] font-bold text-brand-gold uppercase tracking-widest">{s.label}</span>
                 <button
                   onClick={() => copy(s.content, `script-${i}`)}
-                  className="flex items-center gap-1 text-[10px] font-bold text-brand-gray hover:text-apple-blue transition-colors"
+                  className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-brand-gray hover:text-apple-blue transition-colors"
                 >
-                  {copied === `script-${i}` ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
+                  {copied === `script-${i}` ? <Check size={10} className="text-emerald-500" /> : <Copy size={10} />}
                   {copied === `script-${i}` ? '已复制' : '复制'}
                 </button>
               </div>
-              <p className="text-xs text-brand-dark font-medium leading-relaxed">{s.content}</p>
+              <p className="text-[11px] sm:text-xs text-brand-dark font-medium leading-snug sm:leading-relaxed">{s.content}</p>
             </div>
           ))}
         </div>
       </section>
 
       {(canSay.length || shouldNotSayDead.length) ? (
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <section className="grid grid-cols-1 gap-3 sm:gap-4">
           {canSay.length ? (
-            <div className="bg-white rounded-2xl border border-brand-border/5 p-5 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <CheckCircle2 size={16} className="text-emerald-500" />
-                <h3 className="text-sm font-bold text-brand-dark">这些话可以直接讲</h3>
+            <div className="bg-white rounded-xl border border-brand-border/5 p-3 sm:rounded-2xl sm:p-5 shadow-sm">
+              <div className="flex items-center gap-1.5 mb-2 sm:mb-4">
+                <CheckCircle2 size={12} className="text-emerald-500 shrink-0" />
+                <h3 className="text-[11px] sm:text-sm font-bold text-brand-dark">这些话可以直接讲</h3>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 {canSay.map((item, index) => (
-                  <div key={index} className="rounded-xl bg-emerald-50/70 px-4 py-3 text-xs font-medium leading-relaxed text-emerald-700">
+                  <div key={index} className="rounded-lg bg-emerald-50/70 px-2.5 sm:px-4 py-2 sm:py-3 text-[11px] sm:text-xs font-medium leading-snug sm:leading-relaxed text-emerald-700">
                     {item}
                   </div>
                 ))}
@@ -130,14 +130,14 @@ const CustomerTab: React.FC<{ product: ProductGuideCard; scene: ProductSceneCust
           ) : null}
 
           {shouldNotSayDead.length ? (
-            <div className="bg-white rounded-2xl border border-red-100 p-5 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <AlertTriangle size={16} className="text-red-500" />
-                <h3 className="text-sm font-bold text-red-700">这些话不要说死</h3>
+            <div className="bg-white rounded-xl border border-red-100 p-3 sm:rounded-2xl sm:p-5 shadow-sm">
+              <div className="flex items-center gap-1.5 mb-2 sm:mb-4">
+                <AlertTriangle size={12} className="text-red-500 shrink-0" />
+                <h3 className="text-[11px] sm:text-sm font-bold text-red-700">这些话不要说死</h3>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 {shouldNotSayDead.map((item, index) => (
-                  <div key={index} className="rounded-xl bg-red-50 px-4 py-3 text-xs font-medium leading-relaxed text-red-600">
+                  <div key={index} className="rounded-lg bg-red-50 px-2.5 sm:px-4 py-2 sm:py-3 text-[11px] sm:text-xs font-medium leading-snug sm:leading-relaxed text-red-600">
                     {item}
                   </div>
                 ))}
@@ -148,18 +148,18 @@ const CustomerTab: React.FC<{ product: ProductGuideCard; scene: ProductSceneCust
       ) : null}
 
       {/* 客户高频问答 */}
-      <section className="bg-white rounded-2xl border border-brand-border/5 p-5 shadow-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <HelpCircle size={16} className="text-orange-500" />
-          <h3 className="text-sm font-bold text-brand-dark">客户高频问答</h3>
+      <section className="bg-white rounded-xl border border-brand-border/5 p-3 sm:rounded-2xl sm:p-5 shadow-sm">
+        <div className="flex items-center gap-1.5 mb-3 sm:mb-4">
+          <HelpCircle size={12} className="text-orange-500 shrink-0" />
+          <h3 className="text-[11px] sm:text-sm font-bold text-brand-dark">客户高频问答</h3>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {customerFaq.map((f, i) => (
-            <div key={i} className="bg-brand-light-gray/20 rounded-xl p-4">
-              <p className="text-xs font-bold text-brand-dark mb-1.5">Q: {f.q}</p>
-              <p className="text-xs text-brand-gray font-medium leading-relaxed">A: {f.a}</p>
+            <div key={i} className="bg-brand-light-gray/20 rounded-lg sm:rounded-xl p-2.5 sm:p-4">
+              <p className="text-[11px] sm:text-xs font-bold text-brand-dark mb-1 sm:mb-1.5 leading-snug">Q: {f.q}</p>
+              <p className="text-[11px] sm:text-xs text-brand-gray font-medium leading-snug sm:leading-relaxed">A: {f.a}</p>
               {'prohibited' in f && f.prohibited ? (
-                <p className="mt-2 text-[11px] font-medium leading-relaxed text-red-500">不要说死：{f.prohibited}</p>
+                <p className="mt-1.5 sm:mt-2 text-[10px] sm:text-[11px] font-medium leading-snug text-red-500">不要说死：{f.prohibited}</p>
               ) : null}
             </div>
           ))}
@@ -167,17 +167,17 @@ const CustomerTab: React.FC<{ product: ProductGuideCard; scene: ProductSceneCust
       </section>
 
       {/* 材料清单入口 */}
-      <section className="bg-brand-dark rounded-2xl p-5 shadow-lg">
+      <section className="bg-brand-dark rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-lg">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-bold text-white mb-1">材料清单中心</h3>
-            <p className="text-[11px] text-white/60 font-medium">{scene.materialsIntro}</p>
+            <h3 className="text-[11px] sm:text-sm font-bold text-white mb-0.5 sm:mb-1">材料清单中心</h3>
+            <p className="text-[10px] sm:text-[11px] text-white/60 font-medium leading-snug">{scene.materialsIntro}</p>
           </div>
           <button
-            onClick={() => navigate('/material-checklist')}
-            className="shrink-0 px-4 py-2 bg-white text-brand-dark rounded-xl text-xs font-bold hover:bg-brand-gold hover:text-white transition-all flex items-center gap-1.5"
+            onClick={() => navigate('/material-checklist?type=credit')}
+            className="shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-brand-dark rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold hover:bg-brand-gold hover:text-white transition-all flex items-center gap-1 sm:gap-1.5"
           >
-            进入清单 <ArrowRight size={14} />
+            进入清单 <ArrowRight size={12} />
           </button>
         </div>
       </section>
@@ -188,58 +188,67 @@ const CustomerTab: React.FC<{ product: ProductGuideCard; scene: ProductSceneCust
 /* ─── 对审查 Tab ─── */
 const ReviewTab: React.FC<{ product: ProductGuideCard; scene: ProductSceneReview }> = ({ product, scene }) => {
   const { copied, copy } = useCopy();
+  const navigate = useNavigate();
   const messagingPack = product.messagingPack;
   const reviewScripts = messagingPack?.reviewSubmissionScripts || [];
   const forbiddenList = messagingPack?.forbiddenCommitments?.length ? messagingPack.forbiddenCommitments : scene.forbidden;
   const fastTrackTips = messagingPack?.fastTrackTips || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3 sm:space-y-6">
       {/* 检核表 */}
-      <section className="bg-white rounded-2xl border border-brand-border/5 p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <ClipboardList size={16} className="text-apple-blue" />
-            <h3 className="text-sm font-bold text-brand-dark">授信上报检核表</h3>
+      <section className="bg-white rounded-xl border border-brand-border/5 p-3 sm:rounded-2xl sm:p-5 shadow-sm">
+        <div className="flex items-center justify-between mb-2 sm:mb-3">
+          <div className="flex items-center gap-1.5">
+            <ClipboardList size={12} className="text-apple-blue shrink-0" />
+            <h3 className="text-[11px] sm:text-xs font-bold text-brand-dark">授信上报检核表</h3>
           </div>
-          <button
-            onClick={() => copy(scene.checklist.map((c, i) => `${i + 1}. ${c}`).join('\n'), 'checklist')}
-            className="flex items-center gap-1 text-[10px] font-bold text-brand-gray hover:text-apple-blue transition-colors"
-          >
-            {copied === 'checklist' ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
-            {copied === 'checklist' ? '已复制' : '复制全部'}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate(`/checklist-generator?product=${product.id}`)}
+              className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-apple-blue hover:underline transition-colors"
+            >
+              <ArrowRight size={10} /> 进入生成器
+            </button>
+            <button
+              onClick={() => copy(scene.checklist.map((c, i) => `${i + 1}. ${c}`).join('\n'), 'checklist')}
+              className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-brand-gray hover:text-apple-blue transition-colors"
+            >
+              {copied === 'checklist' ? <Check size={10} className="text-emerald-500" /> : <Copy size={10} />}
+              {copied === 'checklist' ? '已复制' : '复制'}
+            </button>
+          </div>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-1.5 sm:space-y-2">
           {scene.checklist.map((c, i) => (
-            <label key={i} className="flex items-start gap-3 p-3 bg-brand-light-gray/30 rounded-xl cursor-pointer hover:bg-brand-light-gray/50 transition-colors group">
+            <label key={i} className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-brand-light-gray/30 rounded-lg sm:rounded-xl cursor-pointer hover:bg-brand-light-gray/50 transition-colors group">
               <input type="checkbox" className="mt-0.5 rounded border-brand-border/20 text-apple-blue focus:ring-apple-blue/20" />
-              <span className="text-xs text-brand-dark font-medium leading-relaxed">{c}</span>
+              <span className="text-[11px] sm:text-xs text-brand-dark font-medium leading-snug sm:leading-relaxed">{c}</span>
             </label>
           ))}
         </div>
       </section>
 
       {reviewScripts.length ? (
-        <section className="bg-white rounded-2xl border border-brand-border/5 p-5 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <FileText size={16} className="text-apple-purple" />
-            <h3 className="text-sm font-bold text-brand-dark">对审查可直接复制的话术</h3>
+        <section className="bg-white rounded-xl border border-brand-border/5 p-3 sm:rounded-2xl sm:p-5 shadow-sm">
+          <div className="flex items-center gap-1.5 mb-3 sm:mb-4">
+            <FileText size={12} className="text-apple-purple shrink-0" />
+            <h3 className="text-[11px] sm:text-sm font-bold text-brand-dark">对审查可直接复制的话术</h3>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {reviewScripts.map((item, index) => (
-              <div key={item.code} className="bg-brand-light-gray/30 rounded-xl p-4 border border-brand-border/5">
-                <div className="mb-2 flex items-center justify-between gap-3">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-brand-gold">{item.title}</span>
+              <div key={item.code} className="bg-brand-light-gray/30 rounded-lg sm:rounded-xl p-2.5 sm:p-4 border border-brand-border/5">
+                <div className="mb-1.5 sm:mb-2 flex items-center justify-between gap-3">
+                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-brand-gold">{item.title}</span>
                   <button
                     onClick={() => copy(item.content, `review-script-${index}`)}
-                    className="flex items-center gap-1 text-[10px] font-bold text-brand-gray hover:text-apple-blue transition-colors"
+                    className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-brand-gray hover:text-apple-blue transition-colors"
                   >
-                    {copied === `review-script-${index}` ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
+                    {copied === `review-script-${index}` ? <Check size={10} className="text-emerald-500" /> : <Copy size={10} />}
                     {copied === `review-script-${index}` ? '已复制' : '复制'}
                   </button>
                 </div>
-                <p className="text-xs text-brand-dark font-medium leading-relaxed">{item.content}</p>
+                <p className="text-[11px] sm:text-xs text-brand-dark font-medium leading-snug sm:leading-relaxed">{item.content}</p>
               </div>
             ))}
           </div>
@@ -247,86 +256,94 @@ const ReviewTab: React.FC<{ product: ProductGuideCard; scene: ProductSceneReview
       ) : null}
 
       {/* 审查说明模板 */}
-      <section className="bg-white rounded-2xl border border-brand-border/5 p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <FileText size={16} className="text-apple-purple" />
-            <h3 className="text-sm font-bold text-brand-dark">审查说明模板</h3>
+      <section className="bg-white rounded-xl border border-brand-border/5 p-3 sm:rounded-2xl sm:p-5 shadow-sm">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="flex items-center gap-1.5">
+            <FileText size={12} className="text-apple-purple shrink-0" />
+            <h3 className="text-[11px] sm:text-sm font-bold text-brand-dark">审查说明模板</h3>
           </div>
           <button
             onClick={() => copy(scene.reviewTemplate, 'review-tpl')}
-            className="flex items-center gap-1 text-[10px] font-bold text-brand-gray hover:text-apple-blue transition-colors"
+            className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-brand-gray hover:text-apple-blue transition-colors"
           >
-            {copied === 'review-tpl' ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
-            {copied === 'review-tpl' ? '已复制' : '复制模板'}
+            {copied === 'review-tpl' ? <Check size={10} className="text-emerald-500" /> : <Copy size={10} />}
+            {copied === 'review-tpl' ? '已复制' : '复制'}
           </button>
         </div>
-        <pre className="text-[11px] text-brand-dark font-mono leading-relaxed whitespace-pre-wrap bg-brand-light-gray/30 rounded-xl p-4 border border-brand-border/5 max-h-80 overflow-y-auto">
+        <pre className="text-[10px] sm:text-[11px] text-brand-dark font-mono leading-snug sm:leading-relaxed whitespace-pre-wrap bg-brand-light-gray/30 rounded-lg sm:rounded-xl p-2.5 sm:p-4 border border-brand-border/5 max-h-80 overflow-y-auto">
           {scene.reviewTemplate}
         </pre>
       </section>
 
       {/* 授信上报内容模板 */}
-      <section className="bg-white rounded-2xl border border-brand-border/5 p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <ShieldCheck size={16} className="text-emerald-500" />
-            <h3 className="text-sm font-bold text-brand-dark">授信上报内容（可复制）</h3>
+      <section className="bg-white rounded-xl border border-brand-border/5 p-3 sm:rounded-2xl sm:p-5 shadow-sm">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="flex items-center gap-1.5">
+            <ShieldCheck size={12} className="text-emerald-500 shrink-0" />
+            <h3 className="text-[11px] sm:text-sm font-bold text-brand-dark">授信上报内容</h3>
           </div>
-          <button
-            onClick={() => copy(scene.creditReportTemplate, 'credit-tpl')}
-            className="flex items-center gap-1 text-[10px] font-bold text-brand-gray hover:text-apple-blue transition-colors"
-          >
-            {copied === 'credit-tpl' ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
-            {copied === 'credit-tpl' ? '已复制' : '复制模板'}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate(`/checklist-generator?product=${product.id}`)}
+              className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-emerald-600 hover:underline transition-colors"
+            >
+              <ArrowRight size={10} /> 生成器
+            </button>
+            <button
+              onClick={() => copy(scene.creditReportTemplate, 'credit-tpl')}
+              className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-brand-gray hover:text-apple-blue transition-colors"
+            >
+              {copied === 'credit-tpl' ? <Check size={10} className="text-emerald-500" /> : <Copy size={10} />}
+              {copied === 'credit-tpl' ? '已复制' : '复制'}
+            </button>
+          </div>
         </div>
-        <pre className="text-[11px] text-brand-dark font-mono leading-relaxed whitespace-pre-wrap bg-brand-light-gray/30 rounded-xl p-4 border border-brand-border/5 max-h-80 overflow-y-auto">
+        <pre className="text-[10px] sm:text-[11px] text-brand-dark font-mono leading-snug sm:leading-relaxed whitespace-pre-wrap bg-brand-light-gray/30 rounded-lg sm:rounded-xl p-2.5 sm:p-4 border border-brand-border/5 max-h-80 overflow-y-auto">
           {scene.creditReportTemplate}
         </pre>
       </section>
 
       {/* 审查常见问题 */}
-      <section className="bg-white rounded-2xl border border-brand-border/5 p-5 shadow-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <HelpCircle size={16} className="text-orange-500" />
-          <h3 className="text-sm font-bold text-brand-dark">审查常见问题</h3>
+      <section className="bg-white rounded-xl border border-brand-border/5 p-3 sm:rounded-2xl sm:p-5 shadow-sm">
+        <div className="flex items-center gap-1.5 mb-3 sm:mb-4">
+          <HelpCircle size={12} className="text-orange-500 shrink-0" />
+          <h3 className="text-[11px] sm:text-sm font-bold text-brand-dark">审查常见问题</h3>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {scene.reviewFAQ.map((f, i) => (
-            <div key={i} className="bg-brand-light-gray/20 rounded-xl p-4">
-              <p className="text-xs font-bold text-brand-dark mb-1.5">Q: {f.q}</p>
-              <p className="text-xs text-brand-gray font-medium leading-relaxed">A: {f.a}</p>
+            <div key={i} className="bg-brand-light-gray/20 rounded-lg sm:rounded-xl p-2.5 sm:p-4">
+              <p className="text-[11px] sm:text-xs font-bold text-brand-dark mb-1 sm:mb-1.5 leading-snug">Q: {f.q}</p>
+              <p className="text-[11px] sm:text-xs text-brand-gray font-medium leading-snug sm:leading-relaxed">A: {f.a}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* 禁止用语 */}
-      <section className="bg-red-50/50 rounded-2xl border border-red-100 p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <AlertTriangle size={16} className="text-red-500" />
-          <h3 className="text-sm font-bold text-red-700">禁止用语</h3>
+      <section className="bg-red-50/50 rounded-xl border border-red-100 p-3 sm:rounded-2xl sm:p-5">
+        <div className="flex items-center gap-1.5 mb-2 sm:mb-3">
+          <AlertTriangle size={12} className="text-red-500 shrink-0" />
+          <h3 className="text-[11px] sm:text-sm font-bold text-red-700">禁止用语</h3>
         </div>
-        <div className="space-y-1.5">
+        <div className="space-y-1 sm:space-y-1.5">
           {forbiddenList.map((f, i) => (
             <div key={i} className="flex items-center gap-2">
-              <Ban size={12} className="text-red-400 shrink-0" />
-              <span className="text-xs text-red-600 font-medium">{f}</span>
+              <Ban size={10} className="text-red-400 shrink-0" />
+              <span className="text-[11px] sm:text-xs text-red-600 font-medium">{f}</span>
             </div>
           ))}
         </div>
       </section>
 
       {fastTrackTips.length ? (
-        <section className="bg-emerald-50/60 rounded-2xl border border-emerald-100 p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles size={16} className="text-emerald-600" />
-            <h3 className="text-sm font-bold text-emerald-700">提速推进提醒</h3>
+        <section className="bg-emerald-50/60 rounded-xl border border-emerald-100 p-3 sm:rounded-2xl sm:p-5">
+          <div className="flex items-center gap-1.5 mb-2 sm:mb-3">
+            <Sparkles size={12} className="text-emerald-600 shrink-0" />
+            <h3 className="text-[11px] sm:text-sm font-bold text-emerald-700">提速推进提醒</h3>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1.5 sm:space-y-2">
             {fastTrackTips.map((item, index) => (
-              <div key={index} className="rounded-xl bg-white/70 px-4 py-3 text-xs font-medium leading-relaxed text-emerald-700">
+              <div key={index} className="rounded-lg sm:rounded-xl bg-white/70 px-2.5 sm:px-4 py-2 sm:py-3 text-[11px] sm:text-xs font-medium leading-snug sm:leading-relaxed text-emerald-700">
                 {item}
               </div>
             ))}
@@ -382,34 +399,45 @@ const ProductScenePage: React.FC = () => {
     <AppLayout title={`${product.name} · 实战场景`} showBack>
       <div className="pb-16 bg-brand-offwhite min-h-screen">
         {/* Header */}
-        <header className="px-6 pt-8 pb-4">
-          <div className="flex items-center gap-3 mb-3">
-            <span className="px-3 py-1 bg-brand-gold/10 text-brand-gold text-[9px] font-bold uppercase tracking-widest rounded-full border border-brand-gold/20">
+        <header className="px-4 pt-6 pb-3 sm:px-6 sm:pt-8 sm:pb-4">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="px-2 py-0.5 bg-brand-gold/10 text-brand-gold text-[8px] font-bold uppercase tracking-widest rounded-full border border-brand-gold/20">
               {product.category}
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-brand-dark tracking-tight mb-1">{product.name}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-dark tracking-tight mb-1">{product.name}</h1>
           <p className="text-xs text-brand-gray font-medium opacity-70">{product.overview}</p>
         </header>
 
+        {/* Quick Actions — 一键生成器 */}
+        <div className="px-4 sm:px-6 mb-3">
+          <button
+            onClick={() => navigate(`/checklist-generator?product=${product.id}`)}
+            className="w-full flex items-center justify-center gap-2 bg-brand-dark text-white rounded-xl px-3 py-2.5 text-left hover:opacity-90 transition-all"
+          >
+            <ListChecks size={16} className="shrink-0" />
+            <span className="text-[11px] font-bold leading-tight">生成检核表 + 授信方案</span>
+          </button>
+        </div>
+
         {/* Tab Switch */}
-        <div className="px-6 mb-6 sticky top-16 z-40 backdrop-blur-md py-3 bg-brand-offwhite/80">
+        <div className="px-4 mb-4 sm:px-6 sm:mb-6 sticky top-16 z-40 backdrop-blur-md py-2 sm:py-3 bg-brand-offwhite/80">
           <div className="flex gap-2">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  'flex-1 flex items-center gap-2.5 px-4 py-3 rounded-xl text-left transition-all border',
+                  'flex-1 flex items-center gap-2 px-3 py-2.5 rounded-lg sm:rounded-xl text-left transition-all border',
                   activeTab === tab.id
-                    ? 'bg-white border-brand-border/10 shadow-md'
+                    ? 'bg-white border-brand-border/10 shadow-sm'
                     : 'bg-brand-light-gray/30 border-transparent hover:bg-white/60',
                 )}
               >
-                <tab.icon size={16} className={cn(activeTab === tab.id ? 'text-brand-dark' : 'text-brand-gray/50')} />
+                <tab.icon size={14} className={cn(activeTab === tab.id ? 'text-brand-dark' : 'text-brand-gray/50')} />
                 <div>
                   <p className={cn('text-xs font-bold', activeTab === tab.id ? 'text-brand-dark' : 'text-brand-gray')}>{tab.label}</p>
-                  <p className="text-[9px] text-brand-gray/60 font-medium">{tab.desc}</p>
+                  <p className="text-[8px] sm:text-[9px] text-brand-gray/60 font-medium hidden sm:block">{tab.desc}</p>
                 </div>
               </button>
             ))}
@@ -417,7 +445,7 @@ const ProductScenePage: React.FC = () => {
         </div>
 
         {/* Content */}
-        <div className="px-6">
+        <div className="px-4 sm:px-6">
           {activeTab === 'customer' ? (
             <CustomerTab product={product} scene={product.scenes.customer} />
           ) : (
@@ -426,18 +454,24 @@ const ProductScenePage: React.FC = () => {
         </div>
 
         {/* Bottom Actions */}
-        <div className="px-6 mt-8 flex gap-3">
+        <div className="px-4 sm:px-6 mt-6 sm:mt-8 grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
           <button
-            onClick={() => navigate(`/business-guide?product=${product.id}`)}
-            className="flex-1 py-3 bg-white border border-brand-border/10 rounded-xl text-xs font-bold text-brand-dark hover:bg-brand-light-gray transition-colors flex items-center justify-center gap-1.5"
+            onClick={() => navigate(`/checklist-generator?product=${product.id}`)}
+            className="py-3 bg-brand-dark text-white rounded-xl text-xs font-bold hover:bg-brand-dark/90 transition-colors flex items-center justify-center gap-1.5"
           >
-            查看完整产品打法 <ChevronRight size={14} />
+            <ListChecks size={14} /> 生成检核表+授信方案
           </button>
           <button
-            onClick={() => navigate('/material-checklist')}
-            className="flex-1 py-3 bg-brand-dark text-white rounded-xl text-xs font-bold hover:bg-brand-dark/90 transition-colors flex items-center justify-center gap-1.5"
+            onClick={() => navigate(`/business-guide?product=${product.id}`)}
+            className="py-3 bg-white border border-brand-border/10 rounded-xl text-xs font-bold text-brand-dark hover:bg-brand-light-gray transition-colors flex items-center justify-center gap-1.5"
           >
-            生成材料清单 <ArrowRight size={14} />
+            查看完整打法 <ChevronRight size={14} />
+          </button>
+          <button
+            onClick={() => navigate('/material-checklist?type=credit')}
+            className="py-3 bg-white border border-brand-border/10 rounded-xl text-xs font-bold text-brand-dark hover:bg-brand-light-gray transition-colors flex items-center justify-center gap-1.5"
+          >
+            材料清单 <ArrowRight size={14} />
           </button>
         </div>
       </div>
