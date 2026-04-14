@@ -74,7 +74,7 @@ const Home: React.FC = () => {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col shrink-0 mt-6 sm:mt-12"
           >
-            <h1 className="text-[3rem] sm:text-[4rem] md:text-[6rem] lg:text-[7rem] font-bold tracking-tighter text-brand-dark leading-none flex items-end">
+            <h1 className="text-[3.5rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[7rem] font-bold tracking-tighter text-brand-dark leading-none flex items-end">
               APEX<span className="text-brand-border animate-pulse ml-0.5 sm:ml-2 -mb-0.5 sm:-mb-2">_</span>
             </h1>
             
@@ -82,7 +82,7 @@ const Home: React.FC = () => {
               <h2 className="text-[22px] sm:text-3xl font-semibold tracking-tight text-brand-dark/95 leading-tight">
                 {pageConfig.hero.title}
               </h2>
-              <p className="text-[13px] sm:text-base lg:text-lg text-brand-gray tracking-wide max-w-xl font-medium leading-relaxed">
+              <p className="text-[14px] sm:text-base lg:text-lg text-brand-gray tracking-wide max-w-xl font-medium leading-relaxed">
                 <span className="text-brand-border font-mono mr-1.5 sm:mr-2">/</span>
                 {pageConfig.hero.subtitle.replace('//', '').trim()}
               </p>
@@ -112,11 +112,11 @@ const Home: React.FC = () => {
                         <Icon size={18} strokeWidth={1.5} />
                       </div>
                       <div className="flex flex-col w-full">
-                        <h3 className="text-[15px] sm:text-base font-semibold tracking-tight text-brand-dark leading-snug group-hover:text-brand-dark/80 transition-colors">
+                        <h3 className="text-[16px] sm:text-lg font-bold tracking-tight text-brand-dark leading-snug group-hover:text-brand-dark/80 transition-colors">
                           {item.title}
                         </h3>
                         {/* Always visible on iOS */}
-                        <p className="text-[11px] sm:text-xs text-brand-gray/80 mt-1 lines-clamp-2 md:line-clamp-3 font-medium leading-relaxed">
+                        <p className="text-[12px] sm:text-sm text-brand-gray/80 mt-1 lines-clamp-2 md:line-clamp-3 font-medium leading-relaxed">
                           {item.desc}
                         </p>
                       </div>
@@ -133,11 +133,11 @@ const Home: React.FC = () => {
               transition={{ delay: 0.6, duration: 1 }}
               className="mt-6 flex flex-col items-center justify-center space-y-1.5 opacity-80"
             >
-              <div className="text-[10px] sm:text-[11px] font-bold tracking-[0.15em] uppercase text-brand-dark flex items-center gap-1.5">
+              <div className="text-[11px] sm:text-[12px] font-bold tracking-[0.15em] uppercase text-brand-dark flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-brand-dark" />
                 {pageConfig.footer.badgeText}
               </div>
-              <div className="text-[9px] sm:text-[10px] font-semibold tracking-[0.08em] text-brand-gray/60 uppercase text-center w-full">
+              <div className="text-[10px] sm:text-[11px] font-semibold tracking-[0.08em] text-brand-gray/60 uppercase text-center w-full">
                 {pageConfig.footer.creditText}
               </div>
             </motion.div>

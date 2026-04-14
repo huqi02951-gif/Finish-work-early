@@ -120,13 +120,13 @@ const SkillsLibrary: React.FC = () => {
                   key={tag}
                   onClick={() => setSceneFilter(tag)}
                   className={cn(
-                    'px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap border flex items-center gap-1.5',
+                    'px-3.5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap border flex items-center gap-1.5',
                     sceneFilter === tag
                       ? 'bg-brand-dark text-white border-brand-dark shadow-sm'
                       : 'bg-white text-brand-gray border-brand-border/10 hover:bg-brand-light-gray',
                   )}
                 >
-                  {Icon && <Icon size={12} />}
+                  {Icon && <Icon size={14} />}
                   {tag}
                 </button>
               );
@@ -140,7 +140,7 @@ const SkillsLibrary: React.FC = () => {
                 key={option}
                 onClick={() => setStatusFilter(option)}
                 className={cn(
-                  'px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap border',
+                  'px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap border',
                   statusFilter === option
                     ? 'bg-brand-dark/80 text-white border-brand-dark/80'
                     : 'bg-white text-brand-gray/60 border-brand-border/5 hover:bg-brand-light-gray',
@@ -154,7 +154,7 @@ const SkillsLibrary: React.FC = () => {
 
         {/* Count */}
         <div className="px-6 mb-3">
-          <span className="text-[10px] text-brand-gray font-bold tracking-widest uppercase">
+          <span className="text-xs text-brand-gray font-bold tracking-widest uppercase">
             共 {filteredSkills.length} 个工具
           </span>
         </div>
@@ -189,7 +189,7 @@ const SkillsLibrary: React.FC = () => {
                         <span
                           key={tag}
                           className={cn(
-                            'text-[8px] font-bold px-1.5 py-0.5 rounded border',
+                            'text-[10px] font-bold px-1.5 py-0.5 rounded border',
                             SCENE_COLOR[tag] || 'bg-brand-light-gray text-brand-gray border-brand-border/10',
                           )}
                         >
@@ -200,28 +200,28 @@ const SkillsLibrary: React.FC = () => {
                   )}
 
                   {/* Brief: scene + input */}
-                  <div className="text-[10px] text-brand-gray/70 font-medium mb-3 space-y-0.5">
-                    <p className="truncate"><span className="text-brand-gray/40 mr-1">输入:</span>{skill.input.slice(0, 3).join('、')}{skill.input.length > 3 ? '...' : ''}</p>
+                  <div className="text-xs text-brand-gray/70 font-medium mb-3 space-y-0.5">
+                    <p className="truncate"><span className="text-brand-gray/40 mr-1 italic">输入:</span>{skill.input.slice(0, 3).join('、')}{skill.input.length > 3 ? '...' : ''}</p>
                   </div>
 
                   {/* Bottom: category + actions */}
                   <div className="flex items-center justify-between mt-auto pt-2.5 border-t border-brand-border/5">
-                    <span className="text-[8px] text-brand-gray/40 font-bold uppercase tracking-widest truncate max-w-[40%]">
+                    <span className="text-[10px] text-brand-gray/40 font-bold uppercase tracking-widest truncate max-w-[40%]">
                       {skill.category}
                     </span>
                     <div className="flex items-center gap-2">
                       <Link
                         to={`/skills/${skill.id}`}
-                        className="text-brand-gray text-[10px] font-bold hover:text-brand-dark transition-all"
+                        className="text-brand-gray text-xs font-bold hover:text-brand-dark transition-all"
                       >
                         详情
                       </Link>
                       {isOnline && skill.toolRoute && (
                         <Link
                           to={skill.toolRoute}
-                          className="text-apple-blue text-[10px] font-bold flex items-center gap-0.5 hover:gap-1 transition-all bg-apple-blue/5 px-2 py-1 rounded-lg"
+                          className="text-apple-blue text-xs font-bold flex items-center gap-0.5 hover:gap-1 transition-all bg-apple-blue/5 px-2 py-1 rounded-lg"
                         >
-                          使用 <ChevronRight size={12} />
+                          使用 <ChevronRight size={14} />
                         </Link>
                       )}
                     </div>

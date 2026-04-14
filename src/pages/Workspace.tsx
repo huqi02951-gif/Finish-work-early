@@ -138,9 +138,9 @@ const WorkspacePage: React.FC = () => {
         <section className="flex flex-col gap-3 border-b border-brand-border/40 pb-4 sm:pb-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="flex-grow">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-brand-gray">workspace</div>
+              <div className="text-xs font-bold uppercase tracking-[0.15em] text-brand-gray">workspace</div>
               <h1 className="mt-2 text-xl sm:text-3xl font-bold text-brand-dark">正式业务社区与经验库</h1>
-              <p className="mt-1 max-w-2xl text-xs leading-6 text-brand-gray">
+              <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-brand-gray">
                 这里是 APEX 的经验沉淀中心、官方帮助中心和客户经理实战交流区。游客可看，登录后可发帖、评论、沉淀经验。
               </p>
             </div>
@@ -291,7 +291,7 @@ const WorkspacePage: React.FC = () => {
                 ) : posts.length ? (
                   posts.map((post) => (
                     <article key={post.id} className="rounded-xl border border-brand-border/50 bg-brand-offwhite p-4 transition-colors hover:bg-white">
-                      <div className="flex flex-wrap items-center gap-2 text-[11px] text-brand-gray">
+                      <div className="flex flex-wrap items-center gap-2 text-[12px] text-brand-gray font-medium">
                         {post.isPinned ? (
                           <span className="inline-flex items-center gap-1 rounded-full bg-brand-gold/10 px-2 py-1 font-semibold text-brand-gold">
                             <Pin size={12} />
@@ -313,13 +313,13 @@ const WorkspacePage: React.FC = () => {
                         </p>
                       </Link>
 
-                      <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-brand-gray">
+                      <div className="mt-3 flex flex-wrap items-center gap-3 text-[12px] text-brand-gray font-medium">
                         <span className="inline-flex items-center gap-1">
                           <MessageSquare size={13} />
                           {post.commentCount || 0} 条评论
                         </span>
                         {post.tags.slice(0, 4).map((tag) => (
-                          <span key={tag} className="rounded-full bg-white px-2 py-1 text-[10px] font-semibold text-brand-dark">
+                          <span key={tag} className="rounded-full bg-white px-2 py-1 text-[11px] font-bold text-brand-dark border border-brand-border/10">
                             {tag}
                           </span>
                         ))}
@@ -383,7 +383,7 @@ const WorkspacePage: React.FC = () => {
               <div className="mb-4 flex items-center justify-between">
                 <div className="text-sm font-semibold text-brand-dark">当前客户上下文</div>
                 {hasCustomer ? (
-                  <button type="button" onClick={clearCustomer} className="text-[11px] text-brand-gray hover:text-brand-dark">
+                  <button type="button" onClick={clearCustomer} className="text-[12px] font-bold text-brand-gray hover:text-brand-dark">
                     清除
                   </button>
                 ) : null}
@@ -391,12 +391,12 @@ const WorkspacePage: React.FC = () => {
               {hasCustomer ? (
                 <div className="grid gap-3">
                   <div>
-                    <div className="text-[11px] text-brand-gray">客户名称</div>
+                    <div className="text-[12px] font-bold text-brand-gray">客户名称</div>
                     <div className="mt-1 text-sm font-semibold text-brand-dark">{customer.name}</div>
                   </div>
                   {customer.contactPerson ? (
                     <div>
-                      <div className="text-[11px] text-brand-gray">联系人</div>
+                      <div className="text-[12px] font-bold text-brand-gray">联系人</div>
                       <div className="mt-1 text-sm font-semibold text-brand-dark">{customer.contactPerson}</div>
                     </div>
                   ) : null}
@@ -426,7 +426,7 @@ const WorkspacePage: React.FC = () => {
                   recentArtifacts.map((item) => (
                     <div key={item.id} className="rounded-xl border border-brand-border/40 bg-brand-offwhite px-3 py-2">
                       <div className="text-sm font-semibold text-brand-dark">{item.title}</div>
-                      <div className="mt-1 text-[11px] text-brand-gray">{new Date(item.createdAt).toLocaleString('zh-CN')}</div>
+                      <div className="mt-1 text-[12px] font-medium text-brand-gray">{new Date(item.createdAt).toLocaleString('zh-CN')}</div>
                     </div>
                   ))
                 ) : (

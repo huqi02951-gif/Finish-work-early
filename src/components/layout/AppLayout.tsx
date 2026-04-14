@@ -69,8 +69,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack, theme 
             </Link>
           )}
             <div className="min-w-0">
-              <div className="truncate text-sm font-semibold">{title || 'Finish Work Early'}</div>
-              <div className={cn("truncate text-[11px]", isCli ? "text-green-500/60" : "text-brand-gray")}>
+              <div className="truncate text-[15px] font-bold tracking-tight">{title || 'Finish Work Early'}</div>
+              <div className={cn("truncate text-[12px] font-medium", isCli ? "text-green-500/60" : "text-brand-gray")}>
                 light shell / local-first
               </div>
             </div>
@@ -171,8 +171,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack, theme 
                     : (isActive ? "text-brand-dark" : "text-brand-gray hover:text-brand-dark")
                 )}
               >
-                <item.icon size={18} className={cn("transition-transform", isActive && "scale-110")} />
-                <span className="text-[10px] font-bold tracking-tight whitespace-nowrap">{item.label}</span>
+                <item.icon size={20} className={cn("transition-transform", isActive && "scale-110")} />
+                <span className="text-[11px] font-bold tracking-tight whitespace-nowrap">{item.label}</span>
               </Link>
             );
           })}
