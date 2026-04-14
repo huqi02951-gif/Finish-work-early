@@ -741,6 +741,55 @@ const BusinessGuide: React.FC = () => {
         )}
       </div>
 
+      {/* Mobile Hero: Prominent Product Quick-Access (only on mobile) */}
+      <div className="lg:hidden mb-6 animate-fade-in-up">
+        <p className="text-[10px] font-bold text-brand-gray uppercase tracking-widest opacity-50 mb-3">核心产品 — 点击进入</p>
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          {productCards.slice(0, 2).map(p => (
+            <button
+              key={p.id}
+              onClick={() => { setGuideType('product'); setSelectedId(p.id); setActiveTab('guide'); }}
+              className={cn(
+                "flex flex-col gap-2.5 p-4 rounded-2xl border text-left transition-all duration-300",
+                selectedId === p.id
+                  ? "bg-brand-dark text-white border-brand-dark shadow-xl"
+                  : "bg-white text-brand-dark border-brand-border/10 shadow-sm active:scale-95"
+              )}
+            >
+              <div className={cn(
+                "w-10 h-10 rounded-xl flex items-center justify-center",
+                selectedId === p.id ? "bg-white/15" : "bg-brand-gold/10"
+              )}>
+                <Briefcase size={18} className={selectedId === p.id ? "text-brand-gold" : "text-brand-dark"} />
+              </div>
+              <div>
+                <p className="text-sm font-bold leading-tight">{p.name}</p>
+                <p className={cn("text-[10px] mt-1 leading-snug line-clamp-2 opacity-60", selectedId === p.id ? "text-white" : "text-brand-gray")}>{p.category}</p>
+              </div>
+              <div className={cn("flex items-center gap-1 text-[10px] font-bold mt-auto", selectedId === p.id ? "text-brand-gold" : "text-apple-blue")}>
+                查看详情 <ChevronRight size={12} />
+              </div>
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={() => { setGuideType('product'); setSelectedId('product_comparison'); setActiveTab('guide'); }}
+          className={cn(
+            "w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition-all",
+            selectedId === 'product_comparison'
+              ? "bg-brand-gold/10 border-brand-gold/30"
+              : "bg-white border-brand-border/10 shadow-sm"
+          )}
+        >
+          <div className="flex items-center gap-2.5">
+            <RefreshCcw size={14} className="text-brand-gold shrink-0" />
+            <span className="text-xs font-bold text-brand-dark">产品实战对比</span>
+            <span className="text-[10px] text-brand-gray opacity-50">长易担 vs 长融保</span>
+          </div>
+          <ChevronRight size={14} className="text-brand-gray/40" />
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
             {/* Left Sidebar: Selection */}
             <div className="lg:col-span-3 space-y-6 md:space-y-8 animate-fade-in-up">

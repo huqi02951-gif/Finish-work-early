@@ -245,14 +245,33 @@ const ScenarioCenter: React.FC = () => {
         </header>
 
         {/* Segmented Tabs — sticks below the AppLayout header (z-50) */}
-        <div className="px-6 mb-8 sm:mb-16 sticky top-16 z-40 backdrop-blur-md py-4 bg-brand-offwhite/80">
-          <div className="max-w-fit mx-auto p-1 rounded-2xl border flex gap-1 bg-brand-light-gray/50 border-brand-border/5">
+        <div className="px-4 sm:px-6 mb-8 sm:mb-16 sticky top-16 z-40 backdrop-blur-md py-3 sm:py-4 bg-brand-offwhite/80">
+          {/* Mobile: 2×2 grid — prevents overflow on narrow screens */}
+          <div className="grid grid-cols-2 gap-2 sm:hidden">
             {SCENARIOS.map((s) => (
               <button
                 key={s.id}
                 onClick={() => handleTabChange(s.id)}
                 className={cn(
-                  "px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl text-[12px] sm:text-[14px] font-bold transition-all duration-500 whitespace-nowrap flex items-center gap-2",
+                  "flex items-center gap-2 px-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-300",
+                  activeTab === s.id
+                    ? "bg-brand-dark text-white shadow-lg"
+                    : "bg-brand-light-gray/60 text-brand-gray border border-brand-border/10"
+                )}
+              >
+                <s.icon size={15} className={cn(activeTab === s.id ? "text-brand-gold" : "opacity-40")} />
+                {s.title}
+              </button>
+            ))}
+          </div>
+          {/* Desktop: original horizontal pill tabs */}
+          <div className="hidden sm:flex max-w-fit mx-auto p-1 rounded-2xl border gap-1 bg-brand-light-gray/50 border-brand-border/5">
+            {SCENARIOS.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => handleTabChange(s.id)}
+                className={cn(
+                  "px-8 py-3 rounded-xl text-[14px] font-bold transition-all duration-500 whitespace-nowrap flex items-center gap-2",
                   activeTab === s.id
                     ? "bg-white text-brand-dark shadow-xl"
                     : "text-brand-gray hover:text-brand-dark hover:bg-white/50"

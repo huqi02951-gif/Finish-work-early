@@ -409,14 +409,33 @@ const ProductScenePage: React.FC = () => {
           <p className="text-xs text-brand-gray font-medium opacity-70">{product.overview}</p>
         </header>
 
-        {/* Quick Actions — 一键生成器 */}
-        <div className="px-4 sm:px-6 mb-3">
+        {/* Quick Actions — 两个独立大 CTA */}
+        <div className="px-4 sm:px-6 mb-4 grid grid-cols-2 gap-3">
+          {/* CTA 1: 生成检核表 */}
           <button
-            onClick={() => navigate(`/checklist-generator?product=${product.id}`)}
-            className="w-full flex items-center justify-center gap-2 bg-brand-dark text-white rounded-xl px-3 py-2.5 text-left hover:opacity-90 transition-all"
+            onClick={() => navigate(`/checklist-generator?product=${product.id}&mode=checklist`)}
+            className="flex flex-col items-start gap-2 bg-brand-dark text-white rounded-2xl p-4 hover:opacity-90 active:scale-95 transition-all shadow-lg"
           >
-            <ListChecks size={16} className="shrink-0" />
-            <span className="text-[11px] font-bold leading-tight">生成检核表 + 授信方案</span>
+            <div className="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center">
+              <ListChecks size={18} className="text-brand-gold" />
+            </div>
+            <div>
+              <p className="text-[13px] font-bold leading-snug">生成检核表</p>
+              <p className="text-[10px] text-white/50 mt-0.5 leading-tight">材料 · 准入 · 核查</p>
+            </div>
+          </button>
+          {/* CTA 2: 生成授信方案 */}
+          <button
+            onClick={() => navigate(`/checklist-generator?product=${product.id}&mode=creditplan`)}
+            className="flex flex-col items-start gap-2 bg-white text-brand-dark rounded-2xl p-4 border border-brand-border/10 hover:bg-brand-light-gray/50 active:scale-95 transition-all shadow-sm"
+          >
+            <div className="w-9 h-9 bg-brand-gold/10 rounded-xl flex items-center justify-center">
+              <FileText size={18} className="text-brand-dark" />
+            </div>
+            <div>
+              <p className="text-[13px] font-bold leading-snug text-brand-dark">生成授信方案</p>
+              <p className="text-[10px] text-brand-gray/50 mt-0.5 leading-tight">报告 · 摘要 · 上报</p>
+            </div>
           </button>
         </div>
 
