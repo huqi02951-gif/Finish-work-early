@@ -8,6 +8,7 @@ import {
 } from 'docx';
 import AppLayout from '../../src/components/layout/AppLayout';
 import { cn } from '../../lib/utils';
+import { useToast } from '../../src/components/common/Toast';
 
 type ProductType = 'chang_yi_dan' | 'chang_rong_bao';
 
@@ -540,6 +541,7 @@ async function buildCreditPlanWordDoc(product: ProductType, info: FormInfo): Pro
 
 const ChecklistGenerator: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const toast = useToast();
   const urlProduct = searchParams.get('product') as ProductType | null;
   const initialProduct = urlProduct === 'chang_rong_bao' ? 'chang_rong_bao' : 'chang_yi_dan';
 
@@ -627,7 +629,7 @@ const ChecklistGenerator: React.FC = () => {
       saveAs(blob, `${info.enterpriseName || '企业'}_${productName}业务检核表.docx`);
     } catch (err) {
       console.error('生成检核表失败', err);
-      alert('生成失败，请重试');
+      toast.error('生成失败，请重试');
     } finally { setIsGenerating(false); }
   };
 
@@ -638,7 +640,7 @@ const ChecklistGenerator: React.FC = () => {
       saveAs(blob, `${info.enterpriseName || '企业'}_${productName}授信方案.docx`);
     } catch (err) {
       console.error('生成授信方案失败', err);
-      alert('生成失败，请重试');
+      toast.error('生成失败，请重试');
     } finally { setIsGenerating(false); }
   };
 
@@ -653,7 +655,7 @@ const ChecklistGenerator: React.FC = () => {
       setTimeout(() => saveAs(cp, `${info.enterpriseName || '企业'}_${productName}授信方案.docx`), 500);
     } catch (err) {
       console.error('生成全部文档失败', err);
-      alert('生成失败，请重试');
+      toast.error('生成失败，请重试');
     } finally { setIsGenerating(false); }
   };
 
@@ -1020,12 +1022,12 @@ const ChecklistGenerator: React.FC = () => {
             <button onClick={() => setMobileTab('form')}
               className={cn('flex-1 py-2.5 rounded-md text-sm font-bold transition-all',
                 mobileTab === 'form' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-gray')}>
-              ✏️ 填写信息
+              <span className="font-medium">填写信息</span>
             </button>
             <button onClick={() => setMobileTab('preview')}
               className={cn('flex-1 py-2.5 rounded-md text-sm font-bold transition-all relative',
                 mobileTab === 'preview' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-gray')}>
-              📄 查看结果
+              <span className="font-medium">查看结果</span>
               {hasPreview && <span className="absolute top-1.5 right-2 w-1.5 h-1.5 bg-emerald-500 rounded-full" />}
             </button>
           </div>

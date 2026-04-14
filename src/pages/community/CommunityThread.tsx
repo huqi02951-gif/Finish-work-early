@@ -5,10 +5,12 @@ import CyberLayout from '../../components/layout/CyberLayout';
 import CommunityAccessGate from '../../components/community/CommunityAccessGate';
 import { apiService } from '../../services/api';
 import { Post as BackendPost } from '../../types';
+import { useToast } from '../../components/common/Toast';
 
 const CommunityThreadPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState<any>(null);
   const [content, setContent] = useState('');
@@ -42,15 +44,14 @@ const CommunityThreadPage: React.FC = () => {
       setAnonymous(false);
       await load();
     } catch (err) {
-      alert('评论失败，请检查登录状态');
+      toast.error('评论失败，请检查登录状态');
     } finally {
       setSubmitting(false);
     }
   };
 
   const handlePromote = async () => {
-    // Phase 2 feature
-    alert('专题晋升功能正在迁移中...');
+    toast.info('专题晋升功能正在迁移中...');
   };
 
   return (

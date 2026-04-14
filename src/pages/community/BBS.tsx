@@ -18,6 +18,7 @@ import CommunityAccessGate from '../../components/community/CommunityAccessGate'
 import { cn } from '../../../lib/utils';
 import { apiService } from '../../services/api';
 import { Post as BackendPost } from '../../types';
+import { useToast } from '../../components/common/Toast';
 
 const PANTRY_CHANNELS: CommunityChannel[] = ['匿名吐槽', 'Gossip 贴板', '二手交易'];
 const CHANNEL_FILTERS: Array<CommunityChannel | '全部'> = ['全部', ...PANTRY_CHANNELS];
@@ -29,6 +30,7 @@ const channelColorMap: Record<string, string> = {
 };
 
 const BBSPage: React.FC = () => {
+  const toast = useToast();
   const [entries, setEntries] = useState<BackendPost[]>([]);
   const [activeChannel, setActiveChannel] = useState<string | '全部'>('全部');
   const [searchQuery, setSearchQuery] = useState('');
@@ -89,7 +91,7 @@ const BBSPage: React.FC = () => {
       setComposerOpen(false);
       await load();
     } catch (err) {
-      alert('发布失败，请检查网络连接');
+      toast.error('发布失败，请检查网络连接');
     } finally {
       setSubmitting(false);
     }

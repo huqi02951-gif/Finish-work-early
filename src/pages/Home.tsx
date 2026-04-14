@@ -74,7 +74,7 @@ const Home: React.FC = () => {
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col shrink-0 mt-6 sm:mt-12"
           >
-            <h1 className="text-[4rem] sm:text-[6rem] lg:text-[7rem] font-bold tracking-tighter text-brand-dark leading-none flex items-end">
+            <h1 className="text-[3rem] sm:text-[4rem] md:text-[6rem] lg:text-[7rem] font-bold tracking-tighter text-brand-dark leading-none flex items-end">
               APEX<span className="text-brand-border animate-pulse ml-0.5 sm:ml-2 -mb-0.5 sm:-mb-2">_</span>
             </h1>
             

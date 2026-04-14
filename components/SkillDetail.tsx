@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { SKILLS } from '../constants/skills';
 import { cn } from '../lib/utils';
+import { useToast } from '../src/components/common/Toast';
 import { motion } from 'framer-motion';
 import AppLayout from '../src/components/layout/AppLayout';
 import { getSkillDetail } from '../src/services/contentApi';
@@ -15,6 +16,7 @@ import type { Skill } from '../types';
 const SkillDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const toast = useToast();
   const fallbackSkill = useMemo(() => SKILLS.find((item) => item.id === id), [id]);
   const [skill, setSkill] = useState<Skill | undefined>(fallbackSkill);
   const [loading, setLoading] = useState<boolean>(Boolean(id && !fallbackSkill));
@@ -290,7 +292,7 @@ const SkillDetail: React.FC = () => {
                   <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
                     {isOnline ? (
                       <button 
-                        onClick={() => skill.toolRoute ? navigate(skill.toolRoute) : alert('该工具正在部署中...')}
+                        onClick={() => skill.toolRoute ? navigate(skill.toolRoute) : toast.info('该工具正在部署中...')}
                         className="px-8 py-4 sm:px-12 sm:py-5 bg-brand-gold text-brand-dark rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:shadow-2xl hover:shadow-brand-gold/40 transition-all flex items-center justify-center gap-3 active:scale-95"
                       >
                         <Play className="w-5 h-5 sm:w-6 sm:h-6" /> 在线运行

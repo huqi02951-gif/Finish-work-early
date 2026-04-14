@@ -1,13 +1,13 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { 
-  ChevronRight, 
-  ChevronLeft, 
-  RotateCcw, 
-  Copy, 
-  Download, 
-  FileText, 
-  CheckCircle2, 
+import {
+  ChevronRight,
+  ChevronLeft,
+  RotateCcw,
+  Copy,
+  Download,
+  FileText,
+  CheckCircle2,
   AlertCircle,
   Building2,
   CreditCard,
@@ -22,6 +22,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
 import { SaveHistoryButton, HistoryPanel } from './shared/ActionBar';
+import { useToast } from '../src/components/common/Toast';
 import { 
   COUNTER_BUSINESS, 
   CREDIT_BUSINESS, 
@@ -47,6 +48,7 @@ interface CustomerInfo {
 
 const MaterialChecklistCenter: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const toast = useToast();
   const [step, setStep] = useState<Step>('category');
   const [showInfoForm, setShowInfoForm] = useState(false);
   const [mainType, setMainType] = useState<'counter' | 'credit' | null>(null);
@@ -143,8 +145,7 @@ const MaterialChecklistCenter: React.FC = () => {
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    // Using a more subtle notification instead of alert if possible, but alert is fine for now as per instructions
-    alert(`${label}已复制到剪贴板`);
+    toast.success(`${label}已复制到剪贴板`);
   };
 
   const exportExcel = () => {

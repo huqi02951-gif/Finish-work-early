@@ -84,7 +84,7 @@ const Feed: React.FC = () => {
         <span className="text-sm">●</span>
         <span className="text-[11px] text-emerald-700 font-medium">Phase 1 后端联通模式 · 内容来自真实 API 和数据库</span>
       </div>
-      <div className="sticky top-14 z-40 bg-brand-offwhite/80 backdrop-blur-md border-b border-brand-border/5 px-4 py-3 space-y-3">
+      <div className="sticky top-[3.5rem] z-40 bg-brand-offwhite/80 backdrop-blur-md border-b border-brand-border/5 px-4 py-3 space-y-3">
         {shareTip && (
           <div className="px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200/70 text-[11px] text-emerald-700 font-medium">
             {shareTip}
@@ -103,7 +103,7 @@ const Feed: React.FC = () => {
             placeholder="搜索政策、话术、打法..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-white border border-brand-border/10 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-gold/20 transition-all"
+            className="w-full pl-10 pr-4 py-2 bg-white border border-brand-border/10 rounded-xl text-base outline-none focus:ring-2 focus:ring-brand-gold/20 transition-all"
           />
         </div>
 

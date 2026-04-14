@@ -5,10 +5,12 @@ import AppLayout from '../../components/layout/AppLayout';
 import { forumApi } from '../../services/forumApi';
 import { getAuthSession } from '../../services/authService';
 import type { Comment, Post } from '../../types';
+import { useToast } from '../../components/common/Toast';
 
 const FormalThreadPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -44,7 +46,7 @@ const FormalThreadPage: React.FC = () => {
 
     const session = getAuthSession();
     if (!session || session.loginMethod === 'demo') {
-      alert('请先登录后再回复');
+      toast.warning('请先登录后再回复');
       navigate('/login');
       return;
     }
@@ -55,8 +57,7 @@ const FormalThreadPage: React.FC = () => {
       setContent('');
       await load();
     } catch (err) {
-      const message = err instanceof Error ? err.message : '回复失败';
-      alert(message);
+      toast.error(err instanceof Error ? err.message : '回复失败');
     } finally {
       setSubmitting(false);
     }

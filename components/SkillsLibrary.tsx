@@ -105,14 +105,14 @@ const SkillsLibrary: React.FC = () => {
             <input
               type="text"
               placeholder="搜索工具名称或关键词..."
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-brand-border/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-apple-blue/20 transition-all text-xs font-medium"
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-brand-border/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-apple-blue/20 transition-all text-base font-medium"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          {/* Scene Tag Filter — 核心新增 */}
-          <div className="flex gap-1.5 flex-wrap">
+          {/* Scene Tag Filter — 手机端横向滚动，桌面端换行 */}
+          <div className="flex gap-1.5 overflow-x-auto no-scrollbar sm:flex-wrap">
             {SCENE_TAG_OPTIONS.map((tag) => {
               const Icon = SCENE_ICON[tag];
               return (
@@ -133,8 +133,8 @@ const SkillsLibrary: React.FC = () => {
             })}
           </div>
 
-          {/* Status Filter */}
-          <div className="flex gap-1.5 flex-wrap">
+          {/* Status Filter — 手机端横向滚动 */}
+          <div className="flex gap-1.5 overflow-x-auto no-scrollbar sm:flex-wrap">
             {filterOptions.map((option) => (
               <button
                 key={option}

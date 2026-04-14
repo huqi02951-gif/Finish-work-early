@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import { cn } from '../../lib/utils';
 import AppLayout from '../../src/components/layout/AppLayout';
+import { useToast } from '../../src/components/common/Toast';
 
 const CATALOG: Record<string, any> = {
   "对公汇兑汇划费（免费）": { "业务种类": "对公汇兑汇划费", "原执行标准": "20万以下免费，20万以上每笔5元。", "具体优惠明细": "免费", "涉外": false, "默认分行": "厦门分行", "默认勾选": true, "简称": "转账手续费" },
@@ -26,6 +27,7 @@ const CATALOG: Record<string, any> = {
 
 const FeeDiscountTool: React.FC = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [globalInfo, setGlobalInfo] = useState({
     dept: '科技业务部',
     contact: '13666069043',
@@ -87,7 +89,7 @@ const FeeDiscountTool: React.FC = () => {
   const generate = () => {
     const validCompanies = companies.filter(c => c.name && c.eva);
     if (validCompanies.length === 0) {
-      alert('请至少填写一家企业的名称和EVA');
+      toast.warning('请至少填写一家企业的名称和EVA');
       return;
     }
 

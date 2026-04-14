@@ -5,9 +5,11 @@ import { cn } from '../../lib/utils';
 import AppLayout from '../../src/components/layout/AppLayout';
 import { ActionBar } from '../shared/ActionBar';
 import { buildAcceptanceDocx } from '../../lib/exportDocx';
+import { useToast } from '../../src/components/common/Toast';
 
 const AcceptanceCalculator: React.FC = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [formData, setFormData] = useState({
     corp: '',
     billAmt: '',
@@ -103,7 +105,7 @@ const AcceptanceCalculator: React.FC = () => {
     const daysInput = formData.days;
 
     if (Number.isNaN(billInput) && Number.isNaN(depositInput)) {
-      alert('请至少填写拟开票金额或拟存定期中的一项（单位：万元）');
+      toast.warning('请至少填写拟开票金额或拟存定期中的一项（单位：万元）');
       return;
     }
 

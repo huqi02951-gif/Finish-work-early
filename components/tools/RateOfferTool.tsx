@@ -5,6 +5,7 @@ import { cn } from '../../lib/utils';
 import AppLayout from '../../src/components/layout/AppLayout';
 import { ActionBar } from '../shared/ActionBar';
 import { buildRateOfferDocx } from '../../lib/exportDocx';
+import { useToast } from '../../src/components/common/Toast';
 
 // --- Data from JSON ---
 const CONFIG = {
@@ -98,6 +99,7 @@ const CONFIG = {
 
 const RateOfferTool: React.FC = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [formData, setFormData] = useState({
     branch: '科技业务部',
     cust: '',
@@ -153,7 +155,7 @@ const RateOfferTool: React.FC = () => {
 
   const generateResult = () => {
     if (!formData.cust || !formData.amt || !formData.rate) {
-      alert('请填写客户名称、金额和利率');
+      toast.warning('请填写客户名称、金额和利率');
       return;
     }
 

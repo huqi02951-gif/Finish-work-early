@@ -15,6 +15,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import AppLayout from '../../src/components/layout/AppLayout';
+import { useToast } from '../../src/components/common/Toast';
 
 interface BillingItem {
   id: string;
@@ -25,6 +26,7 @@ interface BillingItem {
 
 const BatchBillingTool: React.FC = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [formData, setFormData] = useState({
     companyName: '厦门某某贸易有限公司',
     accountNumber: '1290 8888 9999 0000',
@@ -63,12 +65,11 @@ const BatchBillingTool: React.FC = () => {
   };
 
   const handleDownloadPackage = () => {
-    // Placeholder for actual package download
-    alert('正在准备本地工具包下载...\n包含：\n1. batch_billing.py (Python 脚本)\n2. template_billing.docx (Word 模板)\n3. config.json (配置文件)');
+    toast.info('正在准备本地工具包下载...');
   };
 
   const handleGenerate = () => {
-    alert('正在根据填写信息生成文档...\n(此功能后续将集成 Python 脚本能力，目前为演示状态)');
+    toast.info('正在根据填写信息生成文档...');
   };
 
   return (

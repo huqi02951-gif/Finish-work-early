@@ -4,9 +4,11 @@ import { BookOpenText, MessageSquare, Send } from 'lucide-react';
 import AppLayout from '../../components/layout/AppLayout';
 import { apiService } from '../../services/api';
 import type { Post } from '../../types';
+import { useToast } from '../../components/common/Toast';
 
 const CommunityTopicPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [post, setPost] = useState<Post | null>(null);
   const [content, setContent] = useState('');
@@ -40,7 +42,7 @@ const CommunityTopicPage: React.FC = () => {
       setAnonymous(false);
       await load();
     } catch (err) {
-      alert('提交失败');
+      toast.error('提交失败');
     } finally {
       setSubmitting(false);
     }

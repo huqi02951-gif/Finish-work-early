@@ -1,5 +1,6 @@
 import React from 'react';
 import { HashRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { ToastProvider } from './components/common/Toast';
 import AppLayout from './components/layout/AppLayout';
 import Feedback from '../components/Feedback';
 import ApexPreviewPage from '../components/ApexPreviewPage';
@@ -51,54 +52,56 @@ const NotFoundPage = () => (
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        {/* ─── 登录页 ─── */}
-        <Route path="/login" element={<LoginPage />} />
+    <ToastProvider>
+      <Router>
+        <Routes>
+          {/* ─── 登录页 ─── */}
+          <Route path="/login" element={<LoginPage />} />
 
-        {/* ─── 首页 & 社交页（自带 AppLayout） ─── */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/feed" element={<FeedPage />} />
-        <Route path="/publish" element={<PublishPage />} />
-        <Route path="/messages" element={<MessagesPage />} />
+          {/* ─── 首页 & 社交页（自带 AppLayout） ─── */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/feed" element={<FeedPage />} />
+          <Route path="/publish" element={<PublishPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
 
-        {/* ─── 场景中心（自带 AppLayout） ─── */}
-        <Route path="/scenarios" element={<ScenarioCenter />} />
+          {/* ─── 场景中心（自带 AppLayout） ─── */}
+          <Route path="/scenarios" element={<ScenarioCenter />} />
 
-        {/* ─── 业务工具（组件内自带 AppLayout，此处直接渲染） ─── */}
-        <Route path="/skills" element={<SkillsLibrary />} />
-        <Route path="/skills/:id" element={<SkillDetail />} />
-        <Route path="/rate-offer" element={<RateOfferTool />} />
-        <Route path="/acceptance-calculator" element={<AcceptanceCalculator />} />
-        <Route path="/fee-discount" element={<FeeDiscountTool />} />
-        <Route path="/news-assistant" element={<NewsTypesettingAssistant />} />
-        <Route path="/batch-billing" element={<BatchBillingTool />} />
-        <Route path="/sensitive-comm" element={<SensitiveCommAssistant />} />
-        <Route path="/business-guide" element={<BusinessGuide />} />
-        <Route path="/product-scene" element={<ProductScenePage />} />
-        <Route path="/apex-preview" element={<ApexPreviewPage />} />
-        <Route path="/material-checklist" element={<AppLayout title="材料清单中心" showBack><MaterialChecklistCenter /></AppLayout>} />
-        <Route path="/checklist-generator" element={<AppLayout title="检核表生成器" showBack><ChecklistGenerator /></AppLayout>} />
+          {/* ─── 业务工具（组件内自带 AppLayout，此处直接渲染） ─── */}
+          <Route path="/skills" element={<SkillsLibrary />} />
+          <Route path="/skills/:id" element={<SkillDetail />} />
+          <Route path="/rate-offer" element={<RateOfferTool />} />
+          <Route path="/acceptance-calculator" element={<AcceptanceCalculator />} />
+          <Route path="/fee-discount" element={<FeeDiscountTool />} />
+          <Route path="/news-assistant" element={<NewsTypesettingAssistant />} />
+          <Route path="/batch-billing" element={<BatchBillingTool />} />
+          <Route path="/sensitive-comm" element={<SensitiveCommAssistant />} />
+          <Route path="/business-guide" element={<BusinessGuide />} />
+          <Route path="/product-scene" element={<ProductScenePage />} />
+          <Route path="/apex-preview" element={<ApexPreviewPage />} />
+          <Route path="/material-checklist" element={<AppLayout title="材料清单中心" showBack><MaterialChecklistCenter /></AppLayout>} />
+          <Route path="/checklist-generator" element={<AppLayout title="检核表生成器" showBack><ChecklistGenerator /></AppLayout>} />
 
-        {/* ─── 信息页（组件内自带 AppLayout） ─── */}
-        <Route path="/updates" element={<UpdateLog />} />
-        <Route path="/feedback" element={<Feedback />} />
-        <Route path="/bbs" element={<BBSPage />} />
-        <Route path="/bbs/thread/:id" element={<CommunityThreadPage />} />
-        <Route path="/bbs/topic/:id" element={<CommunityTopicPage />} />
-        <Route path="/instructions" element={<AppLayout title="使用说明" showBack><UsageInstructions /></AppLayout>} />
-        <Route path="/manual" element={<UserManual />} />
+          {/* ─── 信息页（组件内自带 AppLayout） ─── */}
+          <Route path="/updates" element={<UpdateLog />} />
+          <Route path="/feedback" element={<Feedback />} />
+          <Route path="/bbs" element={<BBSPage />} />
+          <Route path="/bbs/thread/:id" element={<CommunityThreadPage />} />
+          <Route path="/bbs/topic/:id" element={<CommunityTopicPage />} />
+          <Route path="/instructions" element={<AppLayout title="使用说明" showBack><UsageInstructions /></AppLayout>} />
+          <Route path="/manual" element={<UserManual />} />
 
-        {/* ─── 工作台 ─── */}
-        <Route path="/workspace" element={<WorkspacePage />} />
-        <Route path="/formal/thread/:id" element={<FormalThreadPage />} />
-        <Route path="/formal/topic/:id" element={<FormalTopicPage />} />
+          {/* ─── 工作台 ─── */}
+          <Route path="/workspace" element={<WorkspacePage />} />
+          <Route path="/formal/thread/:id" element={<FormalThreadPage />} />
+          <Route path="/formal/topic/:id" element={<FormalTopicPage />} />
 
-        {/* ─── 404 Fallback ─── */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Router>
+          {/* ─── 404 Fallback ─── */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Router>
+    </ToastProvider>
   );
 };
 

@@ -11,11 +11,13 @@ import {
   Wrench,
 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
+import { cn } from '../../lib/utils';
 import { db, type GeneratedArtifact } from '../../lib/localDB';
 import { useCustomer } from '../../lib/CustomerContext';
 import { forumApi } from '../services/forumApi';
 import { getAuthSession } from '../services/authService';
 import type { ForumBoard, Post } from '../types';
+import { useToast } from '../components/common/Toast';
 
 const TOOL_META: Record<string, { name: string; path: string }> = {
   'sensitive-comm': { name: '敏感沟通助手', path: '/sensitive-comm' },
@@ -28,6 +30,7 @@ const DEFAULT_BOARD = 'experience-sharing';
 
 const WorkspacePage: React.FC = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const { customer, setCustomer, clearCustomer, hasCustomer } = useCustomer();
   const [boards, setBoards] = useState<ForumBoard[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -42,6 +45,7 @@ const WorkspacePage: React.FC = () => {
     content: '',
     tags: '',
   });
+  const [mobileTab, setMobileTab] = useState<'posts' | 'tools'>('posts');
 
   const quickTools = useMemo(
     () => ['sensitive-comm', 'rate-offer', 'acceptance-calc', 'material-checklist'].map((id) => ({ id, ...TOOL_META[id] })),
@@ -94,7 +98,7 @@ const WorkspacePage: React.FC = () => {
 
     const session = getAuthSession();
     if (!session || session.loginMethod === 'demo') {
-      alert('请先登录后再发帖');
+      toast.warning('请先登录后再发帖');
       navigate('/login');
       return;
     }
@@ -120,7 +124,7 @@ const WorkspacePage: React.FC = () => {
       await loadCommunity();
     } catch (error) {
       const message = error instanceof Error ? error.message : '发帖失败';
-      alert(message);
+      toast.error(message);
     }
   };
 
@@ -159,9 +163,26 @@ const WorkspacePage: React.FC = () => {
           </div>
         </section>
 
+        {/* Mobile Tab Switcher */}
+        <div className="flex gap-1 mb-2 bg-brand-offwhite/80 rounded-xl p-1 sm:hidden">
+          <button onClick={() => setMobileTab('posts')}
+            className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${mobileTab === 'posts' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-gray'}`}>
+            帖子
+          </button>
+          <button onClick={() => setMobileTab('tools')}
+            className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${mobileTab === 'tools' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-gray'}`}>
+            工具 & 帮助
+          </button>
+        </div>
+
         <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
           <div className="flex flex-col gap-6">
-            <section className="rounded-xl border border-brand-border/50 bg-white p-5">
+            {/* Board filter — hidden on mobile when tools tab is active */}
+            <section className={cn(
+              "rounded-xl border border-brand-border/50 bg-white p-5",
+              "lg:block",
+              mobileTab === 'tools' ? "hidden sm:block" : "block",
+            )}>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -198,7 +219,7 @@ const WorkspacePage: React.FC = () => {
                     <select
                       value={form.boardSlug}
                       onChange={(event) => setForm((current) => ({ ...current, boardSlug: event.target.value }))}
-                      className="rounded-xl border border-brand-border/50 bg-white px-3 py-2 text-sm outline-none"
+                      className="rounded-xl border border-brand-border/50 bg-white px-3 py-2 text-base outline-none"
                     >
                       {displayBoards.map((board) => (
                         <option key={board.slug} value={board.slug}>
@@ -209,7 +230,7 @@ const WorkspacePage: React.FC = () => {
                     <input
                       value={form.title}
                       onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
-                      className="rounded-xl border border-brand-border/50 bg-white px-3 py-2 text-sm outline-none"
+                      className="rounded-xl border border-brand-border/50 bg-white px-3 py-2 text-base outline-none"
                       placeholder="一句话概括你的经验或问题"
                       required
                     />
@@ -217,14 +238,14 @@ const WorkspacePage: React.FC = () => {
                   <textarea
                     value={form.content}
                     onChange={(event) => setForm((current) => ({ ...current, content: event.target.value }))}
-                    className="min-h-28 rounded-xl border border-brand-border/50 bg-white px-3 py-2 text-sm leading-6 outline-none"
+                    className="min-h-28 rounded-xl border border-brand-border/50 bg-white px-3 py-2 text-base leading-6 outline-none"
                     placeholder="写清楚场景、客户情况、你的判断和实际结果，后面的同事才真能用。"
                     required
                   />
                   <input
                     value={form.tags}
                     onChange={(event) => setForm((current) => ({ ...current, tags: event.target.value }))}
-                    className="rounded-xl border border-brand-border/50 bg-white px-3 py-2 text-sm outline-none"
+                    className="rounded-xl border border-brand-border/50 bg-white px-3 py-2 text-base outline-none"
                     placeholder="标签，多个用逗号分隔，例如：长易担, 制造业, 进门打法"
                   />
                   <div className="flex justify-end gap-3">
@@ -306,7 +327,11 @@ const WorkspacePage: React.FC = () => {
             </section>
           </div>
 
-          <div className="flex flex-col gap-6">
+          <div className={cn(
+            "flex flex-col gap-6",
+            "lg:block",
+            mobileTab === 'posts' ? "hidden sm:flex" : "flex",
+          )}>
             <section className="rounded-xl border border-brand-border/50 bg-white p-5">
               <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-brand-dark">
                 <Sparkles size={16} className="text-brand-gold" />
@@ -371,7 +396,7 @@ const WorkspacePage: React.FC = () => {
               ) : (
                 <input
                   placeholder="输入名称后回车，锁定客户上下文"
-                  className="w-full rounded-xl border border-brand-border/50 bg-brand-offwhite px-3 py-2 text-sm outline-none"
+                  className="w-full rounded-xl border border-brand-border/50 bg-brand-offwhite px-3 py-2 text-base outline-none"
                   onKeyDown={(event) => {
                     const value = (event.target as HTMLInputElement).value.trim();
                     if (event.key === 'Enter' && value) {
