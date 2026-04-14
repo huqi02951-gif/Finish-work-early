@@ -8,6 +8,7 @@ import {
   Pin,
   Plus,
   Sparkles,
+  Terminal,
   Wrench,
 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
@@ -145,6 +146,13 @@ const WorkspacePage: React.FC = () => {
             </div>
 
             <div className="flex flex-wrap gap-2">
+              <Link
+                to="/bbs/pantry"
+                className="inline-flex items-center gap-2 rounded-lg border border-[#00ff41]/30 bg-[#050505] px-3 py-2 text-xs font-semibold text-[#00ff41] hover:bg-[#00ff41]/10 transition-colors"
+              >
+                <Terminal size={14} />
+                地下茶水间
+              </Link>
               <Link
                 to="/instructions"
                 className="inline-flex items-center gap-2 rounded-lg border border-brand-border/40 bg-white px-3 py-2 text-xs font-semibold text-brand-dark hover:bg-brand-offwhite transition-colors"

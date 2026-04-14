@@ -27,6 +27,11 @@ import ProfilePage from './pages/Profile';
 import PublishPage from './pages/Publish';
 import WorkspacePage from './pages/Workspace';
 import BBSPage from './pages/community/BBS';
+import BBSHomePage from './pages/community/BBSHome';
+import PantryPage from './pages/community/PantryPage';
+import PantryThreadPage from './pages/community/PantryThreadPage';
+import ProfessionalZonePage from './pages/community/ProfessionalZone';
+import ComposePage from './pages/community/ComposePage';
 import CommunityThreadPage from './pages/community/CommunityThread';
 import CommunityTopicPage from './pages/community/CommunityTopic';
 import FormalThreadPage from './pages/community/FormalThread';
@@ -86,9 +91,19 @@ const App: React.FC = () => {
           {/* ─── 信息页（组件内自带 AppLayout） ─── */}
           <Route path="/updates" element={<UpdateLog />} />
           <Route path="/feedback" element={<Feedback />} />
-          <Route path="/bbs" element={<BBSPage />} />
+
+          {/* ─── BBS 社区（双区架构） ─── */}
+          <Route path="/bbs" element={<BBSHomePage />} />
+          <Route path="/bbs/legacy" element={<BBSPage />} />
+          <Route path="/bbs/professional" element={<ProfessionalZonePage />} />
+          <Route path="/bbs/pantry" element={<PantryPage />} />
+          <Route path="/bbs/pantry/thread/:id" element={<PantryThreadPage />} />
+          <Route path="/bbs/compose" element={<ComposePage />} />
+
+          {/* ─── 旧版社区路由（兼容） ─── */}
           <Route path="/bbs/thread/:id" element={<CommunityThreadPage />} />
           <Route path="/bbs/topic/:id" element={<CommunityTopicPage />} />
+
           <Route path="/instructions" element={<AppLayout title="使用说明" showBack><UsageInstructions /></AppLayout>} />
           <Route path="/manual" element={<UserManual />} />
 
