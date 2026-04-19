@@ -16,7 +16,7 @@ import {
 import CyberLayout from '../../components/layout/CyberLayout';
 import CommunityAccessGate from '../../components/community/CommunityAccessGate';
 import { cn } from '../../../lib/utils';
-import { apiService } from '../../services/api';
+import { forumApi } from '../../services/forumApi';
 import { Post as BackendPost } from '../../types';
 import { useToast } from '../../components/common/Toast';
 
@@ -48,7 +48,12 @@ const BBSPage: React.FC = () => {
     setLoading(true);
     try {
       const category = activeChannel === '全部' ? undefined : activeChannel;
-      const loadedItems = await apiService.getPosts(category);
+      const response = await forumApi.getPosts({
+        legacy: true,
+        category,
+        pageSize: 100,
+      });
+      const loadedItems = response.items;
       // For the BBS page, we mainly focus on the "pantry" categories if it's "All"
       const filteredItems = activeChannel === '全部' 
         ? loadedItems.filter((item) => PANTRY_CHANNELS.includes(item.category as any))
@@ -69,7 +74,7 @@ const BBSPage: React.FC = () => {
     const query = searchQuery.trim().toLowerCase();
     if (!query) return entries;
     return entries.filter((entry) =>
-      [entry.title, entry.content, entry.author, entry.channel]
+      [entry.title, entry.content, entry.author?.nickname, entry.category]
         .join(' ')
         .toLowerCase()
         .includes(query),
@@ -82,7 +87,7 @@ const BBSPage: React.FC = () => {
 
     setSubmitting(true);
     try {
-      await apiService.createPost({
+      await forumApi.createPost({
         title: form.title.trim(),
         content: form.content.trim(),
         category: form.channel,

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, MessageSquare, Heart, ShieldCheck, ChevronRight } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
-import { apiService } from '../services/api';
+import { MOCK_NOTIFICATIONS } from '../mock/data';
 import { Notification } from '../types';
 import { cn } from '../../lib/utils';
 
@@ -11,13 +11,12 @@ const Messages: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchNotifications = async () => {
+    const loadNotifications = () => {
       setIsLoading(true);
-      const data = await apiService.getNotifications();
-      setNotifications(data);
+      setNotifications(MOCK_NOTIFICATIONS);
       setIsLoading(false);
     };
-    fetchNotifications();
+    loadNotifications();
   }, []);
 
   const getIcon = (type: string) => {

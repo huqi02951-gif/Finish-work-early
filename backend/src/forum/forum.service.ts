@@ -9,17 +9,20 @@ import { PrismaService } from '../prisma/prisma.service';
 
 type ListPostsParams = {
   boardSlug?: string;
+  category?: string;
   postType?: string;
   status?: string;
   isOfficial?: string;
   tag?: string;
   q?: string;
+  legacy?: boolean | string;
   page?: number;
   pageSize?: number;
 };
 
 type CreatePostInput = {
   boardSlug?: string;
+  category?: string;
   title?: string;
   summary?: string;
   content?: string;
@@ -175,22 +178,23 @@ export class ForumService {
   }
 
   async createPost(userId: number, input: CreatePostInput) {
-    const board = await this.requireBoard(input.boardSlug);
+    const board = await this.resolveBoardForCreate(input);
     const title = this.requireText(input.title, 'title');
     const content = this.requireText(input.content, 'content');
     const summary = this.normalizeOptionalText(input.summary);
     const postType = this.parsePostType(input.postType, PostType.DISCUSSION);
-    const status = board.requiresReview ? PostStatus.PENDING : PostStatus.PUBLISHED;
+    const category = board?.name ?? this.requireText(input.category, 'category');
+    const status = board?.requiresReview ? PostStatus.PENDING : PostStatus.PUBLISHED;
 
     const post = await this.prisma.$transaction(async (tx) => {
       const created = await tx.post.create({
         data: {
-          boardId: board.id,
+          boardId: board?.id,
           title,
           summary,
           content,
           contentData: input.contentData ?? undefined,
-          category: board.name,
+          category,
           postType,
           sourceType: PostSourceType.USER,
           isOfficial: false,
@@ -660,6 +664,7 @@ export class ForumService {
     params: ListPostsParams & { includeHidden: boolean },
     includeHidden: boolean,
   ): Prisma.PostWhereInput {
+    const includeLegacy = String(params.legacy) === 'true';
     const where: Prisma.PostWhereInput = {
       ...(includeHidden
         ? {}
@@ -667,7 +672,16 @@ export class ForumService {
             deletedAt: null,
             status: 'PUBLISHED',
           }),
+      ...(!includeLegacy && !params.category && !params.boardSlug ? { boardId: { not: null } } : {}),
       ...(params.boardSlug ? { board: { slug: params.boardSlug } } : {}),
+      ...(params.category
+        ? {
+            category: {
+              equals: params.category,
+              mode: 'insensitive',
+            },
+          }
+        : {}),
       ...(params.postType ? { postType: this.parsePostType(params.postType, PostType.DISCUSSION) } : {}),
       ...(params.status ? { status: this.parsePostStatus(params.status, PostStatus.PUBLISHED) } : {}),
       ...(params.isOfficial !== undefined
@@ -698,6 +712,35 @@ export class ForumService {
     }
 
     return where;
+  }
+
+  private async resolveBoardForCreate(input: CreatePostInput) {
+    if (input.boardSlug) {
+      return this.requireBoard(input.boardSlug);
+    }
+
+    const mappedBoardSlug = this.mapLegacyCategoryToBoardSlug(input.category);
+    if (!mappedBoardSlug) {
+      return null;
+    }
+
+    return this.requireBoard(mappedBoardSlug);
+  }
+
+  private mapLegacyCategoryToBoardSlug(category?: string | null) {
+    const normalizedCategory = this.normalizeOptionalText(category);
+    if (!normalizedCategory) return null;
+
+    const legacyCategoryBoardMap: Record<string, string> = {
+      '经验分享': 'experience-sharing',
+      '系统操作': 'system-operations',
+      '合规探讨': 'compliance-discussion',
+      '产品实战': 'product-practice',
+      'Skills 交流': 'skills-discussion',
+      'Skills交流': 'skills-discussion',
+    };
+
+    return legacyCategoryBoardMap[normalizedCategory] || null;
   }
 
   private async requireBoard(boardSlug?: string) {

@@ -3,14 +3,17 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { EmailAuthModule } from './email-auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { getJwtSecret, getJwtSignOptions } from './auth.config';
 
 @Module({
   imports: [
     EmailAuthModule,
-    JwtModule.register({
-      global: true,
-      secret: process.env.JWT_SECRET || 'FINISH_WORK_PHASE_1_SECRET',
-      signOptions: { expiresIn: '7d' },
+    JwtModule.registerAsync({
+      useFactory: () => ({
+        global: true,
+        secret: getJwtSecret(),
+        signOptions: getJwtSignOptions(),
+      }),
     }),
   ],
   controllers: [AuthController],

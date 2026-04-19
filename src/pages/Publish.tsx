@@ -3,7 +3,7 @@ import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Image, Tag, Send, AlertCircle, Lock } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
-import { apiService } from '../services/api';
+import { forumApi } from '../services/forumApi';
 import { getAuthSession } from '../services/authService';
 import { cn } from '../../lib/utils';
 
@@ -34,7 +34,7 @@ const Publish: React.FC = () => {
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      await apiService.createPost({ title, content, category });
+      await forumApi.createPost({ title, content, category });
       setShowSuccess(true);
       redirectTimerRef.current = window.setTimeout(() => navigate('/feed'), 1500);
     } catch (error) {

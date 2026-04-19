@@ -210,6 +210,8 @@ export const forumApi = {
 
   async getPosts(params: {
     boardSlug?: string;
+    category?: string;
+    legacy?: boolean;
     postType?: string;
     isOfficial?: boolean;
     tag?: string;
@@ -249,7 +251,8 @@ export const forumApi = {
   },
 
   async createPost(input: {
-    boardSlug: string;
+    boardSlug?: string;
+    category?: string;
     title: string;
     content: string;
     summary?: string;

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { PostsModule } from '../posts/posts.module';
+import { ForumModule } from '../forum/forum.module';
 
 @Module({
-  imports: [PostsModule],
+  imports: [ForumModule],
   controllers: [UsersController],
   providers: [UsersService],
 })

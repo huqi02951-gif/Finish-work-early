@@ -219,6 +219,40 @@ const Profile: React.FC = () => {
           </div>
         </section>
 
+        {/* Experience Badges & Check-in (Task 3 / 5 Enhancements) */}
+        <section className="border border-[#00ff41]/20 p-3 bg-[#0a0a0a]">
+          <div className="text-[#00ff41] text-[10px] mb-3 pb-1 border-b border-[#00ff41]/20 flex justify-between items-center">
+            <span className="flex items-center gap-1"><Shield className="w-3 h-3"/> 职场挂件与徽章库 (Badges)</span>
+            {/* 每日签到/工作打卡 (Punch in) UI */}
+            <button className="flex items-center gap-1 bg-[#00ff41]/10 hover:bg-[#00ff41]/20 px-2 py-0.5 border border-[#00ff41]/30 transition-all active:scale-95 group">
+              <span className="text-[#00ff41] text-[9px] font-bold">今日打卡</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-[#00ff41] animate-pulse" />
+            </button>
+          </div>
+          <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
+             <div className="shrink-0 flex flex-col items-center gap-1 w-12 opacity-50 hover:opacity-100 transition-opacity">
+               <div className="w-8 h-8 flex items-center justify-center rounded-sm border border-[#00ff41]/40 bg-[#00ff41]/5 text-[#00FFAA] shadow-[0_0_8px_rgba(0,255,170,0.1)]">
+                 <TerminalSquare size={14} />
+               </div>
+               <span className="text-[8px] font-mono text-[#00ff41]/70">创作者</span>
+             </div>
+             
+             <div className="shrink-0 flex flex-col items-center gap-1 w-12 opacity-30">
+               <div className="w-8 h-8 flex items-center justify-center rounded-sm border border-dashed border-[#00ff41]/20 bg-black text-[#00ff41]/30">
+                 <Briefcase size={14} />
+               </div>
+               <span className="text-[8px] font-mono text-[#00ff41]/40">10W+贴</span>
+             </div>
+
+             <div className="shrink-0 flex flex-col items-center gap-1 w-12 opacity-30">
+               <div className="w-8 h-8 flex items-center justify-center rounded-sm border border-dashed border-[#00ff41]/20 bg-black text-[#00ff41]/30">
+                 <MessageSquare size={14} />
+               </div>
+               <span className="text-[8px] font-mono text-[#00ff41]/40">意见领袖</span>
+             </div>
+          </div>
+        </section>
+
         {/* Salary Matrix */}
         <section className={cn(
           "border border-[#00ff41]/30 p-3 relative",

@@ -1,18 +1,15 @@
 /**
  * SkillsLibrary — Skills 工具库
  *
- * 改造点：
- * 1. 新增场景标签筛选（对客户/对审查/对中后台/对自己）
- * 2. 卡片风格从宣传式改为工具式紧凑风格
- * 3. 强化：名称、标签、适用场景、核心输入、立即使用
- * 4. 弱化：大段描述文案
- *
- * 数据来源优先级：API > 本地 SKILLS 常量
- * 后续接数据库时，只需调整 getSkills() 即可。
+ * 改造点（精修版）：
+ * 1. 顶部分类筛选为横向滑动胶囊 (Pill Tabs)
+ * 2. 状态筛选极简状态灯指示
+ * 3. 卡片重排为密集 List Cards
+ * 4. “对自己”类别下的小锁图标与星标置顶前端逻辑
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ChevronRight, Zap, Users, ShieldCheck, Briefcase, User } from 'lucide-react';
+import { Search, ChevronRight, Users, ShieldCheck, Briefcase, User, Lock, Star, Cloud, Code, Monitor, Loader2 } from 'lucide-react';
 import AppLayout from '../src/components/layout/AppLayout';
 import { SKILLS } from '../constants/skills';
 import { SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG, SCENE_TAG_OPTIONS } from '../content/pageConfigDefaults';
@@ -25,14 +22,34 @@ const SCENE_ICON: Record<string, React.ElementType> = {
   '对客户': Users,
   '对审查': ShieldCheck,
   '对中后台': Briefcase,
-  '对自己': User,
+  '对自己': UserIconWrapper, // specific wrapper to allow lock usage
+  '全部场景': Briefcase,
 };
+
+function UserIconWrapper({ className }: { className?: string }) {
+  return <User className={className} />;
+}
+
 const SCENE_COLOR: Record<string, string> = {
-  '对客户': 'bg-apple-blue/10 text-apple-blue border-apple-blue/20',
-  '对审查': 'bg-apple-purple/10 text-apple-purple border-apple-purple/20',
-  '对中后台': 'bg-apple-indigo/10 text-apple-indigo border-apple-indigo/20',
-  '对自己': 'bg-apple-pink/10 text-apple-pink border-apple-pink/20',
+  '对客户': 'bg-blue-50 text-blue-600 border-blue-200',
+  '对审查': 'bg-purple-50 text-purple-600 border-purple-200',
+  '对中后台': 'bg-indigo-50 text-indigo-600 border-indigo-200',
+  '对自己': 'bg-orange-50 text-orange-600 border-orange-200',
 };
+
+const getStatusBadge = (statusStr: string) => {
+  if (statusStr.includes('在线可用')) {
+    return <span className="flex items-center gap-1 bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-0.5 rounded-full text-[10px] font-bold"><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" /> 在线可用</span>;
+  }
+  if (statusStr.includes('本地工具')) {
+    return <span className="flex items-center gap-1 bg-neutral-100 text-neutral-600 border border-neutral-300 px-2 py-0.5 rounded-full text-[10px] font-bold"><Monitor size={10} /> 本地工具</span>;
+  }
+  if (statusStr.includes('需要后端支持')) {
+    return <span className="flex items-center gap-1 bg-sky-50 text-sky-600 border border-sky-200 px-2 py-0.5 rounded-full text-[10px] font-bold"><Cloud size={10} /> 需后端</span>;
+  }
+  return <span className="flex items-center gap-1 text-neutral-500 border border-dashed border-neutral-300 px-2 py-0.5 rounded-full text-[10px] font-bold opacity-80"><Code size={10} /> 开发中</span>;
+};
+
 
 const SkillsLibrary: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('全部');
@@ -40,6 +57,7 @@ const SkillsLibrary: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [skills, setSkills] = useState<Skill[]>(SKILLS);
   const [pageConfig, setPageConfig] = useState(SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG);
+  const [starredIds, setStarredIds] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -60,8 +78,19 @@ const SkillsLibrary: React.FC = () => {
         if (!cancelled) setPageConfig(SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG);
       });
 
+    // Load starred
+    const savedStars = localStorage.getItem('starred_skills');
+    if (savedStars) setStarredIds(JSON.parse(savedStars));
+
     return () => { cancelled = true; };
   }, []);
+
+  const toggleStar = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    const newStars = { ...starredIds, [id]: !starredIds[id] };
+    setStarredIds(newStars);
+    localStorage.setItem('starred_skills', JSON.stringify(newStars));
+  }
 
   const filterOptions = useMemo(
     () => pageConfig.filterOptions?.length ? pageConfig.filterOptions : SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG.filterOptions,
@@ -69,7 +98,7 @@ const SkillsLibrary: React.FC = () => {
   );
 
   const filteredSkills = useMemo(() => {
-    return skills.filter((skill) => {
+    const list = skills.filter((skill) => {
       // Status filter
       const skillStatuses = Array.isArray(skill.status) ? skill.status : [skill.status];
       const matchesStatus = statusFilter === '全部' || skillStatuses.includes(statusFilter as any);
@@ -86,162 +115,184 @@ const SkillsLibrary: React.FC = () => {
 
       return matchesStatus && matchesScene && matchesSearch;
     });
-  }, [skills, statusFilter, sceneFilter, searchQuery]);
+
+    // Sort starred first
+    return list.sort((a, b) => {
+      if (starredIds[a.id] && !starredIds[b.id]) return -1;
+      if (!starredIds[a.id] && starredIds[b.id]) return 1;
+      return 0;
+    });
+  }, [skills, statusFilter, sceneFilter, searchQuery, starredIds]);
 
   return (
-    <AppLayout title="Skills 工具库" showBack>
-      <div className="pb-24 bg-brand-offwhite min-h-screen">
-        {/* Header */}
-        <header className="px-6 pt-8 pb-4">
-          <h1 className="text-2xl font-bold tracking-tight text-brand-dark mb-1">{pageConfig.title}</h1>
-          <p className="text-brand-gray font-medium text-xs opacity-70">{pageConfig.subtitle}</p>
-        </header>
-
-        {/* Filters */}
-        <div className="px-6 mb-4 space-y-3">
+    <AppLayout title="仓库" showBack theme="default">
+      <div className="pb-24 bg-[#F5F6FA] min-h-[100dvh]">
+        {/* Header (Sticky background) */}
+        <div className="sticky top-14 z-40 bg-[#F5F6FA]/95 backdrop-blur-md pt-5 pb-3 px-4 border-b border-black/5 shadow-sm">
+           
           {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-gray w-4 h-4" />
+          <div className="relative mb-3">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
             <input
               type="text"
-              placeholder="搜索工具名称或关键词..."
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-brand-border/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-apple-blue/20 transition-all text-base font-medium"
+              placeholder="搜索技能或场景..."
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-neutral-200/60 rounded-[14px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm font-medium shadow-sm"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          {/* Scene Tag Filter — 手机端横向滚动，桌面端换行 */}
-          <div className="flex gap-1.5 overflow-x-auto no-scrollbar sm:flex-wrap">
+          {/* Scene Tag Pill Tabs */}
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4 snap-x">
+             <button
+                onClick={() => setSceneFilter('全部场景')}
+                className={cn(
+                  'snap-start shrink-0 px-4 py-1.5 rounded-full text-xs font-extrabold transition-all border',
+                  sceneFilter === '全部场景'
+                    ? 'bg-neutral-800 text-white border-neutral-800 shadow-md'
+                    : 'bg-white text-neutral-600 border-neutral-200/80 hover:bg-neutral-50',
+                )}
+             >
+                全部场景
+             </button>
             {SCENE_TAG_OPTIONS.map((tag) => {
-              const Icon = SCENE_ICON[tag];
+              if (tag === '全部场景') return null; // handled
+              const isSelf = tag === '对自己';
               return (
                 <button
                   key={tag}
                   onClick={() => setSceneFilter(tag)}
                   className={cn(
-                    'px-3.5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap border flex items-center gap-1.5',
+                    'snap-start shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border flex items-center gap-1.5',
                     sceneFilter === tag
-                      ? 'bg-brand-dark text-white border-brand-dark shadow-sm'
-                      : 'bg-white text-brand-gray border-brand-border/10 hover:bg-brand-light-gray',
+                      ? (isSelf ? 'bg-orange-500 text-white border-orange-500 shadow-md' : 'bg-blue-600 text-white border-blue-600 shadow-md')
+                      : 'bg-white text-neutral-600 border-neutral-200/80',
                   )}
                 >
-                  {Icon && <Icon size={14} />}
+                  {isSelf && <Lock size={12} className={sceneFilter === tag ? "opacity-90" : "opacity-40"} />} 
+                  {!isSelf && SCENE_ICON[tag] && React.createElement(SCENE_ICON[tag] as any, { size: 12 })}
                   {tag}
                 </button>
               );
             })}
           </div>
-
-          {/* Status Filter — 手机端横向滚动 */}
-          <div className="flex gap-1.5 overflow-x-auto no-scrollbar sm:flex-wrap">
+          
+          {/* Status Segmented Control */}
+           <div className="flex gap-1.5 overflow-x-auto no-scrollbar mt-3 pb-1 -mx-4 px-4">
             {filterOptions.map((option) => (
               <button
                 key={option}
                 onClick={() => setStatusFilter(option)}
                 className={cn(
-                  'px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap border',
+                  'shrink-0 px-3 py-1 rounded-[8px] text-[10px] font-bold transition-all border',
                   statusFilter === option
-                    ? 'bg-brand-dark/80 text-white border-brand-dark/80'
-                    : 'bg-white text-brand-gray/60 border-brand-border/5 hover:bg-brand-light-gray',
+                    ? 'bg-neutral-200 text-neutral-800 border-transparent shadow-sm'
+                    : 'bg-transparent text-neutral-400 border-transparent hover:text-neutral-600',
                 )}
               >
                 {option}
               </button>
             ))}
           </div>
+
         </div>
 
         {/* Count */}
-        <div className="px-6 mb-3">
-          <span className="text-xs text-brand-gray font-bold tracking-widest uppercase">
-            共 {filteredSkills.length} 个工具
+        <div className="px-5 pt-4 pb-2 flex items-center justify-between">
+          <span className="text-[11px] text-neutral-400 font-extrabold tracking-widest uppercase">
+            检索结果: {filteredSkills.length}
           </span>
         </div>
 
-        {/* Skills Grid — 紧凑工具式卡片 */}
-        <div className="px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {/* Dense List Cards */}
+        <div className="px-4 flex flex-col gap-3">
           {filteredSkills.length > 0 ? (
             filteredSkills.map((skill) => {
-              const skillStatuses = Array.isArray(skill.status) ? skill.status : [skill.status];
-              const isOnline = skillStatuses.includes('在线可用');
+              const isSelf = skill.sceneTags?.includes('对自己');
+              const isStarred = !!starredIds[skill.id];
 
               return (
                 <div
                   key={skill.id}
-                  className="bg-white p-4 rounded-xl border border-brand-border/5 shadow-sm hover:shadow-md transition-all group flex flex-col"
-                >
-                  {/* Top: Name + Status */}
-                  <div className="flex items-start justify-between mb-2">
-                    <h4 className="text-sm font-bold text-brand-dark tracking-tight group-hover:text-apple-blue transition-colors leading-tight flex-1 mr-2">
-                      {skill.name}
-                    </h4>
-                    <div className={cn(
-                      'shrink-0 w-2 h-2 rounded-full mt-1.5',
-                      isOnline ? 'bg-emerald-500' : 'bg-brand-gray/30',
-                    )} />
-                  </div>
-
-                  {/* Scene Tags */}
-                  {skill.sceneTags && skill.sceneTags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {skill.sceneTags.map((tag) => (
-                        <span
-                          key={tag}
-                          className={cn(
-                            'text-[10px] font-bold px-1.5 py-0.5 rounded border',
-                            SCENE_COLOR[tag] || 'bg-brand-light-gray text-brand-gray border-brand-border/10',
-                          )}
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+                  className={cn(
+                    "bg-white p-4 rounded-[20px] shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition-all flex border relative overflow-hidden",
+                    isSelf ? "border-orange-100" : "border-neutral-100"
                   )}
-
-                  {/* Brief: scene + input */}
-                  <div className="text-xs text-brand-gray/70 font-medium mb-3 space-y-0.5">
-                    <p className="truncate"><span className="text-brand-gray/40 mr-1 italic">输入:</span>{skill.input.slice(0, 3).join('、')}{skill.input.length > 3 ? '...' : ''}</p>
-                  </div>
-
-                  {/* Bottom: category + actions */}
-                  <div className="flex items-center justify-between mt-auto pt-2.5 border-t border-brand-border/5">
-                    <span className="text-[10px] text-brand-gray/40 font-bold uppercase tracking-widest truncate max-w-[40%]">
-                      {skill.category}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <Link
-                        to={`/skills/${skill.id}`}
-                        className="text-brand-gray text-xs font-bold hover:text-brand-dark transition-all"
-                      >
-                        详情
-                      </Link>
-                      {isOnline && skill.toolRoute && (
-                        <Link
-                          to={skill.toolRoute}
-                          className="text-apple-blue text-xs font-bold flex items-center gap-0.5 hover:gap-1 transition-all bg-apple-blue/5 px-2 py-1 rounded-lg"
-                        >
-                          使用 <ChevronRight size={14} />
-                        </Link>
-                      )}
+                >
+                  {/* Left content area */}
+                  <div className="flex-1 min-w-0 pr-3">
+                    <div className="flex items-center gap-2 mb-1.5">
+                       <Link to={`/skills/${skill.id}`} className="text-[15px] font-extrabold text-neutral-800 tracking-tight hover:text-blue-600 truncate flex-1">
+                         {skill.name}
+                       </Link>
                     </div>
+                    
+                    <div className="flex flex-wrap items-center gap-1.5 mb-2.5">
+                        {skill.sceneTags && skill.sceneTags.map((tag) => (
+                           <span
+                             key={tag}
+                             className={cn(
+                               'text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 border',
+                               SCENE_COLOR[tag] || 'bg-neutral-100 text-neutral-500 border-neutral-200',
+                             )}
+                           >
+                              {tag === '对自己' && <Lock size={8}/>}
+                             {tag}
+                           </span>
+                        ))}
+                    </div>
+
+                    <p className="text-[12px] text-neutral-500 font-medium leading-normal mb-3 line-clamp-2 pr-4">
+                       {skill.description}
+                    </p>
+                    
+                    <div className="flex items-center">
+                       {getStatusBadge(Array.isArray(skill.status) ? skill.status[0] : skill.status)}
+                    </div>
+                  </div>
+                  
+                  {/* Right Action Stack */}
+                  <div className="shrink-0 flex flex-col justify-between items-end border-l border-neutral-100 pl-3">
+                      <button 
+                         onClick={(e) => toggleStar(e, skill.id)} 
+                         className={cn("p-1.5 rounded-full transition-colors", isStarred ? "bg-orange-50 text-orange-400" : "hover:bg-neutral-50 text-neutral-300")}
+                      >
+                         <Star size={16} fill={isStarred ? "currentColor" : "none"} />
+                      </button>
+
+                      {skill.toolRoute ? (
+                         <Link
+                           to={skill.toolRoute}
+                           className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 active:scale-90 transition-transform mt-auto"
+                         >
+                            <ChevronRight size={16} strokeWidth={3} />
+                         </Link>
+                      ) : (
+                         <Link
+                          to={`/skills/${skill.id}`}
+                          className="w-8 h-8 rounded-full bg-neutral-50 border border-neutral-200 flex items-center justify-center text-neutral-400 active:scale-90 transition-transform mt-auto"
+                         >
+                           <Search size={14} strokeWidth={2.5} />
+                         </Link>
+                      )}
                   </div>
                 </div>
               );
             })
           ) : (
-            <div className="col-span-full py-16 px-6 bg-white border border-brand-border/5 rounded-2xl text-center shadow-sm">
-              <h3 className="text-lg font-bold text-brand-dark mb-2 tracking-tight">
-                {pageConfig.emptyState.title}
+            <div className="py-20 px-6 text-center">
+              <Loader2 className="w-8 h-8 mx-auto text-neutral-300 mb-4 animate-spin-slow" />
+              <h3 className="text-base font-bold text-neutral-600 mb-1">
+                无可用组件
               </h3>
-              <p className="text-sm text-brand-gray mb-6 font-medium opacity-60">
-                {pageConfig.emptyState.description}
+              <p className="text-xs text-neutral-400 font-medium mb-6">
+                调整标签过滤或清空搜索词
               </p>
               <button
                 onClick={() => { setStatusFilter('全部'); setSceneFilter('全部场景'); setSearchQuery(''); }}
-                className="px-6 py-2.5 bg-brand-dark text-white rounded-xl text-xs font-bold hover:bg-brand-dark/90 transition-all shadow-lg"
+                className="px-6 py-2 bg-white border border-neutral-200 rounded-full text-xs font-bold shadow-sm"
               >
-                {pageConfig.emptyState.resetLabel}
+                 重置检索
               </button>
             </div>
           )}

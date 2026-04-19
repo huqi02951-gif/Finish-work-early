@@ -3,8 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { MessageSquare, Send, Sparkles } from 'lucide-react';
 import CyberLayout from '../../components/layout/CyberLayout';
 import CommunityAccessGate from '../../components/community/CommunityAccessGate';
-import { apiService } from '../../services/api';
-import { Post as BackendPost } from '../../types';
+import { forumApi } from '../../services/forumApi';
+import type { Comment, Post } from '../../types';
 import { useToast } from '../../components/common/Toast';
 
 const CommunityThreadPage: React.FC = () => {
@@ -12,7 +12,8 @@ const CommunityThreadPage: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const [loading, setLoading] = useState(true);
-  const [detail, setDetail] = useState<any>(null);
+  const [detail, setDetail] = useState<Post | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [content, setContent] = useState('');
   const [anonymous, setAnonymous] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -21,8 +22,12 @@ const CommunityThreadPage: React.FC = () => {
     if (!id) return;
     setLoading(true);
     try {
-      const post = await apiService.getPostById(id);
+      const [post, commentResponse] = await Promise.all([
+        forumApi.getPostDetail(id),
+        forumApi.getPostComments(id, { pageSize: 100 }),
+      ]);
       setDetail(post);
+      setComments(commentResponse.items);
     } catch (err) {
       console.error('Failed to load thread:', err);
     } finally {
@@ -39,7 +44,7 @@ const CommunityThreadPage: React.FC = () => {
     if (!id || !content.trim()) return;
     setSubmitting(true);
     try {
-      await apiService.createComment(id, content.trim());
+      await forumApi.createComment(id, content.trim());
       setContent('');
       setAnonymous(false);
       await load();
@@ -78,7 +83,7 @@ const CommunityThreadPage: React.FC = () => {
               <div className="mt-6 flex flex-wrap items-center gap-4 text-[10px] font-bold">
                 <span className="inline-flex items-center gap-1 text-[#00ff41]">
                   <MessageSquare size={13} />
-                  REPLIES: {detail.comments?.length || 0}
+                  REPLIES: {comments.length}
                 </span>
                 <Link
                   to="/bbs"
@@ -118,10 +123,10 @@ const CommunityThreadPage: React.FC = () => {
             <section className="border border-[#00ff41]/30 bg-black p-5">
               <div className="text-[10px] uppercase tracking-widest text-[#00ff41]/60 font-bold border-b border-[#00ff41]/30 pb-2 mb-4">&gt; 返回信号</div>
               <div className="grid gap-3">
-                {detail.comments?.length ? detail.comments.map((comment: any) => (
+                {comments.length ? comments.map((comment) => (
                   <div key={comment.id} className="border border-[#00ff41]/20 bg-[#00ff41]/5 p-4 hover:border-[#00ff41]/50 transition-colors">
                     <div className="flex flex-wrap items-center gap-3 text-[10px] uppercase tracking-widest font-bold">
-                      <span className="text-[#00ff41] break-all">{comment.author.nickname}</span>
+                      <span className="text-[#00ff41] break-all">{comment.author?.nickname || '未知用户'}</span>
                       <span className="text-[#00ff41]/50">{new Date(comment.createdAt).toLocaleString()}</span>
                     </div>
                     <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[#00ff41]/80">{comment.content}</p>

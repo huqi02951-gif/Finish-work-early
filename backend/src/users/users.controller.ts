@@ -1,13 +1,13 @@
 import { Controller, Get, UseGuards, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { PostsService } from '../posts/posts.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { ForumService } from '../forum/forum.service';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly postsService: PostsService,
+    private readonly forumService: ForumService,
   ) {}
 
   @UseGuards(AuthGuard)
@@ -19,6 +19,8 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Get('me/posts')
   async getMyPosts(@Req() req) {
-    return this.postsService.findByAuthorId(req.user.sub);
+    // Compatibility route. Canonical endpoint is GET /forum/me/posts.
+    const result = await this.forumService.listMyPosts(req.user.sub);
+    return result.items;
   }
 }

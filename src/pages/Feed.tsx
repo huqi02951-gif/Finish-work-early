@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, MessageCircle, Share2, Heart } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
-import { apiService } from '../services/api';
+import { forumApi } from '../services/forumApi';
 import { Post } from '../types';
 import { cn } from '../../lib/utils';
 import InitialBadge from '../components/common/InitialBadge';
@@ -23,8 +23,12 @@ const Feed: React.FC = () => {
       setIsLoading(true);
       setLoadError(null);
       try {
-        const data = await apiService.getPosts(activeCategory === '全部' ? undefined : activeCategory);
-        setPosts(data);
+        const response = await forumApi.getPosts({
+          legacy: true,
+          category: activeCategory === '全部' ? undefined : activeCategory,
+          pageSize: 100,
+        });
+        setPosts(response.items);
       } catch (error) {
         const message = error instanceof Error ? error.message : '加载失败';
         setLoadError(message);

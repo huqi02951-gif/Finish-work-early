@@ -1,8 +1,4 @@
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
 const bcrypt = require('bcrypt');
-const ts = require('typescript');
 const {
   BoardStatus,
   CatalogStatus,
@@ -26,87 +22,15 @@ const prisma = new PrismaClient({
   datasourceUrl: connectionString,
 });
 
-const transpiledModuleCache = new Map();
-
-function loadTsModule(filePath) {
-  const normalizedPath = path.resolve(filePath);
-  if (transpiledModuleCache.has(normalizedPath)) {
-    return transpiledModuleCache.get(normalizedPath);
-  }
-
-  const source = fs.readFileSync(filePath, 'utf8');
-  const transpiled = ts.transpileModule(source, {
-    compilerOptions: {
-      module: ts.ModuleKind.CommonJS,
-      target: ts.ScriptTarget.ES2021,
-    },
-  });
-
-  const module = { exports: {} };
-  const dirname = path.dirname(normalizedPath);
-  const localRequire = (requestPath) => {
-    if (!requestPath.startsWith('.')) {
-      return require(requestPath);
-    }
-
-    const candidates = [
-      path.resolve(dirname, requestPath),
-      path.resolve(dirname, `${requestPath}.ts`),
-      path.resolve(dirname, `${requestPath}.js`),
-      path.resolve(dirname, requestPath, 'index.ts'),
-      path.resolve(dirname, requestPath, 'index.js'),
-    ];
-
-    const resolvedPath = candidates.find((candidate) => fs.existsSync(candidate));
-    if (!resolvedPath) {
-      throw new Error(`Cannot resolve module "${requestPath}" from ${normalizedPath}`);
-    }
-
-    if (resolvedPath.endsWith('.ts')) {
-      return loadTsModule(resolvedPath);
-    }
-
-    return require(resolvedPath);
-  };
-  const sandbox = {
-    module,
-    exports: module.exports,
-    require: localRequire,
-    console,
-    process,
-  };
-
-  vm.runInNewContext(transpiled.outputText, sandbox, { filename: normalizedPath });
-  transpiledModuleCache.set(normalizedPath, module.exports);
-  return module.exports;
-}
-
-function loadNamedExport(filePath, exportName) {
-  return loadTsModule(filePath)[exportName];
-}
-
 function toJsonValue(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-const rootDir = path.resolve(__dirname, '..', '..');
-const HOME_PAGE_DEFAULT_CONFIG = loadNamedExport(
-  path.join(rootDir, 'content/pageConfigDefaults.ts'),
-  'HOME_PAGE_DEFAULT_CONFIG',
-);
-const SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG = loadNamedExport(
-  path.join(rootDir, 'content/pageConfigDefaults.ts'),
-  'SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG',
-);
-const BUSINESS_GUIDE_PRODUCTS = loadNamedExport(
-  path.join(rootDir, 'content/businessGuideProducts.ts'),
-  'BUSINESS_GUIDE_PRODUCTS',
-);
-const SKILLS = loadNamedExport(path.join(rootDir, 'constants/skills.ts'), 'SKILLS');
-const FORUM_GUIDE_POSTS = loadNamedExport(
-  path.join(rootDir, 'content/forumGuidePosts.ts'),
-  'FORUM_GUIDE_POSTS',
-);
+const HOME_PAGE_DEFAULT_CONFIG = require('./seed-data/page-configs/home_page.json');
+const SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG = require('./seed-data/page-configs/skills_library_page.json');
+const BUSINESS_GUIDE_PRODUCTS = require('./seed-data/products/business-guide-products.json');
+const SKILLS = require('./seed-data/skills/skills.json');
+const FORUM_GUIDE_POSTS = require('./seed-data/forum/forum-guide-posts.json');
 
 function slugifyTag(input) {
   return String(input || '')

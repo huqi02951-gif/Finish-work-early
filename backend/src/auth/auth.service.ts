@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { randomBytes } from 'crypto';
+import { assertDemoAuthEnabled } from './auth.config';
 
 @Injectable()
 export class AuthService {
@@ -66,6 +67,8 @@ export class AuthService {
   }
 
   async createOrLoginDemoSession(clientKey: string, nickname?: string) {
+    assertDemoAuthEnabled();
+
     const normalizedClientKey = clientKey?.trim();
     if (!normalizedClientKey) {
       throw new BadRequestException('clientKey is required');

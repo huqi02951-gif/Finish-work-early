@@ -1,0 +1,17 @@
+{
+  "badgeText": "finish work early",
+  "title": "Skills 工具库",
+  "subtitle": "全量 Skills 展示与检索。每个 Skill 对应一个具体业务痛点，把经验、流程、模板、口径、测算逻辑固化下来。",
+  "filterOptions": [
+    "全部",
+    "在线可用",
+    "本地工具",
+    "需后端支持",
+    "开发中/能力介绍"
+  ],
+  "emptyState": {
+    "title": "未找到匹配的 Skills",
+    "description": "尝试更换搜索词或筛选条件",
+    "resetLabel": "重置搜索"
+  }
+}

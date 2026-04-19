@@ -1,10 +1,7 @@
 /**
- * 社区数据层 — 基于 Dexie (IndexedDB) 的本地社区原型
- *
- * 所有帖子、回复、gossip、专题都存在浏览器本地。
- * API 形状与未来后端接口保持一致，替换时只改实现不改接口。
+ * 社区数据层 — 现已迁移为联调云端(后端) API。
+ * 本文件作为 Adapter, 尽力保留原来的方法签名和返回结构，以使组件无感迁移。
  */
-import Dexie, { type EntityTable } from 'dexie';
 
 // ─── 类型 ──────────────────────────────────────
 
@@ -33,7 +30,7 @@ export interface CommunityEntry {
   likes: number;
   replyCount: number;
   expiresAt?: Date;
-  source?: string; // 'self_gossip' | 'bbs' | ...
+  source?: string;
   createdAt: Date;
 }
 
@@ -46,317 +43,85 @@ export interface CommunityReply {
   createdAt: Date;
 }
 
-// ─── 数据库 ────────────────────────────────────
+// ─── API 适配器配置 ─────────────────────────────
 
-class CommunityDB extends Dexie {
-  threads!: EntityTable<CommunityEntry, 'uid'>;
-  replies!: EntityTable<CommunityReply, 'uid'>;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
-  constructor() {
-    super('FinishWorkEarlyCommunity');
-
-    this.version(1).stores({
-      threads: 'uid, channel, kind, createdAt, expiresAt, source',
-      replies: 'uid, threadId, createdAt',
-    });
+async function authFetch(url: string, options: RequestInit = {}) {
+  const token = localStorage.getItem('fwe_jwt_token'); // 假设后续对接认证存入此处
+  const headers = new Headers(options.headers || {});
+  headers.set('Content-Type', 'application/json');
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
   }
+
+  const res = await fetch(`${API_BASE_URL}${url}`, { ...options, headers });
+  if (!res.ok) {
+    throw new Error(`API error: ${res.statusText}`);
+  }
+  return res.json();
 }
 
-const cdb = new CommunityDB();
+/**
+ * 将后端返回的 Post 结构适度兼容转化为前端原来依赖的 CommunityEntry
+ */
+function mapPostToEntry(post: any): CommunityEntry {
+  const isGossip = post.category === 'Gossip 贴板';
+  const isDark = post.category === '匿名吐槽' || post.category === '二手交易';
+  const isTopic = post.postType === 'GUIDE';
 
-// ─── 种子数据 ──────────────────────────────────
+  let kind: CommunityKind = 'thread';
+  if (isTopic) kind = 'topic';
+  else if (isGossip) kind = 'gossip';
+  else if (isDark) kind = 'dark';
 
-const SEED_KEY = 'fwe:community-seeded-v2';
-
-async function ensureSeed() {
-  if (localStorage.getItem(SEED_KEY) === '1') return;
-  
-  // Clear old data when upgrading to v2 seeds
-  await cdb.threads.clear();
-  await cdb.replies.clear();
-
-  const now = new Date();
-  const h = (hours: number) => new Date(now.getTime() - hours * 3600_000);
-  const exp = (hours: number) => new Date(now.getTime() + hours * 3600_000);
-
-  const seeds: CommunityEntry[] = [
-    {
-      uid: crypto.randomUUID(),
-      title: '如何营销高新制造企业进门打法 (避雷版)',
-      content:
-        '这周跑了三家高新制造企业，总结了几条进门话术和避雷点。千万别一上来就提流贷，没人缺你那点钱。切入点要放在“设备更新补贴”和“长易担的简易备案流程”上，告诉他们审批能在3天内走完。同时一定要前置看下纳税评级，别跑到最后发现是个C。',
-      channel: '经验分享',
-      author: '实名认证-张经理',
-      anonymous: false,
-      kind: 'thread',
-      likes: 65,
-      replyCount: 3,
-      createdAt: h(24),
-    },
-    {
-      uid: crypto.randomUUID(),
-      title: '对公批量打款/批量开户操作最后一步最容易错的事项总结',
-      content:
-        '各位刚入手对公的姐妹们看过来：批量开户上传明细表的时候，表头的格式一定不能动！尤其是身份证号那一列必须要设为文本格式，不然会有科学计数法导致校验全军覆没！还有，打款前让客户一定要先在网银上做一次小额测试验证，退票真的很麻烦！',
-      channel: '经验分享',
-      author: '网点-王主管',
-      anonymous: false,
-      kind: 'thread',
-      likes: 124,
-      replyCount: 2,
-      createdAt: h(5),
-    },
-    {
-      uid: crypto.randomUUID(),
-      title: '厂工宝盒、长易担目前碰到的雷区及退件汇总专题',
-      content:
-        '汇总了分行最近长易担被退件的几个高频原因：\n1. 营授比超标，强行包装。\n2. 中小担白名单未准入直接发起了流程。\n3. 高新资质正在重新认定期内，没提供有效期延续证明。\n遇到这些情况应该怎么补救，建议都进来看看，持续更新。',
-      channel: '专题',
-      author: '审查部-老李',
-      anonymous: false,
-      kind: 'topic',
-      likes: 88,
-      replyCount: 2,
-      createdAt: h(20),
-    },
-    {
-      uid: crypto.randomUUID(),
-      title: '新人入行手册：如何使用工具解放双手？（具体每个工具保姆级剖析）',
-      content:
-        '刚入行怎么不熬夜？巧用工作台的工具！\n比如“利率优惠签报智能生成”，你只要输入客户名和痛点，它自动写官话，直接复制进OA，能省出半小时；再比如“敏感沟通助手”，催款怎么催得不伤和气，直接选语气生成发给客户就行。手把手帖子见评论区。',
-      channel: '专题',
-      author: '实名认证-陈行长',
-      anonymous: false,
-      kind: 'topic',
-      likes: 210,
-      replyCount: 0,
-      createdAt: h(48),
-    },
-    {
-      uid: crypto.randomUUID(),
-      title: '姐妹们有没有听说过XXD的瓜吗？',
-      content: '听说是上次去分中心汇报的时候因为什么指标的事大吵了一架？有人知道内情吗？吃瓜吃到一半好捉急。',
-      channel: 'Gossip 贴板',
-      author: '匿名节点',
-      anonymous: true,
-      kind: 'gossip',
-      likes: 45,
-      replyCount: 2,
-      expiresAt: exp(4),
-      source: 'bbs',
-      createdAt: h(2),
-    },
-    {
-      uid: crypto.randomUUID(),
-      title: '客户经理的最新定级管理办法太不合理了！',
-      content: '凭什么我拼死拼活做进来的大额低成本存款就不计入核心评级了？难道只有放贷款算业绩？有没有人知道怎么才能在新办法下拿到高奖金？心累。',
-      channel: '匿名吐槽',
-      author: '匿名查水表',
-      anonymous: true,
-      kind: 'dark',
-      likes: 130,
-      replyCount: 1,
-      expiresAt: exp(8),
-      source: 'bbs',
-      createdAt: h(10),
-    },
-    {
-      uid: crypto.randomUUID(),
-      title: '闲置出个大F机械键盘和人体工学椅，救救老腰',
-      content: '退坑不当牛马了（不是）。换新装备，一把青轴FILCO和一把网易严选的椅子，500打包带走，或者请我喝10杯瑞幸生椰拿铁也行。同城自提。',
-      channel: '二手交易',
-      author: '键盘侠节点',
-      anonymous: true,
-      kind: 'dark',
-      likes: 8,
-      replyCount: 1,
-      expiresAt: exp(24),
-      source: 'bbs',
-      createdAt: h(3),
-    },
-    {
-      uid: crypto.randomUUID(),
-      title: '今年大家的工资发了多少？真的降了吗？',
-      content: '坐标某支行，怎么感觉上个月的绩效比去年同期缩水了30%...是不是因为大盘指标没完成所以统扣了？好焦虑啊。',
-      channel: 'Gossip 贴板',
-      author: '匿名破防',
-      anonymous: true,
-      kind: 'gossip',
-      likes: 315,
-      replyCount: 1,
-      expiresAt: exp(12),
-      source: 'bbs',
-      createdAt: h(1),
-    },
-    {
-      uid: crypto.randomUUID(),
-      title: '去武汉出差的报销流程现在怎么走？求推荐咖啡店',
-      content: '明天要去武汉分行跟进个项目，现在跨省出差审批需要在新OA走哪条线？另外有姐妹知道那边哪家咖啡馆或者甜点好吃又有格调的吗？（能开正规餐饮专票的最好哈哈）',
-      channel: 'Gossip 贴板',
-      author: '当前浏览器',
-      anonymous: true,
-      kind: 'gossip',
-      likes: 12,
-      replyCount: 1,
-      expiresAt: exp(24),
-      source: 'bbs',
-      createdAt: h(5),
-    }
-  ];
-
-  await cdb.threads.bulkAdd(seeds);
-
-  // Add a few seed replies
-  const threadUids = seeds.map((s) => s.uid);
-  await cdb.replies.bulkAdd([
-    {
-      uid: crypto.randomUUID(),
-      threadId: threadUids[0],
-      content: '真的！第一句切入点太重要了，前两天去谈一家科技企业，刚说可以做贷款就被赶出来了...',
-      author: '李小妹',
-      anonymous: false,
-      createdAt: h(20),
-    },
-    {
-      uid: crypto.randomUUID(),
-      threadId: threadUids[0],
-      content: '请教下张经理，如果对方说自己有交行的低息贷了，我们还有什么突破口吗？',
-      author: '匿名节点',
-      anonymous: true,
-      createdAt: h(18),
-    },
-    {
-      uid: crypto.randomUUID(),
-      threadId: threadUids[0],
-      content: '回复楼上：用“政策性增信”的额度来打，交行的敞口额度不用占用，这个是纯新增的额度。',
-      author: '实名认证-张经理',
-      anonymous: false,
-      createdAt: h(15),
-    },
-    {
-      uid: crypto.randomUUID(),
-      threadId: threadUids[1],
-      content: '补充一下，科学计数法那个太坑了，上周整整导错了一下午。',
-      author: '匿名节点',
-      anonymous: true,
-      createdAt: h(3),
-    },
-    {
-      uid: crypto.randomUUID(),
-      threadId: threadUids[1],
-      content: '谢谢王姐救命之恩！',
-      author: '实名认证-小王',
-      anonymous: false,
-      createdAt: h(2),
-    },
-    {
-      uid: crypto.randomUUID(),
-      threadId: threadUids[2],
-      content: '昨天刚因为漏了高新证书延续被退件，老李总结得太准了。',
-      author: '匿名大冤种',
-      anonymous: true,
-      createdAt: h(10),
-    },
-    {
-      uid: crypto.randomUUID(),
-      threadId: threadUids[2],
-      content: '如果是营授比超了一点点，有什么话术能在审查那边通过吗？',
-      author: '想放款想疯了',
-      anonymous: true,
-      createdAt: h(8),
-    },
-    {
-      uid: crypto.randomUUID(),
-      threadId: threadUids[4],
-      content: '听说是争那个中收指标，好像还拍桌子了，这瓜太大了保熟！',
-      author: '冲浪第一人',
-      anonymous: true,
-      createdAt: h(1.5),
-    },
-    {
-      uid: crypto.randomUUID(),
-      threadId: threadUids[4],
-      content: '别问了，问就是大家都要被连坐罚款了。',
-      author: '心累的搬砖工',
-      anonymous: true,
-      createdAt: h(1),
-    },
-    {
-      uid: crypto.randomUUID(),
-      threadId: threadUids[5],
-      content: '严重同感，现在做大资产全是苦力活，结果定级一看全在混！',
-      author: '底层牛马',
-      anonymous: true,
-      createdAt: h(9),
-    },
-    {
-      uid: crypto.randomUUID(),
-      threadId: threadUids[6],
-      content: '键盘单出吗？在二楼业务部可以直接面交！',
-      author: '打字如飞',
-      anonymous: true,
-      createdAt: h(1),
-    },
-    {
-      uid: crypto.randomUUID(),
-      threadId: threadUids[7],
-      content: '何止30%，我的算下来降了快一半，房贷都要都不上了。',
-      author: '匿名泪目',
-      anonymous: true,
-      createdAt: h(0.5),
-    },
-    {
-      uid: crypto.randomUUID(),
-      threadId: threadUids[8],
-      content: '走分行OA系统的【跨地区特别申请单】，甜点强烈推荐汉街上的那家Maison，凭发票能直接开报。',
-      author: '吃货大队长',
-      anonymous: true,
-      createdAt: h(2),
-    }
-  ]);
-
-  localStorage.setItem(SEED_KEY, '1');
+  return {
+    uid: post.id.toString(),
+    title: post.title || '',
+    content: post.content || post.summary || '',
+    channel: (post.board?.name || post.category || '经验分享') as CommunityChannel,
+    author: post.author?.nickname || '匿名用户',
+    anonymous: isGossip || isDark,
+    kind,
+    likes: 0, // 暂时 mock
+    replyCount: post._count?.comments || 0,
+    createdAt: new Date(post.createdAt),
+    expiresAt: isGossip || isDark ? new Date(new Date(post.createdAt).getTime() + 24 * 3600_000) : undefined,
+  };
 }
-
-// Init on module load
-ensureSeed();
 
 // ─── 查询方法 ──────────────────────────────────
 
 export async function getCommunitySummary() {
-  await ensureSeed();
-
-  const allThreads = await cdb.threads.toArray();
+  // 通过 public forum api 获取列表，然后进行前端聚合。
+  // 在真正生产级，这应该由后端出专门的 Summary API。这里为了无缝兼容旧 UI 先适配：
+  const res = await authFetch('/forum/public/posts?pageSize=50');
+  const items: any[] = res.items || [];
+  
+  const allThreads = items.map(mapPostToEntry);
   const now = new Date();
 
-  // Filter out expired
   const active = allThreads.filter(
-    (t) => !t.expiresAt || new Date(t.expiresAt).getTime() > now.getTime(),
+    (t) => !t.expiresAt || t.expiresAt.getTime() > now.getTime(),
   );
 
   const totalThreads = active.length;
   const totalTopics = active.filter((t) => t.kind === 'topic').length;
   const totalGossip = active.filter((t) => t.kind === 'gossip').length;
-  const totalReplies = await cdb.replies.count();
+  const totalReplies = active.reduce((acc, t) => acc + (t.replyCount || 0), 0);
 
-  // Sort by likes desc for hot threads
-  const hotThreads = [...active]
-    .sort((a, b) => b.likes - a.likes)
-    .slice(0, 5);
-
+  const hotThreads = [...active].sort((a, b) => b.replyCount - a.replyCount).slice(0, 5);
   const latestGossip = active
-    .filter((t) => t.kind === 'gossip' || t.channel === 'Gossip 贴板')
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .filter((t) => t.kind === 'gossip')
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     .slice(0, 5);
-
   const topics = active
     .filter((t) => t.kind === 'topic')
     .sort((a, b) => b.replyCount - a.replyCount)
     .slice(0, 5);
-
   const expiringThreads = active
     .filter((t) => t.expiresAt)
-    .sort((a, b) => new Date(a.expiresAt!).getTime() - new Date(b.expiresAt!).getTime())
+    .sort((a, b) => t.expiresAt!.getTime() - b.expiresAt!.getTime())
     .slice(0, 5);
 
   return {
@@ -374,35 +139,32 @@ export async function getCommunitySummary() {
 export async function listCommunityEntries(
   channel?: CommunityChannel | '全部',
 ): Promise<CommunityEntry[]> {
-  await ensureSeed();
-
-  const now = new Date();
-  let items: CommunityEntry[];
-
-  if (!channel || channel === '全部') {
-    items = await cdb.threads.toArray();
-  } else {
-    items = await cdb.threads.where('channel').equals(channel).toArray();
-  }
-
-  // Filter expired
-  return items
-    .filter((t) => !t.expiresAt || new Date(t.expiresAt).getTime() > now.getTime())
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const url = (!channel || channel === '全部') 
+    ? '/forum/public/posts?pageSize=100' 
+    : `/forum/public/posts?boardSlug=TODO_SLUGIFY_${channel}`;
+  
+  const res = await authFetch(url);
+  const items: any[] = res.items || [];
+  return items.map(mapPostToEntry);
 }
 
 export async function getCommunityThread(uid: string) {
-  const thread = await cdb.threads.get(uid);
-  if (!thread) return null;
+  const res = await authFetch(`/forum/public/posts/${uid}`);
+  const post = res; // Assuming res is the mapped post detail
+  
+  // also fetch comments
+  const commentsRes = await authFetch(`/forum/public/posts/${uid}/comments?pageSize=100`);
+  const commentsItems: any[] = commentsRes.items || [];
 
-  const replies = await cdb.replies
-    .where('threadId')
-    .equals(uid)
-    .toArray();
-
-  replies.sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-  );
+  const thread = mapPostToEntry(post);
+  const replies: CommunityReply[] = commentsItems.map((c) => ({
+    uid: c.id.toString(),
+    threadId: uid,
+    content: c.content,
+    author: c.author?.nickname || '匿名回复',
+    anonymous: false, // 简化处理
+    createdAt: new Date(c.createdAt),
+  }));
 
   return { thread, replies };
 }
@@ -416,34 +178,19 @@ export async function createCommunityThread(input: {
   anonymous: boolean;
   author: string;
 }): Promise<string> {
-  const isGossip = input.channel === 'Gossip 贴板';
-  const isDark = input.channel === '匿名吐槽' || input.channel === '二手交易';
-
-  const kind: CommunityKind = isGossip
-    ? 'gossip'
-    : isDark
-      ? 'dark'
-      : 'thread';
-
-  const uid = crypto.randomUUID();
-  const now = new Date();
-
-  await cdb.threads.add({
-    uid,
-    title: input.title || (isGossip ? '' : '无标题'),
+  const payload = {
+    title: input.title || '无标题',
     content: input.content,
-    channel: input.channel,
-    author: input.author,
-    anonymous: input.anonymous,
-    kind,
-    likes: 0,
-    replyCount: 0,
-    expiresAt: isGossip || isDark ? new Date(now.getTime() + 24 * 3600_000) : undefined,
-    source: 'bbs',
-    createdAt: now,
+    boardSlug: 'TODO_SLUGIFY_' + input.channel, // 实际需与后端的 Slug 对齐
+    postType: input.channel === '专题' ? 'GUIDE' : 'DISCUSSION',
+  };
+  
+  const res = await authFetch('/forum/user/posts', {
+    method: 'POST',
+    body: JSON.stringify(payload),
   });
 
-  return uid;
+  return res.id.toString();
 }
 
 export async function createCommunityReply(input: {
@@ -452,52 +199,28 @@ export async function createCommunityReply(input: {
   anonymous: boolean;
   author: string;
 }): Promise<void> {
-  await cdb.replies.add({
-    uid: crypto.randomUUID(),
-    threadId: input.threadId,
-    content: input.content,
-    author: input.author,
-    anonymous: input.anonymous,
-    createdAt: new Date(),
+  await authFetch(`/forum/user/posts/${input.threadId}/comments`, {
+    method: 'POST',
+    body: JSON.stringify({ content: input.content }),
   });
-
-  // Increment reply count on thread
-  const thread = await cdb.threads.get(input.threadId);
-  if (thread) {
-    await cdb.threads.update(input.threadId, {
-      replyCount: (thread.replyCount || 0) + 1,
-    });
-  }
 }
 
 export async function promoteCommunityThreadToTopic(uid: string): Promise<void> {
-  await cdb.threads.update(uid, {
-    kind: 'topic',
-    channel: '专题',
-    expiresAt: undefined,
+  // Demo 方案，实际可调用 updateOwnPost 等接口更改状态
+  await authFetch(`/forum/user/posts/${uid}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ postType: 'GUIDE' }),
   });
 }
 
 export async function createSelfGossipThread(text: string): Promise<string> {
-  const uid = crypto.randomUUID();
-  const now = new Date();
-
-  await cdb.threads.add({
-    uid,
+  return createCommunityThread({
     title: '',
     content: text,
     channel: 'Gossip 贴板',
     author: '当前浏览器',
-    anonymous: false,
-    kind: 'gossip',
-    likes: 0,
-    replyCount: 0,
-    expiresAt: new Date(now.getTime() + 24 * 3600_000),
-    source: 'self_gossip',
-    createdAt: now,
+    anonymous: true,
   });
-
-  return uid;
 }
 
 // ─── 工具函数 ──────────────────────────────────

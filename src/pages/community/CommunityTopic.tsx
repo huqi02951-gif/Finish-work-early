@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { BookOpenText, MessageSquare, Send } from 'lucide-react';
 import AppLayout from '../../components/layout/AppLayout';
-import { apiService } from '../../services/api';
-import type { Post } from '../../types';
+import { forumApi } from '../../services/forumApi';
+import type { Comment, Post } from '../../types';
 import { useToast } from '../../components/common/Toast';
 
 const CommunityTopicPage: React.FC = () => {
@@ -11,6 +11,7 @@ const CommunityTopicPage: React.FC = () => {
   const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [post, setPost] = useState<Post | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [content, setContent] = useState('');
   const [anonymous, setAnonymous] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -19,8 +20,12 @@ const CommunityTopicPage: React.FC = () => {
     if (!id) return;
     setLoading(true);
     try {
-      const loaded = await apiService.getPostById(id);
-      setPost(loaded || null);
+      const [loadedPost, loadedComments] = await Promise.all([
+        forumApi.getPostDetail(id),
+        forumApi.getPostComments(id, { pageSize: 100 }),
+      ]);
+      setPost(loadedPost || null);
+      setComments(loadedComments.items);
     } catch (err) {
       console.error('Failed to load topic:', err);
     } finally {
@@ -37,7 +42,7 @@ const CommunityTopicPage: React.FC = () => {
     if (!id || !content.trim()) return;
     setSubmitting(true);
     try {
-      await apiService.createComment(id, content.trim());
+      await forumApi.createComment(id, content.trim());
       setContent('');
       setAnonymous(false);
       await load();
@@ -119,9 +124,18 @@ const CommunityTopicPage: React.FC = () => {
             <section className="rounded-lg border border-brand-border/60 bg-white p-5">
               <div className="text-xs uppercase tracking-[0.16em] text-brand-gray">专题讨论</div>
               <div className="mt-3 grid gap-3">
-                <div className="rounded-md border border-dashed border-brand-border/60 bg-brand-offwhite p-4 text-sm text-brand-gray">
-                  完整讨论功能将在后端部署后开放。
-                </div>
+                {comments.length > 0 ? comments.map((comment) => (
+                  <div key={comment.id} className="rounded-md border border-brand-border/60 bg-brand-offwhite p-4">
+                    <div className="text-[11px] text-brand-gray">
+                      {comment.author?.nickname || '未知用户'} · {formatRelativeTime(comment.createdAt)}
+                    </div>
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-brand-dark/80">{comment.content}</p>
+                  </div>
+                )) : (
+                  <div className="rounded-md border border-dashed border-brand-border/60 bg-brand-offwhite p-4 text-sm text-brand-gray">
+                    暂无讨论，欢迎补充第一条经验。
+                  </div>
+                )}
               </div>
             </section>
           </div>

@@ -13,19 +13,23 @@ export class PublicForumController {
   @Get('posts')
   async getPosts(
     @Query('boardSlug') boardSlug?: string,
+    @Query('category') category?: string,
     @Query('postType') postType?: string,
     @Query('isOfficial') isOfficial?: string,
     @Query('tag') tag?: string,
     @Query('q') q?: string,
+    @Query('legacy') legacy?: string,
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string,
   ) {
     return this.forumService.listPublicPosts({
       boardSlug,
+      category,
       postType,
       isOfficial,
       tag,
       q,
+      legacy,
       page: page ? Number(page) : undefined,
       pageSize: pageSize ? Number(pageSize) : undefined,
     });

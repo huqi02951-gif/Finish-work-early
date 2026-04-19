@@ -64,8 +64,8 @@ const Home: React.FC = () => {
         Explicitly forced single viewport. 
         Using a flex spacer to push Hero strictly top, and Grid strictly bottom.
       */}
-      <div className="flex flex-col h-[calc(100dvh-8.5rem)] bg-white px-5 sm:px-8 py-2 font-sans selection:bg-brand-dark/5 overflow-hidden">
-        <div className="w-full h-full max-w-4xl mx-auto flex flex-col">
+      <div className="flex flex-col h-[calc(100dvh-5rem)] bg-[#FDFDFD] px-6 sm:px-8 py-4 font-sans selection:bg-brand-dark/5 overflow-hidden">
+        <div className="w-full h-full max-w-4xl mx-auto flex flex-col pt-4">
           
           {/* Top Hero Section - Anchored near top */}
           <motion.div
@@ -79,10 +79,10 @@ const Home: React.FC = () => {
             </h1>
             
             <div className="mt-5 sm:mt-8 flex flex-col space-y-1.5 sm:space-y-4">
-              <h2 className="text-[22px] sm:text-3xl font-semibold tracking-tight text-brand-dark/95 leading-tight">
+              <h2 className="text-[24px] sm:text-[34px] font-extrabold tracking-tight text-neutral-800 leading-tight">
                 {pageConfig.hero.title}
               </h2>
-              <p className="text-[14px] sm:text-base lg:text-lg text-brand-gray tracking-wide max-w-xl font-medium leading-relaxed">
+              <p className="text-[14px] sm:text-base lg:text-lg text-neutral-500 tracking-wide max-w-xl font-medium leading-relaxed">
                 <span className="text-brand-border font-mono mr-1.5 sm:mr-2">/</span>
                 {pageConfig.hero.subtitle.replace('//', '').trim()}
               </p>
@@ -108,11 +108,11 @@ const Home: React.FC = () => {
                       to={item.path}
                       className="group flex flex-col items-start p-5 rounded-[24px] bg-[#fbfbfd] border border-brand-border/30 hover:border-brand-border/60 hover:bg-[#f5f5f7] transition-all duration-400 active:scale-[0.96] shadow-sm relative overflow-hidden h-full"
                     >
-                      <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-brand-dark shadow-[0_2px_10px_rgba(0,0,0,0.04)] group-hover:scale-105 transition-transform duration-300 mb-4 sm:mb-6 shrink-0 border border-brand-border/20">
-                        <Icon size={18} strokeWidth={1.5} />
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white flex items-center justify-center text-blue-600 shadow-sm group-hover:scale-105 transition-transform duration-300 mb-4 shrink-0 border border-neutral-100">
+                        <Icon size={18} strokeWidth={2} />
                       </div>
-                      <div className="flex flex-col w-full">
-                        <h3 className="text-[16px] sm:text-lg font-bold tracking-tight text-brand-dark leading-snug group-hover:text-brand-dark/80 transition-colors">
+                      <div className="flex flex-col w-full px-1">
+                        <h3 className="text-[16px] sm:text-lg font-extrabold tracking-tight text-neutral-800 leading-snug group-hover:text-blue-600 transition-colors">
                           {item.title}
                         </h3>
                         {/* Always visible on iOS */}

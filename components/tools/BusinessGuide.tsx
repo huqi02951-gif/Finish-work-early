@@ -43,6 +43,7 @@ import { getProducts } from '../../src/services/contentApi';
 const BusinessGuide: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<'guide' | 'persona'>('guide');
   const [guideType, setGuideType] = useState<'product' | 'industry' | 'scenario'>('product');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);

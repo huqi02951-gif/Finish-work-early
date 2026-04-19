@@ -75,26 +75,30 @@ enum ModerationAction {
 }
 
 model User {
-  id                 Int          @id @default(autoincrement())
-  username           String       @unique
-  nickname           String
-  passwordHash       String       @map("password_hash")
-  email              String?      @unique
-  phone              String?      @unique
-  avatarUrl          String?      @map("avatar_url")
-  bio                String?      @db.Text
-  role               UserRole     @default(USER)
-  status             UserStatus   @default(ACTIVE)
-  clientKey          String?      @unique @map("client_key")
-  createdAt          DateTime     @default(now()) @map("created_at")
-  updatedAt          DateTime     @updatedAt @map("updated_at")
+  id           Int        @id @default(autoincrement())
+  username     String     @unique
+  nickname     String
+  passwordHash String     @map("password_hash")
+  email        String?    @unique
+  phone        String?    @unique
+  avatarUrl    String?    @map("avatar_url")
+  bio          String?    @db.Text
+  role         UserRole   @default(USER)
+  status       UserStatus @default(ACTIVE)
+  clientKey    String?    @unique @map("client_key")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
 
   posts              Post[]
   comments           Comment[]
-  reviewedPosts      Post[]       @relation("PostReviewedBy")
-  updatedPageConfigs PageConfig[] @relation("PageConfigUpdatedBy")
+  reviewedPosts      Post[]            @relation("PostReviewedBy")
+  updatedPageConfigs PageConfig[]      @relation("PageConfigUpdatedBy")
   sessions           UserSession[]
-  moderationLogs     ModerationLog[] @relation("ModerationLogOperator")
+  moderationLogs     ModerationLog[]   @relation("ModerationLogOperator")
+  customerContexts   CustomerContext[]
+  drafts             Draft[]
+  artifacts          Artifact[]
+  auditLogs          AuditLog[]        @relation("AuditLogOperator")
 
   @@map("users")
 }
@@ -118,38 +122,38 @@ model Board {
 }
 
 model Post {
-  id                Int            @id @default(autoincrement())
-  title             String
-  summary           String?        @db.Text
-  content           String         @db.Text
-  contentData       Json?          @map("content_data")
-  category          String         @default("经验分享")
-  externalKey       String?        @unique @map("external_key")
-  postType          PostType       @default(DISCUSSION) @map("post_type")
-  sourceType        PostSourceType @default(USER) @map("source_type")
-  isOfficial        Boolean        @default(false) @map("is_official")
-  isPinned          Boolean        @default(false) @map("is_pinned")
-  pinnedAt          DateTime?      @map("pinned_at")
-  status            PostStatus     @default(PUBLISHED)
-  commentsLockedAt  DateTime?      @map("comments_locked_at")
-  reviewedAt        DateTime?      @map("reviewed_at")
-  reviewReason      String?        @db.Text @map("review_reason")
-  relatedProductSlug String?       @map("related_product_slug")
-  relatedSkillSlug  String?        @map("related_skill_slug")
-  relatedPageKey    String?        @map("related_page_key")
-  createdAt         DateTime       @default(now()) @map("created_at")
-  updatedAt         DateTime       @updatedAt @map("updated_at")
-  deletedAt         DateTime?      @map("deleted_at")
+  id                 Int            @id @default(autoincrement())
+  title              String
+  summary            String?        @db.Text
+  content            String         @db.Text
+  contentData        Json?          @map("content_data")
+  category           String         @default("经验分享")
+  externalKey        String?        @unique @map("external_key")
+  postType           PostType       @default(DISCUSSION) @map("post_type")
+  sourceType         PostSourceType @default(USER) @map("source_type")
+  isOfficial         Boolean        @default(false) @map("is_official")
+  isPinned           Boolean        @default(false) @map("is_pinned")
+  pinnedAt           DateTime?      @map("pinned_at")
+  status             PostStatus     @default(PUBLISHED)
+  commentsLockedAt   DateTime?      @map("comments_locked_at")
+  reviewedAt         DateTime?      @map("reviewed_at")
+  reviewReason       String?        @map("review_reason") @db.Text
+  relatedProductSlug String?        @map("related_product_slug")
+  relatedSkillSlug   String?        @map("related_skill_slug")
+  relatedPageKey     String?        @map("related_page_key")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+  deletedAt          DateTime?      @map("deleted_at")
 
-  boardId           Int?           @map("board_id")
-  board             Board?         @relation(fields: [boardId], references: [id])
-  authorId          Int            @map("author_id")
-  author            User           @relation(fields: [authorId], references: [id])
-  reviewedById      Int?           @map("reviewed_by_id")
-  reviewedBy        User?          @relation("PostReviewedBy", fields: [reviewedById], references: [id])
-  comments          Comment[]
-  tags              PostTag[]
-  moderationLogs    ModerationLog[]
+  boardId        Int?            @map("board_id")
+  board          Board?          @relation(fields: [boardId], references: [id])
+  authorId       Int             @map("author_id")
+  author         User            @relation(fields: [authorId], references: [id])
+  reviewedById   Int?            @map("reviewed_by_id")
+  reviewedBy     User?           @relation("PostReviewedBy", fields: [reviewedById], references: [id])
+  comments       Comment[]
+  tags           PostTag[]
+  moderationLogs ModerationLog[]
 
   @@index([authorId])
   @@index([status, createdAt])
@@ -158,7 +162,6 @@ model Post {
   @@index([postType, status, createdAt])
   @@index([relatedProductSlug])
   @@index([relatedSkillSlug])
-
   @@map("posts")
 }
 
@@ -170,16 +173,15 @@ model Comment {
   updatedAt DateTime      @updatedAt @map("updated_at")
   deletedAt DateTime?     @map("deleted_at")
 
-  postId    Int           @map("post_id")
-  post      Post          @relation(fields: [postId], references: [id])
+  postId Int  @map("post_id")
+  post   Post @relation(fields: [postId], references: [id])
 
-  authorId  Int           @map("author_id")
-  author    User          @relation(fields: [authorId], references: [id])
+  authorId       Int             @map("author_id")
+  author         User            @relation(fields: [authorId], references: [id])
   moderationLogs ModerationLog[]
 
   @@index([postId, status, createdAt])
   @@index([authorId, createdAt])
-
   @@map("comments")
 }
 
@@ -298,29 +300,99 @@ model ProductSkillRel {
 }
 
 model VerificationCode {
-  id        Int       @id @default(autoincrement())
-  type      String    // 'email' | 'phone'
-  target    String    // 邮箱地址或手机号
-  code      String    @db.VarChar(6)  // 6 位验证码
-  purpose   String    @default("login")  // 'login' | 'register'
-  used      Boolean   @default(false)
-  expiresAt DateTime  @map("expires_at")
-  createdAt DateTime  @default(now()) @map("created_at")
+  id        Int      @id @default(autoincrement())
+  type      String // 'email' | 'phone'
+  target    String // 邮箱地址或手机号
+  code      String   @db.VarChar(6) // 6 位验证码
+  purpose   String   @default("login") // 'login' | 'register'
+  used      Boolean  @default(false)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@index([type, target, purpose, used, expiresAt])
   @@map("verification_codes")
 }
 
 model UserSession {
-  id         Int       @id @default(autoincrement())
-  userId     Int       @map("user_id")
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  deviceInfo String?   @map("device_info")
-  ipAddress  String?   @map("ip_address")
-  tokenHash  String?   @unique @map("token_hash")
-  expiresAt  DateTime  @map("expires_at")
-  createdAt  DateTime  @default(now()) @map("created_at")
+  id         Int      @id @default(autoincrement())
+  userId     Int      @map("user_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceInfo String?  @map("device_info")
+  ipAddress  String?  @map("ip_address")
+  tokenHash  String?  @unique @map("token_hash")
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
 
   @@index([userId, expiresAt])
   @@map("user_sessions")
+}
+
+model CustomerContext {
+  id            Int       @id @default(autoincrement())
+  userId        Int       @map("user_id")
+  customerName  String    @map("customer_name") @db.VarChar(150)
+  contactPerson String?   @map("contact_person") @db.VarChar(100)
+  phone         String?   @db.VarChar(50)
+  industry      String?   @db.VarChar(100)
+  channel       String?   @db.VarChar(100)
+  remark        String?   @db.Text
+  extraData     Json?     @map("extra_data")
+  lastUsedAt    DateTime? @map("last_used_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, deletedAt, updatedAt])
+  @@index([customerName])
+  @@map("customer_contexts")
+}
+
+model Draft {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @map("user_id")
+  toolId    String    @map("tool_id") @db.VarChar(100)
+  title     String    @db.VarChar(200)
+  data      Json
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, toolId, updatedAt])
+  @@index([userId, deletedAt, updatedAt])
+  @@map("drafts")
+}
+
+model Artifact {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @map("user_id")
+  toolId    String    @map("tool_id") @db.VarChar(100)
+  title     String    @db.VarChar(200)
+  content   String    @db.Text
+  metadata  Json?
+  createdAt DateTime  @default(now()) @map("created_at")
+  deletedAt DateTime? @map("deleted_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, toolId, createdAt])
+  @@index([userId, deletedAt, createdAt])
+  @@map("artifacts")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  module     String   @db.VarChar(100)
+  action     String   @db.VarChar(100)
+  targetType String?  @map("target_type") @db.VarChar(100)
+  targetId   String?  @map("target_id") @db.VarChar(100)
+  operatorId Int?     @map("operator_id")
+  detail     Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+  operator   User?    @relation("AuditLogOperator", fields: [operatorId], references: [id], onDelete: SetNull)
+
+  @@index([module, createdAt])
+  @@index([operatorId, createdAt])
+  @@index([targetType, targetId, createdAt])
+  @@map("audit_logs")
 }
