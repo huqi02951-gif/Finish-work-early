@@ -31,6 +31,7 @@ const SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG = require('./seed-data/page-configs/ski
 const BUSINESS_GUIDE_PRODUCTS = require('./seed-data/products/business-guide-products.json');
 const SKILLS = require('./seed-data/skills/skills.json');
 const FORUM_GUIDE_POSTS = require('./seed-data/forum/forum-guide-posts.json');
+const BBS_SEED_POSTS = require('./seed-data/forum/bbs-seed-posts.json');
 
 function slugifyTag(input) {
   return String(input || '')
@@ -116,6 +117,30 @@ async function seedForumBoards() {
       name: 'Skills 交流',
       description: '工具使用经验、适用场景和常见问题。',
       sortOrder: 40,
+      isOfficial: false,
+      requiresReview: false,
+    },
+    {
+      slug: 'professional',
+      name: '专业业务区',
+      description: '产品经验、信贷操作、工具教程、产品建议。知识沉淀，共同进步。',
+      sortOrder: 35,
+      isOfficial: false,
+      requiresReview: false,
+    },
+    {
+      slug: 'pantry',
+      name: '地下茶水间',
+      description: '匿名吐槽、Gossip、二手交易、请开发者喝咖啡。',
+      sortOrder: 30,
+      isOfficial: false,
+      requiresReview: false,
+    },
+    {
+      slug: 'gossip',
+      name: '限时流言板',
+      description: '限时流言、匿名爆料、即时情报。12小时自动焚毁。',
+      sortOrder: 25,
       isOfficial: false,
       requiresReview: false,
     },
@@ -435,6 +460,74 @@ async function seedForumSamplePosts(adminUserId) {
   }
 }
 
+async function seedBBSPosts(adminUserId) {
+  const bbsAuthor = await prisma.user.upsert({
+    where: { username: 'bbs_seed' },
+    update: {
+      nickname: 'BBS 示例用户',
+      status: UserStatus.ACTIVE,
+    },
+    create: {
+      username: 'bbs_seed',
+      nickname: 'BBS 示例用户',
+      passwordHash: await bcrypt.hash('BBSSeed123!', 10),
+      status: UserStatus.ACTIVE,
+      role: UserRole.USER,
+    },
+    select: { id: true },
+  });
+
+  const boards = await prisma.board.findMany({
+    where: {
+      slug: { in: ['professional', 'pantry', 'gossip'] },
+    },
+    select: { id: true, slug: true, name: true },
+  });
+  const boardBySlug = new Map(boards.map((item) => [item.slug, item]));
+
+  for (const post of BBS_SEED_POSTS) {
+    const board = boardBySlug.get(post.boardSlug);
+    if (!board) continue;
+
+    const record = await prisma.post.upsert({
+      where: { externalKey: post.externalKey },
+      update: {
+        boardId: board.id,
+        title: post.title,
+        summary: post.summary || null,
+        content: post.content,
+        category: post.category || board.name,
+        postType: post.postType || PostType.DISCUSSION,
+        sourceType: PostSourceType.SEED,
+        isOfficial: post.isOfficial || false,
+        isPinned: post.isPinned || false,
+        pinnedAt: post.isPinned ? new Date() : null,
+        status: PostStatus.PUBLISHED,
+        authorId: post.isOfficial ? adminUserId : bbsAuthor.id,
+        deletedAt: null,
+      },
+      create: {
+        externalKey: post.externalKey,
+        boardId: board.id,
+        title: post.title,
+        summary: post.summary || null,
+        content: post.content,
+        category: post.category || board.name,
+        postType: post.postType || PostType.DISCUSSION,
+        sourceType: PostSourceType.SEED,
+        isOfficial: post.isOfficial || false,
+        isPinned: post.isPinned || false,
+        pinnedAt: post.isPinned ? new Date() : null,
+        status: PostStatus.PUBLISHED,
+        authorId: post.isOfficial ? adminUserId : bbsAuthor.id,
+      },
+      select: { id: true },
+    });
+
+    await syncPostTags(record.id, post.tags || []);
+  }
+}
+
 async function seedPageConfigs(adminUserId) {
   await prisma.pageConfig.upsert({
     where: { pageKey: 'home_page' },
@@ -599,6 +692,7 @@ async function main() {
   await seedForumTags();
   await seedForumOfficialPosts(admin.id);
   await seedForumSamplePosts(admin.id);
+  await seedBBSPosts(admin.id);
 }
 
 main()

@@ -1,11 +1,34 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Briefcase, Terminal, MessageSquare, Flame, Users, Shield } from 'lucide-react';
 import AppLayout from '../../components/layout/AppLayout';
 import PostCard from '../../components/community/PostCard';
-import { professionalPosts, pantryPosts } from '../../data/bbsSeedData';
+import { forumApi } from '../../services/forumApi';
+import type { Post } from '../../types';
 
 const BBSHomePage: React.FC = () => {
+  const [professionalPosts, setProfessionalPosts] = useState<Post[]>([]);
+  const [pantryPosts, setPantryPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [proRes, pantryRes] = await Promise.all([
+          forumApi.getPosts({ boardSlug: 'professional', pageSize: 6 }),
+          forumApi.getPosts({ boardSlug: 'pantry', pageSize: 7 }),
+        ]);
+        setProfessionalPosts(proRes.items);
+        setPantryPosts(pantryRes.items);
+      } catch (err) {
+        console.error('Failed to load BBS home data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
   return (
     <AppLayout title="社区中心" showBack={false}>
       <div className="py-4 md:py-8 bg-brand-offwhite min-h-screen pb-24">
@@ -73,9 +96,13 @@ const BBSHomePage: React.FC = () => {
                 </Link>
               </div>
               <div className="grid gap-3">
-                {professionalPosts.slice(0, 3).map(post => (
-                  <PostCard key={post.id} post={post} variant="professional" basePath="/bbs/professional" />
-                ))}
+                {loading ? (
+                  <div className="text-sm text-brand-gray text-center py-6">加载中...</div>
+                ) : (
+                  professionalPosts.slice(0, 3).map(post => (
+                    <PostCard key={post.id} post={post} variant="professional" basePath="/bbs/professional" />
+                  ))
+                )}
               </div>
             </div>
 
@@ -90,9 +117,13 @@ const BBSHomePage: React.FC = () => {
                 </Link>
               </div>
               <div className="grid gap-3">
-                {pantryPosts.slice(0, 3).map(post => (
-                  <PostCard key={post.id} post={post} variant="pantry" basePath="/bbs/pantry" />
-                ))}
+                {loading ? (
+                  <div className="text-sm text-[#00ff41]/30 text-center py-6 font-mono">数据同步中...</div>
+                ) : (
+                  pantryPosts.slice(0, 3).map(post => (
+                    <PostCard key={post.id} post={post} variant="pantry" basePath="/bbs/pantry" />
+                  ))
+                )}
               </div>
             </div>
           </div>

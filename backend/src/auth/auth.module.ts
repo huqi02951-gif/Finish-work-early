@@ -1,10 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { EmailAuthModule } from './email-auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { getJwtSecret, getJwtSignOptions } from './auth.config';
+import { AuthGuard } from './auth.guard';
 
+@Global()
 @Module({
   imports: [
     EmailAuthModule,
@@ -17,6 +19,7 @@ import { getJwtSecret, getJwtSignOptions } from './auth.config';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, AuthGuard],
+  exports: [AuthGuard, JwtModule],
 })
 export class AuthModule {}

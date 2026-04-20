@@ -1,11 +1,36 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Flame, Zap, Clock, ArrowRight } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import type { GossipPost, GossipStatus } from '../../types/gossip';
 import { computeStatus, HEAT_THRESHOLDS } from '../../types/gossip';
 import GossipPostCard from './GossipPostCard';
-import { gossipPosts } from '../../data/bbsSeedData';
+import { forumApi } from '../../services/forumApi';
+import type { Post } from '../../types';
 import { useToast } from '../../components/common/Toast';
+
+/** Map a backend Post to the GossipPost UI model with synthetic gossip fields */
+function postToGossip(post: Post): GossipPost {
+  const created = new Date(post.createdAt).getTime();
+  const heatScore = Math.min((post.commentCount || 0) * 5 + 10, 100);
+  const expireAt = new Date(created + 12 * 3600000).toISOString();
+  const gossipCategory = (post.category || '') as GossipPost['category'];
+  const validCategories: GossipPost['category'][] = ['匿名吐槽', 'Gossip 贴板', '二手交易', '请喝咖啡'];
+  return {
+    id: post.id,
+    title: post.title,
+    content: post.content,
+    author: post.author?.nickname || '匿名用户',
+    isAnonymous: true,
+    category: validCategories.includes(gossipCategory) ? gossipCategory : '匿名吐槽',
+    createdAt: post.createdAt,
+    expireAt,
+    heatScore,
+    reviveCount: 0,
+    status: 'fermenting',
+    replyCount: post.commentCount || 0,
+    tags: post.tags || [],
+  };
+}
 
 interface GossipBoardProps {
   className?: string;
@@ -14,7 +39,22 @@ interface GossipBoardProps {
 const GossipBoard: React.FC<GossipBoardProps> = ({ className }) => {
   const toast = useToast();
   const [activeFilter, setActiveFilter] = useState<GossipStatus | 'all'>('all');
-  const [posts, setPosts] = useState<GossipPost[]>(gossipPosts);
+  const [posts, setPosts] = useState<GossipPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await forumApi.getPosts({ boardSlug: 'gossip', pageSize: 30 });
+        setPosts(res.items.map(postToGossip));
+      } catch (err) {
+        console.error('Failed to load gossip posts:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
 
   const handleRevive = (id: string) => {
     setPosts(prev => prev.map(p => {
@@ -89,7 +129,11 @@ const GossipBoard: React.FC<GossipBoardProps> = ({ className }) => {
 
         {/* Posts grid */}
         <div className="grid gap-3">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-8 text-[#ff0040]/20 text-xs font-mono animate-pulse">
+              信号接入中...
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="text-center py-8 text-[#ff0040]/20 text-xs font-mono">
               暂无匹配的流言
             </div>

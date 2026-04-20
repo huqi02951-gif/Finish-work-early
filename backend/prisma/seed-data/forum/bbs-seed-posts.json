@@ -1,0 +1,236 @@
+[
+  {
+    "externalKey": "bbs:professional:product-library-review",
+    "boardSlug": "professional",
+    "title": "这套产品库我跑了一周，说说哪些功能是真能提效的",
+    "summary": "产品匹配、营销话术生成、材料清单自动填充三个核心场景实测。",
+    "content": "过去一周把长一单产品库完整跑了一遍，重点测试了产品匹配、营销话术生成、材料清单自动填充三个核心场景。整体感受：产品匹配准确度超出预期，尤其是对公业务这块。但有些细节还需要人工介入。以下是详细的使用感受和建议...",
+    "postType": "DISCUSSION",
+    "tags": ["产品库", "效率工具", "实战分享"],
+    "category": "经验帖",
+    "isPinned": true
+  },
+  {
+    "externalKey": "bbs:professional:one-click-generation",
+    "boardSlug": "professional",
+    "title": "长一单现在可以一键生成哪些内容？适合哪些场景？",
+    "summary": "已支持的一键生成清单与适用场景总结。",
+    "content": "整理了一下目前已支持的一键生成清单：1）产品对比表 2）营销话术（分初次/深入/补件三个版本）3）材料清单模板 4）授信方案初稿。每个生成器适用的场景和限制条件都不同，建议根据客户类型选择性使用...",
+    "postType": "GUIDE",
+    "tags": ["长一单", "一键生成", "工具教程"],
+    "category": "工具帖",
+    "isOfficial": true
+  },
+  {
+    "externalKey": "bbs:professional:credit-plan-review",
+    "boardSlug": "professional",
+    "title": "授信方案自动生成后，哪些部分还建议人工复核？",
+    "summary": "担保方式、还款来源分析等4个关键复核点。",
+    "content": "系统生成的授信方案已经覆盖了80%的标准内容，但以下几个部分强烈建议人工复核：担保方式、还款来源分析、行业风险提示、财务指标异常说明。这些部分如果直接采用自动生成，在审查环节被退回的概率会显著增加...",
+    "postType": "DISCUSSION",
+    "tags": ["授信方案", "人工复核", "审查要点"],
+    "category": "信贷操作"
+  },
+  {
+    "externalKey": "bbs:professional:solar-loan-info",
+    "boardSlug": "professional",
+    "title": "光伏贷现在缺的不是页面，是信息结构",
+    "summary": "信息层级需要重构，客户关心的数据应放在第一眼。",
+    "content": "最近跑了几个光伏贷的客户，发现最大的问题不是产品页面不好看，而是信息结构不合理。客户关心的核心问题（收益测算、并网周期、运维成本）被埋在了长篇大论里。建议重构信息层级，把客户最关心的数据放在第一眼...",
+    "postType": "FAQ",
+    "tags": ["光伏贷", "信息架构", "客户体验"],
+    "category": "产品建议"
+  },
+  {
+    "externalKey": "bbs:professional:batch-profile",
+    "boardSlug": "professional",
+    "title": "希望尽快把这个功能上线，业务端真的很需要",
+    "summary": "批量客户画像对比功能测试环境已跑通，等前端交互设计。",
+    "content": "批量客户画像对比功能，目前在测试环境已经跑通了。一线客户经理在拜访客户前，如果能快速对比多个客户的行业、规模、历史合作记录，效率会提升很多。目前卡在前端交互设计上，希望有前端同学一起参与...",
+    "postType": "UPDATE",
+    "tags": ["功能需求", "客户画像", "前端协作"],
+    "category": "开发共创"
+  },
+  {
+    "externalKey": "bbs:professional:product-manual-simplified",
+    "boardSlug": "professional",
+    "title": "把产品手册用人话讲一遍：新同事也能快速上手",
+    "summary": "人话版产品速查表，每产品三句话讲清楚。",
+    "content": "最近带了几位新同事，发现官方产品手册的术语密度太高。于是我自己写了一份\"人话版\"产品速查表，把每个产品的核心卖点、适用场景、常见异议整理成了三句话版本。新人反馈很好，分享给大家参考...",
+    "postType": "GUIDE",
+    "tags": ["产品手册", "新人培训", "实战经验"],
+    "category": "手册分享",
+    "isOfficial": true,
+    "isPinned": true
+  },
+  {
+    "externalKey": "bbs:pantry:salary-feeling",
+    "boardSlug": "pantry",
+    "title": "最近这个工资体感，大家是不是都一样？",
+    "summary": "绩效砍得厉害，指标只增不减。",
+    "content": "不具体说数字了，就是觉得到手越来越薄。绩效那边砍得厉害，但指标只增不减。大家支行情况如何？是不是只有我们这样？",
+    "postType": "DISCUSSION",
+    "tags": ["工资", "绩效", "吐槽"],
+    "category": "匿名吐槽"
+  },
+  {
+    "externalKey": "bbs:pantry:pricing-awkward",
+    "boardSlug": "pantry",
+    "title": "这个产品定价现在到底怎么沟通才不尴尬？",
+    "summary": "友行利率已经卷到那个价格了。",
+    "content": "客户一听到报价就沉默，友行已经卷到那个价格了我们还在坚持。但真的不是我们的问题，是市场环境变了。大家怎么跟客户解释的？",
+    "postType": "DISCUSSION",
+    "tags": ["定价", "沟通", "市场"],
+    "category": "Gossip 贴板"
+  },
+  {
+    "externalKey": "bbs:pantry:workload-pressure",
+    "boardSlug": "pantry",
+    "title": "谁懂，最近业务压力是真的有点离谱",
+    "summary": "一个人扛三个片区的指标。",
+    "content": "一个人扛三个片区的指标，外加两个专项任务。每天到家都十一点了，周末还要补课。感觉身体和精神都在透支，但又不能说退出。有没有类似状态的战友？",
+    "postType": "DISCUSSION",
+    "tags": ["压力", "加班", "心态"],
+    "category": "匿名吐槽"
+  },
+  {
+    "externalKey": "bbs:pantry:keyboard-trade",
+    "boardSlug": "pantry",
+    "title": "机械键盘换星巴克，有人换吗",
+    "summary": "Cherry MX 红轴换星巴克礼品卡。",
+    "content": "Cherry MX 红轴，用了三个月成色很新。想换星巴克礼品卡面值200的。支行附近面交。",
+    "postType": "DISCUSSION",
+    "tags": ["交易", "键盘", "星巴克"],
+    "category": "二手交易"
+  },
+  {
+    "externalKey": "bbs:pantry:checklist-thanks",
+    "boardSlug": "pantry",
+    "title": "请开发者喝杯咖啡，这个功能确实救命",
+    "summary": "检核表生成器提效明显。",
+    "content": "检核表生成器这个工具真的帮了大忙了，以前每次尽调都要花半天整理清单，现在五分钟搞定。虽然不知道开发者是谁，但想表达一下感谢！",
+    "postType": "DISCUSSION",
+    "tags": ["感谢", "工具", "咖啡"],
+    "category": "请喝咖啡"
+  },
+  {
+    "externalKey": "bbs:pantry:feature-wish",
+    "boardSlug": "pantry",
+    "title": "你们最近最想催上线的功能是什么？",
+    "summary": "客户拜访记录自动同步到CRM。",
+    "content": "我先说：客户拜访记录自动同步到CRM。每次拜访完还要手动录入，太浪费时间了。如果能语音转文字直接生成记录就好了。",
+    "postType": "DISCUSSION",
+    "tags": ["功能愿望", "CRM", "效率"],
+    "category": "Gossip 贴板"
+  },
+  {
+    "externalKey": "bbs:pantry:late-night-chat",
+    "boardSlug": "pantry",
+    "title": "地下茶水间夜聊：大家现在最关心的到底是什么？",
+    "summary": "匿名夜聊，放心说。",
+    "content": "睡不着，随便聊聊。降薪？指标？晋升？还是单纯想逃离这个行业？我知道这里匿名，就放心说吧。我先来：最关心的是什么时候能不用周末加班。",
+    "postType": "DISCUSSION",
+    "tags": ["夜聊", "职业思考", "匿名"],
+    "category": "匿名吐槽"
+  },
+  {
+    "externalKey": "bbs:gossip:rate-war",
+    "boardSlug": "gossip",
+    "title": "听说某支行已经把利率降到2.6%抢客户了",
+    "summary": "利率战信息，有客户拿着这个利率来压我们了。",
+    "content": "不知道真假，但已经有客户拿着这个利率来压我们了。如果是真的，这个月又难打了。",
+    "postType": "DISCUSSION",
+    "tags": ["利率战", "竞品", "紧急"],
+    "category": "匿名吐槽"
+  },
+  {
+    "externalKey": "bbs:gossip:target-increase",
+    "boardSlug": "gossip",
+    "title": "这个月指标又加了20%，领导是认真的吗",
+    "summary": "上个月的还没完成，这个月又加码。",
+    "content": "上个月的还没完成，这个月又加码。不是不想干，是真的干不动了。有人知道上面怎么想的吗？",
+    "postType": "DISCUSSION",
+    "tags": ["指标", "压力", "共鸣"],
+    "category": "匿名吐槽"
+  },
+  {
+    "externalKey": "bbs:gossip:rejection-recording",
+    "boardSlug": "gossip",
+    "title": "分享一个客户拒绝的真实录音（已脱敏）",
+    "summary": "客户的真实想法，很多痛点他们根本不care。",
+    "content": "录了一段跟客户沟通的对话（已脱敏处理），大家可以听听客户的真实想法。很多我们以为的痛点，其实客户根本不care。",
+    "postType": "DISCUSSION",
+    "tags": ["客户洞察", "录音", "实战"],
+    "category": "Gossip 贴板"
+  },
+  {
+    "externalKey": "bbs:gossip:headhunting",
+    "boardSlug": "gossip",
+    "title": "友行最近在挖我们的人，薪资开到了1.5倍",
+    "summary": "已有同事在犹豫，理性分析一波。",
+    "content": "已经有两个同事在犹豫了。说实话我也心动了。但去了新环境真的好吗？大家理性分析一波。",
+    "postType": "DISCUSSION",
+    "tags": ["跳槽", "薪资", "选择"],
+    "category": "Gossip 贴板"
+  },
+  {
+    "externalKey": "bbs:gossip:ipad-trade",
+    "boardSlug": "gossip",
+    "title": "iPad Air 5 出二手，支行活动奖品，全新未拆",
+    "summary": "4000出，支行附近面交。",
+    "content": "支行季度竞赛的奖品，自己用不上。4000出，支行附近面交。先到先得。",
+    "postType": "DISCUSSION",
+    "tags": ["二手", "iPad", "交易"],
+    "category": "二手交易"
+  },
+  {
+    "externalKey": "bbs:gossip:morning-meeting",
+    "boardSlug": "gossip",
+    "title": "有没有人也觉得晨会越来越形式主义了？",
+    "summary": "每天半小时，90%时间在念PPT。",
+    "content": "每天晨会半小时，90%的时间在念PPT。真正有用的信息不到两句。能不能改改形式？",
+    "postType": "DISCUSSION",
+    "tags": ["晨会", "形式主义", "效率"],
+    "category": "匿名吐槽"
+  },
+  {
+    "externalKey": "bbs:gossip:checklist-coffee",
+    "boardSlug": "gossip",
+    "title": "请做检核表工具的开发者喝咖啡！",
+    "summary": "尽调效率提升至少30%。",
+    "content": "这个月用了检核表生成器，尽调效率提升了至少30%。想请背后的开发者喝杯咖啡，感谢你们的付出！",
+    "postType": "DISCUSSION",
+    "tags": ["感谢", "工具", "咖啡"],
+    "category": "请喝咖啡"
+  },
+  {
+    "externalKey": "bbs:gossip:risk-model-leak",
+    "boardSlug": "gossip",
+    "title": "深夜爆料：某产品的风控模型有漏洞",
+    "summary": "审批标准不一致的问题。",
+    "content": "不方便说具体是哪个产品，但确实存在审批标准不一致的问题。已经有几笔业务存在隐患。建议相关人员自查。",
+    "postType": "DISCUSSION",
+    "tags": ["风控", "爆料", "紧急"],
+    "category": "Gossip 贴板"
+  },
+  {
+    "externalKey": "bbs:gossip:visit-record-tool",
+    "boardSlug": "gossip",
+    "title": "大家用什么工具做客户拜访记录？",
+    "summary": "语音转文字工具推荐。",
+    "content": "现在手动写太慢了，有没有好用的工具推荐？语音转文字的那种？或者有其他高效方法的求分享。",
+    "postType": "DISCUSSION",
+    "tags": ["工具推荐", "拜访", "效率"],
+    "category": "Gossip 贴板"
+  },
+  {
+    "externalKey": "bbs:gossip:salary-trend",
+    "boardSlug": "gossip",
+    "title": "这张降薪趋势图，看完沉默了",
+    "summary": "不是只有你在降，是所有人都在降。",
+    "content": "统计了过去两年全行各支行的绩效变化，做了一个折线图。结论是：不是只有你在降，是所有人都在降，只是幅度不同。",
+    "postType": "DISCUSSION",
+    "tags": ["降薪", "数据", "趋势"],
+    "category": "匿名吐槽"
+  }
+]

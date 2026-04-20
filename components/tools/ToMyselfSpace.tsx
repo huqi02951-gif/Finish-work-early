@@ -4,6 +4,8 @@ import { Solar } from 'lunar-javascript';
 import { cn } from '../../lib/utils';
 import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber, writeLocalNumber } from '../../lib/localSignals';
 import { createSelfGossipThread } from '../../lib/community';
+import { getBestToken } from '../../src/services/authService';
+import { useToast } from '../../src/components/common/Toast';
 import {
   Settings, X, Check, Plus, Trash2, RotateCcw,
   Coffee, Heart, Zap, Gift, Sparkles, Terminal,
@@ -22,6 +24,44 @@ const SK = {
   PET_COLL:   'cl_pet_collection',
   PET_BOXES:  'cl_pet_boxes_opened',
 } as const;
+
+const TOOL_DATA_API_ROOT = (
+  import.meta.env.VITE_API_BASE_URL ||
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000'
+    : '')
+).replace(/\/$/, '') + '/api/v1';
+
+async function createArtifactRecord(input: {
+  toolId: string;
+  title: string;
+  content: string;
+  metadata?: Record<string, unknown>;
+}) {
+  const token = getBestToken();
+  if (!token) {
+    return { ok: false as const, reason: 'unauthenticated' as const };
+  }
+
+  try {
+    const response = await fetch(`${TOOL_DATA_API_ROOT}/artifacts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(input),
+    });
+
+    if (!response.ok) {
+      return { ok: false as const, reason: 'request_failed' as const };
+    }
+
+    return { ok: true as const };
+  } catch {
+    return { ok: false as const, reason: 'network_error' as const };
+  }
+}
 
 function loadNum(key: string, fallback: number) {
   if (key === SK.SALARY) return readLocalNumber(LOCAL_NUMBER_KEYS.salary, fallback);
@@ -633,6 +673,7 @@ const FocusTimer: React.FC<{ onXPChange: (next: number) => void; xp: number }> =
   const [sessions,     setSessions]     = useState(() => loadNum(SK.TREES, 0));
   const [justDone,     setJustDone]     = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const toast = useToast();
 
   useEffect(() => {
     if (isActive && timeLeft > 0) {
@@ -646,6 +687,22 @@ const FocusTimer: React.FC<{ onXPChange: (next: number) => void; xp: number }> =
         setSessions(next);
         writeLocalNumber(LOCAL_NUMBER_KEYS.trees, next);
         onXPChange(xp + 50);
+        void createArtifactRecord({
+          toolId: 'to-myself-focus-timer',
+          title: `专注完成记录 #${next}`,
+          content: `完成 1 次 25 分钟专注，获得 50 能量，累计种树 ${next} 棵。`,
+          metadata: {
+            phase: 'work',
+            durationSeconds: WORK_SECS,
+            rewardXp: 50,
+            totalTrees: next,
+            completedAt: new Date().toISOString(),
+          },
+        }).then((result) => {
+          if (!result.ok && result.reason !== 'unauthenticated') {
+            toast.warning('专注已完成，记录未同步到云端');
+          }
+        });
         setTimeout(() => {
           setPhase('break');
           setTimeLeft(BREAK_SECS);
@@ -1075,6 +1132,7 @@ const GossipBoard: React.FC = () => {
     ])
   );
   const [input, setInput] = useState('');
+  const toast = useToast();
 
   useEffect(() => { localStorage.setItem(SK.NOTES, JSON.stringify(notes)); }, [notes]);
 
@@ -1083,7 +1141,13 @@ const GossipBoard: React.FC = () => {
     if (!text) return;
     const c = NOTE_COLORS[notes.length % NOTE_COLORS.length];
     setNotes(prev => [{ id: Date.now(), text, color: c.bg }, ...prev].slice(0, 9));
-    void createSelfGossipThread(text);
+    void createSelfGossipThread(text)
+      .then(() => {
+        toast.success('碎碎念已同步到茶水间');
+      })
+      .catch(() => {
+        toast.warning('便利贴已保存，本次茶水间同步失败');
+      });
     setInput('');
   };
 

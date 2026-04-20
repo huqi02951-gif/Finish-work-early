@@ -5,7 +5,7 @@ import CyberLayout from '../../components/layout/CyberLayout';
 import CommentSection from '../../components/community/CommentSection';
 import TipJar from '../../components/community/TipJar';
 import { cn } from '../../../lib/utils';
-import { pantryPosts } from '../../data/bbsSeedData';
+import { forumApi } from '../../services/forumApi';
 import type { Post, Comment } from '../../types';
 import { useToast } from '../../components/common/Toast';
 
@@ -22,29 +22,23 @@ const PantryThreadPage: React.FC = () => {
   useEffect(() => {
     if (!id) return;
     setLoading(true);
-    // Load from seed data
-    const found = pantryPosts.find(p => p.id === id) || null;
-    setPost(found);
-    // Mock comments
-    setComments([
-      {
-        id: 'c1',
-        postId: id,
-        userId: 'u1',
-        content: '同感，现在的环境确实不容易。不过还是要保持心态，做好自己的事。',
-        createdAt: new Date(Date.now() - 3600000).toISOString(),
-        author: { id: 'u1', nickname: '匿名战友', avatar: '', role: 'user', email: '', createdAt: '' },
-      },
-      {
-        id: 'c2',
-        postId: id,
-        userId: 'u2',
-        content: '我们支行情况也差不多。上个月指标又加了，领导说是"战略调整"。',
-        createdAt: new Date(Date.now() - 7200000).toISOString(),
-        author: { id: 'u2', nickname: 'ANON_0x5D1E', avatar: '', role: 'user', email: '', createdAt: '' },
-      },
-    ]);
-    setLoading(false);
+    const load = async () => {
+      try {
+        const [postData, commentsData] = await Promise.all([
+          forumApi.getPostDetail(id),
+          forumApi.getPostComments(id, { pageSize: 50 }),
+        ]);
+        setPost(postData);
+        setComments(commentsData.items);
+      } catch (err) {
+        console.error('Failed to load pantry thread:', err);
+        setPost(null);
+        setComments([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
   }, [id]);
 
   const handleReply = async (e: React.FormEvent) => {

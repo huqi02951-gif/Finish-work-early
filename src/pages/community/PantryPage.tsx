@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Flame, Coffee, Package2, MessageSquare, Hash, Search, Plus, Sparkles, Zap, Terminal } from 'lucide-react';
 import CyberLayout from '../../components/layout/CyberLayout';
@@ -8,7 +8,8 @@ import PostCard from '../../components/community/PostCard';
 import ComposeForm from '../../components/community/ComposeForm';
 import { cn } from '../../../lib/utils';
 import { useDebounce } from '../../../lib/utils';
-import { pantryPosts } from '../../data/bbsSeedData';
+import { forumApi } from '../../services/forumApi';
+import type { Post } from '../../types';
 
 type PantrySection = 'all' | 'gossip' | 'chat' | 'trade' | 'coffee';
 
@@ -34,6 +35,22 @@ const PantryPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 300);
   const [showCompose, setShowCompose] = useState(false);
+  const [pantryPosts, setPantryPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await forumApi.getPosts({ boardSlug: 'pantry', pageSize: 50 });
+        setPantryPosts(res.items);
+      } catch (err) {
+        console.error('Failed to load pantry posts:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
 
   const filteredPosts = useMemo(() => {
     let posts = pantryPosts;
@@ -47,7 +64,7 @@ const PantryPage: React.FC = () => {
       );
     }
     return posts;
-  }, [activeSection, debouncedSearch]);
+  }, [pantryPosts, activeSection, debouncedSearch]);
 
   const handlePost = async (data: { title: string; content: string; category: string; anonymous: boolean; tags: string[] }) => {
     // Mock: just show success toast (handled by ComposeForm)
@@ -149,7 +166,11 @@ const PantryPage: React.FC = () => {
         <div className="space-y-3">
           {activeSection !== 'gossip' && (
             <>
-              {filteredPosts.length > 0 ? (
+              {loading ? (
+                <div className="border border-dashed border-[#00ff41]/20 bg-black p-8 text-center text-sm text-[#00ff41]/30 font-mono">
+                  数据同步中...
+                </div>
+              ) : filteredPosts.length > 0 ? (
                 filteredPosts.map(post => (
                   <PostCard key={post.id} post={post} variant="pantry" basePath="/bbs/pantry/thread" />
                 ))

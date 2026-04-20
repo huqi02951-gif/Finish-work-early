@@ -12,7 +12,8 @@ import { User as UserType } from '../types';
 import { cn } from '../../lib/utils';
 import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber, writeLocalNumber } from '../../lib/localSignals';
 import InitialBadge from '../components/common/InitialBadge';
-import { listCommunityEntries } from '../../lib/community';
+import { forumApi } from '../services/forumApi';
+import { getAuthSession } from '../services/authService';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // --- Cyberpunk / CLI Components ---
@@ -68,13 +69,22 @@ const Profile: React.FC = () => {
     };
     fetchUser();
     
-    // Fetch real community stats for "当前浏览器" 
+    // Fetch real community stats from backend
     const fetchCommunityStats = async () => {
-      const all = await listCommunityEntries('全部');
-      const mine = all.filter(p => p.author === '当前浏览器' || p.author === '当前浏览器用户');
-      setMyPostCount(mine.length);
-      const likes = mine.reduce((acc, curr) => acc + curr.likes, 0);
-      setMyLikesReceived(likes);
+      const session = getAuthSession();
+      if (!session || session.loginMethod === 'demo') {
+        setMyPostCount(0);
+        setMyLikesReceived(0);
+        return;
+      }
+      try {
+        const res = await forumApi.getMyPosts({ pageSize: 100 });
+        setMyPostCount(res.total);
+        setMyLikesReceived(0); // likes not yet supported by backend
+      } catch {
+        setMyPostCount(0);
+        setMyLikesReceived(0);
+      }
     };
     fetchCommunityStats();
 

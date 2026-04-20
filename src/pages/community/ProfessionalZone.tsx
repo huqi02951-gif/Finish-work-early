@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUp, ArrowDown, Clock, Search, Plus, MessageSquare, Pin } from 'lucide-react';
 import AppLayout from '../../components/layout/AppLayout';
@@ -7,7 +7,8 @@ import ComposeForm from '../../components/community/ComposeForm';
 import TagFilter from '../../components/community/TagFilter';
 import { cn } from '../../../lib/utils';
 import { useDebounce } from '../../../lib/utils';
-import { professionalPosts } from '../../data/bbsSeedData';
+import { forumApi } from '../../services/forumApi';
+import type { Post } from '../../types';
 
 const CATEGORIES = ['经验帖', '工具帖', '信贷操作', '产品建议', '开发共创', '手册分享'];
 type SortMode = 'latest' | 'hot' | 'pinned';
@@ -18,12 +19,28 @@ const ProfessionalZonePage: React.FC = () => {
   const debouncedSearch = useDebounce(searchQuery, 300);
   const [sortMode, setSortMode] = useState<SortMode>('pinned');
   const [showCompose, setShowCompose] = useState(false);
+  const [professionalPosts, setProfessionalPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await forumApi.getPosts({ boardSlug: 'professional', pageSize: 50 });
+        setProfessionalPosts(res.items);
+      } catch (err) {
+        console.error('Failed to load professional posts:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
 
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
     professionalPosts.forEach(p => p.tags.forEach(t => tagSet.add(t)));
     return Array.from(tagSet);
-  }, []);
+  }, [professionalPosts]);
 
   const filteredPosts = useMemo(() => {
     let posts = [...professionalPosts];
@@ -55,7 +72,7 @@ const ProfessionalZonePage: React.FC = () => {
     }
 
     return posts;
-  }, [activeTag, debouncedSearch, sortMode]);
+  }, [professionalPosts, activeTag, debouncedSearch, sortMode]);
 
   const handlePost = async (data: { title: string; content: string; category: string; anonymous: boolean; tags: string[] }) => {
     console.log('New professional post:', data);
@@ -137,7 +154,9 @@ const ProfessionalZonePage: React.FC = () => {
 
             {/* Posts List */}
             <div className="space-y-3 animate-fade-in-up">
-              {filteredPosts.length > 0 ? (
+              {loading ? (
+                <div className="text-center py-12 text-brand-gray text-sm">加载中...</div>
+              ) : filteredPosts.length > 0 ? (
                 filteredPosts.map(post => (
                   <PostCard key={post.id} post={post} variant="professional" basePath="/bbs/professional" />
                 ))
