@@ -10,11 +10,12 @@ import CommunityAccessGate from '../components/community/CommunityAccessGate';
 import { apiService } from '../services/api';
 import { User as UserType } from '../types';
 import { cn } from '../../lib/utils';
-import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber, writeLocalNumber } from '../../lib/localSignals';
+import { LOCAL_NUMBER_KEYS, incrementLocalNumber, readLocalNumber, subscribeLocalNumber, writeLocalNumber } from '../../lib/localSignals';
 import InitialBadge from '../components/common/InitialBadge';
 import { forumApi } from '../services/forumApi';
 import { getAuthSession } from '../services/authService';
 import { motion } from 'framer-motion';
+import { recordPetEvent, syncPetStatus } from '../../lib/petOs';
 
 // --- Cyberpunk / CLI Components ---
 
@@ -171,8 +172,20 @@ const Profile: React.FC = () => {
     heartbeatDesc = 'CRITICAL_亟待抢救';
   }
 
-  const handleTouchFish = () => setRestoredLife(prev => prev + 15);
-  const handleDrinkCoffee = () => setRestoredLife(prev => prev + 10);
+  useEffect(() => {
+    void syncPetStatus(status);
+  }, [status]);
+
+  const handleTouchFish = () => {
+    setRestoredLife(prev => prev + 15);
+    incrementLocalNumber(LOCAL_NUMBER_KEYS.touchFishCounter, 0);
+    void recordPetEvent('touch_fish');
+  };
+  const handleDrinkCoffee = () => {
+    setRestoredLife(prev => prev + 10);
+    incrementLocalNumber(LOCAL_NUMBER_KEYS.coffeeCounter, 0);
+    void recordPetEvent('drink_coffee');
+  };
   const currentLevel = Math.floor((myPostCount * 50 + myLikesReceived * 10) / 100) + 1;
 
   const saveSalary = () => {

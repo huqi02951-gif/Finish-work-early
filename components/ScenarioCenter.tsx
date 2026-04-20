@@ -7,6 +7,7 @@ import {
   LayoutDashboard, Target, User, Database
 } from 'lucide-react';
 import ToMyselfSpace from './tools/ToMyselfSpace';
+import PetOsMountSlot from './pet/PetOsMountSlot';
 import { motion } from 'framer-motion';
 import { SKILLS } from '../constants/skills';
 import { cn } from '../lib/utils';
@@ -314,7 +315,10 @@ const ScenarioCenter: React.FC = () => {
                         <p className="text-[10px] sm:text-xs text-brand-gray font-medium opacity-80">{s.desc}</p>
                       </div>
                     </div>
-                    <ToMyselfSpace />
+                    <div className="space-y-6">
+                      <PetOsMountSlot />
+                      <ToMyselfSpace />
+                    </div>
                   </div>
                 ) : s.id === 'customer' ? (
                   <div className="space-y-8 sm:space-y-12 md:space-y-16">

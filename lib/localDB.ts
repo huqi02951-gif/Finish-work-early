@@ -7,6 +7,7 @@
  * - 为将来后端同步预留 `synced` 字段
  */
 import Dexie, { type EntityTable } from 'dexie';
+import { recordPetEvent } from './petOs';
 
 // ─── 领域模型 ─────────────────────────────────
 
@@ -100,7 +101,9 @@ export async function saveDraft(toolId: string, title: string, data: Record<stri
 
 /** 保存生成结果 */
 export async function saveArtifact(toolId: string, title: string, content: string, metadata?: Record<string, any>) {
-  return db.artifacts.add({ toolId, title, content, metadata, createdAt: new Date() });
+  const artifactId = await db.artifacts.add({ toolId, title, content, metadata, createdAt: new Date() });
+  void recordPetEvent('artifact_saved');
+  return artifactId;
 }
 
 /** 记录一次导出 */

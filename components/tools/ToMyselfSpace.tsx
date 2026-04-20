@@ -4,6 +4,7 @@ import { Solar } from 'lunar-javascript';
 import { cn } from '../../lib/utils';
 import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber, writeLocalNumber } from '../../lib/localSignals';
 import { createSelfGossipThread } from '../../lib/community';
+import { recordPetEvent } from '../../lib/petOs';
 import { getBestToken } from '../../src/services/authService';
 import { useToast } from '../../src/components/common/Toast';
 import {
@@ -60,6 +61,7 @@ async function createArtifactRecord(input: {
       return { ok: false as const, reason: 'request_failed' as const };
     }
 
+    void recordPetEvent('artifact_saved');
     return { ok: true as const };
   } catch {
     return { ok: false as const, reason: 'network_error' as const };
@@ -491,7 +493,7 @@ const PetModule: React.FC<{ xp: number; onXPChange: (next: number) => void }> = 
       <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-1.5">
           <Terminal size={14} className="text-[#00ff41]/60" />
-          <span className="text-[10px] font-black text-[#00ff41]/40 uppercase tracking-tighter">PET_OS v2.4.0</span>
+          <span className="text-[10px] font-black text-[#00ff41]/40 uppercase tracking-tighter">旧实验舱</span>
         </div>
         <div className="flex gap-1">
           {collection.slice(-3).map((p, i) => (

@@ -4,6 +4,8 @@ export const LOCAL_NUMBER_KEYS = {
   salary: 'cl_monthly_salary',
   xp: 'cl_hacker_xp',
   trees: 'cl_hacker_trees',
+  touchFishCounter: 'cl_touch_fish_counter',
+  coffeeCounter: 'cl_coffee_counter',
 } as const;
 
 export type LocalNumberKey = (typeof LOCAL_NUMBER_KEYS)[keyof typeof LOCAL_NUMBER_KEYS];
@@ -18,6 +20,10 @@ export function writeLocalNumber(key: LocalNumberKey, value: number) {
   localStorage.setItem(key, String(value));
   window.dispatchEvent(new CustomEvent(LOCAL_CHANGE_EVENT, { detail: { key, value } }));
   return value;
+}
+
+export function incrementLocalNumber(key: LocalNumberKey, fallback = 0) {
+  return writeLocalNumber(key, readLocalNumber(key, fallback) + 1);
 }
 
 export function subscribeLocalNumber(
