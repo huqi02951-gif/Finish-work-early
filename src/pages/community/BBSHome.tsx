@@ -10,23 +10,30 @@ const BBSHomePage: React.FC = () => {
   const [professionalPosts, setProfessionalPosts] = useState<Post[]>([]);
   const [pantryPosts, setPantryPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const loadHomeData = async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const [proRes, pantryRes] = await Promise.all([
+        forumApi.getPosts({ boardSlug: 'professional', pageSize: 6 }),
+        forumApi.getPosts({ boardSlug: 'pantry', pageSize: 7 }),
+      ]);
+      setProfessionalPosts(proRes.items);
+      setPantryPosts(pantryRes.items);
+    } catch (err) {
+      console.error('Failed to load BBS home data:', err);
+      setProfessionalPosts([]);
+      setPantryPosts([]);
+      setLoadError('社区分区数据加载失败');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const [proRes, pantryRes] = await Promise.all([
-          forumApi.getPosts({ boardSlug: 'professional', pageSize: 6 }),
-          forumApi.getPosts({ boardSlug: 'pantry', pageSize: 7 }),
-        ]);
-        setProfessionalPosts(proRes.items);
-        setPantryPosts(pantryRes.items);
-      } catch (err) {
-        console.error('Failed to load BBS home data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+    void loadHomeData();
   }, []);
 
   return (
@@ -91,17 +98,26 @@ const BBSHomePage: React.FC = () => {
                 <h3 className="text-base font-serif text-brand-dark font-bold flex items-center gap-2">
                   <Briefcase className="w-4 h-4" /> 专业区最新动态
                 </h3>
-                <Link to="/bbs/professional" className="text-xs text-brand-gold font-medium flex items-center gap-1 hover:underline">
+                <Link to="/bbs/professional" className="text-xs text-brand-gold font-medium flex items-center justify-center gap-1 hover:underline min-h-[44px] px-2 py-1 -mr-2">
                   查看全部 <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
               <div className="grid gap-3">
                 {loading ? (
                   <div className="text-sm text-brand-gray text-center py-6">加载中...</div>
-                ) : (
+                ) : loadError ? (
+                  <div className="text-sm text-brand-gray text-center py-6">
+                    <div>{loadError}</div>
+                    <button onClick={() => void loadHomeData()} className="mt-2 text-xs text-brand-gold hover:underline min-h-[44px] px-4 py-2">
+                      重试
+                    </button>
+                  </div>
+                ) : professionalPosts.length ? (
                   professionalPosts.slice(0, 3).map(post => (
                     <PostCard key={post.id} post={post} variant="professional" basePath="/bbs/professional" />
                   ))
+                ) : (
+                  <div className="text-sm text-brand-gray text-center py-6">专业区暂无帖子</div>
                 )}
               </div>
             </div>
@@ -112,17 +128,26 @@ const BBSHomePage: React.FC = () => {
                 <h3 className="text-base font-mono text-brand-dark font-bold flex items-center gap-2">
                   <Terminal className="w-4 h-4" /> 茶水间热门
                 </h3>
-                <Link to="/bbs/pantry" className="text-xs text-brand-gold font-medium flex items-center gap-1 hover:underline">
+                <Link to="/bbs/pantry" className="text-xs text-[#00ff41]/60 font-medium flex items-center justify-center gap-1 hover:text-[#00ff41] min-h-[44px] px-2 py-1 -mr-2">
                   进入茶水间 <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
               <div className="grid gap-3">
                 {loading ? (
                   <div className="text-sm text-[#00ff41]/30 text-center py-6 font-mono">数据同步中...</div>
-                ) : (
+                ) : loadError ? (
+                  <div className="text-sm text-[#00ff41]/30 text-center py-6 font-mono">
+                    <div>{loadError}</div>
+                    <button onClick={() => void loadHomeData()} className="mt-2 text-xs text-[#00ff41]/60 hover:text-[#00ff41] min-h-[44px] px-4 py-2">
+                      RETRY
+                    </button>
+                  </div>
+                ) : pantryPosts.length ? (
                   pantryPosts.slice(0, 3).map(post => (
                     <PostCard key={post.id} post={post} variant="pantry" basePath="/bbs/pantry" />
                   ))
+                ) : (
+                  <div className="text-sm text-[#00ff41]/30 text-center py-6 font-mono">茶水间暂无帖子</div>
                 )}
               </div>
             </div>

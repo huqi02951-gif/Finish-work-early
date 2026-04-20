@@ -54,6 +54,9 @@ async function createArtifactRecord(input: {
     });
 
     if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        return { ok: false as const, reason: 'unauthenticated' as const };
+      }
       return { ok: false as const, reason: 'request_failed' as const };
     }
 
@@ -673,12 +676,18 @@ const FocusTimer: React.FC<{ onXPChange: (next: number) => void; xp: number }> =
   const [sessions,     setSessions]     = useState(() => loadNum(SK.TREES, 0));
   const [justDone,     setJustDone]     = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const completionHandledRef = useRef(false);
   const toast = useToast();
 
   useEffect(() => {
     if (isActive && timeLeft > 0) {
+      completionHandledRef.current = false;
       timerRef.current = setInterval(() => setTimeLeft(t => t - 1), 1000);
     } else if (timeLeft === 0 && isActive) {
+      if (completionHandledRef.current) {
+        return () => { if (timerRef.current) clearInterval(timerRef.current); };
+      }
+      completionHandledRef.current = true;
       clearInterval(timerRef.current!);
       setIsActive(false);
       setJustDone(true);
@@ -717,9 +726,13 @@ const FocusTimer: React.FC<{ onXPChange: (next: number) => void; xp: number }> =
       }
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [isActive, timeLeft]);
+  }, [isActive, timeLeft, phase, sessions, xp, onXPChange, toast]);
 
-  const reset = () => { setIsActive(false); setTimeLeft(phase === 'work' ? WORK_SECS : BREAK_SECS); };
+  const reset = () => {
+    completionHandledRef.current = false;
+    setIsActive(false);
+    setTimeLeft(phase === 'work' ? WORK_SECS : BREAK_SECS);
+  };
   const total = phase === 'work' ? WORK_SECS : BREAK_SECS;
   const prog  = ((total - timeLeft) / total) * 100;
   const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
@@ -1132,23 +1145,32 @@ const GossipBoard: React.FC = () => {
     ])
   );
   const [input, setInput] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
 
   useEffect(() => { localStorage.setItem(SK.NOTES, JSON.stringify(notes)); }, [notes]);
 
   const add = () => {
     const text = input.trim();
-    if (!text) return;
+    if (!text || isSubmitting) return;
     const c = NOTE_COLORS[notes.length % NOTE_COLORS.length];
-    setNotes(prev => [{ id: Date.now(), text, color: c.bg }, ...prev].slice(0, 9));
+    setNotes(prev => (
+      prev[0]?.text === text
+        ? prev
+        : [{ id: Date.now(), text, color: c.bg }, ...prev].slice(0, 9)
+    ));
+    setIsSubmitting(true);
     void createSelfGossipThread(text)
       .then(() => {
         toast.success('碎碎念已同步到茶水间');
+        setInput('');
       })
       .catch(() => {
         toast.warning('便利贴已保存，本次茶水间同步失败');
+      })
+      .finally(() => {
+        setIsSubmitting(false);
       });
-    setInput('');
   };
 
   const remove = (id: number) => setNotes(prev => prev.filter(n => n.id !== id));
@@ -1194,12 +1216,13 @@ const GossipBoard: React.FC = () => {
 
       <div className="flex gap-2">
         <input value={input} onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && add()}
-          placeholder="写张便利贴..."
-          className="flex-grow bg-white/70 border-2 border-amber-200/60 text-slate-700 placeholder-slate-400/70 px-3 py-2.5 rounded-2xl text-xs outline-none focus:ring-2 focus:ring-amber-300 font-medium" />
-        <button onClick={add}
-          className="w-10 h-10 bg-amber-500 text-white rounded-2xl flex items-center justify-center hover:bg-amber-600 transition-all active:scale-95 shadow-md border-2 border-amber-400">
-          💌
+          onKeyDown={e => e.key === 'Enter' && !isSubmitting && add()}
+          placeholder={isSubmitting ? '正在同步到茶水间...' : '写张便利贴...'}
+          disabled={isSubmitting}
+          className="flex-grow bg-white/70 border-2 border-amber-200/60 text-slate-700 placeholder-slate-400/70 px-3 py-2.5 rounded-2xl text-xs outline-none focus:ring-2 focus:ring-amber-300 font-medium disabled:cursor-not-allowed disabled:opacity-60" />
+        <button onClick={add} disabled={isSubmitting || !input.trim()}
+          className="w-10 h-10 bg-amber-500 text-white rounded-2xl flex items-center justify-center hover:bg-amber-600 transition-all active:scale-95 shadow-md border-2 border-amber-400 disabled:cursor-not-allowed disabled:opacity-60">
+          {isSubmitting ? '...' : '💌'}
         </button>
       </div>
     </div>

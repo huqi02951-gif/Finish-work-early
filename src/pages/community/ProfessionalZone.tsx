@@ -1,16 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowUp, ArrowDown, Clock, Search, Plus, MessageSquare, Pin } from 'lucide-react';
+import { ArrowUp, Clock, Search, MessageSquare, Pin } from 'lucide-react';
 import AppLayout from '../../components/layout/AppLayout';
 import PostCard from '../../components/community/PostCard';
-import ComposeForm from '../../components/community/ComposeForm';
 import TagFilter from '../../components/community/TagFilter';
 import { cn } from '../../../lib/utils';
 import { useDebounce } from '../../../lib/utils';
 import { forumApi } from '../../services/forumApi';
 import type { Post } from '../../types';
 
-const CATEGORIES = ['经验帖', '工具帖', '信贷操作', '产品建议', '开发共创', '手册分享'];
 type SortMode = 'latest' | 'hot' | 'pinned';
 
 const ProfessionalZonePage: React.FC = () => {
@@ -18,22 +15,27 @@ const ProfessionalZonePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 300);
   const [sortMode, setSortMode] = useState<SortMode>('pinned');
-  const [showCompose, setShowCompose] = useState(false);
   const [professionalPosts, setProfessionalPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const loadProfessionalPosts = async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const res = await forumApi.getPosts({ boardSlug: 'professional', pageSize: 50 });
+      setProfessionalPosts(res.items);
+    } catch (err) {
+      console.error('Failed to load professional posts:', err);
+      setProfessionalPosts([]);
+      setLoadError('专业业务区加载失败');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await forumApi.getPosts({ boardSlug: 'professional', pageSize: 50 });
-        setProfessionalPosts(res.items);
-      } catch (err) {
-        console.error('Failed to load professional posts:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+    void loadProfessionalPosts();
   }, []);
 
   const allTags = useMemo(() => {
@@ -73,11 +75,6 @@ const ProfessionalZonePage: React.FC = () => {
 
     return posts;
   }, [professionalPosts, activeTag, debouncedSearch, sortMode]);
-
-  const handlePost = async (data: { title: string; content: string; category: string; anonymous: boolean; tags: string[] }) => {
-    console.log('New professional post:', data);
-  };
-
   return (
     <AppLayout title="专业业务区" showBack>
       <div className="py-4 md:py-8 bg-brand-offwhite min-h-screen pb-24">
@@ -98,7 +95,7 @@ const ProfessionalZonePage: React.FC = () => {
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder="搜索帖子、标签..."
-                  className="w-full pl-9 pr-4 py-2 bg-white border border-brand-border/20 rounded-xl text-sm text-brand-dark outline-none focus:border-brand-gold transition-all placeholder:text-brand-gray/40"
+                  className="w-full pl-9 pr-4 py-2 min-h-[44px] bg-white border border-brand-border/20 rounded-xl text-sm text-brand-dark outline-none focus:border-brand-gold transition-all placeholder:text-brand-gray/40"
                 />
               </div>
 
@@ -113,7 +110,7 @@ const ProfessionalZonePage: React.FC = () => {
                     key={s.key}
                     onClick={() => setSortMode(s.key)}
                     className={cn(
-                      'flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+                      'flex items-center gap-1 px-3 py-2 min-h-[44px] rounded-lg text-xs font-medium transition-all',
                       sortMode === s.key
                         ? 'bg-brand-dark text-white'
                         : 'text-brand-gray hover:text-brand-dark'
@@ -123,29 +120,7 @@ const ProfessionalZonePage: React.FC = () => {
                   </button>
                 ))}
               </div>
-
-              {/* Compose Button */}
-              <button
-                onClick={() => setShowCompose(!showCompose)}
-                className="flex items-center gap-2 px-4 py-2 bg-brand-gold text-brand-dark rounded-xl text-xs font-bold hover:bg-brand-gold/90 transition-all active:scale-95"
-              >
-                <Plus className="w-3.5 h-3.5" /> {showCompose ? '收起' : '发帖'}
-              </button>
             </div>
-
-            {/* Compose */}
-            {showCompose && (
-              <div className="bg-white rounded-2xl border border-brand-border/10 p-6 mb-6 animate-fade-in-up shadow-sm">
-                <h3 className="text-sm font-bold text-brand-dark mb-4 flex items-center gap-2">
-                  <Plus className="w-4 h-4 text-brand-gold" /> 发布新帖子
-                </h3>
-                <ComposeForm
-                  onSubmit={handlePost}
-                  categories={CATEGORIES}
-                  placeholder="分享你的实战经验、工具教程或产品建议..."
-                />
-              </div>
-            )}
 
             {/* Tag Filter */}
             <div className="mb-6 animate-fade-in-up">
@@ -156,6 +131,14 @@ const ProfessionalZonePage: React.FC = () => {
             <div className="space-y-3 animate-fade-in-up">
               {loading ? (
                 <div className="text-center py-12 text-brand-gray text-sm">加载中...</div>
+              ) : loadError ? (
+                <div className="text-center py-12 text-brand-gray">
+                  <MessageSquare className="w-10 h-10 mx-auto mb-3 opacity-20" />
+                  <p className="text-sm">{loadError}</p>
+                  <button onClick={() => void loadProfessionalPosts()} className="mt-2 text-xs text-brand-gold hover:underline min-h-[44px] px-4 py-2">
+                    重试
+                  </button>
+                </div>
               ) : filteredPosts.length > 0 ? (
                 filteredPosts.map(post => (
                   <PostCard key={post.id} post={post} variant="professional" basePath="/bbs/professional" />
@@ -163,13 +146,19 @@ const ProfessionalZonePage: React.FC = () => {
               ) : (
                 <div className="text-center py-12 text-brand-gray">
                   <MessageSquare className="w-10 h-10 mx-auto mb-3 opacity-20" />
-                  <p className="text-sm">没有找到匹配的帖子</p>
-                  <button
-                    onClick={() => { setActiveTag(null); setSearchQuery(''); }}
-                    className="mt-2 text-xs text-brand-gold hover:underline"
-                  >
-                    清除筛选
-                  </button>
+                  {professionalPosts.length === 0 && !activeTag && !debouncedSearch ? (
+                    <p className="text-sm">专业业务区暂时还没有帖子</p>
+                  ) : (
+                    <>
+                      <p className="text-sm">没有找到匹配的帖子</p>
+                      <button
+                        onClick={() => { setActiveTag(null); setSearchQuery(''); }}
+                        className="mt-2 text-xs text-brand-gold hover:underline min-h-[44px] px-4 py-2"
+                      >
+                        清除筛选
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>

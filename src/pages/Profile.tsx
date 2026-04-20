@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { 
   Briefcase, Coffee, HeartPulse, Map,
-  MessageSquare, User as UserIcon, LogOut, TerminalSquare, AlertTriangle, ShieldAlert,
+  MessageSquare, LogOut, TerminalSquare, ShieldAlert,
   Terminal, Shield
 } from 'lucide-react';
 import CyberLayout from '../components/layout/CyberLayout';
@@ -14,7 +14,7 @@ import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber, writeLocalNum
 import InitialBadge from '../components/common/InitialBadge';
 import { forumApi } from '../services/forumApi';
 import { getAuthSession } from '../services/authService';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 // --- Cyberpunk / CLI Components ---
 
@@ -50,6 +50,8 @@ const AsciiProgress: React.FC<{ percent: number; width?: number; color?: string;
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserType | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statsError, setStatsError] = useState<string | null>(null);
   
   const [now, setNow] = useState(new Date());
   const [monthlySalary, setMonthlySalary] = useState(() => readLocalNumber(LOCAL_NUMBER_KEYS.salary, 6200));
@@ -64,17 +66,24 @@ const Profile: React.FC = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const data = await apiService.getCurrentUser();
-      setUser(data);
+      try {
+        const data = await apiService.getCurrentUser();
+        setUser(data);
+      } catch {
+        setUser(null);
+      }
     };
-    fetchUser();
+    void fetchUser();
     
     // Fetch real community stats from backend
     const fetchCommunityStats = async () => {
+      setStatsLoading(true);
+      setStatsError(null);
       const session = getAuthSession();
       if (!session || session.loginMethod === 'demo') {
         setMyPostCount(0);
         setMyLikesReceived(0);
+        setStatsLoading(false);
         return;
       }
       try {
@@ -84,9 +93,12 @@ const Profile: React.FC = () => {
       } catch {
         setMyPostCount(0);
         setMyLikesReceived(0);
+        setStatsError('社区统计读取失败，已回退为 0');
+      } finally {
+        setStatsLoading(false);
       }
     };
-    fetchCommunityStats();
+    void fetchCommunityStats();
 
     const p = localStorage.getItem('cl_active_pet');
     if (p) {
@@ -234,7 +246,7 @@ const Profile: React.FC = () => {
           <div className="text-[#00ff41] text-[10px] mb-3 pb-1 border-b border-[#00ff41]/20 flex justify-between items-center">
             <span className="flex items-center gap-1"><Shield className="w-3 h-3"/> 职场挂件与徽章库 (Badges)</span>
             {/* 每日签到/工作打卡 (Punch in) UI */}
-            <button className="flex items-center gap-1 bg-[#00ff41]/10 hover:bg-[#00ff41]/20 px-2 py-0.5 border border-[#00ff41]/30 transition-all active:scale-95 group">
+            <button className="flex items-center justify-center gap-1 bg-[#00ff41]/10 hover:bg-[#00ff41]/20 px-3 py-1 min-h-[44px] border border-[#00ff41]/30 transition-all active:scale-95 group">
               <span className="text-[#00ff41] text-[9px] font-bold">今日打卡</span>
               <div className="w-1.5 h-1.5 rounded-full bg-[#00ff41] animate-pulse" />
             </button>
@@ -289,7 +301,7 @@ const Profile: React.FC = () => {
               ) : (
                 <span 
                   onClick={() => setIsEditingSalary(true)}
-                  className="cursor-pointer hover:bg-[#00ff41]/20 px-1 border border-dashed border-[#00ff41]/30"
+                  className="cursor-pointer hover:bg-[#00ff41]/20 px-2 py-1 min-h-[36px] flex items-center border border-dashed border-[#00ff41]/30"
                 >
                   {monthlySalary}
                 </span>
@@ -355,6 +367,9 @@ const Profile: React.FC = () => {
         <section className="border border-[#00ff41]/30 p-3">
           <div className="text-[#00ff41] text-[10px] mb-2 pb-1 border-b border-[#00ff41]/20 flex justify-between items-center">
             <span className="flex items-center gap-1"><TerminalSquare className="w-3 h-3"/> 社区节点声望</span>
+            <span className="text-[8px] text-[#00ff41]/50">
+              {statsLoading ? 'SYNCING' : statsError ? 'FALLBACK' : 'ONLINE'}
+            </span>
           </div>
           <div className="flex justify-between items-center text-[11px] my-1">
             <span className="text-[#00ff41]/70">上传数据包 [发帖记录]</span>
@@ -368,6 +383,9 @@ const Profile: React.FC = () => {
               {"█".repeat(Math.min(10, myLikesReceived))} {myLikesReceived} 次
             </span>
           </div>
+          {statsError && (
+            <div className="mt-2 text-[9px] text-amber-400">{statsError}</div>
+          )}
         </section>
 
         {/* System Out */}

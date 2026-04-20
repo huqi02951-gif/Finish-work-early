@@ -1,11 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Flame, Coffee, Package2, MessageSquare, Hash, Search, Plus, Sparkles, Zap, Terminal } from 'lucide-react';
+import { Flame, Coffee, Package2, MessageSquare, Hash, Search, Sparkles, Terminal } from 'lucide-react';
 import CyberLayout from '../../components/layout/CyberLayout';
 import CommunityAccessGate from '../../components/community/CommunityAccessGate';
 import GossipBoard from '../../components/community/GossipBoard';
 import PostCard from '../../components/community/PostCard';
-import ComposeForm from '../../components/community/ComposeForm';
 import { cn } from '../../../lib/utils';
 import { useDebounce } from '../../../lib/utils';
 import { forumApi } from '../../services/forumApi';
@@ -21,8 +19,6 @@ const SUB_SECTIONS: { id: PantrySection; label: string; icon: React.ReactNode }[
   { id: 'coffee', label: '请喝咖啡', icon: <Coffee className="w-3 h-3" /> },
 ];
 
-const PANTRY_CATEGORIES = ['匿名吐槽', 'Gossip 贴板', '二手交易', '请喝咖啡'];
-
 const categoryMap: Record<string, PantrySection> = {
   '匿名吐槽': 'chat',
   'Gossip 贴板': 'gossip',
@@ -34,22 +30,27 @@ const PantryPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState<PantrySection>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 300);
-  const [showCompose, setShowCompose] = useState(false);
   const [pantryPosts, setPantryPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const loadPantryPosts = async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const res = await forumApi.getPosts({ boardSlug: 'pantry', pageSize: 50 });
+      setPantryPosts(res.items);
+    } catch (err) {
+      console.error('Failed to load pantry posts:', err);
+      setPantryPosts([]);
+      setLoadError('茶水间帖子加载失败');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await forumApi.getPosts({ boardSlug: 'pantry', pageSize: 50 });
-        setPantryPosts(res.items);
-      } catch (err) {
-        console.error('Failed to load pantry posts:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+    void loadPantryPosts();
   }, []);
 
   const filteredPosts = useMemo(() => {
@@ -65,12 +66,6 @@ const PantryPage: React.FC = () => {
     }
     return posts;
   }, [pantryPosts, activeSection, debouncedSearch]);
-
-  const handlePost = async (data: { title: string; content: string; category: string; anonymous: boolean; tags: string[] }) => {
-    // Mock: just show success toast (handled by ComposeForm)
-    console.log('New pantry post:', data);
-  };
-
   return (
     <CyberLayout title="地下茶水间" subtitle="the pantry · anonymous gossip">
       <CommunityAccessGate moduleName="地下茶水间节点" />
@@ -88,29 +83,8 @@ const PantryPage: React.FC = () => {
                 匿名吐槽 · 限时流言 · 二手交易 · 请开发者喝咖啡
               </p>
             </div>
-            <button
-              onClick={() => setShowCompose(!showCompose)}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-[#00ff41] bg-[#00ff41]/10 px-4 py-2 text-xs sm:text-sm font-bold text-[#00ff41] hover:bg-[#00ff41] hover:text-black transition-all active:scale-95"
-            >
-              <Plus className="w-3.5 h-3.5" /> {showCompose ? '收起' : '发布加密贴'}
-            </button>
           </div>
         </div>
-
-        {/* Compose */}
-        {showCompose && (
-          <div className="rounded-none border border-[#00ff41]/40 bg-[#00ff41]/5 p-4 mb-4">
-            <div className="text-[10px] text-[#00ff41]/50 uppercase tracking-widest border-b border-[#00ff41]/20 pb-2 mb-3">
-              &gt; EXECUTE SYNC_POST
-            </div>
-            <ComposeForm
-              onSubmit={handlePost}
-              categories={PANTRY_CATEGORIES}
-              dark
-              placeholder="吐个槽，爆个料，或者出个闲置..."
-            />
-          </div>
-        )}
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
@@ -136,7 +110,7 @@ const PantryPage: React.FC = () => {
                 key={s.id}
                 onClick={() => setActiveSection(s.id)}
                 className={cn(
-                  'flex items-center gap-1.5 px-3 py-1.5 rounded-none border text-[10px] font-bold whitespace-nowrap transition-all',
+                  'flex items-center justify-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-none border text-[10px] font-bold whitespace-nowrap transition-all',
                   activeSection === s.id
                     ? 'border-[#00ff41] bg-[#00ff41] text-black'
                     : 'border-[#00ff41]/20 bg-black text-[#00ff41]/50 hover:border-[#00ff41]/40'
@@ -152,7 +126,7 @@ const PantryPage: React.FC = () => {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="检索暗号..."
-              className="w-full border border-[#00ff41]/20 bg-black py-1.5 pl-8 pr-3 text-xs text-[#00ff41] outline-none placeholder:text-[#00ff41]/20 focus:border-[#00ff41]/40"
+              className="w-full border border-[#00ff41]/20 min-h-[44px] bg-black py-1.5 pl-8 pr-3 text-xs text-[#00ff41] outline-none placeholder:text-[#00ff41]/20 focus:border-[#00ff41]/40"
             />
           </div>
         </div>
@@ -170,13 +144,22 @@ const PantryPage: React.FC = () => {
                 <div className="border border-dashed border-[#00ff41]/20 bg-black p-8 text-center text-sm text-[#00ff41]/30 font-mono">
                   数据同步中...
                 </div>
+              ) : loadError ? (
+                <div className="border border-dashed border-[#00ff41]/20 bg-black p-8 text-center text-sm text-[#00ff41]/30 font-mono">
+                  <div>{loadError}</div>
+                  <button onClick={() => void loadPantryPosts()} className="mt-2 text-xs text-[#00ff41]/60 hover:text-[#00ff41] min-h-[44px] px-4 py-2">
+                    RETRY
+                  </button>
+                </div>
               ) : filteredPosts.length > 0 ? (
                 filteredPosts.map(post => (
                   <PostCard key={post.id} post={post} variant="pantry" basePath="/bbs/pantry/thread" />
                 ))
               ) : (
                 <div className="border border-dashed border-[#00ff41]/20 bg-black p-8 text-center text-sm text-[#00ff41]/30">
-                  404 — 没有找到匹配的帖子
+                  {pantryPosts.length === 0 && !debouncedSearch && activeSection === 'all'
+                    ? '茶水间暂时还没有帖子'
+                    : '404 — 没有找到匹配的帖子'}
                 </div>
               )}
             </>

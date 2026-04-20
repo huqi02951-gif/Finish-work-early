@@ -34,7 +34,7 @@ const SCENE_COLOR: Record<string, string> = {
   '对客户': 'bg-blue-50 text-blue-600 border-blue-200',
   '对审查': 'bg-purple-50 text-purple-600 border-purple-200',
   '对中后台': 'bg-indigo-50 text-indigo-600 border-indigo-200',
-  '对自己': 'bg-orange-50 text-orange-600 border-orange-200',
+  '对自己': 'bg-slate-50 text-slate-600 border-slate-200',
 };
 
 const getStatusBadge = (statusStr: string) => {
@@ -128,15 +128,15 @@ const SkillsLibrary: React.FC = () => {
     <AppLayout title="仓库" showBack theme="default">
       <div className="pb-24 bg-[#F5F6FA] min-h-[100dvh]">
         {/* Header (Sticky background) */}
-        <div className="sticky top-14 z-40 bg-[#F5F6FA]/95 backdrop-blur-md pt-5 pb-3 px-4 border-b border-black/5 shadow-sm">
+        <div className="sticky top-14 z-40 bg-[#F5F6FA]/80 backdrop-blur-lg pt-4 pb-2 px-4 shadow-[0_4px_24px_rgba(245,246,250,0.8)] -mx-px">
            
           {/* Search */}
           <div className="relative mb-3">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400/70 w-4 h-4" />
             <input
               type="text"
               placeholder="搜索技能或场景..."
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-neutral-200/60 rounded-[14px] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm font-medium shadow-sm"
+              className="w-full pl-10 pr-4 py-2 bg-white/60 border border-neutral-200/40 rounded-[12px] focus:outline-none focus:bg-white focus:border-neutral-300 transition-all text-sm font-medium"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -165,7 +165,7 @@ const SkillsLibrary: React.FC = () => {
                   className={cn(
                     'snap-start shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border flex items-center gap-1.5',
                     sceneFilter === tag
-                      ? (isSelf ? 'bg-orange-500 text-white border-orange-500 shadow-md' : 'bg-blue-600 text-white border-blue-600 shadow-md')
+                      ? (isSelf ? 'bg-slate-700 text-white border-slate-700 shadow-md' : 'bg-blue-600 text-white border-blue-600 shadow-md')
                       : 'bg-white text-neutral-600 border-neutral-200/80',
                   )}
                 >
@@ -215,14 +215,14 @@ const SkillsLibrary: React.FC = () => {
                 <div
                   key={skill.id}
                   className={cn(
-                    "bg-white p-4 rounded-[20px] shadow-[0_2px_12px_rgba(0,0,0,0.03)] transition-all flex border relative overflow-hidden",
-                    isSelf ? "border-orange-100" : "border-neutral-100"
+                    "bg-white p-4 rounded-[16px] transition-all flex relative overflow-hidden ring-1 ring-inset",
+                    isSelf ? "ring-orange-500/10 shadow-[0_2px_8px_rgba(249,115,22,0.03)] bg-gradient-to-br from-white to-orange-50/30" : "ring-neutral-200/30 shadow-[0_2px_12px_rgba(0,0,0,0.015)]"
                   )}
                 >
                   {/* Left content area */}
                   <div className="flex-1 min-w-0 pr-3">
-                    <div className="flex items-center gap-2 mb-1.5">
-                       <Link to={`/skills/${skill.id}`} className="text-[15px] font-extrabold text-neutral-800 tracking-tight hover:text-blue-600 truncate flex-1">
+                     <div className="flex items-center gap-2 mb-1.5">
+                       <Link to={`/skills/${skill.id}`} className="text-[15px] font-extrabold text-neutral-800 tracking-tight hover:text-blue-600 break-words pr-2 leading-snug">
                          {skill.name}
                        </Link>
                     </div>
@@ -242,7 +242,7 @@ const SkillsLibrary: React.FC = () => {
                         ))}
                     </div>
 
-                    <p className="text-[12px] text-neutral-500 font-medium leading-normal mb-3 line-clamp-2 pr-4">
+                    <p className="text-[13px] text-neutral-500 font-medium leading-relaxed mb-3 line-clamp-2 pr-2 break-words">
                        {skill.description}
                     </p>
                     
@@ -252,27 +252,27 @@ const SkillsLibrary: React.FC = () => {
                   </div>
                   
                   {/* Right Action Stack */}
-                  <div className="shrink-0 flex flex-col justify-between items-end border-l border-neutral-100 pl-3">
+                  <div className="shrink-0 flex flex-col justify-between items-end pl-2">
                       <button 
                          onClick={(e) => toggleStar(e, skill.id)} 
-                         className={cn("p-1.5 rounded-full transition-colors", isStarred ? "bg-orange-50 text-orange-400" : "hover:bg-neutral-50 text-neutral-300")}
+                         className={cn("w-11 h-11 flex items-center justify-center rounded-full transition-colors active:scale-95 -mr-2 -mt-2", isStarred ? "text-orange-400" : "hover:bg-neutral-50/50 text-neutral-200 hover:text-neutral-300")}
                       >
-                         <Star size={16} fill={isStarred ? "currentColor" : "none"} />
+                         <Star size={18} fill={isStarred ? "currentColor" : "none"} />
                       </button>
 
                       {skill.toolRoute ? (
                          <Link
                            to={skill.toolRoute}
-                           className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 active:scale-90 transition-transform mt-auto"
+                           className="w-11 h-11 rounded-full flex items-center justify-center text-neutral-300 hover:text-neutral-500 active:scale-95 transition-all mt-auto -mr-2"
                          >
-                            <ChevronRight size={16} strokeWidth={3} />
+                            <ChevronRight size={18} strokeWidth={2.5} />
                          </Link>
                       ) : (
                          <Link
                           to={`/skills/${skill.id}`}
-                          className="w-8 h-8 rounded-full bg-neutral-50 border border-neutral-200 flex items-center justify-center text-neutral-400 active:scale-90 transition-transform mt-auto"
+                          className="w-11 h-11 rounded-full flex items-center justify-center text-neutral-300 hover:text-neutral-500 active:scale-95 transition-all mt-auto -mr-2"
                          >
-                           <Search size={14} strokeWidth={2.5} />
+                           <ChevronRight size={18} strokeWidth={2.5} />
                          </Link>
                       )}
                   </div>

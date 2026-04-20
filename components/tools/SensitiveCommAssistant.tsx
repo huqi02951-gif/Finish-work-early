@@ -261,7 +261,7 @@ const SensitiveCommAssistant: React.FC = () => {
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">收费事项</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">收费事项</label>
               <select 
                 className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark appearance-none"
                 onChange={(e) => handleScenarioChange('feeItem', e.target.value)}
@@ -272,7 +272,7 @@ const SensitiveCommAssistant: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">生效日期</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">生效日期</label>
               <input 
                 type="text" 
                 defaultValue="2026年4月1日"
@@ -281,7 +281,7 @@ const SensitiveCommAssistant: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">优惠策略</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">优惠策略</label>
               <div className="p-4 bg-brand-gold/5 border border-brand-gold/10 rounded-xl text-[10px] text-brand-dark/60 leading-relaxed">
                 系统自动识别、自动减免。引导客户提升活期日均存款或加强网银使用频率。
               </div>
@@ -292,7 +292,7 @@ const SensitiveCommAssistant: React.FC = () => {
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">政策名称</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">政策名称</label>
               <input 
                 type="text" 
                 placeholder="例如：中小企业贷款贴息、科技型企业补助"
@@ -301,7 +301,7 @@ const SensitiveCommAssistant: React.FC = () => {
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">适用对象/核心条件</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">适用对象/核心条件</label>
               <textarea 
                 placeholder="例如：年收入5000万以下、属于高新技术企业..."
                 className="w-full h-24 px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark resize-none"
@@ -314,7 +314,7 @@ const SensitiveCommAssistant: React.FC = () => {
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">事项名称</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">事项名称</label>
               <input 
                 type="text" 
                 placeholder="例如：新增授信额度、贷款展期"
@@ -323,7 +323,7 @@ const SensitiveCommAssistant: React.FC = () => {
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">核心原因</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">核心原因</label>
               <select 
                 className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark appearance-none"
                 onChange={(e) => handleScenarioChange('reason', e.target.value)}
@@ -340,7 +340,7 @@ const SensitiveCommAssistant: React.FC = () => {
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">事项名称</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">事项名称</label>
               <input 
                 type="text" 
                 placeholder="例如：授信年审、开户资料补全"
@@ -349,7 +349,7 @@ const SensitiveCommAssistant: React.FC = () => {
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">所需材料清单</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">所需材料清单</label>
               <textarea 
                 placeholder="1. 近半年流水\n2. 购销合同\n3. 财务报表..."
                 className="w-full h-32 px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark resize-none"
@@ -385,7 +385,7 @@ const SensitiveCommAssistant: React.FC = () => {
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">建议办理时间</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">建议办理时间</label>
               <input 
                 type="text" 
                 placeholder="例如：本周三下午 14:30"
@@ -394,7 +394,7 @@ const SensitiveCommAssistant: React.FC = () => {
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">必备材料提醒</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">必备材料提醒</label>
               <textarea 
                 placeholder="默认已包含：营业执照、三章、身份证件..."
                 className="w-full h-24 px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark resize-none"
@@ -406,7 +406,7 @@ const SensitiveCommAssistant: React.FC = () => {
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">业务类型</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">业务类型</label>
               <select 
                 className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark appearance-none"
                 onChange={(e) => handleScenarioChange('businessType', e.target.value)}
@@ -417,7 +417,7 @@ const SensitiveCommAssistant: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">生效日期</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">生效日期</label>
               <input 
                 type="text" 
                 placeholder="例如：2024年4月25日"
@@ -425,7 +425,7 @@ const SensitiveCommAssistant: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">新利率标准</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">新利率标准</label>
               <input 
                 type="text" 
                 placeholder="例如：1.00%"
@@ -438,7 +438,7 @@ const SensitiveCommAssistant: React.FC = () => {
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">核心原因</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">核心原因</label>
               <select 
                 className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark appearance-none"
                 onChange={(e) => handleScenarioChange('reason', e.target.value)}
@@ -450,7 +450,7 @@ const SensitiveCommAssistant: React.FC = () => {
               </select>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-3 opacity-60">补充建议/材料</label>
+              <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">补充建议/材料</label>
               <textarea 
                 placeholder="例如：建议增加担保物、补充近半年流水..."
                 className="w-full h-32 px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark resize-none"
@@ -520,7 +520,7 @@ const SensitiveCommAssistant: React.FC = () => {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                   <div>
-                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">客户称呼</label>
+                    <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">客户称呼</label>
                     <input 
                       type="text" 
                       placeholder="例如：张总、王经理"
@@ -530,7 +530,7 @@ const SensitiveCommAssistant: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">客户对象</label>
+                    <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">客户对象</label>
                     <select 
                       className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-sm md:text-base text-brand-dark appearance-none"
                       value={basicParams.target}
@@ -543,7 +543,7 @@ const SensitiveCommAssistant: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">沟通渠道</label>
+                    <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">沟通渠道</label>
                     <div className="flex flex-wrap gap-1.5 md:gap-2">
                       {['微信', '短信', '邮件', '电话'].map(c => (
                         <button 
@@ -560,7 +560,7 @@ const SensitiveCommAssistant: React.FC = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">语气风格</label>
+                    <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">语气风格</label>
                     <select 
                       className="w-full px-4 md:px-6 py-3 md:py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-sm md:text-base text-brand-dark appearance-none"
                       value={basicParams.tone}
@@ -572,7 +572,7 @@ const SensitiveCommAssistant: React.FC = () => {
                     </select>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60 flex items-center gap-2">
+                    <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5 flex items-center gap-2">
                       <Phone size={11} className="text-brand-gold" />
                       柜台电话（选填）
                     </label>
@@ -604,24 +604,26 @@ const SensitiveCommAssistant: React.FC = () => {
               </div>
 
               {/* 3. Scenario Specific Inputs */}
-              <div className="bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm">
+              <div className="bg-white p-6 md:p-10 pb-32 sm:pb-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm relative">
                 <h2 className="text-[10px] md:text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-6 md:mb-10 opacity-60 flex items-center gap-3">
                   <Zap size={14} className="text-brand-gold md:w-4 md:h-4" /> 场景专属输入
                 </h2>
                 {renderScenarioInputs()}
               </div>
 
-              <button 
-                onClick={generateContent}
-                disabled={isGenerating}
-                className={cn(
-                  "w-full py-4 md:py-6 bg-brand-dark text-white rounded-xl md:rounded-[2rem] font-bold text-base md:text-xl transition-all shadow-2xl flex items-center justify-center gap-2 md:gap-3 active:scale-95",
-                  isGenerating ? "opacity-70 cursor-not-allowed" : "hover:bg-brand-dark/90"
-                )}
-              >
-                {isGenerating ? <RefreshCcw className="w-4 h-4 md:w-6 md:h-6 animate-spin" /> : <MessageSquare className="w-4 h-4 md:w-6 md:h-6" />}
-                {isGenerating ? '正在匹配规则生成...' : '生成沟通话术'}
-              </button>
+              <div className="fixed sm:static bottom-0 left-0 right-0 z-50 bg-white/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-brand-border/10 sm:border-0 p-4 sm:p-0 pb-[calc(max(1rem,env(safe-area-inset-bottom)))] sm:pb-0 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] sm:shadow-none flex flex-row gap-3 sm:mt-12">
+                <button 
+                  onClick={generateContent}
+                  disabled={isGenerating}
+                  className={cn(
+                    "flex-grow py-3.5 sm:py-6 bg-brand-dark text-white rounded-xl md:rounded-[2rem] font-bold text-[15px] sm:text-xl transition-all shadow-lg flex items-center justify-center gap-2 md:gap-3 active:scale-95",
+                    isGenerating ? "opacity-70 cursor-not-allowed" : "hover:bg-brand-dark/90"
+                  )}
+                >
+                  {isGenerating ? <RefreshCcw className="w-4 h-4 md:w-6 md:h-6 animate-spin" /> : <MessageSquare className="w-4 h-4 md:w-6 md:h-6" />}
+                  {isGenerating ? '正在匹配规则生成...' : '生成沟通话术'}
+                </button>
+              </div>
             </div>
 
             {/* Right Column: Outputs & AI Reserved */}

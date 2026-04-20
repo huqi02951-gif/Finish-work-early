@@ -215,7 +215,7 @@ const AcceptanceCalculator: React.FC = () => {
             </div>
             <button 
               onClick={loadExample}
-              className="w-full sm:w-auto px-4 py-2 sm:py-2.5 bg-white text-brand-dark border border-brand-border/10 rounded-lg sm:rounded-xl font-bold text-[11px] sm:text-xs hover:bg-brand-light-gray transition-all shadow-sm flex items-center justify-center gap-1.5"
+              className="w-full sm:w-auto px-4 py-2 sm:py-2.5 min-h-[44px] bg-white text-brand-dark border border-brand-border/10 rounded-lg sm:rounded-xl font-bold text-[11px] sm:text-xs hover:bg-brand-light-gray transition-all shadow-sm flex items-center justify-center gap-1.5"
             >
               <RefreshCcw className="w-3.5 h-3.5" /> 加载示例
             </button>
@@ -231,7 +231,7 @@ const AcceptanceCalculator: React.FC = () => {
                 
                 <div className="space-y-3 sm:space-y-5">
                   <div>
-                    <label className="block text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-1.5 sm:mb-2 opacity-60">企业名称</label>
+                    <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">企业名称</label>
                     <input 
                       type="text" 
                       name="corp"
@@ -243,7 +243,7 @@ const AcceptanceCalculator: React.FC = () => {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div>
-                      <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">拟开票金额 (万元)</label>
+                      <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">拟开票金额 (万元)</label>
                       <input 
                         type="number" 
                         name="billAmt"
@@ -254,7 +254,7 @@ const AcceptanceCalculator: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">拟存定期 (万元)</label>
+                      <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">拟存定期 (万元)</label>
                       <input 
                         type="number" 
                         name="depositBudget"
@@ -267,7 +267,7 @@ const AcceptanceCalculator: React.FC = () => {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div>
-                      <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">年利率 (如 1.4% 填 0.014)</label>
+                      <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">年利率 (如 1.4% 填 0.014)</label>
                       <input 
                         type="number" 
                         name="rate"
@@ -278,7 +278,7 @@ const AcceptanceCalculator: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">开票日期</label>
+                      <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">开票日期</label>
                       <input 
                         type="date" 
                         name="startDate"
@@ -291,14 +291,14 @@ const AcceptanceCalculator: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-white p-6 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm">
+              <div className="bg-white p-6 md:p-10 pb-32 sm:pb-10 rounded-[1.5rem] md:rounded-[2.5rem] border border-brand-border/10 shadow-sm relative">
                 <h2 className="text-[10px] md:text-[11px] font-bold text-brand-gray uppercase tracking-[0.3em] mb-6 md:mb-10 opacity-60 flex items-center gap-3">
                   <FileText className="w-4 h-4 text-brand-gold" /> 材料与票据
                 </h2>
                 <div className="space-y-6 md:space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <div>
-                      <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">一周内是否已贴现</label>
+                      <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">一周内是否已贴现</label>
                       <select 
                         name="discountStatus"
                         value={formData.discountStatus}
@@ -310,7 +310,7 @@ const AcceptanceCalculator: React.FC = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">开票张数</label>
+                      <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">开票张数</label>
                       <input 
                         type="number" 
                         name="invoiceCount"
@@ -322,7 +322,7 @@ const AcceptanceCalculator: React.FC = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest mb-2 md:mb-3 opacity-60">收款方 / 交易对手</label>
+                    <label className="block text-[11px] font-medium text-brand-gray/50 mb-1.5">收款方 / 交易对手</label>
                     <input 
                       type="text" 
                       name="invoiceTarget"
@@ -334,19 +334,19 @@ const AcceptanceCalculator: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 mt-8 md:mt-12">
+                <div className="fixed sm:static bottom-0 left-0 right-0 z-50 bg-white/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-brand-border/10 sm:border-0 p-4 sm:p-0 pb-[calc(max(1rem,env(safe-area-inset-bottom)))] sm:pb-0 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] sm:shadow-none flex flex-row gap-3 sm:mt-12">
                   <button 
                     onClick={runCalc}
                     disabled={isCalculating}
                     className={cn(
-                      "flex-grow py-4 md:py-5 bg-brand-dark text-white rounded-xl md:rounded-2xl font-bold text-base md:text-lg transition-all shadow-2xl flex items-center justify-center gap-3 active:scale-95",
+                      "flex-grow py-3.5 sm:py-5 bg-brand-dark text-white rounded-xl md:rounded-2xl font-bold text-[15px] sm:text-lg transition-all shadow-lg flex items-center justify-center gap-2 sm:gap-3 active:scale-95",
                       isCalculating ? "opacity-70 cursor-not-allowed" : "hover:bg-brand-dark/90"
                     )}
                   >
                     {isCalculating ? (
-                      <RefreshCcw className="w-5 h-5 animate-spin" />
+                      <RefreshCcw className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                     ) : (
-                      <Calculator className="w-5 h-5" />
+                      <Calculator className="w-4 h-4 sm:w-5 sm:h-5" />
                     )}
                     {isCalculating ? '正在计算方案...' : '立即开始测算'}
                   </button>
@@ -364,9 +364,9 @@ const AcceptanceCalculator: React.FC = () => {
                       invoiceTarget: '',
                       needInvoice: '否',
                     })}
-                    className="p-4 md:p-5 bg-brand-light-gray text-brand-gray rounded-xl md:rounded-2xl font-bold hover:bg-brand-border/10 transition-all active:scale-95 flex items-center justify-center"
+                    className="p-3.5 sm:p-5 bg-brand-light-gray/80 text-brand-gray rounded-xl md:rounded-2xl font-bold hover:bg-brand-border/10 transition-all active:scale-95 flex items-center justify-center"
                   >
-                    <Trash2 className="w-5 h-5 md:w-6 md:h-6" />
+                    <Trash2 className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                 </div>
               </div>

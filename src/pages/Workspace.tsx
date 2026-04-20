@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import { cn } from '../../lib/utils';
-import { db, type GeneratedArtifact } from '../../lib/localDB';
+import { db, type DraftRecord, type GeneratedArtifact } from '../../lib/localDB';
 import { useCustomer } from '../../lib/CustomerContext';
 import { forumApi } from '../services/forumApi';
 import { getAuthSession } from '../services/authService';
@@ -32,10 +32,251 @@ const TOOL_META: Record<string, { name: string; path: string }> = {
   'rate-offer': { name: '利率优惠签报', path: '/rate-offer' },
   'acceptance-calc': { name: '银承/存单测算', path: '/acceptance-calculator' },
   'material-checklist': { name: '材料清单中心', path: '/material-checklist' },
+  'to-myself-focus-timer': { name: '专注计时器', path: '/scenarios' },
 };
 
 const DEFAULT_BOARD = 'experience-sharing';
 const MOCK_AVATARS = ['行内第一深情', '理性的终端机', '加班吃泡面', '打工人404'];
+const MAX_WORKSPACE_ARTIFACTS = 4;
+const MAX_WORKSPACE_DRAFTS = 5;
+const TOOL_DATA_API_ROOT = (
+  import.meta.env.VITE_API_BASE_URL ||
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000'
+    : '')
+).replace(/\/$/, '') + '/api/v1';
+
+type RemoteArtifactRecord = {
+  id: number;
+  toolId: string;
+  title: string;
+  content: string;
+  metadata?: Record<string, unknown> | null;
+  createdAt: string;
+};
+
+type RemoteDraftRecord = {
+  id: number;
+  toolId: string;
+  title: string;
+  data: Record<string, unknown> | unknown[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+type ToolDataSource = 'cloud' | 'local' | 'mixed';
+type ToolDataChannelSource = 'cloud' | 'local' | 'empty';
+
+type ToolDataLoadResult = {
+  artifacts: GeneratedArtifact[];
+  drafts: DraftRecord[];
+  source: ToolDataSource;
+  artifactSource: ToolDataChannelSource;
+  draftSource: ToolDataChannelSource;
+  cloudRequestSucceeded: boolean;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function normalizeText(value: unknown, fallback: string) {
+  const normalized = typeof value === 'string' ? value.trim() : '';
+  return normalized || fallback;
+}
+
+function normalizeDate(value: unknown) {
+  const parsed = new Date(typeof value === 'string' ? value : '');
+  return Number.isNaN(parsed.getTime()) ? new Date(0) : parsed;
+}
+
+function normalizeDraftData(data: RemoteDraftRecord['data']): Record<string, any> {
+  if (Array.isArray(data)) {
+    return { items: data };
+  }
+  return isRecord(data) ? data : {};
+}
+
+function mapRemoteArtifact(item: unknown, index: number): GeneratedArtifact | null {
+  if (!isRecord(item)) {
+    return null;
+  }
+
+  return {
+    id: typeof item.id === 'number' ? item.id : undefined,
+    toolId: normalizeText(item.toolId, 'unknown-tool'),
+    title: normalizeText(item.title, `未命名物料 ${index + 1}`),
+    content: typeof item.content === 'string' ? item.content : '',
+    metadata: isRecord(item.metadata) ? item.metadata : undefined,
+    createdAt: normalizeDate(item.createdAt),
+  };
+}
+
+function mapRemoteDraft(item: unknown, index: number): DraftRecord | null {
+  if (!isRecord(item)) {
+    return null;
+  }
+
+  return {
+    id: typeof item.id === 'number' ? item.id : undefined,
+    toolId: normalizeText(item.toolId, 'unknown-tool'),
+    title: normalizeText(item.title, `未命名草稿 ${index + 1}`),
+    data: normalizeDraftData(item.data as RemoteDraftRecord['data']),
+    createdAt: normalizeDate(item.createdAt),
+    updatedAt: normalizeDate(item.updatedAt),
+  };
+}
+
+function getWorkspaceCloudToken() {
+  const session = getAuthSession();
+  if (!session || session.loginMethod === 'demo') {
+    return null;
+  }
+  return session.accessToken;
+}
+
+function dedupeArtifacts(items: GeneratedArtifact[]) {
+  const seen = new Set<string>();
+  return items.filter((item, index) => {
+    const key = [
+      item.id ?? 'no-id',
+      item.toolId,
+      item.title,
+      item.createdAt instanceof Date ? item.createdAt.getTime() : index,
+    ].join('::');
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function dedupeDrafts(items: DraftRecord[]) {
+  const seen = new Set<string>();
+  return items.filter((item, index) => {
+    const key = [
+      item.id ?? 'no-id',
+      item.toolId,
+      item.title,
+      item.updatedAt instanceof Date ? item.updatedAt.getTime() : index,
+    ].join('::');
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function sortArtifacts(items: GeneratedArtifact[]) {
+  return [...items].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+}
+
+function sortDrafts(items: DraftRecord[]) {
+  return [...items].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+}
+
+function pickToolDataSource(
+  cloudCount: number,
+  localCount: number,
+): ToolDataChannelSource {
+  if (cloudCount > 0) return 'cloud';
+  if (localCount > 0) return 'local';
+  return 'empty';
+}
+
+function combineToolDataSource(
+  artifactSource: ToolDataChannelSource,
+  draftSource: ToolDataChannelSource,
+  cloudRequestSucceeded: boolean,
+): ToolDataSource {
+  const nonEmptySources = new Set(
+    [artifactSource, draftSource].filter((item) => item !== 'empty'),
+  );
+
+  if (nonEmptySources.size === 0) return cloudRequestSucceeded ? 'cloud' : 'local';
+  if (nonEmptySources.size === 1) {
+    return nonEmptySources.has('cloud') ? 'cloud' : 'local';
+  }
+  return 'mixed';
+}
+
+async function requestToolData<T>(path: string, token: string): Promise<T> {
+  const response = await fetch(`${TOOL_DATA_API_ROOT}${path}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`tool-data request failed: ${response.status}`);
+  }
+
+  return response.json() as Promise<T>;
+}
+
+async function loadLocalWorkspaceToolData(): Promise<ToolDataLoadResult> {
+  const [localArtifacts, localDrafts] = await Promise.all([
+    db.artifacts.orderBy('createdAt').reverse().limit(MAX_WORKSPACE_ARTIFACTS).toArray(),
+    db.drafts.orderBy('updatedAt').reverse().limit(MAX_WORKSPACE_DRAFTS).toArray(),
+  ]);
+  const dedupedLocalArtifacts = sortArtifacts(dedupeArtifacts(localArtifacts)).slice(0, MAX_WORKSPACE_ARTIFACTS);
+  const dedupedLocalDrafts = sortDrafts(dedupeDrafts(localDrafts)).slice(0, MAX_WORKSPACE_DRAFTS);
+
+  return {
+    artifacts: dedupedLocalArtifacts,
+    drafts: dedupedLocalDrafts,
+    source: 'local',
+    artifactSource: dedupedLocalArtifacts.length ? 'local' : 'empty',
+    draftSource: dedupedLocalDrafts.length ? 'local' : 'empty',
+    cloudRequestSucceeded: false,
+  };
+}
+
+async function loadWorkspaceToolData(localData: ToolDataLoadResult): Promise<ToolDataLoadResult> {
+  const token = getWorkspaceCloudToken();
+
+  if (!token) {
+    return localData;
+  }
+
+  try {
+    const [cloudArtifacts, cloudDrafts] = await Promise.all([
+      requestToolData<RemoteArtifactRecord[]>(`/artifacts/me?limit=${MAX_WORKSPACE_ARTIFACTS}`, token),
+      requestToolData<RemoteDraftRecord[]>('/drafts/me', token),
+    ]);
+    const normalizedCloudArtifacts = Array.isArray(cloudArtifacts)
+      ? sortArtifacts(dedupeArtifacts(
+          cloudArtifacts
+            .map((item, index) => mapRemoteArtifact(item, index))
+            .filter((item): item is GeneratedArtifact => item !== null),
+        )).slice(0, MAX_WORKSPACE_ARTIFACTS)
+      : [];
+    const normalizedCloudDrafts = Array.isArray(cloudDrafts)
+      ? sortDrafts(dedupeDrafts(
+          cloudDrafts
+            .map((item, index) => mapRemoteDraft(item, index))
+            .filter((item): item is DraftRecord => item !== null),
+        )).slice(0, MAX_WORKSPACE_DRAFTS)
+      : [];
+    const artifactSource = pickToolDataSource(
+      normalizedCloudArtifacts.length,
+      localData.artifacts.length,
+    );
+    const draftSource = pickToolDataSource(
+      normalizedCloudDrafts.length,
+      localData.drafts.length,
+    );
+
+    return {
+      artifacts: normalizedCloudArtifacts.length ? normalizedCloudArtifacts : localData.artifacts,
+      drafts: normalizedCloudDrafts.length ? normalizedCloudDrafts : localData.drafts,
+      source: combineToolDataSource(artifactSource, draftSource, true),
+      artifactSource,
+      draftSource,
+      cloudRequestSucceeded: true,
+    };
+  } catch {
+    return localData;
+  }
+}
 
 const WorkspacePage: React.FC = () => {
   const navigate = useNavigate();
@@ -45,6 +286,10 @@ const WorkspacePage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [officialPosts, setOfficialPosts] = useState<Post[]>([]);
   const [recentArtifacts, setRecentArtifacts] = useState<GeneratedArtifact[]>([]);
+  const [recentDrafts, setRecentDrafts] = useState<DraftRecord[]>([]);
+  const [toolDataSource, setToolDataSource] = useState<ToolDataSource>('local');
+  const [artifactSource, setArtifactSource] = useState<ToolDataChannelSource>('empty');
+  const [draftSource, setDraftSource] = useState<ToolDataChannelSource>('empty');
   const [loading, setLoading] = useState(true);
   const [composing, setComposing] = useState(false);
   const [activeBoard, setActiveBoard] = useState<string>('all');
@@ -71,10 +316,18 @@ const WorkspacePage: React.FC = () => {
     [boards],
   );
 
+  const applyToolData = (toolData: ToolDataLoadResult) => {
+    setRecentArtifacts(toolData.artifacts);
+    setRecentDrafts(toolData.drafts);
+    setToolDataSource(toolData.source);
+    setArtifactSource(toolData.artifactSource);
+    setDraftSource(toolData.draftSource);
+  };
+
   const loadCommunity = async () => {
     setLoading(true);
     try {
-      const [boardList, postList, officialList, artifacts] = await Promise.all([
+      const [boardList, postList, officialList] = await Promise.all([
         forumApi.getBoards(),
         forumApi.getPosts({
           boardSlug: activeBoard === 'all' ? undefined : activeBoard,
@@ -83,13 +336,11 @@ const WorkspacePage: React.FC = () => {
         forumApi.getOfficialPosts({
           pageSize: 4,
         }),
-        db.artifacts.orderBy('createdAt').reverse().limit(4).toArray(),
       ]);
 
       setBoards(boardList);
       setPosts(postList.items);
       setOfficialPosts(officialList.items);
-      setRecentArtifacts(artifacts);
 
       if (!boardList.find((item) => item.slug === form.boardSlug && !item.isOfficial)) {
         const fallbackBoard = boardList.find((item) => !item.isOfficial)?.slug || DEFAULT_BOARD;
@@ -103,8 +354,28 @@ const WorkspacePage: React.FC = () => {
   };
 
   useEffect(() => {
-    loadCommunity();
+    void loadCommunity();
   }, [activeBoard]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadToolData = async () => {
+      const localData = await loadLocalWorkspaceToolData();
+      if (cancelled) return;
+      applyToolData(localData);
+
+      const mergedData = await loadWorkspaceToolData(localData);
+      if (cancelled) return;
+      applyToolData(mergedData);
+    };
+
+    void loadToolData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const rollDice = () => {
     const random = MOCK_AVATARS[Math.floor(Math.random() * MOCK_AVATARS.length)];
@@ -150,11 +421,29 @@ const WorkspacePage: React.FC = () => {
   const getPostPath = (post: Post) =>
     post.postType === 'TOPIC' ? `/formal/topic/${post.id}` : `/formal/thread/${post.id}`;
 
+  const getToolPath = (toolId: string) => TOOL_META[toolId]?.path ?? null;
+
   const handleAuthorClick = (e: React.MouseEvent, nickname: string, isAnon: boolean) => {
     e.preventDefault();
     setSelectedAuthor({ nickname, isAnon });
     setShowQr(false);
   }
+
+  const toolDataStatusLabel = useMemo(() => {
+    if (toolDataSource === 'cloud') return '云端同步';
+    if (toolDataSource === 'mixed') return '云地混合';
+    return '本地保底';
+  }, [toolDataSource]);
+
+  const toolDataStatusHint = useMemo(() => {
+    if (artifactSource === 'local' || draftSource === 'local') {
+      return '云端为空或不可用时，当前列表已回退到本地暂存。';
+    }
+    if (artifactSource === 'empty' && draftSource === 'empty') {
+      return '当前没有可展示的草稿或物料。';
+    }
+    return '当前展示优先读取云端草稿与物料。';
+  }, [artifactSource, draftSource]);
 
   return (
     <AppLayout title="工作台" theme="default">
@@ -172,14 +461,14 @@ const WorkspacePage: React.FC = () => {
             <div className="flex gap-2">
               <Link
                 to="/instructions"
-                className="flex-1 sm:flex-none flex justify-center items-center gap-1.5 rounded-[12px] bg-white border border-neutral-200/80 px-4 py-2.5 text-[13px] font-bold text-neutral-600 hover:bg-neutral-50 shadow-sm transition-all"
+                className="flex-1 sm:flex-none flex justify-center items-center gap-1.5 rounded-[12px] bg-white border border-neutral-200/80 px-4 py-3 min-h-[44px] text-[13px] font-bold text-neutral-600 hover:bg-neutral-50 shadow-sm transition-all active:scale-95"
               >
                 <FileText size={14} />
                 官方帮助
               </Link>
               <button
                 onClick={() => setComposing((current) => !current)}
-                className="flex-[2] sm:flex-none flex justify-center items-center gap-1.5 rounded-[12px] bg-blue-600 px-5 py-2.5 text-[13px] font-bold text-white hover:bg-blue-700 shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-all"
+                className="flex-[2] sm:flex-none flex justify-center items-center gap-1.5 rounded-[12px] bg-blue-600 px-5 py-3 min-h-[44px] text-[14px] font-bold text-white hover:bg-blue-700 shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-all active:scale-95"
               >
                 <Plus size={16} />
                 我要发帖
@@ -209,11 +498,11 @@ const WorkspacePage: React.FC = () => {
             
             {/* Composer */}
             {composing ? (
-              <section className="rounded-[20px] bg-white p-5 border border-neutral-100 shadow-[0_4px_24px_rgba(0,0,0,0.04)] animate-slide-in-down overflow-hidden relative">
+              <section className="rounded-[16px] bg-white p-4 border border-neutral-200/50 shadow-sm animate-slide-in-down overflow-hidden relative">
                 {isAnonymous && <div className="absolute inset-0 bg-neutral-900 pointer-events-none mix-blend-overlay opacity-5 noise-bg"></div>}
                 
-                <form className="grid gap-3 relative z-10" onSubmit={handleCreatePost}>
-                  <div className="flex items-center justify-between mb-2 pb-3 border-b border-neutral-100">
+                <form className="grid gap-2 relative z-10" onSubmit={handleCreatePost}>
+                  <div className="flex items-center justify-between mb-1 pb-2 border-b border-neutral-100/60">
                      <h3 className="font-bold text-neutral-800 flex items-center gap-1.5"><MessageSquare size={16}/> 撰写新帖子</h3>
                      <button
                        type="button" 
@@ -237,11 +526,11 @@ const WorkspacePage: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="grid gap-3 md:grid-cols-[160px_1fr]">
+                  <div className="grid gap-2 md:grid-cols-[140px_1fr] border-b border-neutral-100/60 pb-1">
                     <select
                       value={form.boardSlug}
                       onChange={(event) => setForm((current) => ({ ...current, boardSlug: event.target.value }))}
-                      className="rounded-xl border border-neutral-200 bg-neutral-50/50 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:bg-white font-medium"
+                      className="bg-transparent px-1 py-1.5 text-sm outline-none text-neutral-600 font-medium focus:text-blue-600"
                     >
                       {displayBoards.map((board) => (
                         <option key={board.slug} value={board.slug}>
@@ -252,25 +541,28 @@ const WorkspacePage: React.FC = () => {
                     <input
                       value={form.title}
                       onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
-                      className="rounded-xl border border-neutral-200 bg-neutral-50/50 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:bg-white font-medium placeholder:text-neutral-400"
-                      placeholder="一句话概括核心点"
+                      className="bg-transparent px-1 py-1.5 text-base outline-none text-neutral-800 font-bold placeholder:text-neutral-300 placeholder:font-normal"
+                      placeholder="标题概括核心点"
                       required
                     />
                   </div>
                   <textarea
                     value={form.content}
                     onChange={(event) => setForm((current) => ({ ...current, content: event.target.value }))}
-                    className="min-h-28 rounded-xl border border-neutral-200 bg-neutral-50/50 px-4 py-3 text-sm leading-relaxed outline-none focus:border-blue-500 focus:bg-white font-medium placeholder:text-neutral-400"
+                    className="min-h-[160px] resize-none bg-transparent px-1 py-2 text-[15px] leading-8 outline-none text-neutral-700 placeholder:text-neutral-300 mt-1"
                     placeholder="详细说明背景、做法与结论。越真实的细节，越能帮到其他同事..."
                     required
                   />
-                  <input
-                    value={form.tags}
-                    onChange={(event) => setForm((current) => ({ ...current, tags: event.target.value }))}
-                    className="rounded-xl border border-neutral-200 bg-neutral-50/50 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:bg-white font-medium placeholder:text-neutral-400"
-                    placeholder="添加标签（以逗号分隔，如：二手, 求购）"
-                  />
-                  <div className="flex justify-end gap-3 mt-1">
+                  <div className="border-t border-neutral-100/60 pt-2 flex items-center">
+                    <span className="text-neutral-400 text-xs px-1">#</span>
+                    <input
+                      value={form.tags}
+                      onChange={(event) => setForm((current) => ({ ...current, tags: event.target.value }))}
+                      className="flex-1 bg-transparent px-1 py-1.5 text-sm outline-none text-neutral-600 placeholder:text-neutral-300"
+                      placeholder="附加标签 (二手, 求购物资)"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2 mt-2">
                     <button
                       type="button"
                       onClick={() => setComposing(false)}
@@ -337,9 +629,9 @@ const WorkspacePage: React.FC = () => {
                     <article 
                       key={post.id} 
                       className={cn(
-                        "rounded-[20px] p-4 transition-all hover:scale-[1.01] active:scale-[0.99] relative overflow-hidden",
-                        isPantry ? "bg-[#111111] text-[#EAEAEA] border border-[#222222]" : "bg-white border border-neutral-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)]",
-                        isHot ? (isPantry ? "shadow-[0_0_15px_rgba(0,255,170,0.15)] outline outline-1 outline-[#00FFAA]/40" : "shadow-[0_4px_16px_rgba(37,99,235,0.08)] outline outline-1 outline-blue-500/30") : ""
+                        "rounded-[16px] p-4 sm:p-5 transition-all hover:scale-[1.01] active:scale-[0.99] relative overflow-hidden",
+                        isPantry ? "bg-[#111111] text-[#EAEAEA] border border-[#222222]" : "bg-white border border-neutral-100 shadow-sm",
+                        isHot ? (isPantry ? "shadow-[0_0_15px_rgba(0,255,170,0.15)] outline outline-1 outline-[#00FFAA]/40" : "outline outline-1 outline-blue-500/10") : ""
                       )}
                     >
                       {/* Pantry Noise layer */}
@@ -365,23 +657,23 @@ const WorkspacePage: React.FC = () => {
                         <button 
                            onClick={(e) => handleAuthorClick(e, post.author?.nickname || '隐藏信源', isPantry)}
                            className={cn(
-                             "ml-1 hover:underline underline-offset-2", 
-                             isPantry ? "text-[#00FFAA]/80 font-mono" : "text-blue-600"
+                             "py-1.5 px-2 -ml-2 rounded-md flex items-center transition-all bg-transparent active:scale-95", 
+                             isPantry ? "text-[#00FFAA]/80 font-mono active:bg-[#00FFAA]/10" : "text-blue-600 active:bg-blue-50"
                            )}
                         >
-                          • {post.author?.nickname || '隐藏信源'}
+                          <span className="opacity-50 mr-1">•</span> {post.author?.nickname || '隐藏信源'}
                         </button>
                       </div>
 
                       <Link to={getPostPath(post)} className="block relative z-10">
                         <h3 className={cn(
-                          "text-base font-extrabold leading-snug tracking-tight mb-1.5",
+                          "text-[15px] font-bold leading-snug tracking-tight mb-2 break-words pr-2",
                           isPantry ? "text-white group-hover:text-[#00FFAA]" : "text-neutral-800"
                         )}>
                           {post.title}
                         </h3>
                         <p className={cn(
-                          "line-clamp-2 text-[13px] leading-relaxed font-medium",
+                          "line-clamp-2 text-[14px] leading-relaxed break-words",
                           isPantry ? "text-neutral-400" : "text-neutral-500"
                         )}>
                           {post.summary || post.content}
@@ -466,9 +758,24 @@ const WorkspacePage: React.FC = () => {
                  <div>
                     <div className="mb-2 flex items-center justify-between text-[13px] font-extrabold text-neutral-800">
                       <span>工作上下文</span>
+                      <div className="flex items-center gap-2">
+                        <span className={cn(
+                          'text-[10px] font-bold',
+                          toolDataSource === 'cloud'
+                            ? 'text-emerald-600'
+                            : toolDataSource === 'mixed'
+                              ? 'text-sky-600'
+                              : 'text-amber-500'
+                        )}>
+                          {toolDataStatusLabel}
+                        </span>
                       {hasCustomer && (
                          <button type="button" onClick={clearCustomer} className="text-[11px] text-neutral-400 hover:text-red-500">清除暂存</button>
                       )}
+                      </div>
+                    </div>
+                    <div className="mb-2 text-[10px] text-neutral-400">
+                      {toolDataStatusHint}
                     </div>
                      {hasCustomer ? (
                         <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 flex flex-col gap-1">
@@ -494,17 +801,61 @@ const WorkspacePage: React.FC = () => {
                     <div className="mb-2 flex items-center gap-1.5 text-[13px] font-extrabold text-neutral-800">
                       <Briefcase size={12} className="text-neutral-400" />
                       近期的物料
+                      <span className="text-[10px] font-medium text-neutral-400">
+                        {artifactSource === 'cloud' ? '云端' : artifactSource === 'local' ? '本地' : '空'}
+                      </span>
                     </div>
                     {recentArtifacts.length ? (
                       <div className="flex flex-col gap-2">
-                        {recentArtifacts.map((item) => (
-                           <div key={item.id} className="text-xs font-bold text-neutral-600 truncate border-l-2 border-neutral-200 pl-2 py-0.5">
-                             {item.title}
-                           </div>
-                        ))}
+                        {recentArtifacts.map((item, index) => {
+                          const path = getToolPath(item.toolId);
+                          const key = `${item.toolId}-${item.id ?? 'local'}-${item.createdAt.getTime()}-${index}`;
+                          const className = 'text-xs font-bold text-neutral-600 truncate border-l-2 border-neutral-200 pl-2 py-0.5 hover:text-blue-600 transition-colors';
+
+                          return path ? (
+                            <Link key={key} to={path} className={className}>
+                              {item.title}
+                            </Link>
+                          ) : (
+                            <div key={key} className={className}>
+                              {item.title}
+                            </div>
+                          );
+                        })}
                       </div>
                     ) : (
                        <div className="text-xs font-medium text-neutral-400">无最新生成的文件物料。</div>
+                    )}
+                 </div>
+
+                 <div className="border-t border-dashed border-neutral-200 pt-3">
+                    <div className="mb-2 flex items-center gap-1.5 text-[13px] font-extrabold text-neutral-800">
+                      <FileText size={12} className="text-neutral-400" />
+                      暂存草稿
+                      <span className="text-[10px] font-medium text-neutral-400">
+                        {draftSource === 'cloud' ? '云端' : draftSource === 'local' ? '本地' : '空'}
+                      </span>
+                    </div>
+                    {recentDrafts.length ? (
+                      <div className="flex flex-col gap-2">
+                        {recentDrafts.map((item, index) => {
+                          const path = getToolPath(item.toolId);
+                          const key = `${item.toolId}-${item.id ?? 'local'}-${item.updatedAt.getTime()}-${index}`;
+                          const className = 'text-xs font-bold text-neutral-600 truncate border-l-2 border-blue-200 pl-2 py-0.5 hover:text-blue-600 transition-colors';
+
+                          return path ? (
+                            <Link key={key} to={path} className={className}>
+                              {item.title}
+                            </Link>
+                          ) : (
+                            <div key={key} className={className}>
+                              {item.title}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                       <div className="text-xs font-medium text-neutral-400">无可用草稿，云端与本地都没有可展示数据。</div>
                     )}
                  </div>
               </div>
@@ -519,7 +870,7 @@ const WorkspacePage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex flex-col justify-end">
            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedAuthor(null)} />
            <div className={cn(
-             "relative w-full max-w-6xl mx-auto rounded-t-[32px] p-6 pb-safe animate-slide-in-down border-t",
+             "relative w-full max-w-6xl mx-auto rounded-t-[32px] p-6 pb-[max(1rem,env(safe-area-inset-bottom))] animate-slide-in-down border-t",
              selectedAuthor.isAnon ? "bg-[#111] border-[#222]" : "bg-white border-white"
            )}>
               <button 

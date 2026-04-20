@@ -41,19 +41,25 @@ const GossipBoard: React.FC<GossipBoardProps> = ({ className }) => {
   const [activeFilter, setActiveFilter] = useState<GossipStatus | 'all'>('all');
   const [posts, setPosts] = useState<GossipPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const loadGossipPosts = async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const res = await forumApi.getPosts({ boardSlug: 'gossip', pageSize: 30 });
+      setPosts(res.items.map(postToGossip));
+    } catch (err) {
+      console.error('Failed to load gossip posts:', err);
+      setPosts([]);
+      setLoadError('流言板接入失败');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await forumApi.getPosts({ boardSlug: 'gossip', pageSize: 30 });
-        setPosts(res.items.map(postToGossip));
-      } catch (err) {
-        console.error('Failed to load gossip posts:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+    void loadGossipPosts();
   }, []);
 
   const handleRevive = (id: string) => {
@@ -132,6 +138,13 @@ const GossipBoard: React.FC<GossipBoardProps> = ({ className }) => {
           {loading ? (
             <div className="text-center py-8 text-[#ff0040]/20 text-xs font-mono animate-pulse">
               信号接入中...
+            </div>
+          ) : loadError ? (
+            <div className="text-center py-8 text-[#ff0040]/20 text-xs font-mono">
+              <div>{loadError}</div>
+              <button onClick={() => void loadGossipPosts()} className="mt-2 text-[#ff0040]/50 hover:text-[#ff0040]">
+                RETRY
+              </button>
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-8 text-[#ff0040]/20 text-xs font-mono">

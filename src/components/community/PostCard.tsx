@@ -72,7 +72,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, variant = 'professional', bas
 
       {/* Title */}
       <h3 className={cn(
-        'text-sm font-bold mb-1 group-hover:underline leading-snug',
+        'text-sm font-bold mb-1 group-hover:underline leading-snug break-words pr-2',
         isDark ? 'text-[#00ff41] group-hover:text-[#00ff41]' : 'text-brand-dark'
       )}>
         {post.title}
@@ -81,7 +81,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, variant = 'professional', bas
       {/* Content preview */}
       {post.content && (
         <p className={cn(
-          'text-xs line-clamp-2 leading-relaxed mb-3',
+          'text-xs line-clamp-2 leading-relaxed mb-3 break-words pr-2',
           isDark ? 'text-[#00ff41]/50' : 'text-brand-gray'
         )}>
           {post.content}
