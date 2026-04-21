@@ -1,17 +1,13 @@
 import Dexie, { type EntityTable } from 'dexie';
-
-export type PetOsEventName =
-  | 'daily_login'
-  | 'long_absence'
-  | 'status_change'
-  | 'touch_fish'
-  | 'drink_coffee'
-  | 'artifact_saved';
+import { loadPetOsResources, pickPetLine } from './petOsContent';
+import { derivePetPosture } from './petOsState';
+import type { PetOsEventName, PetPosture } from './petOsTypes';
 
 export interface PetIdentityRecord {
   key: 'pet_identity';
   namespace: 'pet_os';
   version: 'v2.4.0';
+  enabledAt: number | null;
   createdAt: number;
   updatedAt: number;
 }
@@ -22,8 +18,16 @@ export interface PetStateRecord {
   lastEventId: string | null;
   lastEventAt: number | null;
   lastStatus: string | null;
-  posture: string;
+  posture: PetPosture;
+  resourceVersion: string;
   muted: boolean;
+  lastLineId: string | null;
+  lastLine: string | null;
+  bubbleText: string | null;
+  bubbleLineId: string | null;
+  bubbleEvent: PetOsEventName | null;
+  bubblePriority: number;
+  bubbleExpiresAt: number | null;
   lastSeenAt: number | null;
   absenceHours: number;
   eventCounters: Partial<Record<PetOsEventName, number>>;
@@ -38,6 +42,17 @@ export interface PetCooldownRecord {
 
 const PET_STATE_CHANGE_EVENT = 'pet:state-change';
 const PET_OS_ABSENCE_THRESHOLD_MS = 24 * 60 * 60 * 1000;
+const PET_BUBBLE_DURATION_MS = 8_000;
+const PET_EVENT_META: Record<PetOsEventName, { cooldownMs: number; priority: number }> = {
+  daily_login: { cooldownMs: 0, priority: 4 },
+  long_absence: { cooldownMs: 60_000, priority: 6 },
+  life_critical: { cooldownMs: 5 * 60_000, priority: 6 },
+  status_change_off_duty: { cooldownMs: 30_000, priority: 5 },
+  status_change_overtime: { cooldownMs: 30_000, priority: 5 },
+  touch_fish: { cooldownMs: 2_000, priority: 3 },
+  drink_coffee: { cooldownMs: 2_000, priority: 3 },
+  artifact_saved: { cooldownMs: 5_000, priority: 2 },
+};
 
 class PetOsDB extends Dexie {
   pet_identity!: EntityTable<PetIdentityRecord, 'key'>;
@@ -62,6 +77,7 @@ function buildDefaultIdentity(now: number): PetIdentityRecord {
     key: 'pet_identity',
     namespace: 'pet_os',
     version: 'v2.4.0',
+    enabledAt: null,
     createdAt: now,
     updatedAt: now,
   };
@@ -75,7 +91,15 @@ function buildDefaultState(now: number): PetStateRecord {
     lastEventAt: null,
     lastStatus: null,
     posture: 'idle',
+    resourceVersion: loadPetOsResources().version,
     muted: false,
+    lastLineId: null,
+    lastLine: null,
+    bubbleText: null,
+    bubbleLineId: null,
+    bubbleEvent: null,
+    bubblePriority: 0,
+    bubbleExpiresAt: null,
     lastSeenAt: null,
     absenceHours: 0,
     eventCounters: {},
@@ -99,7 +123,13 @@ async function ensurePetOsRecords() {
     petOsDb.pet_cooldown.get('pet_cooldown'),
   ]);
 
-  const nextIdentity = identity ?? buildDefaultIdentity(now);
+  const nextIdentity = identity
+    ? {
+        ...buildDefaultIdentity(now),
+        ...identity,
+        enabledAt: identity.enabledAt ?? null,
+      }
+    : buildDefaultIdentity(now);
   const nextState = state ?? buildDefaultState(now);
   const nextCooldown = cooldown ?? buildDefaultCooldown(now);
 
@@ -126,31 +156,60 @@ export async function getPetStateSnapshot() {
   return state;
 }
 
-export async function recordPetEvent(
+export async function getPetIdentitySnapshot() {
+  const { identity } = await ensurePetOsRecords();
+  return identity;
+}
+
+export async function enablePetCompanion() {
+  const { identity } = await ensurePetOsRecords();
+  if (identity.enabledAt) {
+    return identity;
+  }
+
+  const nextIdentity: PetIdentityRecord = {
+    ...identity,
+    enabledAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+
+  await petOsDb.pet_identity.put(nextIdentity);
+  return nextIdentity;
+}
+
+export async function dispatchPetEvent(
   eventName: PetOsEventName,
   payload?: { status?: string; timestamp?: number; absenceHours?: number },
 ) {
   const { state, cooldown } = await ensurePetOsRecords();
   const now = payload?.timestamp ?? Date.now();
   const nextStatus = payload?.status ?? state.lastStatus;
-  const nextPosture =
-    eventName === 'touch_fish'
-      ? 'pause'
-      : eventName === 'drink_coffee'
-        ? 'recover'
-        : eventName === 'artifact_saved'
-          ? 'focused'
-          : eventName === 'daily_login'
-            ? 'awake'
-            : eventName === 'long_absence'
-              ? 'quiet'
-              : nextStatus === 'OVERTIME'
-                ? 'alert'
-                : nextStatus === 'WORKING'
-                  ? 'working'
-                  : nextStatus === 'OFF_DUTY'
-                    ? 'rest'
-                    : state.posture;
+  const eventMeta = PET_EVENT_META[eventName];
+  const nextCount = (state.eventCounters[eventName] ?? 0) + 1;
+  const previousEventAt = cooldown.eventCooldowns[eventName] ?? 0;
+  const isCoolingDown = eventMeta.cooldownMs > 0 && now - previousEventAt < eventMeta.cooldownMs;
+  const nextPosture = derivePetPosture({
+    eventName,
+    status: nextStatus,
+    previousPosture: state.posture,
+  });
+  const currentBubbleActive =
+    !!state.bubbleText &&
+    typeof state.bubbleExpiresAt === 'number' &&
+    state.bubbleExpiresAt > now;
+  const nextLine = state.muted || isCoolingDown
+    ? null
+    : pickPetLine({
+        eventName,
+        previousLineId: state.lastLineId,
+        sequence: nextCount - 1,
+      });
+  const shouldReplaceBubble = (() => {
+    if (!nextLine) return false;
+    if (!currentBubbleActive) return true;
+    if (eventMeta.priority > state.bubblePriority) return true;
+    return false;
+  })();
   const nextState: PetStateRecord = {
     ...state,
     lastEvent: eventName,
@@ -158,11 +217,19 @@ export async function recordPetEvent(
     lastEventAt: now,
     lastStatus: nextStatus,
     posture: nextPosture,
+    resourceVersion: loadPetOsResources().version,
+    lastLineId: nextLine?.id ?? state.lastLineId,
+    lastLine: nextLine?.text ?? state.lastLine,
+    bubbleText: shouldReplaceBubble ? nextLine?.text ?? null : state.bubbleText,
+    bubbleLineId: shouldReplaceBubble ? nextLine?.id ?? null : state.bubbleLineId,
+    bubbleEvent: shouldReplaceBubble ? eventName : state.bubbleEvent,
+    bubblePriority: shouldReplaceBubble ? eventMeta.priority : state.bubblePriority,
+    bubbleExpiresAt: shouldReplaceBubble ? now + PET_BUBBLE_DURATION_MS : state.bubbleExpiresAt,
     lastSeenAt: eventName === 'daily_login' || eventName === 'long_absence' ? now : state.lastSeenAt,
     absenceHours: payload?.absenceHours ?? state.absenceHours,
     eventCounters: {
       ...state.eventCounters,
-      [eventName]: (state.eventCounters[eventName] ?? 0) + 1,
+      [eventName]: nextCount,
     },
     updatedAt: now,
   };
@@ -202,11 +269,11 @@ export async function initializePetOsSession() {
     new Date(previousSeenAt).toDateString() !== new Date(now).toDateString();
 
   if (isNewDay) {
-    nextState = await recordPetEvent('daily_login', { timestamp: now });
+    nextState = await dispatchPetEvent('daily_login', { timestamp: now });
   }
 
   if (previousSeenAt && now - previousSeenAt >= PET_OS_ABSENCE_THRESHOLD_MS) {
-    nextState = await recordPetEvent('long_absence', {
+    nextState = await dispatchPetEvent('long_absence', {
       timestamp: now,
       absenceHours: Math.max(0, Math.floor((now - previousSeenAt) / (60 * 60 * 1000))),
     });
@@ -220,7 +287,45 @@ export async function syncPetStatus(status: string) {
   if (state.lastStatus === status) {
     return state;
   }
-  return recordPetEvent('status_change', { status });
+  if (status === 'OFF_DUTY') {
+    return dispatchPetEvent('status_change_off_duty', { status });
+  }
+  if (status === 'OVERTIME') {
+    return dispatchPetEvent('status_change_overtime', { status });
+  }
+
+  const now = Date.now();
+  const nextState: PetStateRecord = {
+    ...state,
+    lastStatus: status,
+    posture: derivePetPosture({
+      eventName: state.lastEvent ?? 'daily_login',
+      status,
+      previousPosture: state.posture,
+    }),
+    updatedAt: now,
+  };
+
+  await petOsDb.pet_state.put(nextState);
+  emitPetStateChange(nextState);
+  return nextState;
+}
+
+export async function setPetMuted(muted: boolean) {
+  const { state } = await ensurePetOsRecords();
+  const nextState: PetStateRecord = {
+    ...state,
+    muted,
+    bubbleText: muted ? null : state.bubbleText,
+    bubbleLineId: muted ? null : state.bubbleLineId,
+    bubbleEvent: muted ? null : state.bubbleEvent,
+    bubblePriority: muted ? 0 : state.bubblePriority,
+    bubbleExpiresAt: muted ? null : state.bubbleExpiresAt,
+    updatedAt: Date.now(),
+  };
+  await petOsDb.pet_state.put(nextState);
+  emitPetStateChange(nextState);
+  return nextState;
 }
 
 export function subscribePetState(callback: (state: PetStateRecord) => void) {

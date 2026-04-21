@@ -1,53 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import { Bot, Clock3, HeartPulse, PlugZap } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { PetOsCard } from './PetOsCard';
+import { getPetStatusSummary } from '../../lib/petOsContent';
+import { getCardMoodTint, getCardPosture } from '../../lib/petOsState';
+import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber } from '../../lib/localSignals';
 import {
+  dispatchPetEvent,
+  enablePetCompanion,
   getPetStateSnapshot,
   initializePetOsSession,
+  setPetMuted,
   subscribePetState,
-  type PetOsEventName,
+  type PetIdentityRecord,
   type PetStateRecord,
 } from '../../lib/petOs';
 
-const EVENT_LABELS: Record<PetOsEventName, string> = {
-  daily_login: '每日登录',
-  long_absence: '长时间离线',
-  status_change: '状态切换',
-  touch_fish: '带薪发呆',
-  drink_coffee: '续命咖啡',
-  artifact_saved: '保存物料',
-};
-
-const WIRED_EVENTS: PetOsEventName[] = [
-  'daily_login',
-  'long_absence',
-  'status_change',
-  'touch_fish',
-  'drink_coffee',
-  'artifact_saved',
-];
-
-function formatTime(timestamp: number | null) {
-  if (!timestamp) return '尚未记录';
-  return new Date(timestamp).toLocaleString('zh-CN', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
 const PetOsMountSlot: React.FC = () => {
   const [petState, setPetState] = useState<PetStateRecord | null>(null);
+  const [petIdentity, setPetIdentity] = useState<PetIdentityRecord | null>(null);
+  const [currentLife, setCurrentLife] = useState<number>(() =>
+    typeof window === 'undefined' ? 100 : readLocalNumber(LOCAL_NUMBER_KEYS.currentLife, 100),
+  );
+  const [clock, setClock] = useState<number>(() => Date.now());
+  const [isAdopting, setIsAdopting] = useState(false);
+  const criticalDebounceRef = useRef<number>(0);
   const showDebug = import.meta.env.DEV;
 
   useEffect(() => {
     let cancelled = false;
 
     const bootstrap = async () => {
-      await initializePetOsSession();
-      const snapshot = await getPetStateSnapshot();
+      const [{ identity }, snapshot] = await Promise.all([
+        initializePetOsSession(),
+        getPetStateSnapshot(),
+      ]);
+
       if (!cancelled) {
+        setPetIdentity(identity);
         setPetState(snapshot);
       }
     };
@@ -65,82 +53,140 @@ const PetOsMountSlot: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const timer = window.setInterval(() => setClock(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const maybeTriggerLifeCritical = (life: number) => {
+      if (cancelled) return;
+      setCurrentLife(life);
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
+      if (life >= 40) return;
+
+      const now = Date.now();
+      if (now - criticalDebounceRef.current < 5 * 60_000) return;
+      criticalDebounceRef.current = now;
+      void dispatchPetEvent('life_critical').catch(() => {});
+    };
+
+    const initialLife = readLocalNumber(LOCAL_NUMBER_KEYS.currentLife, 100);
+    setCurrentLife(initialLife);
+    maybeTriggerLifeCritical(initialLife);
+
+    const unsubscribe = subscribeLocalNumber(
+      LOCAL_NUMBER_KEYS.currentLife,
+      100,
+      maybeTriggerLifeCritical,
+    );
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = subscribeLocalNumber(
+      LOCAL_NUMBER_KEYS.artifactSavedSignal,
+      0,
+      () => {
+        void dispatchPetEvent('artifact_saved').catch(() => {});
+      },
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  const isAdopted = !!petIdentity?.enabledAt;
+  const cardPosture = useMemo(
+    () => getCardPosture(petState?.posture ?? 'idle', currentLife, petState?.lastStatus ?? null),
+    [petState?.posture, petState?.lastStatus, currentLife],
+  );
+  const cardMoodTint = useMemo(
+    () => getCardMoodTint(petState?.lastStatus ?? null),
+    [petState?.lastStatus],
+  );
+  const bubbleVisible = useMemo(() => {
+    if (!petState?.bubbleText || !petState?.bubbleExpiresAt) return false;
+    if (petState.muted) return false;
+    return petState.bubbleExpiresAt > clock;
+  }, [clock, petState]);
+  const statusSummary = useMemo(
+    () =>
+      getPetStatusSummary({
+        lastEvent: petState?.lastEvent ?? null,
+        lastStatus: petState?.lastStatus ?? null,
+        currentLife,
+        muted: !!petState?.muted,
+      }),
+    [currentLife, petState?.lastEvent, petState?.lastStatus, petState?.muted],
+  );
+
+  const handleAdopt = async () => {
+    if (isAdopting) return;
+    setIsAdopting(true);
+    try {
+      const identity = await enablePetCompanion();
+      const snapshot = await getPetStateSnapshot();
+      setPetIdentity(identity);
+      setPetState(snapshot);
+    } finally {
+      setIsAdopting(false);
+    }
+  };
+
+  const handleToggleMute = () => {
+    void setPetMuted(!petState?.muted).catch(() => {});
+  };
+
   return (
-    <section className="rounded-[24px] border border-brand-border/10 bg-white p-5 sm:p-6 shadow-sm">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-apple-pink/10 px-3 py-1 text-[10px] font-bold tracking-[0.18em] text-apple-pink">
-            <Bot size={12} />
-            PET_OS v2.4.0
-          </div>
-          <h3 className="mt-3 text-xl font-bold text-brand-dark">PET_OS 挂载位</h3>
-          <p className="mt-2 text-sm leading-6 text-brand-gray">
-            本轮只完成挂载位、本地命名空间和基础事件接线。宠物本体、成长与多宠物能力暂未启用。
-          </p>
-        </div>
-        <div className="rounded-2xl border border-brand-border/10 bg-brand-offwhite px-4 py-3 text-right">
-          <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-gray">监听状态</div>
-          <div className="mt-1 text-sm font-bold text-brand-dark">
-            {petState?.lastStatus || '等待接入'}
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-5 grid gap-3 md:grid-cols-[1.2fr_1fr]">
-        <div className="rounded-2xl border border-brand-border/10 bg-brand-offwhite/80 p-4">
-          <div className="flex items-center gap-2 text-xs font-bold text-brand-dark">
-            <PlugZap size={14} className="text-apple-blue" />
-            已接通事件源
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {WIRED_EVENTS.map((eventName) => (
-              <span
-                key={eventName}
-                className={cn(
-                  'rounded-full border px-3 py-1 text-[11px] font-bold',
-                  petState?.lastEvent === eventName
-                    ? 'border-apple-blue/30 bg-apple-blue/10 text-apple-blue'
-                    : 'border-brand-border/10 bg-white text-brand-gray'
-                )}
-              >
-                {EVENT_LABELS[eventName]}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-brand-border/10 bg-brand-offwhite/80 p-4">
-          <div className="flex items-center gap-2 text-xs font-bold text-brand-dark">
-            <Clock3 size={14} className="text-apple-purple" />
-            最近一次记录
-          </div>
-          <div className="mt-3 text-sm font-bold text-brand-dark">
-            {petState?.lastEvent ? EVENT_LABELS[petState.lastEvent] : '尚未产生事件'}
-          </div>
-          <div className="mt-1 text-xs text-brand-gray">
-            {formatTime(petState?.lastEventAt ?? null)}
-          </div>
-          <div className="mt-4 flex items-center gap-2 text-xs font-bold text-brand-dark">
-            <HeartPulse size={14} className="text-apple-pink" />
-            离线时长
-          </div>
-          <div className="mt-1 text-xs text-brand-gray">
-            {petState?.absenceHours ? `${petState.absenceHours} 小时` : '本次会话内未触发'}
-          </div>
-        </div>
-      </div>
+    <div>
+      {!isAdopted ? (
+        <PetOsCard
+          isAdopted={false}
+          onAdopt={() => void handleAdopt()}
+          adoptTitle="这里住着一只小东西"
+          adoptDesc={
+            isAdopting
+              ? '它正在睁开眼睛'
+              : '愿意让它陪你吗'
+          }
+        />
+      ) : (
+        <PetOsCard
+          posture={cardPosture}
+          moodTint={cardMoodTint || undefined}
+          bubbleText={bubbleVisible ? petState?.bubbleText ?? '' : ''}
+          statusDesc={statusSummary}
+          muted={!!petState?.muted}
+          onToggleMute={handleToggleMute}
+        />
+      )}
 
       {showDebug && petState ? (
-        <div className="mt-3 rounded-2xl border border-dashed border-brand-border/20 bg-brand-offwhite/60 px-4 py-3 font-mono text-[11px] text-brand-gray">
-          <div className="mb-2 font-bold tracking-[0.16em] text-brand-dark">开发调试</div>
-          <div className="grid gap-1 sm:grid-cols-3">
-            <div>eventId: {petState.lastEventId || 'none'}</div>
-            <div>posture: {petState.posture}</div>
-            <div>muted: {petState.muted ? 'true' : 'false'}</div>
+        <details className="mt-2 rounded-xl border border-dashed border-brand-border/20 bg-brand-offwhite/40 px-3 py-2 text-[11px] text-brand-gray">
+          <summary className="cursor-pointer font-mono font-bold tracking-[0.14em] text-brand-dark/70">
+            本地附注
+          </summary>
+          <div className="mt-2 grid gap-1 font-mono sm:grid-cols-2">
+            <div>引擎姿态: {petState.posture}</div>
+            <div>卡片姿态: {cardPosture}</div>
+            <div>当前状态: {petState.lastStatus ?? 'null'}</div>
+            <div>当前数值: {currentLife}</div>
+            <div>最近变化: {petState.lastEvent ?? 'none'}</div>
+            <div>最近编号: {petState.lastEventId ?? 'none'}</div>
+            <div>已静音: {petState.muted ? 'true' : 'false'}</div>
+            <div>气泡显示: {bubbleVisible ? 'true' : 'false'}</div>
           </div>
-        </div>
+        </details>
       ) : null}
-    </section>
+    </div>
   );
 };
 

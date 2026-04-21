@@ -6,6 +6,8 @@ export const LOCAL_NUMBER_KEYS = {
   trees: 'cl_hacker_trees',
   touchFishCounter: 'cl_touch_fish_counter',
   coffeeCounter: 'cl_coffee_counter',
+  currentLife: 'cl_current_life_mirror',
+  artifactSavedSignal: 'pet_artifact_saved_signal',
 } as const;
 
 export type LocalNumberKey = (typeof LOCAL_NUMBER_KEYS)[keyof typeof LOCAL_NUMBER_KEYS];

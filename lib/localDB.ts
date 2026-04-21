@@ -7,7 +7,7 @@
  * - 为将来后端同步预留 `synced` 字段
  */
 import Dexie, { type EntityTable } from 'dexie';
-import { recordPetEvent } from './petOs';
+import { incrementLocalNumber, LOCAL_NUMBER_KEYS } from './localSignals';
 
 // ─── 领域模型 ─────────────────────────────────
 
@@ -102,7 +102,7 @@ export async function saveDraft(toolId: string, title: string, data: Record<stri
 /** 保存生成结果 */
 export async function saveArtifact(toolId: string, title: string, content: string, metadata?: Record<string, any>) {
   const artifactId = await db.artifacts.add({ toolId, title, content, metadata, createdAt: new Date() });
-  void recordPetEvent('artifact_saved');
+  incrementLocalNumber(LOCAL_NUMBER_KEYS.artifactSavedSignal, 0);
   return artifactId;
 }
 

@@ -15,7 +15,7 @@ import InitialBadge from '../components/common/InitialBadge';
 import { forumApi } from '../services/forumApi';
 import { getAuthSession } from '../services/authService';
 import { motion } from 'framer-motion';
-import { recordPetEvent, syncPetStatus } from '../../lib/petOs';
+import { dispatchPetEvent, syncPetStatus } from '../../lib/petOs';
 
 // --- Cyberpunk / CLI Components ---
 
@@ -63,7 +63,6 @@ const Profile: React.FC = () => {
 
   const [isEditingSalary, setIsEditingSalary] = useState(false);
   const [salaryInput, setSalaryInput] = useState(String(monthlySalary));
-  const [pet, setPet] = useState<any>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -101,10 +100,6 @@ const Profile: React.FC = () => {
     };
     void fetchCommunityStats();
 
-    const p = localStorage.getItem('cl_active_pet');
-    if (p) {
-      try { setPet(JSON.parse(p)); } catch (e) {}
-    }
   }, []);
 
   useEffect(() => {
@@ -176,15 +171,19 @@ const Profile: React.FC = () => {
     void syncPetStatus(status);
   }, [status]);
 
+  useEffect(() => {
+    writeLocalNumber(LOCAL_NUMBER_KEYS.currentLife, Number(currentLife.toFixed(1)));
+  }, [currentLife]);
+
   const handleTouchFish = () => {
     setRestoredLife(prev => prev + 15);
     incrementLocalNumber(LOCAL_NUMBER_KEYS.touchFishCounter, 0);
-    void recordPetEvent('touch_fish');
+    void dispatchPetEvent('touch_fish');
   };
   const handleDrinkCoffee = () => {
     setRestoredLife(prev => prev + 10);
     incrementLocalNumber(LOCAL_NUMBER_KEYS.coffeeCounter, 0);
-    void recordPetEvent('drink_coffee');
+    void dispatchPetEvent('drink_coffee');
   };
   const currentLevel = Math.floor((myPostCount * 50 + myLikesReceived * 10) / 100) + 1;
 
@@ -218,11 +217,6 @@ const Profile: React.FC = () => {
 
           <div className="text-[#00ff41] text-[10px] mb-3 font-bold opacity-70 flex justify-between items-center">
             <span><span className="text-gray-500">$</span> ./check_health_status.sh -v</span>
-            {pet && (
-              <span className="text-[#00ff41] animate-pulse">
-                [DAEMON: {pet.def.emoji} {pet.def.name}]
-              </span>
-            )}
           </div>
           
           <div className="flex gap-4 items-start relative z-10">
