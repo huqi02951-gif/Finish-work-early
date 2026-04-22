@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Briefcase, Coffee, HeartPulse, Map,
+  Briefcase, HeartPulse,
   MessageSquare, LogOut, TerminalSquare, ShieldAlert,
   Terminal, Shield
 } from 'lucide-react';
@@ -10,12 +10,12 @@ import CommunityAccessGate from '../components/community/CommunityAccessGate';
 import { apiService } from '../services/api';
 import { User as UserType } from '../types';
 import { cn } from '../../lib/utils';
-import { LOCAL_NUMBER_KEYS, incrementLocalNumber, readLocalNumber, subscribeLocalNumber, writeLocalNumber } from '../../lib/localSignals';
+import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber, writeLocalNumber } from '../../lib/localSignals';
 import InitialBadge from '../components/common/InitialBadge';
 import { forumApi } from '../services/forumApi';
 import { getAuthSession } from '../services/authService';
 import { motion } from 'framer-motion';
-import { dispatchPetEvent, syncPetStatus } from '../../lib/petOs';
+import { syncPetStatus } from '../../lib/petOs';
 
 // --- Cyberpunk / CLI Components ---
 
@@ -57,6 +57,8 @@ const Profile: React.FC = () => {
   const [now, setNow] = useState(new Date());
   const [monthlySalary, setMonthlySalary] = useState(() => readLocalNumber(LOCAL_NUMBER_KEYS.salary, 6200));
   const [restoredLife, setRestoredLife] = useState(0);
+  const touchFishCounterRef = useRef(readLocalNumber(LOCAL_NUMBER_KEYS.touchFishCounter, 0));
+  const coffeeCounterRef = useRef(readLocalNumber(LOCAL_NUMBER_KEYS.coffeeCounter, 0));
   
   const [myPostCount, setMyPostCount] = useState(0);
   const [myLikesReceived, setMyLikesReceived] = useState(0);
@@ -110,6 +112,37 @@ const Profile: React.FC = () => {
   useEffect(() => {
     const unsub = subscribeLocalNumber(LOCAL_NUMBER_KEYS.salary, 6200, setMonthlySalary);
     return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    const unsubTouchFish = subscribeLocalNumber(
+      LOCAL_NUMBER_KEYS.touchFishCounter,
+      0,
+      (nextCount) => {
+        const delta = Math.max(0, nextCount - touchFishCounterRef.current);
+        touchFishCounterRef.current = nextCount;
+        if (delta > 0) {
+          setRestoredLife((prev) => prev + delta * 15);
+        }
+      },
+    );
+
+    const unsubCoffee = subscribeLocalNumber(
+      LOCAL_NUMBER_KEYS.coffeeCounter,
+      0,
+      (nextCount) => {
+        const delta = Math.max(0, nextCount - coffeeCounterRef.current);
+        coffeeCounterRef.current = nextCount;
+        if (delta > 0) {
+          setRestoredLife((prev) => prev + delta * 10);
+        }
+      },
+    );
+
+    return () => {
+      unsubTouchFish();
+      unsubCoffee();
+    };
   }, []);
 
   // Time metrics computations (9-12, 14-17)
@@ -175,16 +208,6 @@ const Profile: React.FC = () => {
     writeLocalNumber(LOCAL_NUMBER_KEYS.currentLife, Number(currentLife.toFixed(1)));
   }, [currentLife]);
 
-  const handleTouchFish = () => {
-    setRestoredLife(prev => prev + 15);
-    incrementLocalNumber(LOCAL_NUMBER_KEYS.touchFishCounter, 0);
-    void dispatchPetEvent('touch_fish');
-  };
-  const handleDrinkCoffee = () => {
-    setRestoredLife(prev => prev + 10);
-    incrementLocalNumber(LOCAL_NUMBER_KEYS.coffeeCounter, 0);
-    void dispatchPetEvent('drink_coffee');
-  };
   const currentLevel = Math.floor((myPostCount * 50 + myLikesReceived * 10) / 100) + 1;
 
   const saveSalary = () => {
@@ -335,39 +358,6 @@ const Profile: React.FC = () => {
                 ! Warning: Working without compensation !
              </div>
           )}
-        </section>
-
-        {/* Action Modules */}
-        <section className="grid grid-cols-2 gap-3">
-          <button 
-            onClick={handleTouchFish}
-            className="border border-[#00ff41]/30 hover:border-[#00ff41] hover:bg-[#00ff41]/10 p-3 group transition-all relative overflow-hidden"
-          >
-            <div className="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-[#00ff41] opacity-50 group-hover:opacity-100"></div>
-            <div className="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-[#00ff41] opacity-50 group-hover:opacity-100"></div>
-            <div className="flex items-center gap-2 mb-1">
-              <Map className="w-3.5 h-3.5 text-[#00ff41]/70 group-hover:text-[#00ff41]" />
-              <span className="text-xs font-bold text-[#00ff41]">&gt; RESTORE_15</span>
-            </div>
-            <div className="text-[9px] text-[#00ff41]/50 font-bold group-hover:text-[#00ff41]">
-              [执行: 带薪发呆]
-            </div>
-          </button>
-
-          <button 
-            onClick={handleDrinkCoffee}
-            className="border border-[#00ff41]/30 hover:border-[#00ff41] hover:bg-[#00ff41]/10 p-3 group transition-all relative overflow-hidden"
-          >
-            <div className="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-[#00ff41] opacity-50 group-hover:opacity-100"></div>
-            <div className="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-[#00ff41] opacity-50 group-hover:opacity-100"></div>
-            <div className="flex items-center gap-2 mb-1">
-              <Coffee className="w-3.5 h-3.5 text-[#00ff41]/70 group-hover:text-[#00ff41]" />
-              <span className="text-xs font-bold text-[#00ff41]">&gt; RESTORE_10</span>
-            </div>
-            <div className="text-[9px] text-[#00ff41]/50 font-bold group-hover:text-[#00ff41]">
-              [执行: 续命咖啡]
-            </div>
-          </button>
         </section>
 
         {/* Access logs */}

@@ -19,7 +19,7 @@ export const PET_OS_POSTURE_LABELS: Record<PetPosture, string> = {
   quiet: '静默',
   rest: '休整',
   working: '跟随中',
-  alert: '告警',
+  alert: '紧张',
   pause: '摸鱼',
   recover: '回温',
   focused: '专注',

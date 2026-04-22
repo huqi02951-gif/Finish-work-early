@@ -6,7 +6,7 @@ import type { PetOsEventName, PetPosture } from './petOsTypes';
 export interface PetIdentityRecord {
   key: 'pet_identity';
   namespace: 'pet_os';
-  version: 'v2.4.0';
+  version: 'v1.2.0';
   enabledAt: number | null;
   createdAt: number;
   updatedAt: number;
@@ -76,7 +76,7 @@ function buildDefaultIdentity(now: number): PetIdentityRecord {
   return {
     key: 'pet_identity',
     namespace: 'pet_os',
-    version: 'v2.4.0',
+    version: 'v1.2.0',
     enabledAt: null,
     createdAt: now,
     updatedAt: now,
