@@ -1,407 +1,358 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Briefcase, HeartPulse,
-  MessageSquare, LogOut, TerminalSquare, ShieldAlert,
-  Terminal, Shield
-} from 'lucide-react';
-import CyberLayout from '../components/layout/CyberLayout';
-import CommunityAccessGate from '../components/community/CommunityAccessGate';
-import { apiService } from '../services/api';
-import { User as UserType } from '../types';
-import { cn } from '../../lib/utils';
-import { LOCAL_NUMBER_KEYS, readLocalNumber, subscribeLocalNumber, writeLocalNumber } from '../../lib/localSignals';
-import InitialBadge from '../components/common/InitialBadge';
-import { forumApi } from '../services/forumApi';
-import { getAuthSession } from '../services/authService';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { syncPetStatus } from '../../lib/petOs';
+import {
+  Settings, LogOut, ChevronRight, Briefcase, Clock,
+  Coffee, Fish, Timer, Flame, Heart, MessageSquare, Info,
+  Wallet, Sparkles, X, Check,
+} from 'lucide-react';
+import AppLayout from '../components/layout/AppLayout';
+import InitialBadge from '../components/common/InitialBadge';
+import { getAuthSession, clearAuthSession } from '../services/authService';
+import { apiService } from '../services/api';
+import { cn } from '../../lib/utils';
+import { earnLossStore } from '../../lib/earnLossStore';
+import {
+  LOCAL_NUMBER_KEYS,
+  readLocalNumber,
+  writeLocalNumber,
+  subscribeLocalNumber,
+} from '../../lib/localSignals';
 
-// --- Cyberpunk / CLI Components ---
-
-const GlitchText: React.FC<{ text: string; className?: string; glitchHoverOnly?: boolean }> = ({ text, className, glitchHoverOnly }) => {
-  return (
-    <span className={cn("relative inline-block group font-bold tracking-wider", className)}>
-      <span className="relative z-10">{text}</span>
-      <span className={cn(
-        "absolute top-0 left-[1px] z-0 text-[#00ff41] opacity-30 select-none",
-        glitchHoverOnly ? "opacity-0 group-hover:opacity-30 group-hover:clip-glitch-1" : "clip-glitch-1"
-      )} aria-hidden>{text}</span>
-      <span className={cn(
-        "absolute top-0 left-[-2px] z-0 text-[#ff0040] opacity-30 select-none",
-        glitchHoverOnly ? "opacity-0 group-hover:opacity-30 group-hover:clip-glitch-2" : "clip-glitch-2"
-      )} aria-hidden>{text}</span>
-    </span>
-  );
-};
-
-const AsciiProgress: React.FC<{ percent: number; width?: number; color?: string; danger?: boolean }> = ({ percent, width = 20, color = "text-[#00ff41]", danger }) => {
-  const filledCount = Math.round((Math.min(100, Math.max(0, percent)) / 100) * width);
-  const emptyCount = width - filledCount;
-  const filled = "█".repeat(filledCount);
-  const empty = "░".repeat(emptyCount);
-  
-  return (
-    <span className={cn("font-mono tracking-tight", color, danger ? "text-red-500" : "")}>
-      [{filled}<span className={danger ? "text-red-900" : "text-green-900"}>{empty}</span>] {percent.toFixed(0)}%
-    </span>
-  );
+const SK = {
+  WORK_START: 'cl_work_start',
+  WORK_END:   'cl_work_end',
+  FOCUS_SESSIONS: 'cl_focus_sessions',
 };
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<UserType | null>(null);
-  const [statsLoading, setStatsLoading] = useState(true);
-  const [statsError, setStatsError] = useState<string | null>(null);
-  
-  const [now, setNow] = useState(new Date());
-  const [monthlySalary, setMonthlySalary] = useState(() => readLocalNumber(LOCAL_NUMBER_KEYS.salary, 6200));
-  const [restoredLife, setRestoredLife] = useState(0);
-  const touchFishCounterRef = useRef(readLocalNumber(LOCAL_NUMBER_KEYS.touchFishCounter, 0));
-  const coffeeCounterRef = useRef(readLocalNumber(LOCAL_NUMBER_KEYS.coffeeCounter, 0));
-  
-  const [myPostCount, setMyPostCount] = useState(0);
-  const [myLikesReceived, setMyLikesReceived] = useState(0);
+  const authSession = getAuthSession();
+  const isLoggedIn = authSession !== null && authSession.loginMethod !== 'demo';
 
-  const [isEditingSalary, setIsEditingSalary] = useState(false);
-  const [salaryInput, setSalaryInput] = useState(String(monthlySalary));
+  // ─── Live data ──────────────────────────────────────────────
+  const [summary, setSummary] = useState(() => earnLossStore.getTodaySummary());
+  const [salary, setSalary] = useState(() => readLocalNumber(LOCAL_NUMBER_KEYS.salary, 6000));
+  const [touchFish, setTouchFish] = useState(() => readLocalNumber(LOCAL_NUMBER_KEYS.touchFishCounter, 0));
+  const [coffee, setCoffee] = useState(() => readLocalNumber(LOCAL_NUMBER_KEYS.coffeeCounter, 0));
+  const [focusSessions, setFocusSessions] = useState(() => {
+    const raw = localStorage.getItem(SK.FOCUS_SESSIONS);
+    const v = Number(raw);
+    return !isNaN(v) ? v : 0;
+  });
+  const [workStart, setWorkStart] = useState(() => localStorage.getItem(SK.WORK_START) || '09:00');
+  const [workEnd, setWorkEnd] = useState(() => localStorage.getItem(SK.WORK_END) || '17:00');
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const data = await apiService.getCurrentUser();
-        setUser(data);
-      } catch {
-        setUser(null);
-      }
-    };
-    void fetchUser();
-    
-    // Fetch real community stats from backend
-    const fetchCommunityStats = async () => {
-      setStatsLoading(true);
-      setStatsError(null);
-      const session = getAuthSession();
-      if (!session || session.loginMethod === 'demo') {
-        setMyPostCount(0);
-        setMyLikesReceived(0);
-        setStatsLoading(false);
-        return;
-      }
-      try {
-        const res = await forumApi.getMyPosts({ pageSize: 100 });
-        setMyPostCount(res.total);
-        setMyLikesReceived(0); // likes not yet supported by backend
-      } catch {
-        setMyPostCount(0);
-        setMyLikesReceived(0);
-        setStatsError('社区统计读取失败，已回退为 0');
-      } finally {
-        setStatsLoading(false);
-      }
-    };
-    void fetchCommunityStats();
+  const [showWageEditor, setShowWageEditor] = useState(false);
+  const [draft, setDraft] = useState({ salary: String(salary), start: workStart, end: workEnd });
 
-  }, []);
+  useEffect(() => earnLossStore.subscribe(setSummary), []);
+  useEffect(() => subscribeLocalNumber(LOCAL_NUMBER_KEYS.salary, 6000, setSalary), []);
+  useEffect(() => subscribeLocalNumber(LOCAL_NUMBER_KEYS.touchFishCounter, 0, setTouchFish), []);
+  useEffect(() => subscribeLocalNumber(LOCAL_NUMBER_KEYS.coffeeCounter, 0, setCoffee), []);
 
-  useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+  const netToday = summary.earnTotal - summary.lossTotal;
 
-  useEffect(() => {
-    const unsub = subscribeLocalNumber(LOCAL_NUMBER_KEYS.salary, 6200, setMonthlySalary);
-    return () => unsub();
-  }, []);
-
-  useEffect(() => {
-    const unsubTouchFish = subscribeLocalNumber(
-      LOCAL_NUMBER_KEYS.touchFishCounter,
-      0,
-      (nextCount) => {
-        const delta = Math.max(0, nextCount - touchFishCounterRef.current);
-        touchFishCounterRef.current = nextCount;
-        if (delta > 0) {
-          setRestoredLife((prev) => prev + delta * 15);
-        }
-      },
-    );
-
-    const unsubCoffee = subscribeLocalNumber(
-      LOCAL_NUMBER_KEYS.coffeeCounter,
-      0,
-      (nextCount) => {
-        const delta = Math.max(0, nextCount - coffeeCounterRef.current);
-        coffeeCounterRef.current = nextCount;
-        if (delta > 0) {
-          setRestoredLife((prev) => prev + delta * 10);
-        }
-      },
-    );
-
-    return () => {
-      unsubTouchFish();
-      unsubCoffee();
-    };
-  }, []);
-
-  // Time metrics computations (9-12, 14-17)
-  const hour = now.getHours();
-  const minute = now.getMinutes();
-  const currentMinutesInDay = hour * 60 + minute;
-
-  let status: 'OFF_DUTY' | 'WORKING' | 'OVERTIME' = 'OFF_DUTY';
-  let workedMinutes = 0;
-  let overtimeMinutes = 0;
-
-  if (currentMinutesInDay < 9 * 60) {
-    status = 'OFF_DUTY';
-  } else if (currentMinutesInDay < 12 * 60) {
-    status = 'WORKING';
-    workedMinutes = currentMinutesInDay - 9 * 60;
-  } else if (currentMinutesInDay < 14 * 60) {
-    status = 'OFF_DUTY'; // Lunch
-    workedMinutes = 180;
-  } else if (currentMinutesInDay < 17 * 60) {
-    status = 'WORKING';
-    workedMinutes = 180 + (currentMinutesInDay - 14 * 60);
-  } else {
-    status = 'OVERTIME';
-    workedMinutes = 360;
-    overtimeMinutes = currentMinutesInDay - 17 * 60;
-  }
-
-  // Financial computations
-  const minuteRate = monthlySalary / 20 / 360;
-  const earnedToday = workedMinutes * minuteRate;
-  const lostToOvertime = overtimeMinutes * minuteRate;
-
-  // Life Value (0-100)
-  let baseLife = 100;
-  if (status === 'WORKING') {
-    baseLife = 100 - (workedMinutes / 360) * 30; 
-  } else if (status === 'OVERTIME') {
-    baseLife = 100 - 30 - overtimeMinutes * 0.5; 
-  } else if (status === 'OFF_DUTY') {
-    baseLife = 100; 
-  }
-  
-  const currentLifeRaw = baseLife + restoredLife;
-  const currentLife = Math.max(0, Math.min(100, currentLifeRaw));
-
-  // Determine State UI
-  const isDanger = currentLife < 40 || status === 'OVERTIME';
-  let heartbeatDesc = 'STATUS_STABLE_心如止水';
-  if (status === 'OFF_DUTY') {
-    heartbeatDesc = 'STATUS_MAX_活力四射!!';
-  } else if (status === 'OVERTIME') {
-    heartbeatDesc = 'ERR_OVERLOAD_心律不齐';
-  } else if (isDanger) {
-    heartbeatDesc = 'CRITICAL_亟待抢救';
-  }
-
-  useEffect(() => {
-    void syncPetStatus(status);
-  }, [status]);
-
-  useEffect(() => {
-    writeLocalNumber(LOCAL_NUMBER_KEYS.currentLife, Number(currentLife.toFixed(1)));
-  }, [currentLife]);
-
-  const currentLevel = Math.floor((myPostCount * 50 + myLikesReceived * 10) / 100) + 1;
-
-  const saveSalary = () => {
-    const val = Number(salaryInput);
-    if (!isNaN(val) && val > 0) {
-      writeLocalNumber(LOCAL_NUMBER_KEYS.salary, val);
-      setMonthlySalary(val);
-    }
-    setIsEditingSalary(false);
+  const handleLogout = async () => {
+    try { await apiService.logout(); } catch { /* ignore */ }
+    clearAuthSession();
+    navigate('/', { replace: true });
   };
 
+  const openWageEditor = () => {
+    setDraft({ salary: String(salary), start: workStart, end: workEnd });
+    setShowWageEditor(true);
+  };
+
+  const saveWageEditor = () => {
+    const v = Number(draft.salary);
+    if (v > 0) {
+      writeLocalNumber(LOCAL_NUMBER_KEYS.salary, v);
+      setSalary(v);
+    }
+    localStorage.setItem(SK.WORK_START, draft.start);
+    localStorage.setItem(SK.WORK_END, draft.end);
+    setWorkStart(draft.start);
+    setWorkEnd(draft.end);
+    setShowWageEditor(false);
+  };
+
+  const hourlyRate = ((salary / 22) / 8).toFixed(1);
+
   return (
-    <CyberLayout title="SysOps" subtitle="生命维持终端 (Daemon_V2)">
-      <CommunityAccessGate moduleName="执行底层逻辑管控模块" />
+    <AppLayout title="我的" theme="default">
+      <div className="bg-[#FBFBFC] min-h-[calc(100dvh-8rem)] pb-10">
+        <div className="max-w-3xl mx-auto px-5 sm:px-6 pt-6 sm:pt-10 space-y-5">
 
-      <div className="p-4 relative z-10 max-w-lg mx-auto space-y-6">
-        
-        {/* Terminal Header Info */}
-        <section className={cn(
-          "border p-3 shadow-[0_0_15px_rgba(0,255,65,0.1)] relative overflow-hidden transition-colors",
-          isDanger ? "border-red-500 bg-red-950/20" : "border-[#00ff41]/30 bg-black"
-        )}>
-          {isDanger && (
-            <motion.div 
-              className="absolute inset-0 bg-red-500/10"
-              animate={{ opacity: [0.1, 0.3, 0.1] }}
-              transition={{ repeat: Infinity, duration: 1 }}
-            />
-          )}
-
-          <div className="text-[#00ff41] text-[10px] mb-3 font-bold opacity-70 flex justify-between items-center">
-            <span><span className="text-gray-500">$</span> ./check_health_status.sh -v</span>
-          </div>
-          
-          <div className="flex gap-4 items-start relative z-10">
-            <div className={cn(
-               "w-16 h-16 shrink-0 relative flex items-center justify-center border-2 border-dashed",
-               isDanger ? "border-red-500 shadow-[0_0_10px_rgba(255,0,0,0.5)]" : "border-[#00ff41]/50 bg-[#0A1A0F]"
-            )}>
-              <InitialBadge label={user?.nickname || '客户经理'} tone="cyber" className="h-12 w-12 text-sm !bg-black" />
-            </div>
-            
-            <div className="flex-grow space-y-1">
-              <div className="flex justify-between items-end">
-                <GlitchText text={`代号: ${user?.nickname || '实名认证-客户经理'}`} className={cn("text-lg font-bold tracking-tight", isDanger ? "text-red-500" : "text-[#00ff41]")} glitchHoverOnly />
-                <span className="text-[#f5a623] text-[10px] border border-[#f5a623]/50 px-1 font-bold">LVL.{currentLevel}</span>
-              </div>
-              
-              <div className="text-[10px] mt-1 space-y-1.5 font-bold">
-                <div className="flex items-center gap-1.5 opacity-80">
-                  <HeartPulse className={cn("w-3 h-3", isDanger ? "text-red-500 animate-pulse" : "text-[#00ff41]")} />
-                  <span className={isDanger ? "text-red-500" : "text-[#00ff41]"}>[{heartbeatDesc}]</span>
-                </div>
-                <div className="flex justify-between text-[10px]">
-                  <span className="text-gray-400">生命值 (Life_Force)</span>
-                  <span className={isDanger ? "text-red-500" : "text-[#00ff41]"}>{currentLife.toFixed(1)}/100</span>
-                </div>
-                <AsciiProgress percent={currentLife} width={22} danger={isDanger} />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Experience Badges & Check-in (Task 3 / 5 Enhancements) */}
-        <section className="border border-[#00ff41]/20 p-3 bg-[#0a0a0a]">
-          <div className="text-[#00ff41] text-[10px] mb-3 pb-1 border-b border-[#00ff41]/20 flex justify-between items-center">
-            <span className="flex items-center gap-1"><Shield className="w-3 h-3"/> 职场挂件与徽章库 (Badges)</span>
-            {/* 每日签到/工作打卡 (Punch in) UI */}
-            <button className="flex items-center justify-center gap-1 bg-[#00ff41]/10 hover:bg-[#00ff41]/20 px-3 py-1 min-h-[44px] border border-[#00ff41]/30 transition-all active:scale-95 group">
-              <span className="text-[#00ff41] text-[9px] font-bold">今日打卡</span>
-              <div className="w-1.5 h-1.5 rounded-full bg-[#00ff41] animate-pulse" />
-            </button>
-          </div>
-          <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
-             <div className="shrink-0 flex flex-col items-center gap-1 w-12 opacity-50 hover:opacity-100 transition-opacity">
-               <div className="w-8 h-8 flex items-center justify-center rounded-sm border border-[#00ff41]/40 bg-[#00ff41]/5 text-[#00FFAA] shadow-[0_0_8px_rgba(0,255,170,0.1)]">
-                 <TerminalSquare size={14} />
-               </div>
-               <span className="text-[8px] font-mono text-[#00ff41]/70">创作者</span>
-             </div>
-             
-             <div className="shrink-0 flex flex-col items-center gap-1 w-12 opacity-30">
-               <div className="w-8 h-8 flex items-center justify-center rounded-sm border border-dashed border-[#00ff41]/20 bg-black text-[#00ff41]/30">
-                 <Briefcase size={14} />
-               </div>
-               <span className="text-[8px] font-mono text-[#00ff41]/40">10W+贴</span>
-             </div>
-
-             <div className="shrink-0 flex flex-col items-center gap-1 w-12 opacity-30">
-               <div className="w-8 h-8 flex items-center justify-center rounded-sm border border-dashed border-[#00ff41]/20 bg-black text-[#00ff41]/30">
-                 <MessageSquare size={14} />
-               </div>
-               <span className="text-[8px] font-mono text-[#00ff41]/40">意见领袖</span>
-             </div>
-          </div>
-        </section>
-
-        {/* Salary Matrix */}
-        <section className={cn(
-          "border border-[#00ff41]/30 p-3 relative",
-          status === 'OVERTIME' && "border-red-500 shadow-[0_0_15px_rgba(255,0,0,0.3)] bg-red-950/20"
-        )}>
-          <div className="text-[#00ff41] text-[10px] mb-2 pb-1 border-b border-[#00ff41]/20 flex items-center justify-between">
-            <span className="flex items-center gap-1">
-              {status === 'OVERTIME' ? <ShieldAlert className="w-3 h-3 text-red-500" /> : <Terminal className="w-3 h-3"/>}
-              <span>Sys.Crypto_Value 收益引擎</span>
-            </span>
-            <div className="flex items-center gap-2">
-              <span className="opacity-50 text-[8px]">BASE_VAL:</span>
-              {isEditingSalary ? (
-                <div className="flex items-center gap-1">
-                  <input 
-                    autoFocus
-                    value={salaryInput}
-                    onChange={(e) => setSalaryInput(e.target.value)}
-                    onBlur={saveSalary}
-                    onKeyDown={(e) => e.key === 'Enter' && saveSalary()}
-                    className="bg-[#00ff41]/10 border border-[#00ff41]/50 text-[#00ff41] text-[10px] w-16 px-1 outline-none"
-                  />
-                </div>
-              ) : (
-                <span 
-                  onClick={() => setIsEditingSalary(true)}
-                  className="cursor-pointer hover:bg-[#00ff41]/20 px-2 py-1 min-h-[36px] flex items-center border border-dashed border-[#00ff41]/30"
-                >
-                  {monthlySalary}
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center py-2">
-            <div>
-              <div className="text-[9px] text-[#00ff41]/60 mb-1 tracking-wider uppercase">今日已入账 (Verified)</div>
-              <div className="text-2xl font-bold text-[#00ff41] drop-shadow-[0_0_8px_rgba(0,255,65,0.8)]">
-                ¥ {earnedToday.toFixed(2)}
-              </div>
-            </div>
-            <div className="text-right border-l border-[#00ff41]/20 pl-4">
-              <div className="text-[9px] text-[#00ff41]/60 mb-1 tracking-wider uppercase">被无偿剥削 (Loss)</div>
-              <div className={cn("text-lg font-bold", status === 'OVERTIME' ? "text-red-500 animate-pulse" : "text-[#00ff41]/50")}>
-                ¥ {lostToOvertime.toFixed(2)}
-              </div>
-            </div>
-          </div>
-          {status === 'OVERTIME' && (
-             <div className="text-[9px] text-red-400 mt-2 p-1 border border-red-900/50 bg-red-950/40 font-bold uppercase tracking-widest text-center">
-                ! Warning: Working without compensation !
-             </div>
-          )}
-        </section>
-
-        {/* Access logs */}
-        <section className="border border-[#00ff41]/30 p-3">
-          <div className="text-[#00ff41] text-[10px] mb-2 pb-1 border-b border-[#00ff41]/20 flex justify-between items-center">
-            <span className="flex items-center gap-1"><TerminalSquare className="w-3 h-3"/> 社区节点声望</span>
-            <span className="text-[8px] text-[#00ff41]/50">
-              {statsLoading ? 'SYNCING' : statsError ? 'FALLBACK' : 'ONLINE'}
-            </span>
-          </div>
-          <div className="flex justify-between items-center text-[11px] my-1">
-            <span className="text-[#00ff41]/70">上传数据包 [发帖记录]</span>
-            <span className="font-bold text-[#00ff41]">
-              {"█".repeat(Math.min(10, myPostCount))} {myPostCount} 个
-            </span>
-          </div>
-          <div className="flex justify-between items-center text-[11px] my-1">
-            <span className="text-[#00ff41]/70">接收共鸣波 [获赞数]</span>
-            <span className="font-bold text-[#00ff41]">
-              {"█".repeat(Math.min(10, myLikesReceived))} {myLikesReceived} 次
-            </span>
-          </div>
-          {statsError && (
-            <div className="mt-2 text-[9px] text-amber-400">{statsError}</div>
-          )}
-        </section>
-
-        {/* System Out */}
-        <section className="pt-2">
-          <button 
-            onClick={() => navigate('/')}
-            className="w-full bg-[#050505] border border-red-900 hover:border-red-500 hover:bg-red-500/10 p-3 flex justify-between items-center group transition-colors"
+          {/* ─── Identity card ──────────────────────────────── */}
+          <motion.section
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="relative overflow-hidden rounded-[28px] bg-brand-dark text-white p-6 sm:p-7 shadow-sm"
           >
-            <span className="text-[11px] text-red-500 font-bold font-mono group-hover:text-red-400">
-              <span className="text-gray-600 mr-2">$</span>
-              sudo poweroff --退出终端链接
-            </span>
-            <LogOut className="w-4 h-4 text-red-500 group-hover:text-red-400" />
-          </button>
-        </section>
+            <div className="absolute top-0 right-0 p-8 opacity-[0.08] pointer-events-none">
+              <Sparkles size={160} />
+            </div>
 
+            <div className="relative z-10 flex items-center gap-4">
+              <InitialBadge
+                label={authSession?.user?.nickname?.[0] || '我'}
+                className="h-16 w-16 text-2xl border-2 border-white/20"
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-1">
+                  {isLoggedIn ? 'Signed In' : 'Guest Mode'}
+                </p>
+                <h1 className="text-xl sm:text-2xl font-black tracking-tight truncate">
+                  {authSession?.user?.nickname || '未登录用户'}
+                </h1>
+                <p className="text-[11px] text-white/50 font-medium mt-0.5 truncate">
+                  {authSession?.user?.email || '登录后云端同步你的记录'}
+                </p>
+              </div>
+            </div>
+
+            {!isLoggedIn && (
+              <Link
+                to="/login"
+                className="relative z-10 mt-5 block w-full py-3 rounded-2xl bg-white text-brand-dark text-sm font-black text-center hover:bg-white/90 transition-colors"
+              >
+                登录 / 注册
+              </Link>
+            )}
+
+            <div className="relative z-10 mt-6 grid grid-cols-3 gap-3">
+              <div>
+                <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">月薪</p>
+                <p className="text-base sm:text-lg font-black tabular-nums mt-0.5">¥{salary.toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">时薪</p>
+                <p className="text-base sm:text-lg font-black tabular-nums mt-0.5">¥{hourlyRate}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">作息</p>
+                <p className="text-base sm:text-lg font-black tabular-nums mt-0.5">{workStart}–{workEnd}</p>
+              </div>
+            </div>
+          </motion.section>
+
+          {/* ─── Today's ledger ────────────────────────────── */}
+          <motion.section
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05, duration: 0.5 }}
+            className="bg-white rounded-[28px] border border-brand-border/20 shadow-sm p-5 sm:p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-brand-gray/60">Today</p>
+                <h2 className="text-base sm:text-lg font-black text-brand-dark">今日战绩</h2>
+              </div>
+              <div className={cn(
+                "px-3 py-1 rounded-full text-[11px] font-black tabular-nums border",
+                netToday >= 0
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : "bg-red-50 text-red-600 border-red-200"
+              )}>
+                净 {netToday >= 0 ? '+' : ''}¥{netToday.toFixed(2)}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2.5">
+              <div className="rounded-2xl bg-emerald-50 border border-emerald-100 px-3 py-3">
+                <p className="text-[9px] font-bold text-emerald-600/70 uppercase tracking-wider">赚</p>
+                <p className="mt-1 text-base sm:text-lg font-black text-emerald-700 tabular-nums">¥{summary.earnTotal.toFixed(2)}</p>
+              </div>
+              <div className="rounded-2xl bg-red-50 border border-red-100 px-3 py-3">
+                <p className="text-[9px] font-bold text-red-600/70 uppercase tracking-wider">亏</p>
+                <p className="mt-1 text-base sm:text-lg font-black text-red-600 tabular-nums">¥{summary.lossTotal.toFixed(2)}</p>
+              </div>
+              <div className="rounded-2xl bg-amber-50 border border-amber-100 px-3 py-3">
+                <p className="text-[9px] font-bold text-amber-700/70 uppercase tracking-wider">白干</p>
+                <p className="mt-1 text-base sm:text-lg font-black text-amber-700 tabular-nums">¥{summary.overtimeLossTotal.toFixed(2)}</p>
+              </div>
+            </div>
+          </motion.section>
+
+          {/* ─── Lifetime counters ─────────────────────────── */}
+          <motion.section
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
+            className="bg-white rounded-[28px] border border-brand-border/20 shadow-sm p-5 sm:p-6"
+          >
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-brand-gray/60 mb-4">Lifetime</p>
+            <div className="grid grid-cols-3 gap-3">
+              <StatBlock icon={<Timer size={14} />}  label="专注次数" value={focusSessions} />
+              <StatBlock icon={<Fish size={14} />}   label="摸鱼次数" value={touchFish} />
+              <StatBlock icon={<Coffee size={14} />} label="喝咖啡"   value={coffee} />
+            </div>
+          </motion.section>
+
+          {/* ─── Settings list ─────────────────────────────── */}
+          <motion.section
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.5 }}
+            className="bg-white rounded-[28px] border border-brand-border/20 shadow-sm overflow-hidden"
+          >
+            <RowButton
+              icon={<Wallet size={16} />}
+              title="工资 & 作息"
+              meta={`¥${salary.toLocaleString()} · ${workStart}–${workEnd}`}
+              onClick={openWageEditor}
+            />
+            <Divider />
+            <RowLink
+              icon={<Briefcase size={16} />}
+              title="场景中心 · 对自己"
+              meta="高效下班 / 专注 / To do / 摸鱼三件套"
+              to="/scenarios?tab=self"
+            />
+            <Divider />
+            <RowLink
+              icon={<Heart size={16} />}
+              title="PET_OS"
+              meta="养一只属于打工人的宠物"
+              to="/scenarios?tab=self"
+            />
+            <Divider />
+            <RowLink
+              icon={<Flame size={16} />}
+              title="Skills 工具库"
+              meta="全量业务技能仓库"
+              to="/skills"
+            />
+          </motion.section>
+
+          {/* ─── About & logout ────────────────────────────── */}
+          <motion.section
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="bg-white rounded-[28px] border border-brand-border/20 shadow-sm overflow-hidden"
+          >
+            <RowLink icon={<MessageSquare size={16} />} title="反馈建议" meta="说说你想要什么" to="/feedback" />
+            <Divider />
+            <RowLink icon={<Info size={16} />} title="关于 APEX" meta="Finish Work Early · v2.0" to="/about" />
+            {isLoggedIn && (
+              <>
+                <Divider />
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-red-50 transition-colors group"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0">
+                    <LogOut size={16} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-red-600">退出登录</p>
+                  </div>
+                </button>
+              </>
+            )}
+          </motion.section>
+
+          <p className="pt-4 pb-2 text-center text-[10px] font-mono tracking-wider text-brand-gray/40">
+            APEX · Finish Work Early
+          </p>
+        </div>
       </div>
-    </CyberLayout>
+
+      {/* ─── Wage editor modal ──────────────────────────────── */}
+      {showWageEditor && (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-0 sm:p-4"
+             onClick={() => setShowWageEditor(false)}>
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full sm:max-w-md bg-white rounded-t-[28px] sm:rounded-[28px] p-6 shadow-2xl"
+          >
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-brand-gray/60">Settings</p>
+                <h3 className="text-lg font-black text-brand-dark">工资 & 作息</h3>
+              </div>
+              <button onClick={() => setShowWageEditor(false)} className="p-2 rounded-full hover:bg-brand-light-gray">
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-[11px] font-bold text-brand-gray block mb-1.5">月薪 (元)</label>
+                <input type="number" value={draft.salary}
+                  onChange={(e) => setDraft((d) => ({ ...d, salary: e.target.value }))}
+                  className="w-full bg-brand-offwhite border border-brand-border/20 rounded-2xl px-4 py-3 text-sm font-black text-brand-dark tabular-nums outline-none focus:border-brand-dark/40" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-bold text-brand-gray block mb-1.5">上班时间</label>
+                  <input type="time" value={draft.start}
+                    onChange={(e) => setDraft((d) => ({ ...d, start: e.target.value }))}
+                    className="w-full bg-brand-offwhite border border-brand-border/20 rounded-2xl px-4 py-3 text-sm font-black text-brand-dark tabular-nums outline-none focus:border-brand-dark/40" />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold text-brand-gray block mb-1.5">下班时间</label>
+                  <input type="time" value={draft.end}
+                    onChange={(e) => setDraft((d) => ({ ...d, end: e.target.value }))}
+                    className="w-full bg-brand-offwhite border border-brand-border/20 rounded-2xl px-4 py-3 text-sm font-black text-brand-dark tabular-nums outline-none focus:border-brand-dark/40" />
+                </div>
+              </div>
+            </div>
+
+            <button onClick={saveWageEditor}
+              className="w-full mt-6 py-3.5 rounded-2xl bg-brand-dark text-white text-sm font-black flex items-center justify-center gap-2 hover:bg-brand-dark/90 transition-colors">
+              <Check size={14} /> 保存
+            </button>
+          </motion.div>
+        </div>
+      )}
+    </AppLayout>
   );
 };
+
+// ─── Sub-components ────────────────────────────────────────────
+const StatBlock: React.FC<{ icon: React.ReactNode; label: string; value: number }> = ({ icon, label, value }) => (
+  <div className="rounded-2xl bg-brand-offwhite border border-brand-border/10 px-3 py-3.5">
+    <div className="flex items-center gap-1.5 text-brand-gray mb-1.5">
+      {icon}
+      <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
+    </div>
+    <p className="text-xl sm:text-2xl font-black text-brand-dark tabular-nums leading-none">{value}</p>
+  </div>
+);
+
+const RowLink: React.FC<{ icon: React.ReactNode; title: string; meta?: string; to: string }> = ({ icon, title, meta, to }) => (
+  <Link to={to} className="w-full flex items-center gap-3 px-5 py-4 hover:bg-brand-offwhite transition-colors group">
+    <div className="w-9 h-9 rounded-xl bg-brand-offwhite text-brand-dark flex items-center justify-center shrink-0 border border-brand-border/20">
+      {icon}
+    </div>
+    <div className="flex-1 min-w-0">
+      <p className="text-sm font-bold text-brand-dark truncate">{title}</p>
+      {meta && <p className="text-[11px] text-brand-gray font-medium truncate mt-0.5">{meta}</p>}
+    </div>
+    <ChevronRight size={16} className="text-brand-gray/40 group-hover:text-brand-dark group-hover:translate-x-0.5 transition-all shrink-0" />
+  </Link>
+);
+
+const RowButton: React.FC<{ icon: React.ReactNode; title: string; meta?: string; onClick: () => void }> = ({ icon, title, meta, onClick }) => (
+  <button onClick={onClick} className="w-full flex items-center gap-3 px-5 py-4 hover:bg-brand-offwhite transition-colors group text-left">
+    <div className="w-9 h-9 rounded-xl bg-brand-offwhite text-brand-dark flex items-center justify-center shrink-0 border border-brand-border/20">
+      {icon}
+    </div>
+    <div className="flex-1 min-w-0">
+      <p className="text-sm font-bold text-brand-dark truncate">{title}</p>
+      {meta && <p className="text-[11px] text-brand-gray font-medium truncate mt-0.5">{meta}</p>}
+    </div>
+    <Settings size={14} className="text-brand-gray/40 group-hover:text-brand-dark transition-colors shrink-0" />
+  </button>
+);
+
+const Divider = () => <div className="mx-5 h-px bg-brand-border/20" />;
 
 export default Profile;
