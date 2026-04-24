@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, Home as HomeIcon, LayoutDashboard, User, Briefcase, LogOut } from 'lucide-react';
+import { ChevronLeft, Home as HomeIcon, LayoutDashboard, User, Briefcase, LogOut, TerminalSquare } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import { motion } from 'framer-motion';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { path: '/', label: '首页', icon: HomeIcon },
   { path: '/skills', label: '仓库', icon: LayoutDashboard },
   { path: '/workspace', label: '工作台', icon: Briefcase },
+  { path: '/bbs', label: '社区', icon: TerminalSquare },
   { path: '/profile', label: '我的', icon: User },
 ];
 
@@ -69,9 +70,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack, theme 
             </Link>
           )}
             <div className="min-w-0">
-              <div className="truncate text-[15px] font-bold tracking-tight">{title || 'Finish Work Early'}</div>
+              <div className="truncate text-[15px] font-bold tracking-tight">{title || 'APEX'}</div>
               <div className={cn("truncate text-[12px] font-medium", isCli ? "text-green-500/60" : "text-brand-gray")}>
-                light shell / local-first
+                APEX
               </div>
             </div>
           </div>
