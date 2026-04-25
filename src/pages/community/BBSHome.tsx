@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Briefcase, MessageSquare, Users } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Briefcase, MessageSquare, Users, Terminal, Flame, Shield } from 'lucide-react';
 import AppLayout from '../../components/layout/AppLayout';
 import PostCard from '../../components/community/PostCard';
 import { forumApi } from '../../services/forumApi';
@@ -10,36 +10,6 @@ const BBSHomePage: React.FC = () => {
   const [professionalPosts, setProfessionalPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-
-  // ─── Mysterious entrance state ────────────────────────────
-  const navigate = useNavigate();
-  const [knockCount, setKnockCount] = useState(0);
-  const [hint, setHint] = useState<string>('');
-  const knockTimerRef = useRef<number | null>(null);
-
-  const SECRET_LINES = [
-    '> auth.token expired ...',
-    '> recheck again',
-    '> hold the door ... almost',
-  ];
-
-  const handleKnock = () => {
-    const next = knockCount + 1;
-    setKnockCount(next);
-    setHint(SECRET_LINES[Math.min(next - 1, SECRET_LINES.length - 1)]);
-
-    if (knockTimerRef.current) window.clearTimeout(knockTimerRef.current);
-    knockTimerRef.current = window.setTimeout(() => {
-      setKnockCount(0);
-      setHint('');
-    }, 2000);
-
-    if (next >= 3) {
-      if (knockTimerRef.current) window.clearTimeout(knockTimerRef.current);
-      setHint('> ACCESS GRANTED ...');
-      setTimeout(() => navigate('/bbs/pantry'), 500);
-    }
-  };
 
   const loadHomeData = async () => {
     setLoading(true);
@@ -56,12 +26,7 @@ const BBSHomePage: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    void loadHomeData();
-    return () => {
-      if (knockTimerRef.current) window.clearTimeout(knockTimerRef.current);
-    };
-  }, []);
+  useEffect(() => { void loadHomeData(); }, []);
 
   return (
     <AppLayout title="社区" showBack={true}>
@@ -74,29 +39,59 @@ const BBSHomePage: React.FC = () => {
               <p className="text-sm text-brand-gray">同行的经验、教训、八卦，都在这里。</p>
             </div>
 
-            {/* Professional Zone Card */}
-            <Link
-              to="/bbs/professional"
-              className="group block bg-white rounded-2xl md:rounded-[2rem] border border-brand-border/10 p-5 md:p-7 shadow-sm hover:shadow-md transition-all mb-6 md:mb-8"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-11 h-11 md:w-14 md:h-14 bg-brand-dark text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                  <Briefcase className="w-5 h-5 md:w-7 md:h-7" />
+            {/* Two Zones */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 mb-8 md:mb-10 animate-fade-in-up">
+              {/* Professional Zone */}
+              <Link
+                to="/bbs/professional"
+                className="group block bg-white rounded-2xl md:rounded-[2rem] border border-brand-border/10 p-5 md:p-7 shadow-sm hover:shadow-md transition-all"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-11 h-11 md:w-14 md:h-14 bg-brand-dark text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                    <Briefcase className="w-5 h-5 md:w-7 md:h-7" />
+                  </div>
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-brand-gray group-hover:text-brand-dark group-hover:translate-x-1 transition-all" />
                 </div>
-                <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-brand-gray group-hover:text-brand-dark group-hover:translate-x-1 transition-all" />
-              </div>
-              <h2 className="text-base md:text-xl font-serif text-brand-dark font-bold mb-1">专业业务区</h2>
-              <p className="text-[11px] md:text-sm text-brand-gray mb-4 leading-relaxed">
-                产品经验、信贷操作、工具教程、产品建议。知识沉淀，共同进步。
-              </p>
-              <div className="flex items-center gap-4 text-[10px] md:text-xs text-brand-gray">
-                <span className="flex items-center gap-1"><MessageSquare className="w-3 h-3" /> {professionalPosts.length} 篇帖子</span>
-                <span className="flex items-center gap-1"><Users className="w-3 h-3" /> 活跃讨论</span>
-              </div>
-            </Link>
+                <h2 className="text-base md:text-xl font-serif text-brand-dark font-bold mb-1">专业业务区</h2>
+                <p className="text-[11px] md:text-sm text-brand-gray mb-4 leading-relaxed">
+                  产品经验、信贷操作、工具教程、产品建议。知识沉淀，共同进步。
+                </p>
+                <div className="flex items-center gap-4 text-[10px] md:text-xs text-brand-gray">
+                  <span className="flex items-center gap-1"><MessageSquare className="w-3 h-3" /> {professionalPosts.length} 篇帖子</span>
+                  <span className="flex items-center gap-1"><Users className="w-3 h-3" /> 活跃讨论</span>
+                </div>
+              </Link>
+
+              {/* Underground Tea Room — visible entry */}
+              <Link
+                to="/bbs/pantry"
+                className="group relative block bg-[#050505] rounded-2xl md:rounded-[2rem] border border-[#00ff41]/25 p-5 md:p-7 shadow-lg hover:shadow-[0_0_30px_rgba(0,255,65,0.12)] transition-all overflow-hidden"
+              >
+                {/* scanline accent */}
+                <div className="pointer-events-none absolute inset-0 opacity-[0.05]"
+                  style={{ backgroundImage: 'repeating-linear-gradient(0deg, #00ff41 0px, #00ff41 1px, transparent 1px, transparent 3px)' }}
+                />
+                <div className="relative flex items-start justify-between mb-4">
+                  <div className="w-11 h-11 md:w-14 md:h-14 bg-[#00ff41]/10 border border-[#00ff41]/30 text-[#00ff41] rounded-xl md:rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <Terminal className="w-5 h-5 md:w-7 md:h-7" />
+                  </div>
+                  <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-[#00ff41]/40 group-hover:text-[#00ff41] group-hover:translate-x-1 transition-all" />
+                </div>
+                <h2 className="relative text-base md:text-xl font-mono text-[#00ff41] font-bold mb-1">
+                  地下茶水间<span className="ml-1 animate-pulse">_</span>
+                </h2>
+                <p className="relative text-[11px] md:text-xs text-[#00ff41]/60 font-mono mb-4 leading-relaxed">
+                  匿名吐槽 · 黑市挂单 · 限时流言 · 定时密信。另一个世界的声音。
+                </p>
+                <div className="relative flex items-center gap-4 text-[10px] md:text-xs text-[#00ff41]/40 font-mono">
+                  <span className="flex items-center gap-1"><Flame className="w-3 h-3" /> 限时焚毁</span>
+                  <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> 仅本地存储</span>
+                </div>
+              </Link>
+            </div>
 
             {/* Professional Zone Preview */}
-            <div className="mb-12 animate-fade-in-up">
+            <div className="animate-fade-in-up">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-base font-serif text-brand-dark font-bold flex items-center gap-2">
                   <Briefcase className="w-4 h-4" /> 最新动态
@@ -123,34 +118,6 @@ const BBSHomePage: React.FC = () => {
                   <div className="text-sm text-brand-gray text-center py-6">暂无帖子</div>
                 )}
               </div>
-            </div>
-
-            {/* ─── Mysterious knock-knock entrance ─────────────── */}
-            <div className="mt-16 animate-fade-in-up select-none">
-              <button
-                onClick={handleKnock}
-                className="group block w-full text-left rounded-xl border border-dashed border-brand-border/40 bg-black/[0.02] hover:bg-black/[0.04] hover:border-brand-border/70 transition-all px-4 py-3 font-mono"
-                aria-label="?"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-[11px] text-brand-gray/40 group-hover:text-brand-gray/70 tracking-[0.2em] transition-colors">
-                    {hint || '> _'}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    {[0, 1, 2].map((i) => (
-                      <span
-                        key={i}
-                        className={`h-1.5 w-1.5 rounded-full transition-colors ${
-                          i < knockCount ? 'bg-emerald-500' : 'bg-brand-border/40'
-                        }`}
-                      />
-                    ))}
-                  </span>
-                </div>
-              </button>
-              <p className="mt-2 text-center text-[9px] font-mono tracking-[0.3em] uppercase text-brand-gray/20">
-                end of feed
-              </p>
             </div>
           </div>
         </div>
