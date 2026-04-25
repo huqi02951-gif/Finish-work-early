@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  Settings, LogOut, ChevronRight, Briefcase, Clock,
+  Settings, LogOut, ChevronRight, Briefcase,
   Coffee, Fish, Timer, Flame, Heart, MessageSquare, Info,
-  Wallet, Sparkles, X, Check,
+  Wallet, Sparkles, X, Check, Users,
 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import InitialBadge from '../components/common/InitialBadge';
@@ -81,59 +81,69 @@ const Profile: React.FC = () => {
 
   return (
     <AppLayout title="我的" theme="default">
-      <div className="bg-[#FBFBFC] min-h-[calc(100dvh-8rem)] pb-10">
-        <div className="max-w-3xl mx-auto px-5 sm:px-6 pt-6 sm:pt-10 space-y-5">
+      <div className="min-h-[calc(100dvh-8rem)] bg-[radial-gradient(circle_at_top_left,rgba(17,24,39,0.06),transparent_34%),linear-gradient(180deg,#ffffff_0%,#f6f7f9_100%)] pb-10">
+        <div className="max-w-5xl mx-auto px-5 sm:px-6 pt-6 sm:pt-10 space-y-5">
 
           {/* ─── Identity card ──────────────────────────────── */}
           <motion.section
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="relative overflow-hidden rounded-[28px] bg-brand-dark text-white p-6 sm:p-7 shadow-sm"
+            className="relative overflow-hidden rounded-[32px] bg-white/90 p-6 sm:p-8 shadow-[0_24px_80px_rgba(15,23,42,0.08)] border border-white/80"
           >
-            <div className="absolute top-0 right-0 p-8 opacity-[0.08] pointer-events-none">
+            <div className="absolute -top-10 -right-10 h-48 w-48 rounded-full bg-brand-dark/[0.04] blur-2xl pointer-events-none" />
+            <div className="absolute top-0 right-0 p-8 opacity-[0.05] pointer-events-none">
               <Sparkles size={160} />
             </div>
 
-            <div className="relative z-10 flex items-center gap-4">
+            <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4 min-w-0">
               <InitialBadge
                 label={authSession?.user?.nickname?.[0] || '我'}
-                className="h-16 w-16 text-2xl border-2 border-white/20"
+                className="h-16 w-16 text-2xl border border-brand-border/20 shadow-sm"
               />
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-1">
-                  {isLoggedIn ? 'Signed In' : 'Guest Mode'}
+                <p className="text-[10px] font-black text-brand-gray/60 uppercase tracking-[0.22em] mb-1">
+                  APEX Profile · {isLoggedIn ? 'Signed In' : 'Guest'}
                 </p>
-                <h1 className="text-xl sm:text-2xl font-black tracking-tight truncate">
+                <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-brand-dark truncate">
                   {authSession?.user?.nickname || '未登录用户'}
                 </h1>
-                <p className="text-[11px] text-white/50 font-medium mt-0.5 truncate">
+                <p className="text-xs text-brand-gray font-medium mt-1 truncate">
                   {authSession?.user?.email || '登录后云端同步你的记录'}
                 </p>
               </div>
+              </div>
+              <button
+                type="button"
+                onClick={openWageEditor}
+                className="shrink-0 rounded-2xl border border-brand-border/20 bg-brand-dark px-4 py-3 text-xs font-black text-white shadow-sm hover:bg-brand-dark/90 transition-colors"
+              >
+                调整工资与作息
+              </button>
             </div>
 
             {!isLoggedIn && (
               <Link
                 to="/login"
-                className="relative z-10 mt-5 block w-full py-3 rounded-2xl bg-white text-brand-dark text-sm font-black text-center hover:bg-white/90 transition-colors"
+                className="relative z-10 mt-5 block w-full py-3 rounded-2xl bg-brand-dark text-white text-sm font-black text-center hover:bg-brand-dark/90 transition-colors"
               >
                 登录 / 注册
               </Link>
             )}
 
-            <div className="relative z-10 mt-6 grid grid-cols-3 gap-3">
-              <div>
-                <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">月薪</p>
-                <p className="text-base sm:text-lg font-black tabular-nums mt-0.5">¥{salary.toLocaleString()}</p>
+            <div className="relative z-10 mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="rounded-2xl bg-brand-offwhite border border-brand-border/10 p-4">
+                <p className="text-[9px] font-bold text-brand-gray/60 uppercase tracking-widest">月薪</p>
+                <p className="text-xl font-black tabular-nums mt-1 text-brand-dark">¥{salary.toLocaleString()}</p>
               </div>
-              <div>
-                <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">时薪</p>
-                <p className="text-base sm:text-lg font-black tabular-nums mt-0.5">¥{hourlyRate}</p>
+              <div className="rounded-2xl bg-brand-offwhite border border-brand-border/10 p-4">
+                <p className="text-[9px] font-bold text-brand-gray/60 uppercase tracking-widest">时薪</p>
+                <p className="text-xl font-black tabular-nums mt-1 text-brand-dark">¥{hourlyRate}</p>
               </div>
-              <div>
-                <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest">作息</p>
-                <p className="text-base sm:text-lg font-black tabular-nums mt-0.5">{workStart}–{workEnd}</p>
+              <div className="rounded-2xl bg-brand-offwhite border border-brand-border/10 p-4">
+                <p className="text-[9px] font-bold text-brand-gray/60 uppercase tracking-widest">作息</p>
+                <p className="text-xl font-black tabular-nums mt-1 text-brand-dark">{workStart}–{workEnd}</p>
               </div>
             </div>
           </motion.section>
@@ -225,6 +235,13 @@ const Profile: React.FC = () => {
               meta="全量业务技能仓库"
               to="/skills"
             />
+            <Divider />
+            <RowLink
+              icon={<Users size={16} />}
+              title="社区"
+              meta="同行的声音都在这里"
+              to="/bbs"
+            />
           </motion.section>
 
           {/* ─── About & logout ────────────────────────────── */}
@@ -236,7 +253,7 @@ const Profile: React.FC = () => {
           >
             <RowLink icon={<MessageSquare size={16} />} title="反馈建议" meta="说说你想要什么" to="/feedback" />
             <Divider />
-            <RowLink icon={<Info size={16} />} title="关于 APEX" meta="Finish Work Early · v2.0" to="/about" />
+            <RowLink icon={<Info size={16} />} title="关于 APEX" meta="APEX · v2.0" to="/about" />
             {isLoggedIn && (
               <>
                 <Divider />
@@ -256,7 +273,7 @@ const Profile: React.FC = () => {
           </motion.section>
 
           <p className="pt-4 pb-2 text-center text-[10px] font-mono tracking-wider text-brand-gray/40">
-            APEX · Finish Work Early
+            APEX
           </p>
         </div>
       </div>

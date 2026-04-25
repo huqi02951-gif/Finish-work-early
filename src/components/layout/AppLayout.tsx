@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, Home as HomeIcon, LayoutDashboard, User, Briefcase, LogOut, TerminalSquare } from 'lucide-react';
+import { ChevronLeft, Home as HomeIcon, LayoutDashboard, User, Briefcase, LogOut } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import { motion } from 'framer-motion';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
@@ -11,7 +11,6 @@ const NAV_ITEMS = [
   { path: '/', label: '首页', icon: HomeIcon },
   { path: '/skills', label: '仓库', icon: LayoutDashboard },
   { path: '/workspace', label: '工作台', icon: Briefcase },
-  { path: '/bbs', label: '社区', icon: TerminalSquare },
   { path: '/profile', label: '我的', icon: User },
 ];
 

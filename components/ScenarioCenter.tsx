@@ -3,7 +3,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Users, ShieldCheck, Briefcase, ArrowRight,
   Sparkles, Activity, ChevronRight, Search, AlertCircle,
-  Compass, Ban, Zap,
+  Ban, Zap,
   LayoutDashboard, Target, User, Database
 } from 'lucide-react';
 import ToMyselfSpace from './tools/ToMyselfSpace';
@@ -136,12 +136,12 @@ const BusinessGuideModule = () => {
           </button>
         </div>
         
-        <div className="lg:col-span-5 bg-brand-dark p-6 md:p-12 flex flex-col justify-center border-t lg:border-t-0 border-white/5 relative overflow-hidden">
+        <div className="lg:col-span-5 bg-brand-light-gray/30 p-6 md:p-12 flex flex-col justify-center border-t lg:border-t-0 lg:border-l border-brand-border/10 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-10 opacity-10 pointer-events-none">
-            <Sparkles size={200} className="text-brand-gold" />
+            <Sparkles size={200} className="text-brand-dark" />
           </div>
           <div className="space-y-6 md:space-y-8 relative z-10">
-            <div className="flex items-center gap-4 text-white/40 mb-2">
+            <div className="flex items-center gap-4 text-brand-gray mb-2">
               <User size={16} />
               <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest">经验上身 · 风格切换</span>
             </div>
@@ -151,12 +151,12 @@ const BusinessGuideModule = () => {
                 { name: 'Amy', style: '关系建立型', desc: '“张总，好久没见，听说咱们公司...”' },
                 { name: 'Emily', style: '专业推进型', desc: '“根据我对贵司财报的分析...”' },
               ].map((p, idx) => (
-                <div key={idx} className="p-4 md:p-5 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl backdrop-blur-sm transform hover:scale-105 transition-all duration-500">
+                <div key={idx} className="p-4 md:p-5 bg-white border border-brand-border/10 rounded-xl md:rounded-2xl shadow-sm transform hover:-translate-y-0.5 transition-all duration-300">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-brand-gold text-xs font-bold">{p.name}</span>
-                    <span className="text-[8px] md:text-[9px] text-white/40 font-bold uppercase tracking-widest">{p.style}</span>
+                    <span className="text-[8px] md:text-[9px] text-brand-gray font-bold uppercase tracking-widest">{p.style}</span>
                   </div>
-                  <p className="text-[10px] md:text-[11px] text-white/60 italic leading-relaxed">
+                  <p className="text-[10px] md:text-[11px] text-brand-gray italic leading-relaxed">
                     {p.desc}
                   </p>
                 </div>
@@ -164,7 +164,7 @@ const BusinessGuideModule = () => {
             </div>
             
             <div className="pt-2 md:pt-4">
-              <p className="text-[9px] md:text-[10px] text-white/30 font-medium leading-relaxed">
+              <p className="text-[9px] md:text-[10px] text-brand-gray/70 font-medium leading-relaxed">
                 不仅仅是资料库，更是你的“业务操作系统”。
                 支持一键复制话术、清单与路径。
               </p>
@@ -232,50 +232,25 @@ const ScenarioCenter: React.FC = () => {
   return (
     <AppLayout title="场景中心" showBack>
       <div className="pb-16 sm:pb-24 bg-brand-offwhite">
-        {/* Hero Header */}
-        <header className="px-6 pt-10 sm:pt-16 pb-8 sm:pb-12 text-center max-w-2xl mx-auto">
-          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-2xl mb-6 shadow-2xl -rotate-3 bg-brand-dark text-white">
-            <Compass size={28} className="sm:hidden" />
-            <Compass size={36} className="hidden sm:block" />
-          </div>
-          <h1 className="text-3xl sm:text-5xl font-serif font-bold tracking-tight mb-4 text-brand-dark">场景中心</h1>
-          <p className="font-medium text-sm sm:text-lg leading-relaxed opacity-70 text-brand-gray">
-            按业务场景组织，直观展示每个环节下的实用工具。
-            从客户沟通到内部审批，全方位提升作业效能。
+        <header className="px-5 sm:px-6 pt-8 sm:pt-12 pb-5 sm:pb-8 max-w-6xl mx-auto">
+          <p className="text-[11px] font-extrabold tracking-[0.18em] uppercase text-brand-gray/60 mb-2">Scenario Center</p>
+          <h1 className="text-3xl sm:text-5xl font-black tracking-tight mb-3 text-brand-dark">场景中心</h1>
+          <p className="font-medium text-sm sm:text-base leading-relaxed text-brand-gray max-w-2xl">
+            按真实工作顺序组织工具：先沟通，再材料，再业务打法，最后进入产品实战。
           </p>
         </header>
 
-        {/* Segmented Tabs — sticks below the AppLayout header (z-50) */}
-        <div className="px-4 sm:px-6 mb-8 sm:mb-16 sticky top-16 z-40 backdrop-blur-md py-3 sm:py-4 bg-brand-offwhite/80">
-          {/* Mobile: 2×2 grid — prevents overflow on narrow screens */}
-          <div className="grid grid-cols-2 gap-2 sm:hidden">
+        <div className="px-4 sm:px-6 mb-7 sm:mb-10 sticky top-14 z-40 backdrop-blur-md py-3 bg-brand-offwhite/90 border-y border-brand-border/5">
+          <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-2">
             {SCENARIOS.map((s) => (
               <button
                 key={s.id}
                 onClick={() => handleTabChange(s.id)}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-300",
+                  "px-3 sm:px-5 py-3 rounded-xl text-[13px] sm:text-[14px] font-bold transition-all duration-300 flex items-center justify-center gap-2 border",
                   activeTab === s.id
-                    ? "bg-brand-dark text-white shadow-lg"
-                    : "bg-brand-light-gray/60 text-brand-gray border border-brand-border/10"
-                )}
-              >
-                <s.icon size={15} className={cn(activeTab === s.id ? "text-brand-gold" : "opacity-40")} />
-                {s.title}
-              </button>
-            ))}
-          </div>
-          {/* Desktop: original horizontal pill tabs */}
-          <div className="hidden sm:flex max-w-fit mx-auto p-1 rounded-2xl border gap-1 bg-brand-light-gray/50 border-brand-border/5">
-            {SCENARIOS.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => handleTabChange(s.id)}
-                className={cn(
-                  "px-8 py-3 rounded-xl text-[14px] font-bold transition-all duration-500 whitespace-nowrap flex items-center gap-2",
-                  activeTab === s.id
-                    ? "bg-white text-brand-dark shadow-xl"
-                    : "text-brand-gray hover:text-brand-dark hover:bg-white/50"
+                    ? "bg-white text-brand-dark shadow-sm border-brand-border/20"
+                    : "bg-white/50 text-brand-gray hover:text-brand-dark hover:bg-white border-transparent"
                 )}
               >
                 <s.icon size={14} className={cn(activeTab === s.id ? "text-brand-dark" : "opacity-40")} />
@@ -285,7 +260,7 @@ const ScenarioCenter: React.FC = () => {
           </div>
         </div>
 
-        <div className="px-6 animate-fade-in">
+        <div className="px-5 sm:px-6 animate-fade-in max-w-6xl mx-auto">
           {SCENARIOS.filter(s => s.id === activeTab).map((s) => {
             const relatedSkills = SKILLS_BY_SCENARIO[s.title];
             return (
@@ -323,10 +298,6 @@ const ScenarioCenter: React.FC = () => {
                 ) : s.id === 'customer' ? (
                   <div className="space-y-8 sm:space-y-12 md:space-y-16">
                     <div className="animate-fade-in-up" style={ANIM_DELAY_1}>
-                      <BusinessGuideModule />
-                    </div>
-
-                    <div className="animate-fade-in-up" style={ANIM_DELAY_2}>
                       <div className="flex items-center mb-6 sm:mb-10 gap-4">
                         <h3 className="font-serif text-xl sm:text-2xl md:text-3xl text-brand-dark tracking-tight shrink-0">核心沟通工具</h3>
                         <div className="h-px flex-grow bg-brand-border/10" />
@@ -334,8 +305,32 @@ const ScenarioCenter: React.FC = () => {
                       <SensitiveCommModule />
                     </div>
 
-                    {/* 产品实战场景入口 */}
+                    {/* 材料清单中心 — 改为独立页面链接 */}
+                    <div className="animate-fade-in-up" style={ANIM_DELAY_2}>
+                      <Link
+                        to="/material-checklist?type=credit"
+                        className="flex items-center justify-between bg-white p-5 sm:p-6 rounded-2xl border border-brand-border/5 shadow-sm hover:shadow-xl transition-all group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-brand-dark text-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shrink-0">
+                            <Briefcase size={20} className="sm:hidden" />
+                            <Briefcase size={24} className="hidden sm:block" />
+                          </div>
+                          <div>
+                            <h3 className="text-base sm:text-lg font-bold text-brand-dark group-hover:text-apple-blue transition-colors">材料清单中心</h3>
+                            <p className="text-[10px] sm:text-xs text-brand-gray font-medium opacity-70">自动生成对客材料清单，支持一键导出 Word / Excel</p>
+                          </div>
+                        </div>
+                        <ArrowRight size={18} className="text-brand-gray group-hover:text-apple-blue group-hover:translate-x-1 transition-all shrink-0" />
+                      </Link>
+                    </div>
+
                     <div className="animate-fade-in-up" style={ANIM_DELAY_3}>
+                      <BusinessGuideModule />
+                    </div>
+
+                    {/* 产品实战场景入口 */}
+                    <div className="animate-fade-in-up" style={{ animationDelay: '0.45s' }}>
                       <div className="flex items-center mb-6 sm:mb-10 gap-4">
                         <h3 className="font-serif text-xl sm:text-2xl md:text-3xl text-brand-dark tracking-tight shrink-0">产品实战场景</h3>
                         <div className="h-px flex-grow bg-brand-border/10" />
@@ -345,9 +340,8 @@ const ScenarioCenter: React.FC = () => {
                           { id: 'chang_yi_dan', name: '长易担', desc: '简易备案制 · 效率极高 · 优质客户专属', tag: '高效模式' },
                           { id: 'chang_rong_bao', name: '长融保', desc: '稳健型银担合作 · 80%担保 · 适配面广', tag: '传统模式' },
                         ].map((p) => (
-                          <Link
+                          <div
                             key={p.id}
-                            to={`/product-scene?product=${p.id}`}
                             className="bg-white p-5 sm:p-6 rounded-2xl border border-brand-border/5 shadow-sm hover:shadow-xl transition-all group flex flex-col"
                           >
                             <div className="flex items-center justify-between mb-3">
@@ -377,29 +371,9 @@ const ScenarioCenter: React.FC = () => {
                                 对审查
                               </Link>
                             </div>
-                          </Link>
+                          </div>
                         ))}
                       </div>
-                    </div>
-
-                    {/* 材料清单中心 — 改为独立页面链接 */}
-                    <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-                      <Link
-                        to="/material-checklist?type=credit"
-                        className="flex items-center justify-between bg-white p-5 sm:p-6 rounded-2xl border border-brand-border/5 shadow-sm hover:shadow-xl transition-all group"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-brand-dark text-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shrink-0">
-                            <Briefcase size={20} className="sm:hidden" />
-                            <Briefcase size={24} className="hidden sm:block" />
-                          </div>
-                          <div>
-                            <h3 className="text-base sm:text-lg font-bold text-brand-dark group-hover:text-apple-blue transition-colors">材料清单中心</h3>
-                            <p className="text-[10px] sm:text-xs text-brand-gray font-medium opacity-70">自动生成对客材料清单，支持一键导出 Word / Excel</p>
-                          </div>
-                        </div>
-                        <ArrowRight size={18} className="text-brand-gray group-hover:text-apple-blue group-hover:translate-x-1 transition-all shrink-0" />
-                      </Link>
                     </div>
 
                     <div className="pt-8 sm:pt-10 md:pt-16 border-t border-brand-border/5">

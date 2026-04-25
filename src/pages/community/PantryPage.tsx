@@ -19,10 +19,47 @@ const SK = {
   UNLOCKED: 'fwe:pantry:unlocked',  // 握手完成标记
 };
 
-interface BurnMsg    { id: string; text: string; author: string; createdAt: number; expireAt: number; }
+type ReactionMap = Partial<Record<'fire' | 'skull' | 'eyes' | 'salute' | 'clown', number>>;
+
+interface BurnMsg    { id: string; text: string; author: string; createdAt: number; expireAt: number; reactions?: ReactionMap; }
 interface MarketItem { id: string; title: string; price: string; tag: string; note: string; author: string; createdAt: number; expireAt: number; }
-interface Gossip     { id: string; text: string; author: string; createdAt: number; heat: number; threshold: number; }
+interface Gossip     { id: string; text: string; author: string; createdAt: number; heat: number; threshold: number; reactions?: ReactionMap; }
 interface DropMsg    { id: string; text: string; to: string; author: string; createdAt: number; expireAt: number; }
+
+const REACTIONS: { key: keyof ReactionMap; emoji: string; label: string }[] = [
+  { key: 'fire',   emoji: '🔥', label: '火' },
+  { key: 'skull',  emoji: '💀', label: '寄' },
+  { key: 'eyes',   emoji: '👀', label: '吃瓜' },
+  { key: 'salute', emoji: '🫡', label: '敬礼' },
+  { key: 'clown',  emoji: '🤡', label: '小丑' },
+];
+
+const ReactionRow: React.FC<{
+  reactions: ReactionMap | undefined;
+  onReact: (k: keyof ReactionMap) => void;
+}> = ({ reactions = {}, onReact }) => (
+  <div className="flex flex-wrap items-center gap-1.5">
+    {REACTIONS.map((r) => {
+      const count = reactions[r.key] || 0;
+      return (
+        <button
+          key={r.key}
+          onClick={() => onReact(r.key)}
+          className={cn(
+            'flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-mono transition-colors',
+            count > 0
+              ? 'bg-[#00ff41]/10 border-[#00ff41]/40 text-[#00ff41]'
+              : 'bg-transparent border-[#00ff41]/15 text-[#00ff41]/50 hover:border-[#00ff41]/40'
+          )}
+          aria-label={r.label}
+        >
+          <span>{r.emoji}</span>
+          {count > 0 && <span className="tabular-nums">{count}</span>}
+        </button>
+      );
+    })}
+  </div>
+);
 
 function readArr<T>(key: string): T[] {
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : []; } catch { return []; }
@@ -213,7 +250,19 @@ const BurnWall: React.FC<{ codename: string; now: number }> = ({ codename, now }
                     <Flame className="w-2.5 h-2.5" /> {formatRemain(remain)}
                   </span>
                 </div>
-                <p className="text-[12px] text-[#00ff41]/85 leading-relaxed whitespace-pre-wrap break-words">{m.text}</p>
+                <p className="text-[12px] text-[#00ff41]/85 leading-relaxed whitespace-pre-wrap break-words mb-2">{m.text}</p>
+                <ReactionRow
+                  reactions={m.reactions}
+                  onReact={(k) => {
+                    const next = msgs.map((x) =>
+                      x.id === m.id
+                        ? { ...x, reactions: { ...(x.reactions || {}), [k]: ((x.reactions || {})[k] || 0) + 1 } }
+                        : x
+                    );
+                    setMsgs(next);
+                    writeArr(SK.BURN, next);
+                  }}
+                />
               </div>
             );
           })}
@@ -418,7 +467,7 @@ const GossipVault: React.FC<{ codename: string; now: number }> = ({ codename, no
         </div>
       ) : (
         <div className="space-y-2">
-          {list.map((g) => {
+          {[...list].sort((a, b) => b.heat - a.heat).map((g) => {
             const pct = (g.heat / g.threshold) * 100;
             const danger = pct > 70;
             return (
@@ -427,7 +476,7 @@ const GossipVault: React.FC<{ codename: string; now: number }> = ({ codename, no
                 danger ? 'border-red-500/40 bg-red-500/[0.06]' : 'border-purple-500/20 bg-black/40'
               )}>
                 <p className="text-[12px] text-[#00ff41]/85 leading-relaxed whitespace-pre-wrap break-words mb-3">{g.text}</p>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
                   <span className="text-[10px] text-[#00ff41]/40">{g.author}</span>
                   <div className="flex items-center gap-2">
                     <div className="w-20 h-1 bg-black border border-purple-500/20 rounded overflow-hidden">
@@ -441,6 +490,18 @@ const GossipVault: React.FC<{ codename: string; now: number }> = ({ codename, no
                     </button>
                   </div>
                 </div>
+                <ReactionRow
+                  reactions={g.reactions}
+                  onReact={(k) => {
+                    const next = list.map((x) =>
+                      x.id === g.id
+                        ? { ...x, reactions: { ...(x.reactions || {}), [k]: ((x.reactions || {})[k] || 0) + 1 } }
+                        : x
+                    );
+                    setList(next);
+                    writeArr(SK.GOSSIP, next);
+                  }}
+                />
               </div>
             );
           })}
@@ -557,6 +618,35 @@ const DeadDrop: React.FC<{ codename: string; now: number }> = ({ codename, now }
 };
 
 // ═══════════════════════════════════════════════════════════════
+// DAILY TOPIC — 每日话题，按日期种子轮换
+// ═══════════════════════════════════════════════════════════════
+const DAILY_TOPICS = [
+  '今天最想吐槽的客户是？',
+  '你见过最离谱的合规要求是什么？',
+  '如果今天能消失一个会议，你选哪个？',
+  '行里最玄学的一条潜规则是？',
+  '你最舍不得离开的福利是？',
+  '你做过最离谱的应酬段子？',
+  '今天哪一刻最想直接走人？',
+  '你工牌挂绳上挂过最贵的赠品是？',
+  '上一个让你失眠的项目是？',
+  '你见过最有水平的拍马屁？',
+  '哪个系统让你血压最高？',
+  '客户最迷惑的一句要求是？',
+];
+function todayTopic(): string {
+  const d = new Date();
+  const seed = d.getFullYear() * 1000 + d.getMonth() * 50 + d.getDate();
+  return DAILY_TOPICS[seed % DAILY_TOPICS.length];
+}
+function fakeOnline(): number {
+  // pseudo-random but stable within a 5-minute window
+  const bucket = Math.floor(Date.now() / (5 * 60_000));
+  let x = (bucket * 9301 + 49297) % 233280;
+  return 23 + (x % 78); // 23 ~ 100
+}
+
+// ═══════════════════════════════════════════════════════════════
 // MAIN
 // ═══════════════════════════════════════════════════════════════
 type Tab = 'burn' | 'market' | 'gossip' | 'drop';
@@ -611,8 +701,26 @@ const PantryPage: React.FC = () => {
               <ShieldCheck className="w-3 h-3" /> E2E · Local Only
             </div>
           </div>
-          <p className="text-xl font-black text-[#00ff41] tabular-nums tracking-tight">{codename}</p>
+          <div className="flex items-end justify-between gap-3">
+            <p className="text-xl font-black text-[#00ff41] tabular-nums tracking-tight">{codename}</p>
+            <p className="text-[10px] font-mono text-[#00ff41]/60 tabular-nums">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse" />
+              影子在线 {fakeOnline()} 个
+            </p>
+          </div>
           <p className="mt-1 text-[10px] text-[#00ff41]/40">每次进入重置不了 · 清空浏览器=换身份</p>
+        </div>
+
+        {/* ─── Daily topic ────────────────────────────────── */}
+        <div className="border border-amber-400/30 bg-amber-400/[0.04] rounded-lg p-3.5">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-[9px] tracking-[0.2em] uppercase font-bold text-amber-300">Topic of the day</span>
+            <span className="text-[9px] font-mono text-amber-400/40">
+              {new Date().getFullYear()}.{(new Date().getMonth() + 1).toString().padStart(2, '0')}.{new Date().getDate().toString().padStart(2, '0')}
+            </span>
+          </div>
+          <p className="text-[13px] font-bold text-amber-200 leading-snug">{todayTopic()}</p>
+          <p className="mt-1.5 text-[10px] text-amber-400/50">— 写到焚信墙或丢进流言池都行，匿名。</p>
         </div>
 
         {/* ─── Tabs ───────────────────────────────────────── */}

@@ -32,13 +32,13 @@ export const HOME_PAGE_DEFAULT_CONFIG: HomePageConfig = {
     },
   ],
   footer: {
-    badgeText: 'Finish Work Early',
+    badgeText: 'APEX',
     creditText: 'Designed by XD.HU & PHYLLIS FENG',
   },
 };
 
 export const SKILLS_LIBRARY_PAGE_DEFAULT_CONFIG: SkillsLibraryPageConfig = {
-  badgeText: 'finish work early',
+  badgeText: 'APEX',
   title: 'Skills 工具库',
   subtitle: '全量 Skills 展示与检索。每个 Skill 对应一个具体业务痛点，把经验、流程、模板、口径、测算逻辑固化下来。',
   filterOptions: ['全部', '在线可用', '本地工具', '需后端支持', '开发中/能力介绍'],

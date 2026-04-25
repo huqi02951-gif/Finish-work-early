@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 如何帮对公客户经理每天少返工一次</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  /* ══ PAPER & INK ══ */
+  --paper:      #EEE7DB;
+  --paper-warm: #F3ECDE;
+  --paper-mid:  #E4DCCC;
+  --paper-deep: #D8CFBB;
+  --ink:        #1F1C18;
+  --ink-soft:   #4A453D;
+  --ink-mid:    #6D6558;
+  --ink-mute:   #9C9384;
+  --ink-whisper:#C2B9A8;
+
+  /* ══ SUNSET PIGMENTS (NO BLUE · NO BLACK) ══ */
+  --vermillion: #DC4B2C;
+  --vermillion-s: rgba(220,75,44,0.10);
+  --saffron:    #E9A33C;
+  --saffron-s:  rgba(233,163,60,0.14);
+  --clay:       #C46F4A;
+  --clay-s:     rgba(196,111,74,0.12);
+  --moss:       #6F8056;
+  --moss-s:     rgba(111,128,86,0.12);
+  --amethyst:   #8D6FB3;
+  --amethyst-s: rgba(141,111,179,0.12);
+  --rose:       #D68B8B;
+  --rose-s:     rgba(214,139,139,0.14);
+
+  --font-disp:  'Fraunces', 'Noto Serif SC', serif;
+  --font-edit:  'Instrument Serif', 'Noto Serif SC', serif;
+  --font-sans:  'Space Grotesk', 'Noto Sans SC', sans-serif;
+  --font-cn:    'Noto Serif SC', serif;
+  --font-cn-sans:'Noto Sans SC', sans-serif;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--paper);
+  font-family: var(--font-cn-sans);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ══════════════════════════════════════
+   ANTIGRAVITY-STYLE PARTICLE LAYER
+══════════════════════════════════════ */
+#particles {
+  position: fixed; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* Grain overlay */
+.grain {
+  position: fixed; inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.11 0 0 0 0 0.10 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Soft paper gradient wash */
+.paper-wash {
+  position: fixed; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 900px 700px at 15% 20%, rgba(233,163,60,0.18), transparent 60%),
+    radial-gradient(ellipse 800px 600px at 85% 85%, rgba(220,75,44,0.10), transparent 60%),
+    radial-gradient(ellipse 600px 600px at 70% 15%, rgba(141,111,179,0.08), transparent 60%);
+}
+
+/* ══════════════════════════════════════
+   SLIDES
+══════════════════════════════════════ */
+.slides { position: relative; width: 100vw; height: 100vh; z-index: 1; }
+
+.slide {
+  position: absolute; inset: 0;
+  display: grid;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1),
+              transform 0.7s cubic-bezier(0.22,1,0.36,1),
+              filter 0.6s cubic-bezier(0.22,1,0.36,1);
+}
+.slide.exit-left  { transform: translateX(-40px) scale(0.98); filter: blur(6px); opacity: 0; }
+.slide.exit-right { transform: translateX(40px)  scale(0.98); filter: blur(6px); opacity: 0; }
+.slide.enter-from-right { transform: translateX(60px)  scale(0.98); filter: blur(8px); opacity: 0; }
+.slide.enter-from-left  { transform: translateX(-60px) scale(0.98); filter: blur(8px); opacity: 0; }
+.slide.active { opacity: 1; pointer-events: auto; transform: none; filter: blur(0); }
+
+.slide.active .in { animation: riseIn 0.75s cubic-bezier(0.22,1,0.36,1) both; }
+.slide.active .in:nth-child(1){ animation-delay:.08s } .slide.active .in:nth-child(2){ animation-delay:.16s }
+.slide.active .in:nth-child(3){ animation-delay:.24s } .slide.active .in:nth-child(4){ animation-delay:.32s }
+.slide.active .in:nth-child(5){ animation-delay:.40s } .slide.active .in:nth-child(6){ animation-delay:.48s }
+.slide.active .in:nth-child(7){ animation-delay:.56s } .slide.active .in:nth-child(8){ animation-delay:.64s }
+.slide.active .in.d1 { animation-delay:.10s } .slide.active .in.d2 { animation-delay:.22s }
+.slide.active .in.d3 { animation-delay:.34s } .slide.active .in.d4 { animation-delay:.46s }
+.slide.active .in.d5 { animation-delay:.58s } .slide.active .in.d6 { animation-delay:.70s }
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(24px); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+}
+
+@keyframes slowSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes floaty {
+  0%,100% { transform: translateY(0) rotate(var(--r,0deg)); }
+  50%      { transform: translateY(-8px) rotate(calc(var(--r,0deg) + 1deg)); }
+}
+@keyframes drawIn {
+  from { stroke-dashoffset: var(--len, 400); }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes blink {
+  0%,100% { opacity: .4 } 50% { opacity: 1 }
+}
+
+/* ══════════════════════════════════════
+   SLIDE 1 — COVER (EDITORIAL)
+══════════════════════════════════════ */
+.slide-cover {
+  grid-template-columns: 1.25fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  padding: 6vh 7vw 5vh;
+  gap: 0;
+}
+
+.cover-topbar {
+  grid-column: 1/-1;
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--paper-deep);
+}
+.brand-mark {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+.brand-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--vermillion);
+  box-shadow: 0 0 0 4px rgba(220,75,44,0.14);
+  animation: blink 2.4s ease-in-out infinite;
+}
+.top-meta {
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+}
+
+/* LEFT: editorial headline */
+.cover-left {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 4vh 5vw 4vh 0;
+  position: relative;
+}
+
+.cover-chapter {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--vermillion);
+  margin-bottom: 40px;
+  display: flex; align-items: center; gap: 14px;
+  font-weight: 500;
+}
+.cover-chapter::before {
+  content: '';
+  width: 36px; height: 1px;
+  background: var(--vermillion);
+}
+.cover-chapter-num {
+  font-family: var(--font-disp);
+  font-style: italic;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  color: var(--ink-mute);
+  margin-left: auto;
+}
+
+.cover-title {
+  font-family: var(--font-cn);
+  font-size: clamp(34px, 4.6vw, 62px);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin-bottom: 28px;
+}
+.cover-title .display-ai {
+  font-family: var(--font-disp);
+  font-variation-settings: "opsz" 144, "SOFT" 100;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  color: var(--vermillion);
+  font-size: 1.15em;
+  padding-right: 0.08em;
+}
+.cover-title .word-amp {
+  font-family: var(--font-edit);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--clay);
+}
+.cover-title .key {
+  font-family: var(--font-cn);
+  position: relative;
+  background: linear-gradient(100deg, var(--vermillion) 0%, var(--clay) 50%, var(--saffron) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hand-drawn underline under key */
+.cover-title .key::after {
+  content: '';
+  position: absolute;
+  left: -2%;
+  bottom: -8px;
+  width: 104%;
+  height: 8px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 10' preserveAspectRatio='none'%3E%3Cpath d='M1 6 Q 40 1, 80 5 T 160 4 Q 200 2, 240 6 T 299 4' stroke='%23DC4B2C' stroke-width='2' fill='none' stroke-linecap='round' opacity='0.6'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+}
+
+.cover-sub {
+  font-family: var(--font-cn-sans);
+  font-size: clamp(15px, 1.4vw, 18px);
+  font-weight: 300;
+  color: var(--ink-soft);
+  line-height: 1.85;
+  max-width: 540px;
+  margin-top: 8px;
+}
+.cover-sub .em {
+  font-family: var(--font-edit);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--vermillion);
+  font-size: 1.05em;
+  padding: 0 2px;
+}
+
+/* RIGHT: artistic composition */
+.cover-right {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  padding: 2vh 0;
+}
+
+.artwork {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 1;
+}
+
+/* Rotating outer ring */
+.artwork-ring {
+  position: absolute;
+  inset: 0;
+  border: 1px dashed var(--paper-deep);
+  border-radius: 50%;
+  animation: slowSpin 60s linear infinite;
+}
+.artwork-ring::before {
+  content: '';
+  position: absolute;
+  top: -5px; left: 50%;
+  width: 10px; height: 10px;
+  transform: translateX(-50%);
+  background: var(--saffron);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(233,163,60,0.2);
+}
+.artwork-ring-2 {
+  position: absolute;
+  inset: 12%;
+  border: 1px solid var(--paper-deep);
+  border-radius: 50%;
+  animation: slowSpin 45s linear infinite reverse;
+}
+.artwork-ring-2::before {
+  content: '';
+  position: absolute;
+  bottom: -4px; right: 18%;
+  width: 8px; height: 8px;
+  background: var(--vermillion);
+  border-radius: 50%;
+}
+
+/* Inner gradient orb */
+.artwork-orb {
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,240,210,0.9), transparent 60%),
+    linear-gradient(135deg, var(--saffron) 0%, var(--clay) 45%, var(--vermillion) 100%);
+  box-shadow:
+    0 30px 80px -20px rgba(220,75,44,0.35),
+    inset -20px -30px 60px rgba(220,75,44,0.3),
+    inset 10px 15px 40px rgba(255,240,210,0.4);
+  animation: floaty 7s ease-in-out infinite;
+}
+.artwork-orb::after {
+  content: '';
+  position: absolute;
+  top: 15%; left: 20%;
+  width: 30%; height: 25%;
+  background: radial-gradient(ellipse, rgba(255,250,235,0.7), transparent 70%);
+  border-radius: 50%;
+  filter: blur(6px);
+}
+
+/* Floating badge cards */
+.badge {
+  position: absolute;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  background: var(--paper-warm);
+  border: 1px solid var(--paper-deep);
+  border-radius: 50px;
+  padding: 8px 16px;
+  color: var(--ink);
+  box-shadow: 0 4px 20px rgba(31,28,24,0.06);
+  display: flex; align-items: center; gap: 8px;
+  animation: floaty 6s ease-in-out infinite;
+}
+.badge .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+}
+.badge-1 { top: 10%; left: -5%; --r: -4deg; animation-delay: 0s; }
+.badge-1 .dot { background: var(--moss); }
+.badge-2 { top: 42%; right: -8%; --r: 3deg; animation-delay: -2s; }
+.badge-2 .dot { background: var(--amethyst); }
+.badge-3 { bottom: 8%; left: 8%; --r: 2deg; animation-delay: -4s; }
+.badge-3 .dot { background: var(--vermillion); }
+
+/* Big quote number */
+.artwork-label {
+  position: absolute;
+  bottom: -4px; right: -2%;
+  font-family: var(--font-disp);
+  font-style: italic;
+  font-weight: 300;
+  font-variation-settings: "opsz" 144, "SOFT" 100;
+  font-size: 140px;
+  line-height: 1;
+  color: var(--paper-deep);
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Cover footer */
+.cover-footer {
+  grid-column: 1/-1;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding-top: 28px;
+  border-top: 1px solid var(--paper-deep);
+}
+.cover-foot-left {
+  display: flex; gap: 36px;
+}
+.foot-item {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+}
+.foot-item strong {
+  display: block;
+  font-family: var(--font-disp);
+  font-variation-settings: "opsz" 144, "SOFT" 100;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 26px;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.foot-item strong.v { color: var(--vermillion); }
+.foot-item strong.s { color: var(--saffron); }
+.foot-item strong.m { color: var(--moss); }
+
+.cover-pg {
+  font-family: var(--font-disp);
+  font-weight: 300;
+  font-style: italic;
+  font-size: 48px;
+  color: var(--ink-whisper);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* ══════════════════════════════════════
+   GLOBAL SECTION HEADER
+══════════════════════════════════════ */
+.s-head {
+  display: flex; align-items: baseline; gap: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--paper-deep);
+}
+.s-num {
+  font-family: var(--font-disp);
+  font-weight: 300;
+  font-style: italic;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--vermillion);
+  letter-spacing: -0.02em;
+}
+.s-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: 500;
+}
+.s-title {
+  font-family: var(--font-cn);
+  font-size: clamp(22px, 2.6vw, 32px);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--ink);
+  margin-left: 8px;
+}
+.s-title .em {
+  font-family: var(--font-edit);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--vermillion);
+}
+.s-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--paper-deep);
+}
+
+/* ══════════════════════════════════════
+   SLIDE 2 — PAIN POINTS
+══════════════════════════════════════ */
+.slide-pain {
+  grid-template-rows: auto 1fr auto;
+  padding: 6vh 7vw 5vh;
+  gap: 0;
+}
+
+.pain-body {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 56px;
+  align-items: center;
+  margin-top: 36px;
+}
+
+.pain-cards {
+  display: flex; flex-direction: column; gap: 4px;
+}
+
+.pain-card {
+  padding: 18px 4px 18px 0;
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 16px;
+  align-items: start;
+  border-bottom: 1px solid var(--paper-deep);
+  transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+  position: relative;
+  cursor: default;
+}
+.pain-card:last-child { border-bottom: none; }
+
+.pain-card::before {
+  content: '';
+  position: absolute;
+  left: -16px; top: 50%;
+  transform: translateY(-50%);
+  width: 4px; height: 0;
+  background: var(--vermillion);
+  border-radius: 2px;
+  transition: height 0.4s cubic-bezier(0.22,1,0.36,1);
+}
+.pain-card:hover { padding-left: 12px; }
+.pain-card:hover::before { height: 70%; }
+
+.pain-num {
+  font-family: var(--font-disp);
+  font-weight: 300;
+  font-style: italic;
+  font-size: 30px;
+  line-height: 1;
+  color: var(--ink-whisper);
+  letter-spacing: -0.02em;
+  transition: color 0.4s;
+}
+.pain-card:hover .pain-num { color: var(--vermillion); }
+
+.pain-text h3 {
+  font-family: var(--font-cn);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.pain-text p {
+  font-size: 12.5px;
+  color: var(--ink-mid);
+  line-height: 1.6;
+}
+
+.pain-tag {
+  font-family: var(--font-sans);
+  font-size: 9.5px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  padding: 3px 8px;
+  border: 1px solid var(--paper-deep);
+  border-radius: 20px;
+  white-space: nowrap;
+  align-self: center;
+}
+
+/* Diagram */
+.pain-diagram-wrap {
+  position: relative;
+  padding: 20px;
+}
+
+.pain-diagram-wrap svg { width: 100%; height: auto; display: block; }
+
+.pain-bottom {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--paper-deep);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+}
+.pain-bottom-text {
+  font-family: var(--font-cn);
+  font-size: 15px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.pain-bottom-text em {
+  font-family: var(--font-edit);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--vermillion);
+  font-size: 1.1em;
+  padding: 0 3px;
+}
+.pain-bottom-q {
+  font-family: var(--font-disp);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 42px;
+  line-height: 1;
+  color: var(--paper-deep);
+  letter-spacing: -0.04em;
+}
+
+/* ══════════════════════════════════════
+   SLIDE 3 — SCENARIOS
+══════════════════════════════════════ */
+.slide-scenarios {
+  grid-template-rows: auto 1fr;
+  padding: 6vh 7vw 5vh;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 18px;
+  margin-top: 36px;
+}
+
+.sc-card {
+  position: relative;
+  padding: 26px 24px 22px;
+  border-radius: 20px;
+  background: var(--paper-warm);
+  border: 1px solid var(--paper-deep);
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.22,1,0.36,1);
+  cursor: default;
+}
+
+.sc-card::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-color, var(--vermillion-s)), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s, transform 0.5s;
+}
+.sc-card:hover { transform: translateY(-6px); border-color: var(--accent-border, var(--vermillion)); }
+.sc-card:hover::before { opacity: 1; transform: scale(1.3); }
+
+.sc-card.c-vermillion { --accent-color: var(--vermillion-s); --accent-border: var(--vermillion); --accent: var(--vermillion); }
+.sc-card.c-saffron    { --accent-color: var(--saffron-s);    --accent-border: var(--saffron);    --accent: var(--saffron); }
+.sc-card.c-moss       { --accent-color: var(--moss-s);       --accent-border: var(--moss);       --accent: var(--moss); }
+.sc-card.c-amethyst   { --accent-color: var(--amethyst-s);   --accent-border: var(--amethyst);   --accent: var(--amethyst); }
+.sc-card.c-clay       { --accent-color: var(--clay-s);       --accent-border: var(--clay);       --accent: var(--clay); }
+.sc-card.c-rose       { --accent-color: var(--rose-s);       --accent-border: var(--rose);       --accent: var(--rose); }
+
+.sc-num {
+  position: absolute;
+  top: 16px; right: 22px;
+  font-family: var(--font-disp);
+  font-weight: 300;
+  font-style: italic;
+  font-size: 42px;
+  line-height: 1;
+  color: var(--accent, var(--vermillion));
+  opacity: 0.18;
+  letter-spacing: -0.03em;
+  transition: opacity 0.4s;
+}
+.sc-card:hover .sc-num { opacity: 0.4; }
+
+.sc-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--paper);
+  color: var(--accent, var(--vermillion));
+  border: 1px solid var(--paper-deep);
+  margin-bottom: 22px;
+  position: relative; z-index: 1;
+  transition: all 0.4s;
+}
+.sc-card:hover .sc-icon {
+  background: var(--accent, var(--vermillion));
+  color: var(--paper-warm);
+  border-color: transparent;
+  transform: rotate(-4deg);
+}
+
+.sc-card h3 {
+  font-family: var(--font-cn);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 8px;
+  position: relative; z-index: 1;
+}
+
+.sc-card p {
+  font-size: 12.5px;
+  color: var(--ink-mid);
+  line-height: 1.6;
+  position: relative; z-index: 1;
+}
+
+/* ══════════════════════════════════════
+   SLIDE 4 — WORKFLOW
+══════════════════════════════════════ */
+.slide-workflow {
+  grid-template-rows: auto 1fr auto;
+  padding: 6vh 7vw 5vh;
+}
+
+.wf-body {
+  position: relative;
+  margin-top: 48px;
+  padding-top: 36px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+
+/* Hand-drawn curved path */
+.wf-path {
+  position: absolute;
+  top: 22px;
+  left: 10%;
+  right: 10%;
+  height: 60px;
+  z-index: 0;
+  pointer-events: none;
+}
+.wf-path svg {
+  width: 100%; height: 100%;
+  overflow: visible;
+}
+.wf-path .track {
+  stroke: var(--paper-deep);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 5;
+  fill: none;
+}
+.wf-path .fill {
+  stroke: url(#wf-grad);
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  --len: 1000;
+  stroke-dasharray: var(--len);
+  stroke-dashoffset: var(--len);
+}
+.slide.active .wf-path .fill {
+  animation: drawIn 2s cubic-bezier(0.22,1,0.36,1) 0.3s forwards;
+}
+
+.wf-step {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center;
+  padding: 0 14px;
+  position: relative; z-index: 1;
+}
+
+.step-disc {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-disp);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 30px;
+  color: var(--paper-warm);
+  margin-bottom: 28px;
+  position: relative;
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+  transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+}
+.step-disc::before {
+  content: '';
+  position: absolute; inset: -6px;
+  border-radius: 50%;
+  border: 1px solid var(--paper-deep);
+  opacity: 0;
+  transition: opacity 0.4s, transform 0.4s;
+}
+.step-disc::after {
+  content: '';
+  position: absolute; inset: -12px;
+  border-radius: 50%;
+  border: 1px dashed var(--paper-deep);
+  opacity: 0;
+  transition: opacity 0.6s;
+  animation: slowSpin 40s linear infinite;
+}
+.wf-step:hover .step-disc { transform: scale(1.06); }
+.wf-step:hover .step-disc::before { opacity: 1; inset: -8px; }
+.wf-step:hover .step-disc::after  { opacity: 0.5; }
+
+.step-disc.v { background: linear-gradient(135deg, #F2B07A, var(--vermillion)); box-shadow: 0 12px 30px -10px rgba(220,75,44,0.4); }
+.step-disc.s { background: linear-gradient(135deg, #F7CB7F, var(--saffron));    box-shadow: 0 12px 30px -10px rgba(233,163,60,0.4); }
+.step-disc.c { background: linear-gradient(135deg, #E59E81, var(--clay));       box-shadow: 0 12px 30px -10px rgba(196,111,74,0.4); }
+.step-disc.m { background: linear-gradient(135deg, #9AAB83, var(--moss));       box-shadow: 0 12px 30px -10px rgba(111,128,86,0.4); }
+
+.wf-step h3 {
+  font-family: var(--font-cn);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.wf-step p {
+  font-size: 12.5px;
+  color: var(--ink-mid);
+  line-height: 1.65;
+  margin-bottom: 18px;
+}
+.step-save {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--paper-warm);
+  border: 1px solid var(--paper-deep);
+  padding: 6px 12px;
+  border-radius: 30px;
+  letter-spacing: 0.02em;
+}
+.step-save .tiny {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--saffron);
+  box-shadow: 0 0 0 3px rgba(233,163,60,0.2);
+}
+
+.wf-legend {
+  margin-top: 40px;
+  padding-top: 22px;
+  border-top: 1px solid var(--paper-deep);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.wf-legend-text {
+  font-family: var(--font-cn);
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+.wf-legend-text em {
+  font-family: var(--font-edit);
+  font-style: italic;
+  color: var(--vermillion);
+  font-size: 1.08em;
+  padding: 0 2px;
+}
+.wf-legend-total {
+  font-family: var(--font-disp);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 14px;
+  color: var(--ink-mute);
+}
+.wf-legend-total b {
+  font-weight: 400;
+  font-size: 32px;
+  color: var(--vermillion);
+  letter-spacing: -0.02em;
+  padding: 0 4px;
+}
+
+/* ══════════════════════════════════════
+   SLIDE 5 — CONCLUSION
+══════════════════════════════════════ */
+.slide-conclusion {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  padding: 6vh 7vw 5vh;
+  gap: 0;
+  position: relative;
+}
+
+.cn-top {
+  grid-column: 1/-1;
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--paper-deep);
+}
+.cn-top-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--vermillion);
+  font-weight: 500;
+  display: flex; align-items: center; gap: 12px;
+}
+.cn-top-label::before {
+  content: ''; width: 30px; height: 1px; background: var(--vermillion);
+}
+.cn-top-title {
+  font-family: var(--font-disp);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 20px;
+  color: var(--ink-mute);
+  letter-spacing: -0.01em;
+}
+
+.cn-left {
+  padding: 6vh 4vw 2vh 0;
+  display: flex; flex-direction: column; justify-content: center;
+  position: relative;
+}
+
+.cn-left-headline {
+  font-family: var(--font-cn);
+  font-size: clamp(30px, 3.6vw, 48px);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ink);
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+}
+.cn-left-headline .iq {
+  font-family: var(--font-edit);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--vermillion);
+}
+
+.cn-left-body {
+  font-family: var(--font-cn-sans);
+  font-size: 14.5px;
+  font-weight: 300;
+  color: var(--ink-soft);
+  line-height: 1.9;
+  max-width: 420px;
+}
+
+.cn-left-figure {
+  position: absolute;
+  bottom: 6vh;
+  left: 0;
+  display: flex; align-items: center; gap: 18px;
+}
+.cn-left-figure-num {
+  font-family: var(--font-disp);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 100px;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--saffron), var(--vermillion));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.04em;
+}
+.cn-left-figure-cap {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  line-height: 1.6;
+}
+.cn-left-figure-cap b {
+  display: block;
+  font-family: var(--font-cn);
+  font-size: 14px;
+  color: var(--ink);
+  letter-spacing: 0;
+  text-transform: none;
+  margin-bottom: 2px;
+  font-weight: 600;
+}
+
+/* Right conclusion list */
+.cn-right {
+  padding: 5vh 0 5vh 4vw;
+  border-left: 1px solid var(--paper-deep);
+  display: flex; flex-direction: column; justify-content: center;
+}
+
+.cn-item {
+  padding: 20px 0;
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 20px;
+  align-items: start;
+  border-bottom: 1px solid var(--paper-deep);
+  transition: all 0.35s;
+}
+.cn-item:last-child { border-bottom: none; }
+.cn-item:hover { padding-left: 8px; }
+
+.cn-ch-num {
+  font-family: var(--font-cn);
+  font-size: 38px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--vermillion);
+  padding-top: 2px;
+  position: relative;
+}
+.cn-ch-num::after {
+  content: '';
+  position: absolute;
+  right: 0; bottom: 4px;
+  width: 30px; height: 3px;
+  background: var(--saffron);
+  opacity: 0.5;
+  border-radius: 2px;
+}
+
+.cn-item-body h3 {
+  font-family: var(--font-cn);
+  font-size: clamp(18px, 2vw, 22px);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.35;
+  margin-bottom: 8px;
+}
+.cn-item-body h3 .key {
+  font-family: var(--font-edit);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--vermillion);
+  font-size: 1.1em;
+  padding: 0 4px;
+  position: relative;
+}
+.cn-item-body h3 .key::after {
+  content: '';
+  position: absolute;
+  left: 2px; right: 2px;
+  bottom: 0;
+  height: 6px;
+  background: var(--saffron);
+  opacity: 0.3;
+  z-index: -1;
+  border-radius: 3px;
+}
+.cn-item-body p {
+  font-family: var(--font-cn-sans);
+  font-size: 12.5px;
+  color: var(--ink-mid);
+  line-height: 1.7;
+}
+
+.cn-bottom {
+  grid-column: 1/-1;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding-top: 22px;
+  border-top: 1px solid var(--paper-deep);
+}
+.cn-closing {
+  font-family: var(--font-cn);
+  font-size: 17px;
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+.cn-closing em {
+  font-family: var(--font-edit);
+  font-style: italic;
+  font-weight: 400;
+  background: linear-gradient(135deg, var(--vermillion), var(--saffron));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 1.15em;
+  padding: 0 3px;
+}
+
+/* ══════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════ */
+.nav {
+  position: fixed;
+  bottom: 28px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 14px;
+  z-index: 1000;
+  background: rgba(243,236,222,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 7px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--paper-deep);
+  box-shadow: 0 10px 30px -10px rgba(31,28,24,0.15);
+}
+
+.nav-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--paper-deep);
+  background: var(--paper-warm);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.25s;
+  color: var(--ink-soft);
+}
+.nav-btn:hover {
+  border-color: var(--vermillion);
+  color: var(--vermillion);
+  background: var(--paper);
+}
+.nav-btn:disabled { opacity: 0.25; cursor: default; }
+.nav-btn:disabled:hover { border-color: var(--paper-deep); color: var(--ink-soft); background: var(--paper-warm); }
+
+.nav-dots { display: flex; gap: 6px; align-items: center; padding: 0 4px; }
+.nav-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--paper-deep);
+  transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+  cursor: pointer;
+}
+.nav-dot.active {
+  background: var(--vermillion);
+  width: 24px;
+  border-radius: 3px;
+}
+
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: linear-gradient(to right, var(--vermillion), var(--saffron));
+  z-index: 1000;
+  transition: width 0.6s cubic-bezier(0.22,1,0.36,1);
+}
+
+.slide-counter {
+  position: fixed;
+  bottom: 34px; right: 40px;
+  font-family: var(--font-disp);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 20px;
+  color: var(--ink-mute);
+  z-index: 1000;
+  letter-spacing: -0.01em;
+}
+.slide-counter b {
+  font-weight: 400;
+  color: var(--vermillion);
+}
+
+/* ══ PRINT ══ */
+@media print {
+  .grain, #particles, .paper-wash, .nav, .progress-bar, .slide-counter { display: none; }
+  .slide {
+    position: relative;
+    opacity: 1; pointer-events: auto;
+    transform: none; filter: none;
+    page-break-after: always;
+    height: 100vh;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="paper-wash"></div>
+<canvas id="particles"></canvas>
+<div class="grain"></div>
+
+<div class="progress-bar" id="progressBar" style="width:20%"></div>
+
+<div class="slides">
+
+  <!-- ══════════════ SLIDE 1: COVER ══════════════ -->
+  <div class="slide slide-cover active" data-slide="0">
+    <div class="cover-topbar">
+      <div class="brand-mark"><span class="brand-dot"></span>一线减负 · 提效应用分享</div>
+      <div class="top-meta">Banking × AI Workflow / 2026</div>
+    </div>
+
+    <div class="cover-left">
+      <div class="cover-chapter in d1">
+        Chapter One
+        <span class="cover-chapter-num">— on leverage</span>
+      </div>
+      <h1 class="cover-title in d2">
+        <span class="display-ai">AI</span> 如何帮<br>
+        对公客户经理<br>
+        <span class="key">每天少返工一次</span>
+      </h1>
+      <p class="cover-sub in d3">
+        从<span class="em">「我来写」</span>到<span class="em">「AI 先出，我来改」</span><br>
+        让隐性经验，成为团队的共享资产
+      </p>
+    </div>
+
+    <div class="cover-right in d3">
+      <div class="artwork">
+        <div class="artwork-ring"></div>
+        <div class="artwork-ring-2"></div>
+        <div class="artwork-orb"></div>
+
+        <div class="badge badge-1"><span class="dot"></span>省 65 min / day</div>
+        <div class="badge badge-2"><span class="dot"></span>3 × 角色转译</div>
+        <div class="badge badge-3"><span class="dot"></span>-2 次补件</div>
+
+        <div class="artwork-label">ai</div>
+      </div>
+    </div>
+
+    <div class="cover-footer">
+      <div class="cover-foot-left">
+        <div class="foot-item"><strong class="v">15 min</strong>沙龙分享</div>
+        <div class="foot-item"><strong class="s">05 min</strong>视频演示</div>
+        <div class="foot-item"><strong class="m">06 场景</strong>可复用</div>
+      </div>
+      <div class="cover-pg">01 / 05</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SLIDE 2: PAIN POINTS ══════════════ -->
+  <div class="slide slide-pain" data-slide="1">
+    <div class="s-head in">
+      <span class="s-num">02</span>
+      <span class="s-label">Chapter / 诊断</span>
+      <h2 class="s-title">客户经理的时间去哪了？</h2>
+      <span class="s-rule"></span>
+    </div>
+
+    <div class="pain-body">
+      <div class="pain-cards">
+        <div class="pain-card in d1">
+          <span class="pain-num">01</span>
+          <div class="pain-text">
+            <h3>客户听不懂专业要求</h3>
+            <p>反复解释，反复沟通，信息在转译中流失</p>
+          </div>
+          <span class="pain-tag">客户侧</span>
+        </div>
+        <div class="pain-card in d2">
+          <span class="pain-num">02</span>
+          <div class="pain-text">
+            <h3>审查难抓风险点</h3>
+            <p>材料总是不齐全，补件成了常态</p>
+          </div>
+          <span class="pain-tag">审查侧</span>
+        </div>
+        <div class="pain-card in d3">
+          <span class="pain-num">03</span>
+          <div class="pain-text">
+            <h3>中后台要格式标准</h3>
+            <p>细节反复调整，格式比内容更花时间</p>
+          </div>
+          <span class="pain-tag">流程侧</span>
+        </div>
+        <div class="pain-card in d4">
+          <span class="pain-num">04</span>
+          <div class="pain-text">
+            <h3>多向转译的消耗</h3>
+            <p>客户语言 → 审查语言 → 中后台语言，三角循环</p>
+          </div>
+          <span class="pain-tag">综合</span>
+        </div>
+      </div>
+
+      <div class="pain-diagram-wrap in d3">
+        <svg viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="gradA" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#DC4B2C" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#E9A33C" stop-opacity="0.5"/>
+            </linearGradient>
+            <linearGradient id="gradB" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#8D6FB3" stop-opacity="0.45"/>
+              <stop offset="100%" stop-color="#6F8056" stop-opacity="0.45"/>
+            </linearGradient>
+            <linearGradient id="gradC" x1="1" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#6F8056" stop-opacity="0.45"/>
+              <stop offset="100%" stop-color="#DC4B2C" stop-opacity="0.5"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Outer orbit -->
+          <circle cx="200" cy="170" r="140" fill="none" stroke="#D8CFBB" stroke-width="1" stroke-dasharray="2 6" opacity="0.7"/>
+          <circle cx="200" cy="170" r="95" fill="none" stroke="#D8CFBB" stroke-width="1" opacity="0.6"/>
+
+          <!-- Three connecting arcs -->
+          <path d="M 90 80 Q 200 30 310 80" stroke="url(#gradA)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M 310 80 Q 370 220 200 280" stroke="url(#gradB)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M 200 280 Q 30 220 90 80"  stroke="url(#gradC)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+
+          <!-- Small orbit dot animation -->
+          <circle cx="200" cy="75" r="4" fill="#DC4B2C">
+            <animateTransform attributeName="transform" type="rotate" from="0 200 170" to="360 200 170" dur="18s" repeatCount="indefinite"/>
+          </circle>
+
+          <!-- Center sun -->
+          <circle cx="200" cy="170" r="54" fill="url(#gradA)" opacity="0.15"/>
+          <circle cx="200" cy="170" r="38" fill="#F3ECDE" stroke="#DC4B2C" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="200" y="167" text-anchor="middle" font-family="'Noto Serif SC'" font-size="13" font-weight="700" fill="#1F1C18">客户</text>
+          <text x="200" y="183" text-anchor="middle" font-family="'Noto Serif SC'" font-size="13" font-weight="700" fill="#1F1C18">经理</text>
+
+          <!-- Node: 客户 -->
+          <circle cx="90" cy="80" r="34" fill="#F3ECDE" stroke="#8D6FB3" stroke-width="1.2"/>
+          <circle cx="90" cy="80" r="42" fill="none" stroke="#8D6FB3" stroke-width="1" stroke-dasharray="2 4" opacity="0.4"/>
+          <text x="90" y="78" text-anchor="middle" font-family="'Noto Serif SC'" font-size="12" font-weight="600" fill="#8D6FB3">客</text>
+          <text x="90" y="94" text-anchor="middle" font-family="'Noto Serif SC'" font-size="12" font-weight="600" fill="#8D6FB3">户</text>
+
+          <!-- Node: 审查/中后台 -->
+          <circle cx="310" cy="80" r="34" fill="#F3ECDE" stroke="#6F8056" stroke-width="1.2"/>
+          <circle cx="310" cy="80" r="42" fill="none" stroke="#6F8056" stroke-width="1" stroke-dasharray="2 4" opacity="0.4"/>
+          <text x="310" y="77" text-anchor="middle" font-family="'Noto Serif SC'" font-size="11" font-weight="600" fill="#6F8056">审查</text>
+          <text x="310" y="93" text-anchor="middle" font-family="'Noto Serif SC'" font-size="10" font-weight="500" fill="#6F8056">中后台</text>
+
+          <!-- Node: 转译消耗 -->
+          <rect x="160" y="264" width="80" height="34" rx="17" fill="#EEE7DB" stroke="#DC4B2C" stroke-width="1.2"/>
+          <text x="200" y="286" text-anchor="middle" font-family="'Instrument Serif'" font-size="12" font-style="italic" fill="#DC4B2C">转译消耗</text>
+
+          <!-- Decorative accent -->
+          <text x="335" y="315" font-family="'Fraunces'" font-style="italic" font-weight="300" font-size="48" fill="#E4DCCC" letter-spacing="-2">⟳</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="pain-bottom in d5">
+      <p class="pain-bottom-text">
+        消耗最大的不是业务本身，<br>而是<em>沟通与流程之间的反复转译</em>。
+      </p>
+      <span class="pain-bottom-q">—&nbsp;•</span>
+    </div>
+  </div>
+
+  <!-- ══════════════ SLIDE 3: SCENARIOS ══════════════ -->
+  <div class="slide slide-scenarios" data-slide="2">
+    <div class="s-head in">
+      <span class="s-num">03</span>
+      <span class="s-label">Chapter / 切入</span>
+      <h2 class="s-title">AI 最适合介入的，<span class="em">不是最终判断</span></h2>
+      <span class="s-rule"></span>
+    </div>
+
+    <div class="scenario-grid">
+      <div class="sc-card c-vermillion in d1">
+        <span class="sc-num">01</span>
+        <div class="sc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <h3>产品检核表与授信方案</h3>
+        <p>模板驱动，自动出表，告别手工拼凑</p>
+      </div>
+
+      <div class="sc-card c-saffron in d2">
+        <span class="sc-num">02</span>
+        <div class="sc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </div>
+        <h3>多角色表达转译</h3>
+        <p>对客、对审查、对中后台，同义不同体一键切换</p>
+      </div>
+
+      <div class="sc-card c-moss in d3">
+        <span class="sc-num">03</span>
+        <div class="sc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <h3>材料清单自动整理</h3>
+        <p>一次配置，多次复用，减少遗漏</p>
+      </div>
+
+      <div class="sc-card c-amethyst in d4">
+        <span class="sc-num">04</span>
+        <div class="sc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h3>银承存单测算</h3>
+        <p>参数输入，秒出结果，告别手工计算</p>
+      </div>
+
+      <div class="sc-card c-clay in d5">
+        <span class="sc-num">05</span>
+        <div class="sc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <h3>柜台 / OA / 邮件文案</h3>
+        <p>AI 初稿 + 人工把关，告别从零写稿</p>
+      </div>
+
+      <div class="sc-card c-rose in d6">
+        <span class="sc-num">06</span>
+        <div class="sc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <h3>经验模板化</h3>
+        <p>隐性经验变显性资产，新人快速上手</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SLIDE 4: WORKFLOW ══════════════ -->
+  <div class="slide slide-workflow" data-slide="3">
+    <div class="s-head in">
+      <span class="s-num">04</span>
+      <span class="s-label">Chapter / 流程</span>
+      <h2 class="s-title">从「我来写」到<span class="em">「AI 先出，我来改」</span></h2>
+      <span class="s-rule"></span>
+    </div>
+
+    <div class="wf-body">
+      <div class="wf-path">
+        <svg viewBox="0 0 1000 60" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="wf-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"  stop-color="#DC4B2C"/>
+              <stop offset="33%" stop-color="#E9A33C"/>
+              <stop offset="66%" stop-color="#C46F4A"/>
+              <stop offset="100%" stop-color="#6F8056"/>
+            </linearGradient>
+          </defs>
+          <path class="track" d="M 0 30 Q 125 8 250 30 T 500 30 T 750 30 T 1000 30"/>
+          <path class="fill"  d="M 0 30 Q 125 8 250 30 T 500 30 T 750 30 T 1000 30" style="--len:1120;"/>
+        </svg>
+      </div>
+
+      <div class="wf-step in d1">
+        <div class="step-disc v">1</div>
+        <h3>输入客户信息</h3>
+        <p>基本信息 · 需求<br>业务类型</p>
+        <span class="step-save"><span class="tiny"></span>省 10 分钟检索</span>
+      </div>
+
+      <div class="wf-step in d2">
+        <div class="step-disc s">2</div>
+        <h3>AI 生成初稿</h3>
+        <p>检核表 · 授信方案<br>沟通话术</p>
+        <span class="step-save"><span class="tiny"></span>省 40 分钟写稿</span>
+      </div>
+
+      <div class="wf-step in d3">
+        <div class="step-disc c">3</div>
+        <h3>审核与微调</h3>
+        <p>客户经理专业把关<br>精准调整</p>
+        <span class="step-save"><span class="tiny"></span>减少 2 次补件</span>
+      </div>
+
+      <div class="wf-step in d4">
+        <div class="step-disc m">4</div>
+        <h3>同步中后台</h3>
+        <p>自动生成材料清单<br>一键分发</p>
+        <span class="step-save"><span class="tiny"></span>省 15 分钟整理</span>
+      </div>
+    </div>
+
+    <div class="wf-legend in d5">
+      <p class="wf-legend-text">每一步都把<em>人力</em>还给<em>判断本身</em>。</p>
+      <div class="wf-legend-total">累计每日节省 ≈ <b>65</b> min</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ SLIDE 5: CONCLUSION ══════════════ -->
+  <div class="slide slide-conclusion" data-slide="4">
+    <div class="cn-top">
+      <div class="cn-top-label">Chapter 05 · Ending</div>
+      <div class="cn-top-title"><em>The three gifts</em></div>
+    </div>
+
+    <div class="cn-left">
+      <h2 class="cn-left-headline in d1">
+        把时间<br><span class="iq">还给</span><br>客户经营
+      </h2>
+      <p class="cn-left-body in d2">
+        AI 不是替代判断，而是承担重复。<br>
+        当你从格式里抽身，才能把精力放在<br>
+        真正需要经验与温度的地方。
+      </p>
+
+      <div class="cn-left-figure in d3">
+        <div class="cn-left-figure-num">65′</div>
+        <div class="cn-left-figure-cap">
+          <b>每天</b>
+          SAVED PER DAY
+        </div>
+      </div>
+    </div>
+
+    <div class="cn-right">
+      <div class="cn-item in d2">
+        <div class="cn-ch-num">壹</div>
+        <div class="cn-item-body">
+          <h3>把隐性经验 <span class="key">显性化</span></h3>
+          <p>个人经验变成团队资产，<br>让每个人的智慧成为集体的起点。</p>
+        </div>
+      </div>
+      <div class="cn-item in d3">
+        <div class="cn-ch-num">贰</div>
+        <div class="cn-item-body">
+          <h3>把重复劳动 <span class="key">标准化</span></h3>
+          <p>模板代替记忆，流程代替经验，<br>让标准成为一种习惯。</p>
+        </div>
+      </div>
+      <div class="cn-item in d4">
+        <div class="cn-ch-num">叁</div>
+        <div class="cn-item-body">
+          <h3>把时间 <span class="key">还给客户</span></h3>
+          <p>营销推进 · 风险判断 —<br>这才是客户经理真正该做的事。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cn-bottom in d5">
+      <p class="cn-closing">工具不是主角，<em>你才是</em>。</p>
+      <div class="cover-pg" style="font-family:var(--font-disp);font-style:italic;font-weight:300;font-size:48px;color:var(--ink-whisper);letter-spacing:-0.02em;">05 / 05</div>
+    </div>
+  </div>
+
+</div><!-- /slides -->
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="go(cur - 1)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <div class="nav-dots" id="navDots">
+    <div class="nav-dot active" onclick="go(0)"></div>
+    <div class="nav-dot" onclick="go(1)"></div>
+    <div class="nav-dot" onclick="go(2)"></div>
+    <div class="nav-dot" onclick="go(3)"></div>
+    <div class="nav-dot" onclick="go(4)"></div>
+  </div>
+  <button class="nav-btn" id="nextBtn" onclick="go(cur + 1)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+</div>
+
+<div class="slide-counter"><b id="scCur">01</b> / 05</div>
+
+<script>
+/* ═════════════ PARTICLE FIELD (Antigravity-style) ═════════════ */
+(() => {
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let W, H, DPR;
+  const colors = ['#DC4B2C','#E9A33C','#C46F4A','#6F8056','#8D6FB3','#D68B8B'];
+  let parts = [];
+  const N = 90;
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = canvas.clientWidth  = window.innerWidth;
+    H = canvas.clientHeight = window.innerHeight;
+    canvas.width  = W * DPR;
+    canvas.height = H * DPR;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  function rnd(a,b){ return a + Math.random() * (b-a); }
+  function init() {
+    parts = [];
+    for (let i=0; i<N; i++) {
+      parts.push({
+        x: rnd(0,W), y: rnd(0,H),
+        vx: rnd(-0.18,0.18), vy: rnd(-0.18,0.18),
+        r: rnd(0.8, 2.4),
+        c: colors[i % colors.length],
+        a: rnd(0.25, 0.65),
+        phase: rnd(0, Math.PI*2),
+        freq: rnd(0.003, 0.008)
+      });
+    }
+  }
+  function tick(t) {
+    ctx.clearRect(0,0,W,H);
+
+    // draw gossamer connection lines first
+    for (let i=0; i<parts.length; i++) {
+      const p = parts[i];
+      for (let j=i+1; j<parts.length; j++) {
+        const q = parts[j];
+        const dx = p.x - q.x, dy = p.y - q.y;
+        const d2 = dx*dx + dy*dy;
+        if (d2 < 14000) {
+          const alpha = (1 - d2/14000) * 0.08;
+          ctx.strokeStyle = `rgba(74,69,61,${alpha})`;
+          ctx.lineWidth = 0.5;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // draw particles
+    for (const p of parts) {
+      p.phase += p.freq;
+      const drift = Math.sin(p.phase) * 0.15;
+      p.x += p.vx + drift * 0.3;
+      p.y += p.vy + Math.cos(p.phase) * 0.12;
+
+      // wrap
+      if (p.x < -10) p.x = W + 10; if (p.x > W + 10) p.x = -10;
+      if (p.y < -10) p.y = H + 10; if (p.y > H + 10) p.y = -10;
+
+      // glow
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 8);
+      g.addColorStop(0, p.c + Math.round(p.a * 120).toString(16).padStart(2,'0'));
+      g.addColorStop(1, p.c + '00');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * 8, 0, Math.PI*2);
+      ctx.fill();
+
+      // core
+      ctx.fillStyle = p.c;
+      ctx.globalAlpha = p.a;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    requestAnimationFrame(tick);
+  }
+
+  window.addEventListener('resize', () => { resize(); init(); });
+  resize(); init(); requestAnimationFrame(tick);
+})();
+
+/* ═════════════ SLIDE ENGINE ═════════════ */
+const slides = document.querySelectorAll('.slide');
+const total  = slides.length;
+let cur = 0;
+
+function go(n) {
+  if (n < 0 || n >= total || n === cur) return;
+  const dir = n > cur ? 1 : -1;
+  const prev = cur;
+
+  slides[prev].classList.remove('active');
+  slides[prev].classList.add(dir > 0 ? 'exit-left' : 'exit-right');
+
+  cur = n;
+  slides[cur].classList.add(dir > 0 ? 'enter-from-right' : 'enter-from-left');
+  slides[cur].getBoundingClientRect();
+
+  requestAnimationFrame(() => {
+    slides[cur].classList.remove('enter-from-right', 'enter-from-left');
+    slides[cur].classList.add('active');
+  });
+
+  setTimeout(() => {
+    slides[prev].classList.remove('exit-left', 'exit-right');
+  }, 700);
+
+  updateNav();
+}
+
+function updateNav() {
+  document.getElementById('prevBtn').disabled = cur === 0;
+  document.getElementById('nextBtn').disabled = cur === total - 1;
+  document.getElementById('progressBar').style.width = ((cur + 1) / total * 100) + '%';
+  document.getElementById('scCur').textContent = String(cur + 1).padStart(2,'0');
+  document.querySelectorAll('.nav-dot').forEach((d, i) =>
+    d.classList.toggle('active', i === cur));
+}
+
+document.addEventListener('keydown', e => {
+  if (['ArrowRight','ArrowDown',' '].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  if (['ArrowLeft','ArrowUp'].includes(e.key))         { e.preventDefault(); go(cur - 1); }
+});
+
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+document.addEventListener('touchend',   e => {
+  const d = tx - e.changedTouches[0].clientX;
+  if (Math.abs(d) > 50) d > 0 ? go(cur + 1) : go(cur - 1);
+});
+
+updateNav();
+</script>
+</body>
+</html>

@@ -36,9 +36,9 @@ const LoginPage: React.FC = () => {
           {/* Logo / Title */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-brand-dark rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <span className="text-white text-2xl font-bold">F</span>
+              <span className="text-white text-2xl font-bold">A</span>
             </div>
-            <h1 className="text-xl font-bold text-brand-dark">Finish Work Early</h1>
+            <h1 className="text-xl font-bold text-brand-dark">APEX</h1>
             <p className="text-xs text-brand-gray mt-1">登录以同步你的数据，跨设备使用</p>
           </div>
 

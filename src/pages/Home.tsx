@@ -56,7 +56,7 @@ const Home: React.FC = () => {
 
   return (
     <AppLayout title="APEX / 首页" theme="default">
-      <div className="relative flex flex-col min-h-[calc(100dvh-8rem)] bg-[#FBFBFC] font-sans overflow-hidden">
+      <div className="relative flex flex-col h-[calc(100dvh-3.5rem)] bg-[#FBFBFC] font-sans overflow-hidden">
         {/* Background grid accent */}
         <div className="pointer-events-none absolute inset-0 opacity-[0.035]"
           style={{
@@ -72,14 +72,14 @@ const Home: React.FC = () => {
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="flex items-center justify-between text-[10px] sm:text-[11px] font-bold tracking-[0.18em] uppercase text-brand-gray/70 mb-8 sm:mb-12"
+            className="flex items-center justify-between text-[10px] sm:text-[11px] font-bold tracking-[0.18em] uppercase text-brand-gray/70 mb-6 sm:mb-10"
           >
             <div className="flex items-center gap-3">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-60" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
               </span>
-              <span>System · Online</span>
+              <span>APEX</span>
             </div>
             <div className="hidden sm:flex items-center gap-4 tabular-nums">
               <span>{dateStr}</span>
@@ -108,37 +108,25 @@ const Home: React.FC = () => {
               APEX<span className="text-brand-border animate-pulse ml-0.5 sm:ml-2 -mb-0.5 sm:-mb-2">_</span>
             </h1>
 
-            <p className="mt-3 sm:mt-5 text-[13px] sm:text-[17px] md:text-[19px] font-mono font-medium tracking-[0.08em] text-brand-gray flex items-center gap-2 sm:gap-3">
-              <span className="inline-block w-8 sm:w-14 h-px bg-brand-dark/70" />
-              <span className="text-brand-dark/80 uppercase">Finish Work Early</span>
-            </p>
-
-            <div className="mt-8 sm:mt-12 max-w-2xl">
+            <div className="mt-6 sm:mt-12 max-w-2xl">
               <h2 className="text-[22px] sm:text-[32px] md:text-[38px] font-extrabold tracking-tight text-neutral-900 leading-tight">
                 {pageConfig.hero.title}
               </h2>
-              <p className="mt-3 sm:mt-4 text-[13px] sm:text-base text-brand-gray font-medium leading-relaxed">
-                <span className="text-brand-border font-mono mr-1.5">//</span>
-                {pageConfig.hero.subtitle.replace('//', '').trim()}
-              </p>
             </div>
           </motion.div>
 
-          <div className="flex-1 min-h-8 sm:min-h-12" />
+          <div className="flex-1 min-h-4 sm:min-h-12" />
 
           {/* ─── Scenarios grid ──────────────────────────────────── */}
           <motion.div
             variants={container}
             initial="hidden"
             animate="visible"
-            className="w-full shrink-0 pt-10 sm:pt-14"
+            className="w-full shrink-0 pt-6 sm:pt-14"
           >
             <div className="flex items-baseline justify-between mb-4 sm:mb-5">
               <p className="text-[10px] sm:text-[11px] font-extrabold tracking-[0.2em] uppercase text-brand-dark">
                 Scenario Entry
-              </p>
-              <p className="text-[10px] sm:text-[11px] font-medium tracking-wide text-brand-gray/70">
-                四个打工战线 · 选一个开工
               </p>
             </div>
 
@@ -163,10 +151,10 @@ const Home: React.FC = () => {
                       </div>
 
                       <div className="relative z-10">
-                        <h3 className="text-[15px] sm:text-lg font-black tracking-tight text-brand-dark leading-snug">
+                        <h3 className="text-[14px] sm:text-lg font-black tracking-tight text-brand-dark leading-snug">
                           {s.title}
                         </h3>
-                        <p className="mt-1 text-[11px] sm:text-[12px] text-brand-gray font-medium line-clamp-2 leading-relaxed">
+                        <p className="mt-1 text-[10px] sm:text-[12px] text-brand-gray font-medium line-clamp-1 sm:line-clamp-2 leading-relaxed">
                           {s.desc}
                         </p>
                       </div>
@@ -185,7 +173,7 @@ const Home: React.FC = () => {
             className="mt-8 sm:mt-10 pt-5 border-t border-brand-border/30 flex items-center justify-between text-[10px] font-mono tracking-wider text-brand-gray/50"
           >
             <span>{pageConfig.footer.badgeText} · v2.0</span>
-            <span className="hidden sm:inline">{pageConfig.footer.creditText}</span>
+            <span className="inline">{pageConfig.footer.creditText}</span>
           </motion.div>
         </div>
       </div>

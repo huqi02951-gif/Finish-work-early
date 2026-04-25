@@ -45,9 +45,8 @@ const BusinessGuide: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<'guide' | 'persona'>('guide');
   const [guideType, setGuideType] = useState<'product' | 'industry' | 'scenario'>('product');
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>('product_comparison');
   const [copySuccess, setCopySuccess] = useState(false);
-  const [policyExpanded, setPolicyExpanded] = useState(false);
   const [productCards, setProductCards] = useState<ProductGuideCard[]>([...BUSINESS_GUIDE_PRODUCTS].sort((a, b) => {
     // 长易担放在长融保前面
     if (a.id === 'chang_yi_dan') return -1;
@@ -76,6 +75,12 @@ const BusinessGuide: React.FC = () => {
     setCollapsedSections({ 'prep': true, 'screen': true, 'scripts': true, 'execute': true, 'compliance': true });
   }, []);
 
+  const getDefaultSelectedId = (type: 'product' | 'industry' | 'scenario') => {
+    if (type === 'product') return 'product_comparison';
+    if (type === 'industry') return INDUSTRIES[0]?.id ?? null;
+    return SCENARIOS[0]?.id ?? null;
+  };
+
   useEffect(() => {
     let cancelled = false;
 
@@ -101,20 +106,26 @@ const BusinessGuide: React.FC = () => {
     const type = searchParams.get('type');
     const tab = searchParams.get('tab');
 
-    if (tab === 'persona') {
-      setActiveTab('persona');
-    } else if (tab === 'guide') {
-      setActiveTab('guide');
-    }
-
-    if (type === 'industry' || type === 'scenario' || type === 'product') {
-      setGuideType(type as any);
-    }
-
     if (product) {
       setSelectedId(product);
       setActiveTab('guide');
       setGuideType('product');
+      return;
+    }
+
+    if (tab === 'persona') {
+      setActiveTab('persona');
+      setSelectedId(PERSONAS[0]?.id ?? null);
+      return;
+    }
+
+    if (tab === 'guide') {
+      setActiveTab('guide');
+    }
+
+    if (type === 'industry' || type === 'scenario' || type === 'product') {
+      setGuideType(type);
+      setSelectedId(getDefaultSelectedId(type));
     }
   }, [searchParams]);
 
@@ -209,24 +220,24 @@ const BusinessGuide: React.FC = () => {
     <button
       onClick={() => setSelectedId(id)}
       className={cn(
-        "w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl transition-all text-left group shrink-0 md:shrink",
+        "flex-shrink-0 md:w-full flex items-center justify-center md:justify-start gap-2 px-4 py-2.5 md:py-3 rounded-full md:rounded-xl transition-all font-medium md:text-left group whitespace-nowrap",
         active 
-          ? "bg-brand-dark text-white shadow-lg" 
-          : "hover:bg-brand-light-gray text-brand-gray"
+          ? "bg-brand-dark text-white shadow-md border border-brand-dark" 
+          : "bg-white md:bg-transparent border border-brand-border/10 md:border-transparent hover:bg-brand-light-gray text-brand-gray"
       )}
     >
       <Icon className={cn("w-3.5 h-3.5 md:w-4 md:h-4", active ? "text-brand-gold" : "group-hover:text-brand-dark")} />
-      <span className="text-[10px] md:text-xs font-bold whitespace-nowrap md:whitespace-normal">{name}</span>
+      <span className="text-[12px] md:text-xs font-bold leading-snug">{name}</span>
     </button>
   );
 
   return (
     <AppLayout title="客户经理业务通" showBack>
-      <div className="py-8 md:py-16 bg-brand-offwhite min-h-screen">
+      <div className="py-6 md:py-14 bg-brand-offwhite min-h-screen">
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-7xl mx-auto">
             {/* Header */}
-            <div className="mb-8 md:mb-12 animate-fade-in-up">
+            <div className="mb-5 md:mb-10 animate-fade-in-up">
               <div className="flex items-center gap-4 md:gap-6 mb-4 md:mb-6">
                 <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-dark text-white rounded-xl md:rounded-2xl flex items-center justify-center shadow-xl shrink-0">
                   <LayoutDashboard size={24} className="md:hidden" />
@@ -239,103 +250,13 @@ const BusinessGuide: React.FC = () => {
               </div>
             </div>
 
-          {/* Red Warning Box */}
-      <div className="mb-8 p-6 bg-red-50 border-2 border-red-200 rounded-2xl">
-        <button className="flex items-start gap-4 w-full text-left" onClick={() => setPolicyExpanded(!policyExpanded)}>
-          <AlertCircle className="text-red-600 w-6 h-6 shrink-0 mt-1" />
-          <div className="flex-grow">
-            <div className="flex items-center justify-between">
-              <h4 className="text-red-800 font-bold text-lg">重要政策声明 (红线)</h4>
-              <ChevronRight className={cn("text-red-400 w-5 h-5 transition-transform", policyExpanded && "rotate-90")} />
-            </div>
-            <p className="text-red-700 text-sm leading-relaxed font-medium mt-1">
-              “民间投资专项担保计划”<span className="underline font-black">不等于</span>自动享受贴息或担保费全额补贴。
-            </p>
-          </div>
-        </button>
-        {policyExpanded && (
-          <div className="mt-4 ml-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-red-900/80">
-              <div className="bg-white/50 p-3 rounded-lg">
-                <p className="font-bold mb-1">1. 担保费补贴</p>
-                <p>以地方财政当期口径为准，不能默认全额补贴。标准保费 0.5%/年需预付。</p>
-              </div>
-              <div className="bg-white/50 p-3 rounded-lg">
-                <p className="font-bold mb-1">2. 1.5% 利率贴息</p>
-                <p>属于并行政策，需看用途和申报条件。并非做了担保计划就自动贴息。</p>
-              </div>
-            </div>
-            <p className="mt-3 text-[10px] text-red-600 font-bold italic">※ 禁止向客户承诺“全额补贴”或“自动贴息”，仅可评估叠加空间。</p>
-          </div>
-        )}
-      </div>
-
-      {/* Mobile Hero: Product Workspace Quick-Access (only on mobile) */}
-      <div className="lg:hidden mb-6 animate-fade-in-up">
-        <p className="text-[10px] font-bold text-brand-gray uppercase tracking-widest opacity-50 mb-3">核心产品 — 立即运行</p>
-        <div className="flex overflow-x-auto gap-3 no-scrollbar mb-3 -mx-4 px-4">
-          {productCards.map(p => {
-            const workspace = getProductWorkspace(p.id);
-            const primaryAction = workspace?.primaryActions.find(a => a.variant === 'primary');
-            return (
-              <button
-                key={p.id}
-                onClick={() => {
-                  if (primaryAction) {
-                    navigate(primaryAction.route);
-                  } else {
-                    setGuideType('product'); setSelectedId(p.id); setActiveTab('guide');
-                  }
-                }}
-                className={cn(
-                  "flex flex-col gap-2.5 p-4 rounded-2xl border text-left transition-all duration-300 min-w-[160px] flex-shrink-0",
-                  selectedId === p.id
-                    ? "bg-brand-dark text-white border-brand-dark shadow-xl"
-                    : "bg-white text-brand-dark border-brand-border/10 shadow-sm active:scale-95"
-                )}
-              >
-                <div className={cn(
-                  "w-10 h-10 rounded-xl flex items-center justify-center",
-                  selectedId === p.id ? "bg-white/15" : "bg-brand-gold/10"
-                )}>
-                  <Briefcase size={18} className={selectedId === p.id ? "text-brand-gold" : "text-brand-dark"} />
-                </div>
-                <div>
-                  <p className="text-sm font-bold leading-tight">{p.name}</p>
-                  <p className={cn("text-[10px] mt-1 leading-snug line-clamp-2 opacity-60", selectedId === p.id ? "text-white" : "text-brand-gray")}>{p.category}</p>
-                </div>
-                <div className="flex items-center gap-1 text-[10px] font-bold mt-auto text-brand-gold">
-                  {primaryAction?.label || '查看详情'} <ChevronRight size={12} />
-                </div>
-              </button>
-            );
-          })}
-        </div>
-        <button
-          onClick={() => { setGuideType('product'); setSelectedId('product_comparison'); setActiveTab('guide'); }}
-          className={cn(
-            "w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition-all",
-            selectedId === 'product_comparison'
-              ? "bg-brand-gold/10 border-brand-gold/30"
-              : "bg-white border-brand-border/10 shadow-sm"
-          )}
-        >
-          <div className="flex items-center gap-2.5">
-            <RefreshCcw size={14} className="text-brand-gold shrink-0" />
-            <span className="text-xs font-bold text-brand-dark">产品实战对比</span>
-            <span className="text-[10px] text-brand-gray opacity-50">长易担 vs 长融保</span>
-          </div>
-          <ChevronRight size={14} className="text-brand-gray/40" />
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-10">
             {/* Left Sidebar: Selection */}
             <div className="lg:col-span-3 space-y-6 md:space-y-8 animate-fade-in-up">
               {/* Tab Switcher */}
               <div className="flex p-1 bg-brand-light-gray rounded-xl md:rounded-2xl border border-brand-border/5">
                 <button
-                  onClick={() => { setActiveTab('guide'); setSelectedId(null); }}
+                  onClick={() => { setActiveTab('guide'); setSelectedId(getDefaultSelectedId(guideType)); }}
                   className={cn(
                     "flex-1 py-2.5 md:py-3 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-all",
                     activeTab === 'guide' ? "bg-white text-brand-dark shadow-sm" : "text-brand-gray hover:text-brand-dark"
@@ -344,7 +265,7 @@ const BusinessGuide: React.FC = () => {
                   业务通
                 </button>
                 <button
-                  onClick={() => { setActiveTab('persona'); setSelectedId(null); }}
+                  onClick={() => { setActiveTab('persona'); setSelectedId(PERSONAS[0]?.id ?? null); }}
                   className={cn(
                     "flex-1 py-2.5 md:py-3 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-bold uppercase tracking-widest transition-all",
                     activeTab === 'persona' ? "bg-white text-brand-dark shadow-sm" : "text-brand-gray hover:text-brand-dark"
@@ -358,8 +279,8 @@ const BusinessGuide: React.FC = () => {
                 <div className="space-y-6 md:space-y-8">
                   {/* Guide Type Filters */}
                   <div className="space-y-2">
-                    <p className="text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest opacity-40 mb-3 md:mb-4">分类维度</p>
-                    <div className="flex overflow-x-auto md:flex-col gap-1 no-scrollbar">
+                    <p className="hidden md:block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest opacity-40 mb-3 md:mb-4">分类维度</p>
+                    <div className="flex overflow-x-auto snap-x snap-mandatory gap-2 pb-2 md:pb-0 md:grid md:grid-cols-1 md:flex-col scrollbar-hide">
                       {[
                         { id: 'product', name: '按产品', icon: Briefcase },
                         { id: 'scenario', name: '按场景', icon: Zap },
@@ -367,14 +288,18 @@ const BusinessGuide: React.FC = () => {
                       ].map(t => (
                         <button
                           key={t.id}
-                          onClick={() => { setGuideType(t.id as any); setSelectedId(null); }}
+                          onClick={() => { 
+                            const nextType = t.id as 'product' | 'industry' | 'scenario';
+                            setGuideType(nextType);
+                            setSelectedId(getDefaultSelectedId(nextType));
+                          }}
                           className={cn(
-                            "flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl transition-all text-left whitespace-nowrap",
-                            guideType === t.id ? "bg-brand-gold/10 text-brand-gold" : "text-brand-gray hover:bg-brand-light-gray"
+                            "flex-shrink-0 snap-start flex items-center justify-center md:justify-start gap-1.5 md:gap-3 px-4 py-2 md:py-3 rounded-full md:rounded-xl transition-all text-left whitespace-nowrap",
+                            guideType === t.id ? "bg-brand-gold/10 text-brand-gold border border-brand-gold/20 md:border-transparent" : "bg-white md:bg-transparent border border-brand-border/10 md:border-transparent text-brand-gray hover:bg-brand-light-gray"
                           )}
                         >
                           <t.icon size={14} className="md:w-4 md:h-4" />
-                          <span className="text-[11px] md:text-xs font-bold">{t.name}</span>
+                          <span className="text-[12px] md:text-xs font-bold">{t.name}</span>
                         </button>
                       ))}
                     </div>
@@ -382,10 +307,10 @@ const BusinessGuide: React.FC = () => {
 
                   {/* Items List */}
                   <div className="space-y-2">
-                    <p className="text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest opacity-40 mb-3 md:mb-4">
+                    <p className="hidden md:block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest opacity-40 mb-3 md:mb-4">
                       {guideType === 'product' ? '产品列表' : guideType === 'industry' ? '行业列表' : '场景列表'}
                     </p>
-                    <div className="flex overflow-x-auto md:flex-col gap-1 no-scrollbar">
+                    <div className="flex overflow-x-auto snap-x snap-mandatory gap-2 pb-2 md:pb-0 md:flex-col scrollbar-hide">
                       {guideType === 'product' && (
                         <SidebarItem id="product_comparison" name="产品实战对比" icon={RefreshCcw} active={selectedId === 'product_comparison'} />
                       )}
@@ -403,8 +328,8 @@ const BusinessGuide: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <p className="text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest opacity-40 mb-3 md:mb-4">风格人物</p>
-                  <div className="flex overflow-x-auto md:flex-col gap-1 no-scrollbar">
+                  <p className="hidden md:block text-[9px] md:text-[10px] font-bold text-brand-gray uppercase tracking-widest opacity-40 mb-3 md:mb-4">风格人物</p>
+                  <div className="flex overflow-x-auto snap-x snap-mandatory gap-2 pb-2 md:pb-0 md:flex-col scrollbar-hide">
                     {PERSONAS.map(p => (
                       <SidebarItem key={p.id} id={p.id} name={p.name} icon={User} active={selectedId === p.id} />
                     ))}
@@ -428,7 +353,24 @@ const BusinessGuide: React.FC = () => {
                       <h3 className="font-serif text-2xl md:text-4xl text-brand-dark mb-2">产品实战对比</h3>
                       <p className="text-brand-gray text-xs md:text-lg opacity-60">快速区分核心银担产品，精准匹配客户需求</p>
                     </div>
-                    <div className="overflow-x-auto">
+                    <div className="md:hidden p-4 space-y-3">
+                      {COMPARISON_DATA.map((row) => (
+                        <div key={row.feature} className="rounded-2xl border border-brand-border/10 bg-brand-light-gray/20 p-4">
+                          <p className="text-xs font-black text-brand-dark mb-3">{row.feature}</p>
+                          <div className="space-y-3">
+                            <div>
+                              <p className="text-[10px] font-bold text-brand-gold mb-1">长融保</p>
+                              <p className="text-xs text-brand-gray leading-relaxed">{row.changRongBao}</p>
+                            </div>
+                            <div>
+                              <p className="text-[10px] font-bold text-brand-gold mb-1">长易担</p>
+                              <p className="text-xs text-brand-gray leading-relaxed">{row.changYiDan}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="hidden md:block">
                       <table className="w-full border-collapse">
                         <thead>
                           <tr className="bg-brand-dark text-white">
@@ -579,7 +521,7 @@ const BusinessGuide: React.FC = () => {
                       // Sticky section nav for mobile
                       const SectionNav = (
                         <div className="sticky top-[3.5rem] z-30 -mx-1 px-1 py-2 bg-brand-offwhite/95 backdrop-blur sm:hidden">
-                          <div className="flex gap-1 overflow-x-auto no-scrollbar">
+                          <div className="flex flex-wrap gap-1">
                             {sectionDefs.map(s => {
                               const Icon = s.icon;
                               const isCollapsed = collapsedSections[s.id];
@@ -588,7 +530,7 @@ const BusinessGuide: React.FC = () => {
                                   key={s.id}
                                   onClick={() => toggleSection(s.id)}
                                   className={cn(
-                                    "shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all",
+                                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all",
                                     isCollapsed
                                       ? "bg-white text-brand-gray border-brand-border/20"
                                       : cn("text-white border-transparent", colorMap[s.color].bg.replace('/50', ''), colorMap[s.color].iconBg),

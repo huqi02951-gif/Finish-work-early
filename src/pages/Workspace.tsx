@@ -8,7 +8,6 @@ import {
   Pin,
   Plus,
   Sparkles,
-  Terminal,
   Wrench,
   Ghost,
   Dices,
@@ -312,8 +311,13 @@ const WorkspacePage: React.FC = () => {
   );
 
   const displayBoards = useMemo(
-    () => boards.filter((item) => !item.isOfficial),
+    () => boards.filter((item) => !item.isOfficial && item.slug !== 'pantry'),
     [boards],
+  );
+
+  const workspacePosts = useMemo(
+    () => posts.filter((post) => post.board?.slug !== 'pantry'),
+    [posts],
   );
 
   const applyToolData = (toolData: ToolDataLoadResult) => {
@@ -447,28 +451,29 @@ const WorkspacePage: React.FC = () => {
 
   return (
     <AppLayout title="工作台" theme="default">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:gap-6 px-3 py-4 sm:px-6 sm:py-6 bg-[#F5F6FA] min-h-[100dvh] pb-24">
-        <section className="flex flex-col gap-4 pb-2">
+      <div className="min-h-[100dvh] bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.06),transparent_32%),linear-gradient(180deg,#ffffff_0%,#f5f6fa_100%)] pb-24">
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 sm:gap-6 px-4 py-5 sm:px-6 sm:py-8">
+        <section className="flex flex-col gap-4 pb-1">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="flex-grow pl-1">
-              <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold text-[#1c1c1e] tracking-tight">工作台 & 茶水间</h1>
-              <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-neutral-500 font-medium">
-                实用任务入口合集。包含官方指南及匿名的实战交流经验沉淀区域。
+              <p className="text-[11px] font-black tracking-[0.18em] uppercase text-neutral-400">APEX Workspace</p>
+              <h1 className="mt-2 text-3xl sm:text-5xl font-black text-[#111827] tracking-tight">工作台</h1>
+              <p className="mt-2 max-w-2xl text-[13px] sm:text-sm leading-relaxed text-neutral-500 font-medium">
+                把近期物料、草稿、客户上下文和高频工具放在一个安静的工作面板里。茶水间作为社区里的独立空间进入。
               </p>
             </div>
             
-            {/* High-frequency Action Bar (Sticky-like) */}
             <div className="flex gap-2">
               <Link
                 to="/instructions"
-                className="flex-1 sm:flex-none flex justify-center items-center gap-1.5 rounded-[12px] bg-white border border-neutral-200/80 px-4 py-3 min-h-[44px] text-[13px] font-bold text-neutral-600 hover:bg-neutral-50 shadow-sm transition-all active:scale-95"
+                className="flex-1 sm:flex-none flex justify-center items-center gap-1.5 rounded-2xl bg-white border border-neutral-200/80 px-4 py-3 min-h-[44px] text-[13px] font-bold text-neutral-600 hover:bg-neutral-50 shadow-sm transition-all active:scale-95"
               >
                 <FileText size={14} />
                 官方帮助
               </Link>
               <button
                 onClick={() => setComposing((current) => !current)}
-                className="flex-[2] sm:flex-none flex justify-center items-center gap-1.5 rounded-[12px] bg-blue-600 px-5 py-3 min-h-[44px] text-[14px] font-bold text-white hover:bg-blue-700 shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-all active:scale-95"
+                className="flex-[2] sm:flex-none flex justify-center items-center gap-1.5 rounded-2xl bg-brand-dark px-5 py-3 min-h-[44px] text-[14px] font-bold text-white hover:bg-brand-dark/90 shadow-[0_10px_24px_rgba(15,23,42,0.16)] transition-all active:scale-95"
               >
                 <Plus size={16} />
                 我要发帖
@@ -478,14 +483,14 @@ const WorkspacePage: React.FC = () => {
         </section>
 
         {/* Mobile Tab Switcher */}
-        <div className="flex gap-1 mb-2 bg-neutral-200/50 rounded-xl p-1 sm:hidden">
+        <div className="flex gap-1 mb-2 bg-white/80 border border-neutral-200 rounded-2xl p-1 sm:hidden shadow-sm">
           <button onClick={() => setMobileTab('posts')}
-            className={`flex-1 py-1.5 rounded-[10px] text-[13px] font-bold transition-all ${mobileTab === 'posts' ? 'bg-white text-blue-600 shadow-sm' : 'text-neutral-500'}`}>
-            交流大厅
+            className={`flex-1 py-2 rounded-xl text-[13px] font-bold transition-all ${mobileTab === 'posts' ? 'bg-brand-dark text-white shadow-sm' : 'text-neutral-500'}`}>
+            动态
           </button>
           <button onClick={() => setMobileTab('tools')}
-            className={`flex-1 py-1.5 rounded-[10px] text-[13px] font-bold transition-all ${mobileTab === 'tools' ? 'bg-white text-neutral-800 shadow-sm' : 'text-neutral-500'}`}>
-            工具面板
+            className={`flex-1 py-2 rounded-xl text-[13px] font-bold transition-all ${mobileTab === 'tools' ? 'bg-brand-dark text-white shadow-sm' : 'text-neutral-500'}`}>
+            面板
           </button>
         </div>
 
@@ -498,18 +503,17 @@ const WorkspacePage: React.FC = () => {
             
             {/* Composer */}
             {composing ? (
-              <section className="rounded-[16px] bg-white p-4 border border-neutral-200/50 shadow-sm animate-slide-in-down overflow-hidden relative">
-                {isAnonymous && <div className="absolute inset-0 bg-neutral-900 pointer-events-none mix-blend-overlay opacity-5 noise-bg"></div>}
+              <section className="rounded-[24px] bg-white/95 p-4 sm:p-5 border border-white shadow-[0_18px_60px_rgba(15,23,42,0.08)] animate-slide-in-down overflow-hidden relative">
                 
                 <form className="grid gap-2 relative z-10" onSubmit={handleCreatePost}>
                   <div className="flex items-center justify-between mb-1 pb-2 border-b border-neutral-100/60">
-                     <h3 className="font-bold text-neutral-800 flex items-center gap-1.5"><MessageSquare size={16}/> 撰写新帖子</h3>
+                     <h3 className="font-black text-neutral-900 flex items-center gap-1.5"><MessageSquare size={16}/> 撰写新帖子</h3>
                      <button
                        type="button" 
                        onClick={() => setIsAnonymous(!isAnonymous)}
                        className={cn(
                           "px-3 py-1.5 rounded-full text-[11px] font-bold border transition-colors flex items-center gap-1",
-                          isAnonymous ? "bg-black text-[#00FFAA] border-[#00FFAA]/30 shadow-[0_0_8px_rgba(0,255,170,0.2)]" : "bg-neutral-100 text-neutral-500 border-transparent"
+                          isAnonymous ? "bg-neutral-900 text-white border-neutral-900" : "bg-neutral-100 text-neutral-500 border-transparent"
                        )}
                      >
                        <Ghost size={12} /> {isAnonymous ? "匿名已开" : "实名模式"}
@@ -517,10 +521,10 @@ const WorkspacePage: React.FC = () => {
                   </div>
 
                   {isAnonymous && (
-                    <div className="flex items-center gap-2 mb-2 p-2.5 bg-neutral-900 rounded-xl text-[#EAEAEA] text-[11px] font-mono">
+                    <div className="flex items-center gap-2 mb-2 p-2.5 bg-neutral-100 rounded-xl text-neutral-600 text-[11px] font-medium">
                       <span>当前马甲：</span>
-                      <span className="text-[#00FFAA] font-bold">{anonName}</span>
-                      <button type="button" onClick={rollDice} className="ml-auto flex items-center gap-1 hover:text-white transition-colors bg-white/10 px-2 py-1 rounded-md active:scale-95 text-[10px]">
+                      <span className="text-neutral-900 font-bold">{anonName}</span>
+                      <button type="button" onClick={rollDice} className="ml-auto flex items-center gap-1 hover:text-neutral-900 transition-colors bg-white px-2 py-1 rounded-md active:scale-95 text-[10px]">
                         <Dices size={10} /> 摇骰子换名
                       </button>
                     </div>
@@ -572,7 +576,7 @@ const WorkspacePage: React.FC = () => {
                     </button>
                     <button
                       type="submit"
-                      className="rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-blue-700 transition-colors shadow-md"
+                      className="rounded-xl bg-brand-dark px-6 py-2.5 text-sm font-bold text-white hover:bg-brand-dark/90 transition-colors shadow-md"
                     >
                       {isAnonymous ? '匿名发布' : '发布'}
                     </button>
@@ -582,14 +586,14 @@ const WorkspacePage: React.FC = () => {
             ) : null}
 
             {/* Board filter Pill Tabs */}
-            <section className="bg-[#F5F6FA] py-1 sticky top-14 z-30">
-              <div className="flex gap-2 overflow-x-auto no-scrollbar snap-x">
+            <section className="py-1 sticky top-14 z-30">
+              <div className="flex flex-wrap gap-2 rounded-2xl border border-white/80 bg-white/80 p-2 shadow-sm backdrop-blur">
                 <button
                   onClick={() => setActiveBoard('all')}
                   className={cn(
-                    "snap-start shrink-0 rounded-full px-4 py-1.5 text-xs font-extrabold transition-all border",
+                    "rounded-xl px-4 py-2 text-xs font-extrabold transition-all border",
                     activeBoard === 'all'
-                      ? 'bg-neutral-800 text-white border-neutral-800 shadow-sm'
+                      ? 'bg-brand-dark text-white border-brand-dark shadow-sm'
                       : 'bg-white text-neutral-600 border-neutral-200 hover:bg-neutral-50'
                   )}
                 >
@@ -600,13 +604,12 @@ const WorkspacePage: React.FC = () => {
                     key={board.slug}
                     onClick={() => setActiveBoard(board.slug)}
                     className={cn(
-                      "snap-start shrink-0 rounded-full px-4 py-1.5 text-xs font-bold transition-all border",
+                      "rounded-xl px-4 py-2 text-xs font-bold transition-all border",
                       activeBoard === board.slug
-                         ? (board.slug === 'pantry' ? 'bg-[#050505] text-[#00FFAA] border-[#00FFAA]/50 shadow-[0_0_8px_rgba(0,255,170,0.3)]' : 'bg-blue-600 text-white border-blue-600 shadow-sm')
+                         ? 'bg-brand-dark text-white border-brand-dark shadow-sm'
                          : 'bg-white text-neutral-600 border-neutral-200 hover:bg-neutral-50'
                     )}
                   >
-                    {board.slug === 'pantry' && <Terminal size={10} className="inline mr-1" />}
                     {board.name}
                   </button>
                 ))}
@@ -619,9 +622,8 @@ const WorkspacePage: React.FC = () => {
                 <div className="rounded-[20px] p-8 text-center text-sm font-bold text-neutral-400">
                   正在同步数据中...
                 </div>
-              ) : posts.length ? (
-                posts.map((post) => {
-                  const isPantry = post.board?.slug === 'pantry';
+              ) : workspacePosts.length ? (
+                workspacePosts.map((post) => {
                   const isTradeItem = post.tags.some(t => ['二手','交换','出售','求购','置换'].includes(t));
                   const isHot = (post.commentCount || 0) > 5;
                   
@@ -629,14 +631,10 @@ const WorkspacePage: React.FC = () => {
                     <article 
                       key={post.id} 
                       className={cn(
-                        "rounded-[16px] p-4 sm:p-5 transition-all hover:scale-[1.01] active:scale-[0.99] relative overflow-hidden",
-                        isPantry ? "bg-[#111111] text-[#EAEAEA] border border-[#222222]" : "bg-white border border-neutral-100 shadow-sm",
-                        isHot ? (isPantry ? "shadow-[0_0_15px_rgba(0,255,170,0.15)] outline outline-1 outline-[#00FFAA]/40" : "outline outline-1 outline-blue-500/10") : ""
+                        "rounded-[22px] p-4 sm:p-5 transition-all hover:-translate-y-0.5 active:scale-[0.99] relative overflow-hidden bg-white border border-white shadow-sm",
+                        isHot ? "outline outline-1 outline-blue-500/10" : ""
                       )}
                     >
-                      {/* Pantry Noise layer */}
-                      {isPantry && <div className="absolute inset-0 bg-[#00FFAA]/5 noise-bg mix-blend-overlay pointer-events-none" />}
-
                       <div className="flex flex-wrap items-center gap-1.5 text-[11px] mb-2 font-bold relative z-10">
                         {post.isPinned ? (
                           <span className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 bg-orange-100 text-orange-600 border border-orange-200">
@@ -649,17 +647,14 @@ const WorkspacePage: React.FC = () => {
                            </span>
                         ) : null}
                         {post.board ? (
-                          <span className={isPantry ? "text-[#00FFAA]/70 font-mono" : "text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded"}>
+                          <span className="text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
                             {post.board.name}
                           </span>
                         ) : null}
                         
                         <button 
-                           onClick={(e) => handleAuthorClick(e, post.author?.nickname || '隐藏信源', isPantry)}
-                           className={cn(
-                             "py-1.5 px-2 -ml-2 rounded-md flex items-center transition-all bg-transparent active:scale-95", 
-                             isPantry ? "text-[#00FFAA]/80 font-mono active:bg-[#00FFAA]/10" : "text-blue-600 active:bg-blue-50"
-                           )}
+                           onClick={(e) => handleAuthorClick(e, post.author?.nickname || '隐藏信源', false)}
+                           className="py-1.5 px-2 -ml-2 rounded-md flex items-center transition-all bg-transparent active:scale-95 text-blue-600 active:bg-blue-50"
                         >
                           <span className="opacity-50 mr-1">•</span> {post.author?.nickname || '隐藏信源'}
                         </button>
@@ -668,13 +663,13 @@ const WorkspacePage: React.FC = () => {
                       <Link to={getPostPath(post)} className="block relative z-10">
                         <h3 className={cn(
                           "text-[15px] font-bold leading-snug tracking-tight mb-2 break-words pr-2",
-                          isPantry ? "text-white group-hover:text-[#00FFAA]" : "text-neutral-800"
+                          "text-neutral-900"
                         )}>
                           {post.title}
                         </h3>
                         <p className={cn(
                           "line-clamp-2 text-[14px] leading-relaxed break-words",
-                          isPantry ? "text-neutral-400" : "text-neutral-500"
+                          "text-neutral-500"
                         )}>
                           {post.summary || post.content}
                         </p>
@@ -685,7 +680,7 @@ const WorkspacePage: React.FC = () => {
                            {post.tags.slice(0, 3).map((tag) => (
                              <span key={tag} className={cn(
                                "rounded px-1.5 py-0.5 text-[10px] font-bold",
-                               isPantry ? "bg-white/10 text-neutral-300 font-mono border border-white/5" : "bg-neutral-100 text-neutral-500"
+                               "bg-neutral-100 text-neutral-500"
                              )}>
                                #{tag}
                              </span>
@@ -693,9 +688,9 @@ const WorkspacePage: React.FC = () => {
                         </div>
                         <div className={cn(
                           "flex items-center gap-3 text-[11px] font-bold",
-                          isPantry ? "text-[#00FFAA]/60 font-mono" : "text-neutral-400"
+                          "text-neutral-400"
                         )}>
-                           {isHot && <span className={isPantry ? "text-[#00FFAA] animate-pulse" : "text-blue-500"}>热帖</span>}
+                           {isHot && <span className="text-blue-500">热帖</span>}
                            <span className="flex items-center gap-1"><MessageSquare size={12} /> {post.commentCount || 0}</span>
                         </div>
                       </div>
@@ -717,15 +712,14 @@ const WorkspacePage: React.FC = () => {
           )}>
             
             {/* 官方帮助帖 (Pinned visual) */}
-            <section className="rounded-[20px] border border-orange-200 bg-gradient-to-b from-orange-50 to-white p-4 shadow-sm relative overflow-hidden">
-               <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-orange-400 to-orange-200" />
-               <div className="mb-3 flex items-center gap-1.5 text-[13px] font-extrabold text-orange-700">
-                <Sparkles size={14} className="text-orange-500" />
+            <section className="rounded-[24px] border border-white bg-white/90 p-4 shadow-sm relative overflow-hidden">
+               <div className="mb-3 flex items-center gap-1.5 text-[13px] font-extrabold text-neutral-900">
+                <Sparkles size={14} className="text-brand-gold" />
                 官方必读
               </div>
               <div className="grid gap-2">
                 {officialPosts.map((post) => (
-                  <Link key={post.id} to={getPostPath(post)} className="rounded-[12px] bg-white/70 backdrop-blur-sm border border-orange-100 p-2.5 transition-colors hover:bg-white flex flex-col gap-1 shadow-[0_2px_8px_rgba(255,237,213,0.5)]">
+                  <Link key={post.id} to={getPostPath(post)} className="rounded-2xl bg-neutral-50 border border-neutral-100 p-3 transition-colors hover:bg-white flex flex-col gap-1">
                     <div className="text-[13px] font-bold text-neutral-800 tracking-tight leading-snug">{post.title}</div>
                   </Link>
                 ))}
@@ -733,17 +727,17 @@ const WorkspacePage: React.FC = () => {
             </section>
 
             {/* 高频小工作台 */}
-            <section className="rounded-[20px] border border-neutral-100 bg-white p-4 shadow-sm">
+            <section className="rounded-[24px] border border-white bg-white/90 p-4 shadow-sm">
               <div className="mb-3 flex items-center gap-1.5 text-[13px] font-extrabold text-neutral-800">
-                <Wrench size={14} className="text-blue-500" />
-                桌面工具挂件
+                <Wrench size={14} className="text-neutral-500" />
+                高频工具
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {quickTools.map((tool) => (
                   <Link
                     key={tool.id}
                     to={tool.path}
-                    className="flex flex-col gap-1 rounded-[12px] border border-neutral-100 bg-neutral-50 p-2.5 text-neutral-700 hover:bg-white hover:shadow-sm hover:border-blue-100 transition-all active:scale-95 text-left"
+                    className="flex flex-col gap-1 rounded-2xl border border-neutral-100 bg-neutral-50 p-3 text-neutral-700 hover:bg-white hover:shadow-sm hover:border-neutral-200 transition-all active:scale-95 text-left"
                   >
                     <span className="text-[12px] font-bold line-clamp-1">{tool.name}</span>
                     <ArrowRight size={12} className="text-neutral-300 mt-auto ml-auto" />
@@ -753,7 +747,7 @@ const WorkspacePage: React.FC = () => {
             </section>
 
             {/* Context & Artifacts */}
-            <section className="rounded-[20px] border border-neutral-100 bg-white p-4 shadow-sm">
+            <section className="rounded-[24px] border border-white bg-white/90 p-4 shadow-sm">
               <div className="flex flex-col gap-4">
                  <div>
                     <div className="mb-2 flex items-center justify-between text-[13px] font-extrabold text-neutral-800">
@@ -765,7 +759,7 @@ const WorkspacePage: React.FC = () => {
                             ? 'text-emerald-600'
                             : toolDataSource === 'mixed'
                               ? 'text-sky-600'
-                              : 'text-amber-500'
+                              : 'text-neutral-400'
                         )}>
                           {toolDataStatusLabel}
                         </span>
@@ -863,6 +857,7 @@ const WorkspacePage: React.FC = () => {
 
           </div>
         </div>
+      </div>
       </div>
 
       {/* Author Drawer */}
