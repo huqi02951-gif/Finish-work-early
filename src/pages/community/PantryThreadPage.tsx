@@ -5,14 +5,14 @@ import CyberLayout from '../../components/layout/CyberLayout';
 import CommentSection from '../../components/community/CommentSection';
 import TipJar from '../../components/community/TipJar';
 import { cn } from '../../../lib/utils';
-import { forumApi } from '../../services/forumApi';
-import type { Post, Comment } from '../../types';
+import { pantryApi, PantryPost } from '../../services/pantryApi';
+import type { Comment } from '../../types';
 
 const PantryThreadPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [post, setPost] = useState<Post | null>(null);
+  const [post, setPost] = useState<PantryPost | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
 
   const loadThread = async () => {
@@ -21,11 +21,24 @@ const PantryThreadPage: React.FC = () => {
     setLoadError(null);
     try {
       const [postData, commentsData] = await Promise.all([
-        forumApi.getPostDetail(id),
-        forumApi.getPostComments(id, { pageSize: 50 }),
+        pantryApi.getPostDetail(Number(id)),
+        pantryApi.listComments(Number(id)),
       ]);
       setPost(postData);
-      setComments(commentsData.items);
+      setComments((Array.isArray(commentsData) ? commentsData : []).map((comment: any) => ({
+        id: String(comment.id),
+        postId: String(comment.postId),
+        userId: String(comment.authorId),
+        content: comment.content,
+        createdAt: comment.createdAt,
+        author: {
+          id: String(comment.authorId),
+          nickname: comment.anonymousAlias || '匿名线人',
+          avatar: '',
+          role: 'user',
+          createdAt: comment.createdAt,
+        },
+      })));
     } catch (err) {
       console.error('Failed to load pantry thread:', err);
       setPost(null);
@@ -82,15 +95,15 @@ const PantryThreadPage: React.FC = () => {
               <div className="flex items-center gap-3 mb-3 text-[10px] text-[#00ff41]/40">
                 <span className={cn(
                   'px-1.5 py-0.5 border text-[9px] font-bold',
-                  post.category === '匿名吐槽' ? 'text-red-400 border-red-800' :
-                  post.category === 'Gossip 贴板' ? 'text-amber-400 border-amber-800' :
-                  post.category === '二手交易' ? 'text-purple-400 border-purple-800' :
+                  post.kind === 'burn' ? 'text-red-400 border-red-800' :
+                  post.kind === 'gossip' ? 'text-amber-400 border-amber-800' :
+                  post.kind === 'thread' ? 'text-purple-400 border-purple-800' :
                   'text-[#00ff41] border-[#00ff41]/50'
                 )}>
-                  {post.category}
+                  {post.kind === 'burn' ? '马上焚' : post.kind === 'thread' ? '深水长瓜' : '金融爆料'}
                 </span>
                 <span className="flex items-center gap-1"><Clock className="w-2.5 h-2.5" /> {formatRelativeTime(post.createdAt)}</span>
-                <span className="flex items-center gap-1"><Shield className="w-2.5 h-2.5" /> {post.author?.nickname || '匿名用户'}</span>
+                <span className="flex items-center gap-1"><Shield className="w-2.5 h-2.5" /> {post.anonymousAlias || '匿名线人'}</span>
               </div>
 
               {/* Title */}
@@ -112,7 +125,7 @@ const PantryThreadPage: React.FC = () => {
 
               {/* Stats */}
               <div className="flex items-center gap-4 mt-3 text-[9px] text-[#00ff41]/30">
-                <span className="flex items-center gap-1"><MessageSquare className="w-2.5 h-2.5" /> {post.commentCount || 0} 评论</span>
+                <span className="flex items-center gap-1"><MessageSquare className="w-2.5 h-2.5" /> {post.commentCount || 0} 留言</span>
                 <span className="flex items-center gap-1"><Flame className="w-2.5 h-2.5" /> 匿名通道</span>
               </div>
             </section>

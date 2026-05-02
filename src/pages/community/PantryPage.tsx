@@ -1,772 +1,1030 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Flame, Package2, MessageSquareWarning, Lock,
-  Clock, Plus, X, Send, AlertTriangle, Zap, Eye,
-  ShieldCheck, Ghost,
+  AlertTriangle,
+  Bookmark,
+  Coffee,
+  Flame,
+  LockKeyhole,
+  MessageCircle,
+  Package2,
+  Radio,
+  RefreshCw,
+  Send,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
+  Zap,
 } from 'lucide-react';
 import CyberLayout from '../../components/layout/CyberLayout';
+import { useToast } from '../../components/common/Toast';
 import { cn } from '../../../lib/utils';
+import { getBestToken } from '../../services/authService';
+import {
+  connectPantrySocket,
+  MarketListing,
+  pantryApi,
+  PantryFeed,
+  PantryPost,
+  PantryPostKind,
+  PantryVisibilityMode,
+  TradeOrder,
+} from '../../services/pantryApi';
 
-// ═══════════════════════════════════════════════════════════════
-// STORAGE
-// ═══════════════════════════════════════════════════════════════
-const SK = {
-  BURN:     'fwe:pantry:burn',      // 焚信墙
-  MARKET:   'fwe:pantry:market',    // 黑市
-  GOSSIP:   'fwe:pantry:gossip',    // 流言
-  DROP:     'fwe:pantry:drop',      // 密信
-  CODENAME: 'fwe:pantry:codename',  // 匿名代号
-  UNLOCKED: 'fwe:pantry:unlocked',  // 握手完成标记
-};
+type ComposerMode = 'radar' | 'saga' | 'burn' | 'market';
+type Reaction = 'FIRE' | 'BRICK' | 'EYES' | 'TEA' | 'SUPPORT';
+type MobileSection = 'radar' | 'rails' | 'market' | 'inbox';
 
-type ReactionMap = Partial<Record<'fire' | 'skull' | 'eyes' | 'salute' | 'clown', number>>;
-
-interface BurnMsg    { id: string; text: string; author: string; createdAt: number; expireAt: number; reactions?: ReactionMap; }
-interface MarketItem { id: string; title: string; price: string; tag: string; note: string; author: string; createdAt: number; expireAt: number; }
-interface Gossip     { id: string; text: string; author: string; createdAt: number; heat: number; threshold: number; reactions?: ReactionMap; }
-interface DropMsg    { id: string; text: string; to: string; author: string; createdAt: number; expireAt: number; }
-
-const REACTIONS: { key: keyof ReactionMap; emoji: string; label: string }[] = [
-  { key: 'fire',   emoji: '🔥', label: '火' },
-  { key: 'skull',  emoji: '💀', label: '寄' },
-  { key: 'eyes',   emoji: '👀', label: '吃瓜' },
-  { key: 'salute', emoji: '🫡', label: '敬礼' },
-  { key: 'clown',  emoji: '🤡', label: '小丑' },
+const TTL_OPTIONS = [
+  { label: '30m', value: 30 },
+  { label: '2h', value: 120 },
+  { label: '12h', value: 720 },
+  { label: '24h', value: 1440 },
 ];
 
-const ReactionRow: React.FC<{
-  reactions: ReactionMap | undefined;
-  onReact: (k: keyof ReactionMap) => void;
-}> = ({ reactions = {}, onReact }) => (
-  <div className="flex flex-wrap items-center gap-1.5">
-    {REACTIONS.map((r) => {
-      const count = reactions[r.key] || 0;
-      return (
-        <button
-          key={r.key}
-          onClick={() => onReact(r.key)}
-          className={cn(
-            'flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-mono transition-colors',
-            count > 0
-              ? 'bg-[#00ff41]/10 border-[#00ff41]/40 text-[#00ff41]'
-              : 'bg-transparent border-[#00ff41]/15 text-[#00ff41]/50 hover:border-[#00ff41]/40'
-          )}
-          aria-label={r.label}
-        >
-          <span>{r.emoji}</span>
-          {count > 0 && <span className="tabular-nums">{count}</span>}
-        </button>
-      );
-    })}
-  </div>
-);
+const MODE_META: Record<ComposerMode, { label: string; eyebrow: string; kind: PantryPostKind; visibility: PantryVisibilityMode }> = {
+  radar: { label: '爆料 Radar', eyebrow: 'GOSSIP SIGNAL', kind: 'gossip', visibility: 'PERMANENT' },
+  saga: { label: '深水长瓜', eyebrow: 'SLOW-BURN FINANCE MELON', kind: 'thread', visibility: 'PERMANENT' },
+  burn: { label: '马上焚', eyebrow: 'BURN AFTER READING', kind: 'burn', visibility: 'EPHEMERAL' },
+  market: { label: '黑市暗单', eyebrow: 'MARKET SIGNAL', kind: 'thread', visibility: 'PERMANENT' },
+};
 
-function readArr<T>(key: string): T[] {
-  try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : []; } catch { return []; }
-}
-function writeArr<T>(key: string, arr: T[]) { localStorage.setItem(key, JSON.stringify(arr)); }
-function uid() { return Math.random().toString(36).slice(2, 10); }
-function genCodename() {
-  const adj = ['Ghost', 'Shadow', 'Phantom', 'Rogue', 'Silent', 'Wraith', 'Cipher', 'Raven', 'Echo', 'Null'];
-  const n = Math.random().toString(36).slice(2, 6).toUpperCase();
-  return `${adj[Math.floor(Math.random() * adj.length)]}_${n}`;
-}
-function getCodename(): string {
-  const existing = localStorage.getItem(SK.CODENAME);
-  if (existing) return existing;
-  const fresh = genCodename();
-  localStorage.setItem(SK.CODENAME, fresh);
-  return fresh;
+function formatRemain(expiresAt?: string | null) {
+  if (!expiresAt) return '永久追更';
+  const ms = new Date(expiresAt).getTime() - Date.now();
+  if (ms <= 0) return '已焚毁';
+  const mins = Math.ceil(ms / 60_000);
+  if (mins < 60) return `${mins} 分钟后焚`;
+  return `${Math.ceil(mins / 60)} 小时后焚`;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// ACCESS GATE — 进入仪式
-// ═══════════════════════════════════════════════════════════════
-const HANDSHAKE_LINES = [
-  '> INIT pantry.dat ...',
-  '> Generating ephemeral key-pair ...',
-  '> Rotating Tor circuit ...',
-  '> Establishing E2E channel ...',
-  '> Verifying codename integrity ...',
-  '> Shredding session history ...',
-  '> ACCESS GRANTED. Welcome to the backroom.',
-];
-
-const AccessGate: React.FC<{ onUnlock: () => void }> = ({ onUnlock }) => {
-  const [step, setStep] = useState(0);
-  const [typed, setTyped] = useState('');
-
-  useEffect(() => {
-    if (step >= HANDSHAKE_LINES.length) {
-      const t = setTimeout(onUnlock, 600);
-      return () => clearTimeout(t);
-    }
-    const line = HANDSHAKE_LINES[step];
-    let i = 0;
-    setTyped('');
-    const typer = setInterval(() => {
-      i++;
-      setTyped(line.slice(0, i));
-      if (i >= line.length) {
-        clearInterval(typer);
-        setTimeout(() => setStep((s) => s + 1), 250);
-      }
-    }, 22);
-    return () => clearInterval(typer);
-  }, [step, onUnlock]);
-
-  return (
-    <div className="min-h-screen bg-black text-[#00ff41] font-mono flex items-center justify-center px-6">
-      <div className="w-full max-w-xl">
-        <div className="flex items-center gap-2 mb-6 text-[#00ff41]/70">
-          <Lock className="w-4 h-4" />
-          <span className="text-[11px] tracking-widest uppercase">Secure Handshake</span>
-        </div>
-        <div className="border border-[#00ff41]/30 bg-[#00ff41]/[0.02] rounded-lg p-5 min-h-[240px]">
-          {HANDSHAKE_LINES.slice(0, step).map((l, i) => (
-            <p key={i} className="text-[12px] leading-relaxed text-[#00ff41]/80">{l}</p>
-          ))}
-          {step < HANDSHAKE_LINES.length && (
-            <p className="text-[12px] leading-relaxed text-[#00ff41]">
-              {typed}<span className="animate-pulse">█</span>
-            </p>
-          )}
-        </div>
-        <p className="mt-5 text-[10px] text-[#00ff41]/40 leading-relaxed">
-          {'>>'} 本区消息不落后端，不上云，全部仅存于本地。过期即焚，断网即消。
-        </p>
-      </div>
-    </div>
-  );
-};
-
-// ═══════════════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════════════
-const formatRemain = (ms: number) => {
-  if (ms <= 0) return 'BURNED';
-  const s = Math.floor(ms / 1000);
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const ss = s % 60;
-  if (h > 0) return `${h}h ${m}m`;
-  if (m > 0) return `${m}m ${ss.toString().padStart(2, '0')}s`;
-  return `${ss}s`;
-};
-
-// ═══════════════════════════════════════════════════════════════
-// MODULE 1 · BURN WALL（焚信墙）— 匿名吐槽，N 分钟后焚毁
-// ═══════════════════════════════════════════════════════════════
-const BURN_PRESETS = [
-  { label: '5 分钟', mins: 5 },
-  { label: '30 分钟', mins: 30 },
-  { label: '2 小时', mins: 120 },
-];
-
-const BurnWall: React.FC<{ codename: string; now: number }> = ({ codename, now }) => {
-  const [msgs, setMsgs] = useState<BurnMsg[]>(() => readArr<BurnMsg>(SK.BURN));
-  const [input, setInput] = useState('');
-  const [ttlMin, setTtlMin] = useState(30);
-
-  useEffect(() => {
-    const alive = msgs.filter((m) => m.expireAt > now);
-    if (alive.length !== msgs.length) {
-      setMsgs(alive);
-      writeArr(SK.BURN, alive);
-    }
-  }, [now, msgs]);
-
-  const post = () => {
-    const text = input.trim();
-    if (!text) return;
-    const entry: BurnMsg = {
-      id: uid(),
-      text,
-      author: codename,
-      createdAt: Date.now(),
-      expireAt: Date.now() + ttlMin * 60_000,
-    };
-    const next = [entry, ...msgs];
-    setMsgs(next);
-    writeArr(SK.BURN, next);
-    setInput('');
-  };
-
-  return (
-    <div className="space-y-3">
-      <div className="border border-red-500/30 bg-red-500/[0.04] rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-3 text-red-400">
-          <Flame className="w-3.5 h-3.5" />
-          <span className="text-[10px] tracking-widest uppercase font-bold">New Burn · 说完就忘</span>
-        </div>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="今天这个客户真的……（别激动，发完会自动焚毁）"
-          rows={3}
-          className="w-full bg-black border border-red-500/20 text-red-300 placeholder-red-500/30 text-[12px] leading-relaxed rounded-md px-3 py-2 outline-none focus:border-red-500/60 resize-none font-mono"
-        />
-        <div className="flex items-center gap-2 mt-3">
-          <div className="flex gap-1.5">
-            {BURN_PRESETS.map((p) => (
-              <button
-                key={p.mins}
-                onClick={() => setTtlMin(p.mins)}
-                className={cn(
-                  'px-2.5 py-1 rounded text-[10px] font-bold border transition-colors',
-                  ttlMin === p.mins
-                    ? 'bg-red-500/20 text-red-300 border-red-500/60'
-                    : 'bg-transparent text-red-400/60 border-red-500/20 hover:border-red-500/40'
-                )}>
-                {p.label}
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={post}
-            disabled={!input.trim()}
-            className="ml-auto flex items-center gap-1.5 px-3 py-1.5 bg-red-500/20 border border-red-500/40 text-red-300 text-[11px] font-bold rounded hover:bg-red-500/30 disabled:opacity-40 disabled:cursor-not-allowed">
-            <Zap className="w-3 h-3" /> 扔出去
-          </button>
-        </div>
-      </div>
-
-      {msgs.length === 0 ? (
-        <div className="text-center py-10 text-[#00ff41]/30 text-[11px] font-mono">
-          [ 墙上干净 · 没人吐槽 ]
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {msgs.map((m) => {
-            const remain = m.expireAt - now;
-            const totalTtl = m.expireAt - m.createdAt;
-            const pct = Math.max(0, Math.min(100, (remain / totalTtl) * 100));
-            return (
-              <div key={m.id} className="border border-[#00ff41]/15 bg-black/40 rounded-md p-3 relative overflow-hidden">
-                <div className="absolute top-0 left-0 h-px bg-red-500/60" style={{ width: `${pct}%` }} />
-                <div className="flex items-start justify-between gap-3 mb-1.5">
-                  <span className="text-[10px] font-bold text-[#00ff41]/50">{m.author}</span>
-                  <span className="text-[10px] font-mono text-red-400/70 flex items-center gap-1 shrink-0">
-                    <Flame className="w-2.5 h-2.5" /> {formatRemain(remain)}
-                  </span>
-                </div>
-                <p className="text-[12px] text-[#00ff41]/85 leading-relaxed whitespace-pre-wrap break-words mb-2">{m.text}</p>
-                <ReactionRow
-                  reactions={m.reactions}
-                  onReact={(k) => {
-                    const next = msgs.map((x) =>
-                      x.id === m.id
-                        ? { ...x, reactions: { ...(x.reactions || {}), [k]: ((x.reactions || {})[k] || 0) + 1 } }
-                        : x
-                    );
-                    setMsgs(next);
-                    writeArr(SK.BURN, next);
-                  }}
-                />
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ═══════════════════════════════════════════════════════════════
-// MODULE 2 · BLACK MARKET（黑市）— 金融打工人二手
-// ═══════════════════════════════════════════════════════════════
-const MARKET_TAGS = ['工牌挂绳', '奢侈品', '培训资料', '面试题', '内推', '伴手礼', '代打卡', '其他'];
-
-const BlackMarket: React.FC<{ codename: string; now: number }> = ({ codename, now }) => {
-  const [items, setItems] = useState<MarketItem[]>(() => readArr<MarketItem>(SK.MARKET));
-  const [showForm, setShowForm] = useState(false);
-  const [draft, setDraft] = useState({ title: '', price: '', tag: MARKET_TAGS[0], note: '' });
-
-  useEffect(() => {
-    const alive = items.filter((i) => i.expireAt > now);
-    if (alive.length !== items.length) {
-      setItems(alive);
-      writeArr(SK.MARKET, alive);
-    }
-  }, [now, items]);
-
-  const list = () => {
-    if (!draft.title.trim()) return;
-    const entry: MarketItem = {
-      id: uid(),
-      title: draft.title.trim(),
-      price: draft.price.trim() || '私聊',
-      tag: draft.tag,
-      note: draft.note.trim(),
-      author: codename,
-      createdAt: Date.now(),
-      expireAt: Date.now() + 7 * 24 * 3600_000, // 7 天
-    };
-    const next = [entry, ...items];
-    setItems(next);
-    writeArr(SK.MARKET, next);
-    setDraft({ title: '', price: '', tag: MARKET_TAGS[0], note: '' });
-    setShowForm(false);
-  };
-
-  const revoke = (id: string) => {
-    const next = items.filter((i) => i.id !== id);
-    setItems(next);
-    writeArr(SK.MARKET, next);
-  };
-
-  return (
-    <div className="space-y-3">
-      <button
-        onClick={() => setShowForm(!showForm)}
-        className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#00ff41]/5 border border-[#00ff41]/30 text-[#00ff41] rounded-md hover:bg-[#00ff41]/10 transition-colors text-[11px] font-bold">
-        {showForm ? <><X className="w-3 h-3" /> 收起挂单</> : <><Plus className="w-3 h-3" /> 挂一个 · 出货 / 求购</>}
-      </button>
-
-      {showForm && (
-        <div className="border border-[#00ff41]/30 bg-[#00ff41]/[0.03] rounded-lg p-4 space-y-2.5">
-          <input
-            value={draft.title}
-            onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
-            placeholder="标题：e.g. 九成新 LV 女士钱包，上家客户送的"
-            className="w-full bg-black border border-[#00ff41]/20 text-[#00ff41] placeholder-[#00ff41]/30 text-[12px] rounded-md px-3 py-2 outline-none focus:border-[#00ff41]/60"
-          />
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              value={draft.price}
-              onChange={(e) => setDraft((d) => ({ ...d, price: e.target.value }))}
-              placeholder="价格 / 交换方式"
-              className="bg-black border border-[#00ff41]/20 text-[#00ff41] placeholder-[#00ff41]/30 text-[12px] rounded-md px-3 py-2 outline-none focus:border-[#00ff41]/60"
-            />
-            <select
-              value={draft.tag}
-              onChange={(e) => setDraft((d) => ({ ...d, tag: e.target.value }))}
-              className="bg-black border border-[#00ff41]/20 text-[#00ff41] text-[12px] rounded-md px-3 py-2 outline-none focus:border-[#00ff41]/60">
-              {MARKET_TAGS.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-          <textarea
-            value={draft.note}
-            onChange={(e) => setDraft((d) => ({ ...d, note: e.target.value }))}
-            placeholder="补充说明 / 暗号联系方式（挂 7 天自动下架）"
-            rows={2}
-            className="w-full bg-black border border-[#00ff41]/20 text-[#00ff41] placeholder-[#00ff41]/30 text-[12px] rounded-md px-3 py-2 outline-none focus:border-[#00ff41]/60 resize-none"
-          />
-          <button
-            onClick={list}
-            disabled={!draft.title.trim()}
-            className="w-full py-2 bg-[#00ff41]/20 border border-[#00ff41]/60 text-[#00ff41] text-[11px] font-bold rounded hover:bg-[#00ff41]/30 disabled:opacity-40">
-            上架 ▸
-          </button>
-        </div>
-      )}
-
-      {items.length === 0 ? (
-        <div className="text-center py-10 text-[#00ff41]/30 text-[11px] font-mono">
-          [ 黑市空空如也 · 没人挂货 ]
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {items.map((it) => (
-            <div key={it.id} className="border border-[#00ff41]/15 bg-black/40 rounded-md p-3">
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="px-1.5 py-0.5 bg-[#00ff41]/10 border border-[#00ff41]/30 text-[#00ff41] text-[9px] font-bold rounded">
-                      {it.tag}
-                    </span>
-                    <span className="text-[10px] text-[#00ff41]/40">{it.author}</span>
-                  </div>
-                  <h4 className="text-[13px] font-bold text-[#00ff41] leading-snug">{it.title}</h4>
-                </div>
-                <span className="text-[13px] font-black text-amber-400 tabular-nums shrink-0">{it.price}</span>
-              </div>
-              {it.note && <p className="text-[11px] text-[#00ff41]/60 leading-relaxed whitespace-pre-wrap break-words mb-2">{it.note}</p>}
-              <div className="flex items-center justify-between pt-2 border-t border-[#00ff41]/10">
-                <span className="text-[10px] text-[#00ff41]/30 flex items-center gap-1">
-                  <Clock className="w-2.5 h-2.5" /> {formatRemain(it.expireAt - now)} 后下架
-                </span>
-                {it.author === codename && (
-                  <button onClick={() => revoke(it.id)} className="text-[10px] text-red-400/60 hover:text-red-400">
-                    撤货
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ═══════════════════════════════════════════════════════════════
-// MODULE 3 · GOSSIP VAULT（流言）— 匿名爆料，热度越高越快暴露
-// ═══════════════════════════════════════════════════════════════
-const GossipVault: React.FC<{ codename: string; now: number }> = ({ codename, now }) => {
-  const [list, setList] = useState<Gossip[]>(() => readArr<Gossip>(SK.GOSSIP));
-  const [input, setInput] = useState('');
-
-  // clean up overheated gossip (auto-destruct)
-  useEffect(() => {
-    const alive = list.filter((g) => g.heat < g.threshold);
-    if (alive.length !== list.length) {
-      setList(alive);
-      writeArr(SK.GOSSIP, alive);
-    }
-  }, [list, now]);
-
-  const post = () => {
-    const text = input.trim();
-    if (!text) return;
-    const entry: Gossip = {
-      id: uid(),
-      text,
-      author: codename,
-      createdAt: Date.now(),
-      heat: 0,
-      threshold: 10 + Math.floor(Math.random() * 20), // 10-30 次吃瓜后自毁
-    };
-    const next = [entry, ...list];
-    setList(next);
-    writeArr(SK.GOSSIP, next);
-    setInput('');
-  };
-
-  const bump = (id: string) => {
-    const next = list.map((g) => g.id === id ? { ...g, heat: g.heat + 1 } : g);
-    setList(next);
-    writeArr(SK.GOSSIP, next);
-  };
-
-  return (
-    <div className="space-y-3">
-      <div className="border border-purple-500/30 bg-purple-500/[0.04] rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-3 text-purple-400">
-          <MessageSquareWarning className="w-3.5 h-3.5" />
-          <span className="text-[10px] tracking-widest uppercase font-bold">Leak · 热度越高越快消失</span>
-        </div>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="听说 X 行长秋招前两周还在谈离职……（爆料越多人吃瓜越快蒸发）"
-          rows={3}
-          className="w-full bg-black border border-purple-500/20 text-purple-300 placeholder-purple-500/30 text-[12px] leading-relaxed rounded-md px-3 py-2 outline-none focus:border-purple-500/60 resize-none font-mono"
-        />
-        <button
-          onClick={post}
-          disabled={!input.trim()}
-          className="mt-3 w-full py-2 bg-purple-500/20 border border-purple-500/40 text-purple-300 text-[11px] font-bold rounded hover:bg-purple-500/30 disabled:opacity-40">
-          丢进流言池 ▸
-        </button>
-      </div>
-
-      {list.length === 0 ? (
-        <div className="text-center py-10 text-[#00ff41]/30 text-[11px] font-mono">
-          [ 流言池干涸 · 无瓜可吃 ]
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {[...list].sort((a, b) => b.heat - a.heat).map((g) => {
-            const pct = (g.heat / g.threshold) * 100;
-            const danger = pct > 70;
-            return (
-              <div key={g.id} className={cn(
-                'border rounded-md p-3 relative overflow-hidden transition-colors',
-                danger ? 'border-red-500/40 bg-red-500/[0.06]' : 'border-purple-500/20 bg-black/40'
-              )}>
-                <p className="text-[12px] text-[#00ff41]/85 leading-relaxed whitespace-pre-wrap break-words mb-3">{g.text}</p>
-                <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
-                  <span className="text-[10px] text-[#00ff41]/40">{g.author}</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-20 h-1 bg-black border border-purple-500/20 rounded overflow-hidden">
-                      <div className={cn('h-full transition-all', danger ? 'bg-red-500' : 'bg-purple-500')} style={{ width: `${Math.min(100, pct)}%` }} />
-                    </div>
-                    <span className="text-[10px] font-mono text-purple-400/70 tabular-nums">{g.heat}/{g.threshold}</span>
-                    <button
-                      onClick={() => bump(g.id)}
-                      className="flex items-center gap-1 px-2 py-1 bg-purple-500/10 border border-purple-500/30 text-purple-300 text-[10px] font-bold rounded hover:bg-purple-500/20">
-                      <Eye className="w-2.5 h-2.5" /> 吃瓜
-                    </button>
-                  </div>
-                </div>
-                <ReactionRow
-                  reactions={g.reactions}
-                  onReact={(k) => {
-                    const next = list.map((x) =>
-                      x.id === g.id
-                        ? { ...x, reactions: { ...(x.reactions || {}), [k]: ((x.reactions || {})[k] || 0) + 1 } }
-                        : x
-                    );
-                    setList(next);
-                    writeArr(SK.GOSSIP, next);
-                  }}
-                />
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ═══════════════════════════════════════════════════════════════
-// MODULE 4 · DEAD DROP（密信）— 定时销毁的留言
-// ═══════════════════════════════════════════════════════════════
-const DeadDrop: React.FC<{ codename: string; now: number }> = ({ codename, now }) => {
-  const [list, setList] = useState<DropMsg[]>(() => readArr<DropMsg>(SK.DROP));
-  const [showForm, setShowForm] = useState(false);
-  const [draft, setDraft] = useState({ text: '', to: '', ttlHours: 24 });
-
-  useEffect(() => {
-    const alive = list.filter((d) => d.expireAt > now);
-    if (alive.length !== list.length) {
-      setList(alive);
-      writeArr(SK.DROP, alive);
-    }
-  }, [list, now]);
-
-  const drop = () => {
-    if (!draft.text.trim()) return;
-    const entry: DropMsg = {
-      id: uid(),
-      text: draft.text.trim(),
-      to: draft.to.trim() || '无名氏',
-      author: codename,
-      createdAt: Date.now(),
-      expireAt: Date.now() + draft.ttlHours * 3600_000,
-    };
-    const next = [entry, ...list];
-    setList(next);
-    writeArr(SK.DROP, next);
-    setDraft({ text: '', to: '', ttlHours: 24 });
-    setShowForm(false);
-  };
-
-  return (
-    <div className="space-y-3">
-      <button
-        onClick={() => setShowForm(!showForm)}
-        className="w-full flex items-center justify-center gap-2 py-2.5 bg-amber-500/5 border border-amber-500/30 text-amber-300 rounded-md hover:bg-amber-500/10 transition-colors text-[11px] font-bold">
-        {showForm ? <><X className="w-3 h-3" /> 收起</> : <><Send className="w-3 h-3" /> 投下一封密信</>}
-      </button>
-
-      {showForm && (
-        <div className="border border-amber-500/30 bg-amber-500/[0.03] rounded-lg p-4 space-y-2.5">
-          <input
-            value={draft.to}
-            onChange={(e) => setDraft((d) => ({ ...d, to: e.target.value }))}
-            placeholder="收件方代号（留空=给所有人）"
-            className="w-full bg-black border border-amber-500/20 text-amber-300 placeholder-amber-500/30 text-[12px] rounded-md px-3 py-2 outline-none focus:border-amber-500/60"
-          />
-          <textarea
-            value={draft.text}
-            onChange={(e) => setDraft((d) => ({ ...d, text: e.target.value }))}
-            placeholder="写给未来的自己 / 写给陌生打工人 / 不能说出口的话"
-            rows={4}
-            className="w-full bg-black border border-amber-500/20 text-amber-300 placeholder-amber-500/30 text-[12px] leading-relaxed rounded-md px-3 py-2 outline-none focus:border-amber-500/60 resize-none"
-          />
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-amber-400/60 font-bold">销毁倒计时：</span>
-            {[1, 6, 24, 72].map((h) => (
-              <button
-                key={h}
-                onClick={() => setDraft((d) => ({ ...d, ttlHours: h }))}
-                className={cn(
-                  'px-2 py-0.5 rounded text-[10px] font-bold border',
-                  draft.ttlHours === h
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/60'
-                    : 'bg-transparent text-amber-400/50 border-amber-500/20'
-                )}>
-                {h}h
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={drop}
-            disabled={!draft.text.trim()}
-            className="w-full py-2 bg-amber-500/20 border border-amber-500/60 text-amber-300 text-[11px] font-bold rounded hover:bg-amber-500/30 disabled:opacity-40">
-            投递 ▸
-          </button>
-        </div>
-      )}
-
-      {list.length === 0 ? (
-        <div className="text-center py-10 text-[#00ff41]/30 text-[11px] font-mono">
-          [ 邮筒里什么都没有 ]
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {list.map((d) => (
-            <div key={d.id} className="border border-amber-500/20 bg-black/40 rounded-md p-3">
-              <div className="flex items-center justify-between mb-2 text-[10px] font-mono">
-                <span className="text-[#00ff41]/50">
-                  <span className="text-amber-400/70">{d.author}</span> → <span className="text-amber-400/70">{d.to}</span>
-                </span>
-                <span className="text-amber-400/70 flex items-center gap-1">
-                  <Clock className="w-2.5 h-2.5" /> {formatRemain(d.expireAt - now)}
-                </span>
-              </div>
-              <p className="text-[12px] text-[#00ff41]/85 leading-relaxed whitespace-pre-wrap break-words">{d.text}</p>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ═══════════════════════════════════════════════════════════════
-// DAILY TOPIC — 每日话题，按日期种子轮换
-// ═══════════════════════════════════════════════════════════════
-const DAILY_TOPICS = [
-  '今天最想吐槽的客户是？',
-  '你见过最离谱的合规要求是什么？',
-  '如果今天能消失一个会议，你选哪个？',
-  '行里最玄学的一条潜规则是？',
-  '你最舍不得离开的福利是？',
-  '你做过最离谱的应酬段子？',
-  '今天哪一刻最想直接走人？',
-  '你工牌挂绳上挂过最贵的赠品是？',
-  '上一个让你失眠的项目是？',
-  '你见过最有水平的拍马屁？',
-  '哪个系统让你血压最高？',
-  '客户最迷惑的一句要求是？',
-];
-function todayTopic(): string {
-  const d = new Date();
-  const seed = d.getFullYear() * 1000 + d.getMonth() * 50 + d.getDate();
-  return DAILY_TOPICS[seed % DAILY_TOPICS.length];
-}
-function fakeOnline(): number {
-  // pseudo-random but stable within a 5-minute window
-  const bucket = Math.floor(Date.now() / (5 * 60_000));
-  let x = (bucket * 9301 + 49297) % 233280;
-  return 23 + (x % 78); // 23 ~ 100
+function formatTime(value: string) {
+  return new Date(value).toLocaleString([], { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// MAIN
-// ═══════════════════════════════════════════════════════════════
-type Tab = 'burn' | 'market' | 'gossip' | 'drop';
+function radarScore(post: PantryPost) {
+  return post.radarScore ?? Math.max(1, post.heatScore + post.reactionCount * 2 + post.commentCount * 4 + (post.bookmarkCount || 0) * 5);
+}
 
-const TABS: { id: Tab; label: string; sub: string; icon: React.FC<{ className?: string }>; color: string }[] = [
-  { id: 'burn',   label: '焚信墙',   sub: 'Burn Wall',     icon: Flame,               color: 'text-red-400' },
-  { id: 'market', label: '黑市',     sub: 'Black Market',  icon: Package2,            color: 'text-[#00ff41]' },
-  { id: 'gossip', label: '流言池',   sub: 'Gossip Vault',  icon: MessageSquareWarning, color: 'text-purple-400' },
-  { id: 'drop',   label: '密信',     sub: 'Dead Drop',     icon: Send,                color: 'text-amber-300' },
-];
+function previewFeed(): PantryFeed {
+  const now = Date.now();
+  const posts: PantryPost[] = [
+    {
+      id: 9101,
+      title: '突发：今天有人在 17 楼会议室听到一个很大的组织调整瓜',
+      content: '线索还没完全坐实，但两个不同小群都在传同一个版本：下周一会有一轮部门合并，几个岗位会被重新分配。欢迎补充证据，别贴个人隐私。',
+      kind: 'gossip',
+      visibilityMode: 'PERMANENT',
+      expiresAt: null,
+      anonymousAlias: 'Gossip_7F',
+      aliasColor: '#f8d58b',
+      heatScore: 96,
+      reactionCount: 38,
+      bookmarkCount: 21,
+      commentCount: 42,
+      radarScore: 428,
+      coffee: { qrUrl: '收款码预览：作者已公开咖啡码', note: '爆料有用就请楼主喝杯冰美式' },
+      createdAt: new Date(now - 18 * 60_000).toISOString(),
+      updatedAt: new Date(now - 5 * 60_000).toISOString(),
+      tags: ['组织调整', '一线情报'],
+      authorId: 101,
+    },
+    {
+      id: 9102,
+      title: '马上焚：今晚谁还在被客户反复改授信材料？',
+      content: '这条 30 分钟后从前台消失。只想确认一下，是不是每个人都在同一个晚上被同一类需求折磨。',
+      kind: 'burn',
+      visibilityMode: 'EPHEMERAL',
+      expiresAt: new Date(now + 27 * 60_000).toISOString(),
+      anonymousAlias: 'Burn_2C',
+      aliasColor: '#fb7185',
+      heatScore: 44,
+      reactionCount: 17,
+      bookmarkCount: 3,
+      commentCount: 12,
+      radarScore: 188,
+      coffee: null,
+      createdAt: new Date(now - 3 * 60_000).toISOString(),
+      updatedAt: new Date(now - 2 * 60_000).toISOString(),
+      tags: ['马上焚'],
+      authorId: 102,
+    },
+    {
+      id: 9103,
+      title: '长期追更：某系统每周五下午必崩，到底是谁在背锅？',
+      content: '本帖长期记录每次事故时间、影响范围和临时补救方式。欢迎按楼层补证据，最后整理成一份避坑手册。',
+      kind: 'thread',
+      visibilityMode: 'PERMANENT',
+      expiresAt: null,
+      anonymousAlias: 'Archivist_11',
+      aliasColor: '#c4b5fd',
+      heatScore: 73,
+      reactionCount: 24,
+      bookmarkCount: 36,
+      commentCount: 58,
+      radarScore: 356,
+      coffee: { qrUrl: '收款码预览：持续整理贡献', note: '感谢长期维护帖子的线人' },
+      createdAt: new Date(now - 4 * 3600_000).toISOString(),
+      updatedAt: new Date(now - 16 * 60_000).toISOString(),
+      tags: ['长期追更', '系统'],
+      authorId: 103,
+    },
+    {
+      id: 9104,
+      title: '听说某产品线口径又改了，上午培训和下午邮件不一致',
+      content: '如果你也收到了两个版本，麻烦贴一下时间线。现在最需要的是把变更顺序还原出来。',
+      kind: 'gossip',
+      visibilityMode: 'PERMANENT',
+      expiresAt: null,
+      anonymousAlias: 'Signal_A8',
+      aliasColor: '#67e8f9',
+      heatScore: 58,
+      reactionCount: 19,
+      bookmarkCount: 12,
+      commentCount: 25,
+      radarScore: 241,
+      coffee: null,
+      createdAt: new Date(now - 72 * 60_000).toISOString(),
+      updatedAt: new Date(now - 30 * 60_000).toISOString(),
+      tags: ['产品口径'],
+      authorId: 104,
+    },
+  ];
+  const listings: MarketListing[] = [
+    {
+      id: 8101,
+      type: 'SELL',
+      title: 'HHKB 静电容键盘，成色很好',
+      description: '只做合法二手交换。平台不托管支付，双方私信确认线下或站外交付。',
+      category: '键盘鼠标',
+      condition: '九成新',
+      priceText: '900 / 可换显示器支架',
+      priceCents: null,
+      status: 'ACTIVE',
+      anonymousAlias: 'Market_09',
+      aliasColor: '#9ae6b4',
+      sellerId: 201,
+      isMine: false,
+      orderCount: 4,
+      expiresAt: new Date(now + 12 * 24 * 3600_000).toISOString(),
+      createdAt: new Date(now - 34 * 60_000).toISOString(),
+      updatedAt: new Date(now - 34 * 60_000).toISOString(),
+    },
+    {
+      id: 8102,
+      type: 'WANTED',
+      title: '求一个舒服腰垫，别太商务',
+      description: '预算 150 内。最好能午休时面交，私信说。',
+      category: '办公人体工学',
+      condition: '不限',
+      priceText: '150 内',
+      priceCents: null,
+      status: 'ACTIVE',
+      anonymousAlias: 'Market_77',
+      aliasColor: '#fbbf24',
+      sellerId: 202,
+      isMine: false,
+      orderCount: 1,
+      expiresAt: new Date(now + 8 * 24 * 3600_000).toISOString(),
+      createdAt: new Date(now - 2 * 3600_000).toISOString(),
+      updatedAt: new Date(now - 2 * 3600_000).toISOString(),
+    },
+  ];
+  return {
+    identity: {
+      id: 0,
+      userId: 0,
+      alias: 'Radar_DEMO',
+      color: '#f8d58b',
+      status: 'PREVIEW',
+      coffeePublic: true,
+      coffeeQrUrl: '预览收款码',
+      coffeeNote: '如果你喜欢这个茶水间，可以把咖啡入口放在这里。',
+      reputation: 88,
+    },
+    posts,
+    listings,
+    conversations: [
+      {
+        id: 7101,
+        otherUserId: 201,
+        otherAlias: 'Market_09',
+        otherColor: '#9ae6b4',
+        listingId: 8101,
+        orderId: 6101,
+        lastMessage: '可以明天中午楼下交付，站外确认即可。',
+        lastAt: new Date(now - 4 * 60_000).toISOString(),
+        latestMessage: null,
+      },
+    ],
+    orders: [
+      {
+        id: 6101,
+        listingId: 8101,
+        listingTitle: 'HHKB 静电容键盘，成色很好',
+        buyerId: 0,
+        sellerId: 201,
+        counterpartyAlias: 'Market_09',
+        status: 'ACCEPTED',
+        note: '想要这个键盘',
+        offPlatformNote: null,
+        disputeReason: null,
+        createdAt: new Date(now - 14 * 60_000).toISOString(),
+        updatedAt: new Date(now - 5 * 60_000).toISOString(),
+      },
+    ],
+    radar: posts.sort((a, b) => radarScore(b) - radarScore(a)),
+    rising: posts.slice(0, 3),
+    burningSoon: posts.filter((post) => post.expiresAt),
+    sagas: posts.filter((post) => post.kind === 'thread'),
+    marketSignals: listings,
+    coffeeLeaderboard: posts
+      .filter((post) => post.coffee)
+      .map((post) => ({
+        authorId: post.authorId,
+        alias: post.anonymousAlias,
+        color: post.aliasColor,
+        radarScore: radarScore(post),
+        coffee: post.coffee!,
+      })),
+  };
+}
 
 const PantryPage: React.FC = () => {
-  const [unlocked, setUnlocked] = useState(() => localStorage.getItem(SK.UNLOCKED) === '1');
-  const [codename] = useState(() => getCodename());
-  const [tab, setTab] = useState<Tab>('burn');
-  const [now, setNow] = useState(() => Date.now());
-  const tickerRef = useRef<number | null>(null);
+  const toast = useToast();
+  const [feed, setFeed] = useState<PantryFeed | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notice, setNotice] = useState('');
+  const [loadError, setLoadError] = useState('');
+  const [previewOverride, setPreviewOverride] = useState(false);
+  const [composerOpen, setComposerOpen] = useState(false);
+  const [mode, setMode] = useState<ComposerMode>('radar');
+  const [postDraft, setPostDraft] = useState({ title: '', content: '', ttlMinutes: 30 });
+  const [listingDraft, setListingDraft] = useState({
+    type: 'SELL' as 'SELL' | 'WANTED',
+    title: '',
+    priceText: '',
+    category: '键盘鼠标',
+    condition: '九成新',
+    description: '',
+  });
+  const [coffeeDraft, setCoffeeDraft] = useState({ qrUrl: '', note: '', public: false });
+  const [coffeeOpen, setCoffeeOpen] = useState(false);
+  const [marketFilter, setMarketFilter] = useState<'ALL' | 'SELL' | 'WANTED'>('ALL');
+  const [messageDraft, setMessageDraft] = useState<Record<number, string>>({});
+  const [mobileSection, setMobileSection] = useState<MobileSection>('radar');
 
-  useEffect(() => {
-    if (!unlocked) return;
-    tickerRef.current = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => { if (tickerRef.current) clearInterval(tickerRef.current); };
-  }, [unlocked]);
+  const authed = Boolean(getBestToken());
 
-  const handleUnlock = () => {
-    localStorage.setItem(SK.UNLOCKED, '1');
-    setUnlocked(true);
+  const loadFeed = async (forcePreview = previewOverride) => {
+    if (!getBestToken() || forcePreview) {
+      setFeed(previewFeed());
+      setLoadError('');
+      setNotice(forcePreview ? '正在查看预览模式：真实发帖、咖啡码、私信、交易需要切回真实接口并登录。' : '未登录预览模式：可浏览完整 Gossip Radar，真实发帖、咖啡码、私信、交易需登录和可用数据库。');
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setNotice('');
+    setLoadError('');
+    try {
+      const payload = await pantryApi.getFeed();
+      setFeed(payload);
+      setCoffeeDraft({
+        qrUrl: payload.identity.coffeeQrUrl || '',
+        note: payload.identity.coffeeNote || '',
+        public: Boolean(payload.identity.coffeePublic),
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '茶水间加载失败';
+      setFeed(null);
+      setLoadError(message);
+      setNotice(`真实接口加载失败：${message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const counts = useMemo(() => {
-    const burn   = readArr<BurnMsg>(SK.BURN).filter((m) => m.expireAt > now).length;
-    const market = readArr<MarketItem>(SK.MARKET).filter((m) => m.expireAt > now).length;
-    const gossip = readArr<Gossip>(SK.GOSSIP).filter((g) => g.heat < g.threshold).length;
-    const drop   = readArr<DropMsg>(SK.DROP).filter((d) => d.expireAt > now).length;
-    return { burn, market, gossip, drop };
-  }, [now]);
+  useEffect(() => {
+    loadFeed();
+    const socket = connectPantrySocket();
+    if (!socket) return undefined;
+    const refresh = () => loadFeed(false);
+    socket.on('feed:update', refresh);
+    socket.on('conversation:update', refresh);
+    socket.on('order:update', refresh);
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
-  if (!unlocked) return <AccessGate onUnlock={handleUnlock} />;
+  const radar = useMemo(() => feed?.radar?.length ? feed.radar : [...(feed?.posts || [])].sort((a, b) => radarScore(b) - radarScore(a)), [feed]);
+  const rising = useMemo(() => feed?.rising?.length ? feed.rising : radar.slice(0, 4), [feed, radar]);
+  const burningSoon = useMemo(() => feed?.burningSoon?.length ? feed.burningSoon : (feed?.posts || []).filter((post) => post.expiresAt), [feed]);
+  const sagas = useMemo(() => feed?.sagas?.length ? feed.sagas : (feed?.posts || []).filter((post) => post.kind === 'thread'), [feed]);
+  const marketSignals = useMemo(() => feed?.marketSignals?.length ? feed.marketSignals : feed?.listings || [], [feed]);
+  const filteredMarketSignals = useMemo(
+    () => marketFilter === 'ALL' ? marketSignals : marketSignals.filter((item) => item.type === marketFilter),
+    [marketFilter, marketSignals],
+  );
+
+  const simulatePost = () => {
+    const now = Date.now();
+    const meta = MODE_META[mode];
+    const created: PantryPost = {
+      id: now,
+      title: postDraft.title.trim(),
+      content: postDraft.content.trim(),
+      kind: meta.kind,
+      visibilityMode: meta.visibility,
+      expiresAt: meta.visibility === 'EPHEMERAL' ? new Date(now + postDraft.ttlMinutes * 60_000).toISOString() : null,
+      anonymousAlias: feed?.identity.alias || 'Radar_DEMO',
+      aliasColor: feed?.identity.color || '#f8d58b',
+      heatScore: 0,
+      reactionCount: 0,
+      bookmarkCount: 0,
+      commentCount: 0,
+      radarScore: 12,
+      coffee: null,
+      createdAt: new Date(now).toISOString(),
+      updatedAt: new Date(now).toISOString(),
+      tags: [meta.label],
+      authorId: 0,
+    };
+    setFeed((current) => current ? { ...current, posts: [created, ...current.posts], radar: [created, ...(current.radar || [])] } : previewFeed());
+  };
+
+  const publish = async () => {
+    if (mode === 'market') {
+      await publishListing();
+      return;
+    }
+    if (!postDraft.title.trim() || !postDraft.content.trim()) {
+      toast.warning('标题和正文都要写');
+      return;
+    }
+    if (!authed) {
+      simulatePost();
+      setPostDraft({ title: '', content: '', ttlMinutes: 30 });
+      setComposerOpen(false);
+      toast.success('预览模式：已模拟写入情报雷达');
+      return;
+    }
+    const meta = MODE_META[mode];
+    try {
+      await pantryApi.createPost({
+        title: postDraft.title.trim(),
+        content: postDraft.content.trim(),
+        kind: meta.kind,
+        visibilityMode: meta.visibility,
+        ttlMinutes: postDraft.ttlMinutes,
+        tags: [meta.label],
+      });
+      setPostDraft({ title: '', content: '', ttlMinutes: 30 });
+      setComposerOpen(false);
+      await loadFeed();
+      toast.success('情报已进入雷达');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : '发布失败');
+    }
+  };
+
+  const publishListing = async () => {
+    if (!listingDraft.title.trim() || !listingDraft.description.trim()) {
+      toast.warning('暗单标题和说明都要写');
+      return;
+    }
+    if (!authed) {
+      const now = Date.now();
+      const created: MarketListing = {
+        id: now,
+        ...listingDraft,
+        priceCents: null,
+        status: 'ACTIVE',
+        anonymousAlias: feed?.identity.alias || 'Radar_DEMO',
+        aliasColor: feed?.identity.color || '#f8d58b',
+        sellerId: 0,
+        isMine: true,
+        orderCount: 0,
+        expiresAt: new Date(now + 14 * 24 * 3600_000).toISOString(),
+        createdAt: new Date(now).toISOString(),
+        updatedAt: new Date(now).toISOString(),
+      };
+      setFeed((current) => current ? { ...current, listings: [created, ...current.listings], marketSignals: [created, ...(current.marketSignals || [])] } : previewFeed());
+      setComposerOpen(false);
+      toast.success('预览模式：暗单已进入雷达');
+      return;
+    }
+    try {
+      await pantryApi.createListing({ ...listingDraft, expiresInDays: 14 });
+      setListingDraft({ type: 'SELL', title: '', priceText: '', category: '键盘鼠标', condition: '九成新', description: '' });
+      setComposerOpen(false);
+      await loadFeed();
+      toast.success('暗单已上架');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : '上架失败');
+    }
+  };
+
+  const react = async (post: PantryPost, type: Reaction) => {
+    if (!authed) {
+      setFeed((current) => current ? {
+        ...current,
+        posts: current.posts.map((item) => item.id === post.id ? {
+          ...item,
+          reactionCount: item.reactionCount + 1,
+          heatScore: item.heatScore + (type === 'FIRE' ? 3 : 1),
+          radarScore: radarScore(item) + (type === 'FIRE' ? 12 : 5),
+        } : item),
+      } : previewFeed());
+      return;
+    }
+    await pantryApi.react(post.id, type);
+    await loadFeed();
+  };
+
+  const bookmark = async (post: PantryPost) => {
+    if (!authed) {
+      setFeed((current) => current ? {
+        ...current,
+        posts: current.posts.map((item) => item.id === post.id ? {
+          ...item,
+          bookmarkCount: (item.bookmarkCount || 0) + 1,
+          heatScore: item.heatScore + 2,
+          radarScore: radarScore(item) + 15,
+        } : item),
+      } : previewFeed());
+      toast.success('预览模式：已追更');
+      return;
+    }
+    await pantryApi.bookmark(post.id);
+    await loadFeed();
+    toast.success('已追更');
+  };
+
+  const startOrder = async (listing: MarketListing) => {
+    if (!authed) {
+      const now = Date.now();
+      const order: TradeOrder = {
+        id: now,
+        listingId: listing.id,
+        listingTitle: listing.title,
+        buyerId: 0,
+        sellerId: listing.sellerId,
+        counterpartyAlias: listing.anonymousAlias,
+        status: 'REQUESTED',
+        note: '预览模式模拟下单',
+        offPlatformNote: null,
+        disputeReason: null,
+        createdAt: new Date(now).toISOString(),
+        updatedAt: new Date(now).toISOString(),
+      };
+      setFeed((current) => current ? { ...current, orders: [order, ...current.orders] } : previewFeed());
+      toast.success('预览模式：已创建暗单交易');
+      return;
+    }
+    await pantryApi.createOrder(listing.id, '想要这个，方便私信确认交付方式。');
+    await loadFeed();
+  };
+
+  const sendMessage = async (conversationId: number) => {
+    const content = (messageDraft[conversationId] || '').trim();
+    if (!content) return;
+    if (!authed) {
+      setFeed((current) => current ? {
+        ...current,
+        conversations: current.conversations.map((item) => item.id === conversationId ? { ...item, lastMessage: content, lastAt: new Date().toISOString() } : item),
+      } : previewFeed());
+      setMessageDraft((prev) => ({ ...prev, [conversationId]: '' }));
+      toast.success('预览模式：密信已送达');
+      return;
+    }
+    await pantryApi.sendMessage(conversationId, content);
+    setMessageDraft((prev) => ({ ...prev, [conversationId]: '' }));
+    await loadFeed();
+  };
+
+  const saveCoffee = async () => {
+    if (!authed) {
+      setFeed((current) => current ? {
+        ...current,
+        identity: {
+          ...current.identity,
+          coffeeQrUrl: coffeeDraft.qrUrl || '预览收款码',
+          coffeeNote: coffeeDraft.note,
+          coffeePublic: coffeeDraft.public,
+        },
+      } : previewFeed());
+      toast.success('预览模式：咖啡资料已模拟保存');
+      return;
+    }
+    await pantryApi.updateCoffeeProfile({
+      coffeeQrUrl: coffeeDraft.qrUrl,
+      coffeeNote: coffeeDraft.note,
+      coffeePublic: coffeeDraft.public,
+    });
+    await loadFeed();
+    toast.success('咖啡资料已更新');
+  };
 
   return (
-    <CyberLayout title="地下茶水间" subtitle="Off-grid · Ephemeral · No log">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-5 space-y-5">
-
-        {/* ─── Identity strip ─────────────────────────────── */}
-        <div className="border border-[#00ff41]/30 bg-black/60 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Ghost className="w-4 h-4 text-[#00ff41]" />
-              <span className="text-[10px] text-[#00ff41]/50 uppercase tracking-widest">Your Codename</span>
+    <CyberLayout title="地下茶水间" subtitle="Gossip Radar · 匿名情报站 · 合法二手暗单">
+      <div className="min-h-screen bg-[#090607] text-[#f7efe3]">
+        <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 space-y-5 pb-28 lg:pb-5">
+          <section className="relative overflow-hidden border border-[#7f1d1d]/60 bg-[radial-gradient(circle_at_top_left,rgba(127,29,29,0.46),transparent_34%),linear-gradient(135deg,#16090b,#060506_72%)] px-4 py-5 sm:px-6 sm:py-6">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#f8d58b] to-transparent" />
+            <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+              <div>
+                <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.28em] text-[#f8d58b]/70">
+                  <Radio className="h-3.5 w-3.5" /> Tonight's Radar
+                  <span className="border border-[#f8d58b]/30 px-2 py-0.5 text-[#f8d58b]">LIVE</span>
+                </div>
+                <h1 className="mt-4 max-w-3xl text-2xl font-black leading-tight tracking-tight sm:text-4xl xl:text-5xl">
+                  今天最热的瓜，正在这里发酵。
+                </h1>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-[#d9c7b4]/75">
+                  爆料、追更、马上焚、暗单和密信被压进同一个情报雷达。前台匿名，后台留痕；高级感可以拉满，边界也要守住。
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-2">
+                <RadarMetric label="雷达热度" value={radar[0] ? radarScore(radar[0]) : 0} icon={TrendingUp} />
+                <RadarMetric label="正在升温" value={rising.length} icon={Zap} />
+                <RadarMetric label="即将焚毁" value={burningSoon.length} icon={Flame} />
+                <RadarMetric label="黑市暗单" value={marketSignals.length} icon={Package2} />
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-[#00ff41]/50">
-              <ShieldCheck className="w-3 h-3" /> E2E · Local Only
+          </section>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3 rounded border border-[#f8d58b]/25 bg-[#120b0c] px-3 py-2">
+              <div className="h-8 w-8 rounded-full border border-[#f8d58b]/40 bg-[#f8d58b]/10" />
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-[#f8d58b]/55">Your Codename</p>
+                <p className="text-sm font-black" style={{ color: feed?.identity.color || '#f8d58b' }}>{feed?.identity.alias || 'Radar_DEMO'}</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-end justify-between gap-3">
-            <p className="text-xl font-black text-[#00ff41] tabular-nums tracking-tight">{codename}</p>
-            <p className="text-[10px] font-mono text-[#00ff41]/60 tabular-nums">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse" />
-              影子在线 {fakeOnline()} 个
-            </p>
-          </div>
-          <p className="mt-1 text-[10px] text-[#00ff41]/40">每次进入重置不了 · 清空浏览器=换身份</p>
-        </div>
-
-        {/* ─── Daily topic ────────────────────────────────── */}
-        <div className="border border-amber-400/30 bg-amber-400/[0.04] rounded-lg p-3.5">
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-[9px] tracking-[0.2em] uppercase font-bold text-amber-300">Topic of the day</span>
-            <span className="text-[9px] font-mono text-amber-400/40">
-              {new Date().getFullYear()}.{(new Date().getMonth() + 1).toString().padStart(2, '0')}.{new Date().getDate().toString().padStart(2, '0')}
-            </span>
-          </div>
-          <p className="text-[13px] font-bold text-amber-200 leading-snug">{todayTopic()}</p>
-          <p className="mt-1.5 text-[10px] text-amber-400/50">— 写到焚信墙或丢进流言池都行，匿名。</p>
-        </div>
-
-        {/* ─── Tabs ───────────────────────────────────────── */}
-        <div className="grid grid-cols-4 gap-2">
-          {TABS.map((t) => {
-            const Icon = t.icon;
-            const active = tab === t.id;
-            const count = counts[t.id];
-            return (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={cn(
-                  'relative flex flex-col items-center gap-1 py-3 rounded-md border transition-all',
-                  active
-                    ? 'bg-[#00ff41]/10 border-[#00ff41]/60'
-                    : 'bg-black/40 border-[#00ff41]/15 hover:border-[#00ff41]/30'
-                )}>
-                <Icon className={cn('w-4 h-4', active ? t.color : 'text-[#00ff41]/50')} />
-                <span className={cn('text-[11px] font-bold', active ? 'text-[#00ff41]' : 'text-[#00ff41]/60')}>{t.label}</span>
-                <span className="text-[9px] text-[#00ff41]/40 tabular-nums font-mono">{t.sub} · {count}</span>
-                {active && <div className="absolute -bottom-px left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#00ff41]" />}
+            <div className="flex flex-wrap gap-2">
+              <button onClick={() => setCoffeeOpen((v) => !v)} className="inline-flex items-center gap-2 rounded border border-[#f8d58b]/40 bg-[#f8d58b]/10 px-3 py-2 text-xs font-black text-[#f8d58b]">
+                <Coffee className="h-4 w-4" /> 请喝咖啡资料
               </button>
-            );
-          })}
-        </div>
+              <button onClick={() => setComposerOpen(true)} className="inline-flex items-center gap-2 rounded bg-[#f8d58b] px-4 py-2 text-xs font-black text-[#14090a]">
+                <Sparkles className="h-4 w-4" /> 投递情报
+              </button>
+            </div>
+          </div>
 
-        {/* ─── Warning banner ─────────────────────────────── */}
-        <div className="flex items-start gap-2 border border-red-500/20 bg-red-500/[0.04] rounded-md p-2.5">
-          <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
-          <p className="text-[10px] text-red-300/80 leading-relaxed">
-            本区所有内容<span className="text-red-400 font-bold">仅保存于你本地浏览器</span>，不上传、不同步、不留痕。
-            过期/焚毁即不可恢复。清空浏览器 = 一切归零。
-          </p>
-        </div>
+          {notice && (
+            <div className="flex items-start gap-2 border border-[#f8d58b]/25 bg-[#f8d58b]/10 px-3 py-2 text-xs leading-5 text-[#f8d58b]">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" /> {notice}
+            </div>
+          )}
 
-        {/* ─── Active module ──────────────────────────────── */}
-        <div className="pb-10">
-          {tab === 'burn'   && <BurnWall codename={codename} now={now} />}
-          {tab === 'market' && <BlackMarket codename={codename} now={now} />}
-          {tab === 'gossip' && <GossipVault codename={codename} now={now} />}
-          {tab === 'drop'   && <DeadDrop codename={codename} now={now} />}
+          {coffeeOpen && (
+            <section className="grid gap-3 border border-[#f8d58b]/25 bg-[#120b0c] p-4 md:grid-cols-[1fr_1fr_auto]">
+              <input value={coffeeDraft.qrUrl} onChange={(e) => setCoffeeDraft((d) => ({ ...d, qrUrl: e.target.value }))} placeholder="收款码图片 URL / 说明" className="border border-[#f8d58b]/20 bg-black px-3 py-2 text-sm outline-none" />
+              <input value={coffeeDraft.note} onChange={(e) => setCoffeeDraft((d) => ({ ...d, note: e.target.value }))} placeholder="咖啡备注，例如：感谢长期追更" className="border border-[#f8d58b]/20 bg-black px-3 py-2 text-sm outline-none" />
+              <button onClick={() => { setCoffeeDraft((d) => ({ ...d, public: !d.public })); }} className={cn('border px-3 py-2 text-xs font-black', coffeeDraft.public ? 'border-[#f8d58b] text-[#f8d58b]' : 'border-[#f8d58b]/20 text-[#d9c7b4]/60')}>{coffeeDraft.public ? '公开展示' : '暂不公开'}</button>
+              <button onClick={saveCoffee} className="md:col-span-3 rounded bg-[#f8d58b] px-3 py-2 text-xs font-black text-black">保存咖啡资料</button>
+            </section>
+          )}
+
+          {loading ? (
+            <div className="py-24 text-center text-[#f8d58b]/50"><RefreshCw className="mx-auto mb-3 h-6 w-6 animate-spin" /> 正在扫描情报...</div>
+          ) : loadError && !feed ? (
+            <section className="border border-[#fb7185]/35 bg-[#1d0b0f] p-6 text-center">
+              <AlertTriangle className="mx-auto mb-3 h-7 w-7 text-[#fb7185]" />
+              <h2 className="text-lg font-black text-[#fff7ed]">真实茶水间接口暂时不可用</h2>
+              <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-[#fda4af]/80">
+                当前没有自动塞入假数据，避免把数据库或接口问题伪装成正常。错误信息：{loadError}
+              </p>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                <button
+                  onClick={() => {
+                    setPreviewOverride(false);
+                    void loadFeed(false);
+                  }}
+                  className="rounded bg-[#f8d58b] px-4 py-2 text-xs font-black text-black"
+                >
+                  重试真实接口
+                </button>
+                <button
+                  onClick={() => {
+                    setPreviewOverride(true);
+                    void loadFeed(true);
+                  }}
+                  className="rounded border border-[#f8d58b]/30 px-4 py-2 text-xs font-black text-[#f8d58b]"
+                >
+                  仅查看预览
+                </button>
+              </div>
+            </section>
+          ) : (
+            <>
+              <main className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
+                <section className={cn('space-y-3', mobileSection !== 'radar' && 'hidden lg:block')}>
+                  {radar.length === 0 ? (
+                    <div className="border border-dashed border-[#f8d58b]/25 bg-black/30 px-6 py-12 text-center">
+                      <Radio className="mx-auto mb-3 h-7 w-7 text-[#f8d58b]/60" />
+                      <p className="text-sm font-black text-[#f8d58b]">情报雷达暂时空空</p>
+                      <p className="mx-auto mt-2 max-w-xs text-[11px] leading-5 text-[#d9c7b4]/55">
+                        投递第一条爆料、深水瓜或马上焚，让雷达开始转起来。
+                      </p>
+                      <button
+                        onClick={() => setComposerOpen(true)}
+                        className="mt-4 inline-flex items-center gap-2 rounded bg-[#f8d58b] px-4 py-2 text-xs font-black text-black"
+                      >
+                        <Sparkles className="h-3.5 w-3.5" /> 投递情报
+                      </button>
+                    </div>
+                  ) : (
+                    radar.map((item, index) => (
+                      <IntelCard key={item.id} post={item} rank={index + 1} onReact={react} onBookmark={bookmark} />
+                    ))
+                  )}
+                </section>
+
+                <aside
+                  className={cn(
+                    'space-y-4',
+                    mobileSection === 'rails' || mobileSection === 'inbox' ? '' : 'hidden lg:block',
+                  )}
+                >
+                  <div className={cn(mobileSection === 'inbox' ? 'hidden lg:block space-y-4' : 'space-y-4')}>
+                    <Panel title="正在升温" icon={TrendingUp}>
+                      {rising.slice(0, 5).map((post) => <MiniPost key={post.id} post={post} />)}
+                    </Panel>
+                    <Panel title="马上焚" icon={Flame}>
+                      {burningSoon.slice(0, 5).map((post) => <MiniPost key={post.id} post={post} danger />)}
+                    </Panel>
+                    <Panel title="深水长瓜" icon={Bookmark}>
+                      {sagas.slice(0, 5).map((post) => <MiniPost key={post.id} post={post} />)}
+                    </Panel>
+                    <Panel title="咖啡榜" icon={Coffee}>
+                      {(feed?.coffeeLeaderboard || []).length === 0 ? (
+                        <p className="text-xs text-[#d9c7b4]/50">还没有公开咖啡码的线人。</p>
+                      ) : feed!.coffeeLeaderboard!.map((item) => (
+                        <CoffeeRow key={`${item.authorId}-${item.alias}`} item={item} />
+                      ))}
+                    </Panel>
+                  </div>
+                  <Panel title="密信" icon={LockKeyhole}>
+                    {(feed?.conversations || []).length === 0 ? (
+                      <p className="text-xs text-[#d9c7b4]/50">暂时还没有密信。下完单后双方可以在这里直接对话。</p>
+                    ) : (feed?.conversations || []).map((conversation) => (
+                      <div key={conversation.id} className="space-y-2 border border-[#f8d58b]/15 bg-black/30 p-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-black" style={{ color: conversation.otherColor }}>{conversation.otherAlias}</span>
+                          <span className="text-[10px] text-[#d9c7b4]/45">{formatTime(conversation.lastAt)}</span>
+                        </div>
+                        <p className="text-xs text-[#d9c7b4]/65">{conversation.lastMessage}</p>
+                        <div className="flex gap-2">
+                          <input value={messageDraft[conversation.id] || ''} onChange={(e) => setMessageDraft((d) => ({ ...d, [conversation.id]: e.target.value }))} placeholder="回一封密信" className="min-w-0 flex-1 border border-[#f8d58b]/15 bg-black px-2 py-1 text-xs outline-none" />
+                          <button onClick={() => sendMessage(conversation.id)} className="bg-[#f8d58b] px-2 text-black"><Send className="h-3.5 w-3.5" /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </Panel>
+                </aside>
+              </main>
+
+              <div className={cn(mobileSection !== 'market' && 'hidden lg:block')}>
+                <BlackMarketDistrict
+                  listings={filteredMarketSignals}
+                  allListings={marketSignals}
+                  allCount={marketSignals.length}
+                  filter={marketFilter}
+                  onFilter={setMarketFilter}
+                  onOrder={startOrder}
+                  onOpenComposer={() => {
+                    setMode('market');
+                    setComposerOpen(true);
+                  }}
+                />
+              </div>
+            </>
+          )}
+
+          {composerOpen && (
+            <Composer
+              mode={mode}
+              setMode={setMode}
+              postDraft={postDraft}
+              setPostDraft={setPostDraft}
+              listingDraft={listingDraft}
+              setListingDraft={setListingDraft}
+              onClose={() => setComposerOpen(false)}
+              onSubmit={publish}
+            />
+          )}
         </div>
+        <MobileSectionTabs active={mobileSection} onChange={setMobileSection} />
       </div>
     </CyberLayout>
   );
 };
+
+const MOBILE_TABS: Array<{ key: MobileSection; label: string; icon: React.FC<{ className?: string }> }> = [
+  { key: 'radar', label: 'Radar', icon: Radio },
+  { key: 'rails', label: '热轨', icon: TrendingUp },
+  { key: 'market', label: '暗市', icon: Package2 },
+  { key: 'inbox', label: '密信', icon: LockKeyhole },
+];
+
+const MobileSectionTabs: React.FC<{ active: MobileSection; onChange: (next: MobileSection) => void }> = ({ active, onChange }) => (
+  <nav
+    className="lg:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[#f8d58b]/25 bg-[#0a0707]/95 backdrop-blur-md safe-area-bottom"
+    aria-label="茶水间分区切换"
+  >
+    <ul className="grid grid-cols-4">
+      {MOBILE_TABS.map(({ key, label, icon: Icon }) => {
+        const isActive = active === key;
+        return (
+          <li key={key}>
+            <button
+              type="button"
+              onClick={() => onChange(key)}
+              className={cn(
+                'flex w-full flex-col items-center gap-1 px-2 py-2 text-[10px] font-black uppercase tracking-[0.16em] transition-colors',
+                isActive ? 'text-[#f8d58b]' : 'text-[#d9c7b4]/55 hover:text-[#f8d58b]/80',
+              )}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              <Icon className={cn('h-4 w-4', isActive && 'drop-shadow-[0_0_6px_rgba(248,213,139,0.5)]')} />
+              {label}
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  </nav>
+);
+
+const RadarMetric: React.FC<{ label: string; value: number | string; icon: React.FC<{ className?: string }> }> = ({ label, value, icon: Icon }) => (
+  <div className="border border-[#f8d58b]/20 bg-black/35 p-3">
+    <Icon className="mb-2 h-4 w-4 text-[#f8d58b]" />
+    <p className="text-2xl font-black text-[#f8d58b]">{value}</p>
+    <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-[#d9c7b4]/50">{label}</p>
+  </div>
+);
+
+const IntelCard: React.FC<{ post: PantryPost; rank: number; onReact: (post: PantryPost, type: Reaction) => void; onBookmark: (post: PantryPost) => void }> = ({ post, rank, onReact, onBookmark }) => {
+  const isBurn = post.visibilityMode === 'EPHEMERAL';
+  const isSaga = post.kind === 'thread';
+  return (
+    <article className={cn('group border bg-[#120b0c] p-4 sm:p-5 transition-colors hover:bg-[#181012]', isBurn ? 'border-[#fb7185]/35' : 'border-[#f8d58b]/20')}>
+      <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em] text-[#d9c7b4]/50">
+        <span className="text-[#f8d58b]">#{rank.toString().padStart(2, '0')}</span>
+        <span className={cn('border px-1.5 py-0.5', isBurn ? 'border-[#fb7185]/40 text-[#fb7185]' : isSaga ? 'border-[#c4b5fd]/40 text-[#c4b5fd]' : 'border-[#f8d58b]/35 text-[#f8d58b]')}>
+          {isBurn ? '马上焚' : isSaga ? '深水长瓜' : '爆料 Radar'}
+        </span>
+        <span style={{ color: post.aliasColor }} className="max-w-[110px] truncate">{post.anonymousAlias}</span>
+        <span>{formatTime(post.createdAt)}</span>
+        <span>{formatRemain(post.expiresAt)}</span>
+      </div>
+      <h2 className="mt-3 text-lg sm:text-xl font-black leading-snug text-[#fff7ed] break-words">{post.title}</h2>
+      <p className="mt-2 text-sm leading-6 text-[#d9c7b4]/78 break-words">{post.content}</p>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {[
+          ['FIRE', '火'],
+          ['EYES', '围观'],
+          ['BRICK', '拍砖'],
+          ['TEA', '递茶'],
+          ['SUPPORT', '撑'],
+        ].map(([type, label]) => (
+          <button key={type} onClick={() => onReact(post, type as Reaction)} className="rounded-full border border-[#f8d58b]/20 px-2.5 py-1 text-[11px] font-bold text-[#f8d58b]/80 hover:border-[#f8d58b]">
+            {label}
+          </button>
+        ))}
+        <button onClick={() => onBookmark(post)} className="rounded-full border border-[#f8d58b]/20 px-2.5 py-1 text-[11px] font-bold text-[#f8d58b]/80 hover:border-[#f8d58b]">追更</button>
+        <div className="ml-auto flex items-center gap-3 text-[11px] text-[#d9c7b4]/50">
+          <span>Radar {radarScore(post)}</span>
+          <span>{post.commentCount} 留言</span>
+          <span>{post.bookmarkCount || 0} 追更</span>
+        </div>
+      </div>
+      {post.coffee && <CoffeeButton coffee={post.coffee} alias={post.anonymousAlias} />}
+    </article>
+  );
+};
+
+const CoffeeButton: React.FC<{ coffee: { qrUrl: string; note?: string | null }; alias: string }> = ({ coffee, alias }) => (
+  <div className="mt-4 flex flex-col gap-2 border border-[#f8d58b]/20 bg-[#f8d58b]/5 p-3 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <p className="text-xs font-black text-[#f8d58b]">请 {alias} 喝咖啡</p>
+      <p className="mt-1 text-[11px] text-[#d9c7b4]/55">{coffee.note || '作者公开了收款码，平台不经手资金。'}</p>
+    </div>
+    <div className="max-w-xs truncate rounded border border-[#f8d58b]/30 bg-black px-3 py-2 text-[11px] text-[#f8d58b]">{coffee.qrUrl}</div>
+  </div>
+);
+
+const MarketSignalCard: React.FC<{ listing: MarketListing; onOrder: (listing: MarketListing) => void }> = ({ listing, onOrder }) => (
+  <article className="border border-[#2dd4bf]/25 bg-[#071313] p-4">
+    <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em] text-[#99f6e4]/60">
+      <Package2 className="h-3.5 w-3.5" />
+      <span>黑市暗单</span>
+      <span>{listing.type === 'SELL' ? '出物' : '求购'}</span>
+      <span style={{ color: listing.aliasColor }}>{listing.anonymousAlias}</span>
+    </div>
+    <div className="mt-3 flex items-start justify-between gap-3">
+      <div>
+        <h2 className="text-lg font-black text-[#ecfeff]">{listing.title}</h2>
+        <p className="mt-2 text-sm leading-6 text-[#ccfbf1]/70">{listing.description}</p>
+      </div>
+      <p className="shrink-0 text-right text-sm font-black text-[#f8d58b]">{listing.priceText || '私信议价'}</p>
+    </div>
+    <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] text-[#ccfbf1]/55">
+      <span>{listing.category}</span>
+      <span>{listing.condition}</span>
+      <span>{formatRemain(listing.expiresAt)}</span>
+      {!listing.isMine && <button onClick={() => onOrder(listing)} className="ml-auto rounded bg-[#2dd4bf] px-3 py-1.5 text-xs font-black text-black">下单并密信</button>}
+    </div>
+  </article>
+);
+
+const BlackMarketDistrict: React.FC<{
+  listings: MarketListing[];
+  allListings: MarketListing[];
+  allCount: number;
+  filter: 'ALL' | 'SELL' | 'WANTED';
+  onFilter: (filter: 'ALL' | 'SELL' | 'WANTED') => void;
+  onOrder: (listing: MarketListing) => void;
+  onOpenComposer: () => void;
+}> = ({ listings, allListings, allCount, filter, onFilter, onOrder, onOpenComposer }) => (
+  <section className="relative overflow-hidden border border-[#14b8a6]/30 bg-[radial-gradient(circle_at_top_right,rgba(20,184,166,0.22),transparent_30%),linear-gradient(135deg,#031312,#07090a_70%)] p-4 sm:p-5">
+    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#2dd4bf] to-transparent" />
+    <div className="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)]">
+      <div className="space-y-4">
+        <div>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.26em] text-[#5eead4]/70">
+            <Package2 className="h-4 w-4" /> Black Market
+          </div>
+          <h2 className="mt-3 text-2xl font-black tracking-tight text-[#ecfeff] sm:text-3xl">黑市暗单</h2>
+          <p className="mt-2 text-sm leading-6 text-[#ccfbf1]/68">
+            参考暗网的“目录、暗号、私信成交”氛围，但只允许合法二手和求购。平台不托管资金，所有交付走双方确认。
+          </p>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            ['ALL', '全部', allCount],
+            ['SELL', '出物', allListings.filter((item) => item.type === 'SELL').length],
+            ['WANTED', '求购', allListings.filter((item) => item.type === 'WANTED').length],
+          ].map(([key, label, count]) => (
+            <button
+              key={key}
+              onClick={() => onFilter(key as 'ALL' | 'SELL' | 'WANTED')}
+              className={cn(
+                'border px-2 py-2 text-xs font-black transition-colors',
+                filter === key ? 'border-[#2dd4bf] bg-[#2dd4bf] text-black' : 'border-[#2dd4bf]/20 text-[#99f6e4]/70 hover:border-[#2dd4bf]/60',
+              )}
+            >
+              {label}
+              <span className="ml-1 opacity-70">{count}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="border border-[#2dd4bf]/20 bg-black/35 p-3 text-[11px] leading-5 text-[#99f6e4]/72">
+          <p className="font-black text-[#2dd4bf]">交易边界</p>
+          <p className="mt-1">禁止违法、灰产、代打卡、账号买卖、银行卡、套现、发票和外挂。发现可举报，后台可下架。</p>
+        </div>
+
+        <button onClick={onOpenComposer} className="w-full rounded bg-[#2dd4bf] px-4 py-3 text-sm font-black text-[#031312]">
+          发布暗单
+        </button>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        {listings.length === 0 ? (
+          <div className="col-span-full border border-dashed border-[#2dd4bf]/25 px-6 py-10 text-center">
+            <Package2 className="mx-auto mb-3 h-7 w-7 text-[#2dd4bf]/60" />
+            <p className="text-sm font-black text-[#2dd4bf]">当前筛选下没有暗单</p>
+            <p className="mx-auto mt-2 max-w-xs text-[11px] leading-5 text-[#99f6e4]/55">
+              切到「全部」看看，或自己来发一条出物 / 求购。
+            </p>
+          </div>
+        ) : listings.map((listing) => (
+          <DarkListingCard key={listing.id} listing={listing} onOrder={onOrder} />
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const DarkListingCard: React.FC<{ listing: MarketListing; onOrder: (listing: MarketListing) => void }> = ({ listing, onOrder }) => (
+  <article className="group border border-[#2dd4bf]/18 bg-black/45 p-4 transition-colors hover:border-[#2dd4bf]/55 hover:bg-[#06201e]">
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em] text-[#99f6e4]/55">
+          <span className="border border-[#2dd4bf]/30 px-1.5 py-0.5 text-[#2dd4bf]">{listing.type === 'SELL' ? 'SELL' : 'WANTED'}</span>
+          <span style={{ color: listing.aliasColor }}>{listing.anonymousAlias}</span>
+          <span>{listing.category}</span>
+        </div>
+        <h3 className="mt-3 text-base font-black leading-snug text-[#ecfeff]">{listing.title}</h3>
+      </div>
+      <div className="shrink-0 rounded border border-[#f8d58b]/25 bg-[#f8d58b]/10 px-2 py-1 text-right text-xs font-black text-[#f8d58b]">
+        {listing.priceText || '私信'}
+      </div>
+    </div>
+    <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#ccfbf1]/68">{listing.description}</p>
+    <div className="mt-4 grid grid-cols-3 gap-2 text-[10px] text-[#99f6e4]/55">
+      <span className="border border-[#2dd4bf]/10 bg-black/30 px-2 py-1">{listing.condition || '成色未知'}</span>
+      <span className="border border-[#2dd4bf]/10 bg-black/30 px-2 py-1">{formatRemain(listing.expiresAt)}</span>
+      <span className="border border-[#2dd4bf]/10 bg-black/30 px-2 py-1">{listing.orderCount} 个询单</span>
+    </div>
+    <div className="mt-4 flex items-center gap-2">
+      <button
+        onClick={() => onOrder(listing)}
+        disabled={listing.isMine || listing.status !== 'ACTIVE'}
+        className="flex-1 rounded bg-[#2dd4bf] px-3 py-2 text-xs font-black text-black disabled:cursor-not-allowed disabled:opacity-35"
+      >
+        {listing.isMine ? '我的暗单' : '下单并密信'}
+      </button>
+      <button className="rounded border border-[#2dd4bf]/25 px-3 py-2 text-xs font-black text-[#99f6e4]/70">详情</button>
+    </div>
+  </article>
+);
+
+const Panel: React.FC<{ title: string; icon: React.FC<{ className?: string }>; children: React.ReactNode }> = ({ title, icon: Icon, children }) => (
+  <section className="border border-[#f8d58b]/20 bg-[#120b0c] p-4">
+    <h3 className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-[#f8d58b]"><Icon className="h-4 w-4" /> {title}</h3>
+    <div className="space-y-2">{children}</div>
+  </section>
+);
+
+const MiniPost: React.FC<{ post: PantryPost; danger?: boolean }> = ({ post, danger }) => (
+  <div className="border border-[#f8d58b]/10 bg-black/25 p-3">
+    <p className={cn('text-xs font-black leading-5', danger ? 'text-[#fb7185]' : 'text-[#fff7ed]')}>{post.title}</p>
+    <div className="mt-2 flex items-center justify-between text-[10px] text-[#d9c7b4]/45">
+      <span>{post.anonymousAlias}</span>
+      <span>{danger ? formatRemain(post.expiresAt) : `Radar ${radarScore(post)}`}</span>
+    </div>
+  </div>
+);
+
+const CoffeeRow: React.FC<{ item: { alias: string; color: string; radarScore: number; coffee: { qrUrl: string; note?: string | null } } }> = ({ item }) => (
+  <div className="border border-[#f8d58b]/10 bg-black/25 p-3">
+    <div className="flex items-center justify-between gap-2">
+      <span className="text-xs font-black" style={{ color: item.color }}>{item.alias}</span>
+      <span className="text-[10px] text-[#f8d58b]">Radar {item.radarScore}</span>
+    </div>
+    <p className="mt-1 text-[11px] text-[#d9c7b4]/55">{item.coffee.note || '公开咖啡码'}</p>
+  </div>
+);
+
+const Composer: React.FC<{
+  mode: ComposerMode;
+  setMode: (mode: ComposerMode) => void;
+  postDraft: { title: string; content: string; ttlMinutes: number };
+  setPostDraft: React.Dispatch<React.SetStateAction<{ title: string; content: string; ttlMinutes: number }>>;
+  listingDraft: { type: 'SELL' | 'WANTED'; title: string; priceText: string; category: string; condition: string; description: string };
+  setListingDraft: React.Dispatch<React.SetStateAction<{ type: 'SELL' | 'WANTED'; title: string; priceText: string; category: string; condition: string; description: string }>>;
+  onClose: () => void;
+  onSubmit: () => void;
+}> = ({ mode, setMode, postDraft, setPostDraft, listingDraft, setListingDraft, onClose, onSubmit }) => (
+  <div className="fixed inset-0 z-50 bg-black/70 p-4 backdrop-blur-sm overflow-y-auto">
+    <div className="mx-auto max-w-2xl max-h-[calc(100vh-2rem)] overflow-y-auto border border-[#f8d58b]/30 bg-[#120b0c] p-4 text-[#f7efe3] shadow-2xl">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#f8d58b]/60">Dispatch</p>
+          <h2 className="text-xl font-black">投递一条新情报</h2>
+        </div>
+        <button onClick={onClose} className="border border-[#f8d58b]/25 px-3 py-1.5 text-xs">关闭</button>
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {(Object.keys(MODE_META) as ComposerMode[]).map((key) => (
+          <button key={key} onClick={() => setMode(key)} className={cn('border px-2 py-2 text-xs font-black', mode === key ? 'border-[#f8d58b] bg-[#f8d58b] text-black' : 'border-[#f8d58b]/20 text-[#f8d58b]/70')}>
+            {MODE_META[key].label}
+          </button>
+        ))}
+      </div>
+      {mode === 'market' ? (
+        <div className="mt-4 grid gap-3">
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => setListingDraft((d) => ({ ...d, type: 'SELL' }))} className={cn('border py-2 text-xs font-black', listingDraft.type === 'SELL' ? 'border-[#2dd4bf] text-[#2dd4bf]' : 'border-[#f8d58b]/20')}>出物</button>
+            <button onClick={() => setListingDraft((d) => ({ ...d, type: 'WANTED' }))} className={cn('border py-2 text-xs font-black', listingDraft.type === 'WANTED' ? 'border-[#2dd4bf] text-[#2dd4bf]' : 'border-[#f8d58b]/20')}>求购</button>
+          </div>
+          {(['title', 'priceText', 'category', 'condition'] as const).map((key) => (
+            <input key={key} value={listingDraft[key]} onChange={(e) => setListingDraft((d) => ({ ...d, [key]: e.target.value }))} placeholder={{ title: '暗单标题', priceText: '价格 / 交换方式', category: '分类', condition: '成色' }[key]} className="border border-[#f8d58b]/20 bg-black px-3 py-2 text-sm outline-none" />
+          ))}
+          <textarea value={listingDraft.description} onChange={(e) => setListingDraft((d) => ({ ...d, description: e.target.value }))} rows={4} placeholder="说明：只允许合法二手/求购。禁止违法、灰产、代打卡、账号买卖。" className="border border-[#f8d58b]/20 bg-black px-3 py-2 text-sm outline-none" />
+        </div>
+      ) : (
+        <div className="mt-4 grid gap-3">
+          <div className="text-[10px] font-black uppercase tracking-[0.2em] text-[#f8d58b]/55">{MODE_META[mode].eyebrow}</div>
+          <input value={postDraft.title} onChange={(e) => setPostDraft((d) => ({ ...d, title: e.target.value }))} placeholder="标题要像一句会让人点开的情报" className="border border-[#f8d58b]/20 bg-black px-3 py-2 text-sm outline-none" />
+          <textarea value={postDraft.content} onChange={(e) => setPostDraft((d) => ({ ...d, content: e.target.value }))} rows={6} placeholder="写线索、时间线、猜测或求证。不要贴隐私和违法内容。" className="border border-[#f8d58b]/20 bg-black px-3 py-2 text-sm outline-none" />
+          {mode === 'burn' && (
+            <div className="grid grid-cols-4 gap-2">
+              {TTL_OPTIONS.map((item) => (
+                <button key={item.value} onClick={() => setPostDraft((d) => ({ ...d, ttlMinutes: item.value }))} className={cn('border py-2 text-xs font-black', postDraft.ttlMinutes === item.value ? 'border-[#fb7185] text-[#fb7185]' : 'border-[#f8d58b]/20')}>{item.label}</button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      <button onClick={onSubmit} className="mt-4 w-full rounded bg-[#f8d58b] py-3 text-sm font-black text-black">写入雷达</button>
+    </div>
+  </div>
+);
 
 export default PantryPage;

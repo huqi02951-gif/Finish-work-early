@@ -26,13 +26,75 @@ import { getAuthSession } from '../services/authService';
 import type { ForumBoard, Post } from '../types';
 import { useToast } from '../components/common/Toast';
 
-const TOOL_META: Record<string, { name: string; path: string }> = {
-  'sensitive-comm': { name: '敏感沟通助手', path: '/sensitive-comm' },
-  'rate-offer': { name: '利率优惠签报', path: '/rate-offer' },
-  'acceptance-calc': { name: '银承/存单测算', path: '/acceptance-calculator' },
-  'material-checklist': { name: '材料清单中心', path: '/material-checklist' },
-  'to-myself-focus-timer': { name: '专注计时器', path: '/scenarios' },
+const TOOL_META: Record<string, { name: string; short: string; path: string }> = {
+  'sensitive-comm': { name: '收费、暂缓这种话先别硬发', short: '把容易炸的对客消息收成能发出去的话。', path: '/sensitive-comm' },
+  'rate-offer': { name: '利率优惠别再从零写', short: '把申请理由、口径和边界先搭好。', path: '/rate-offer' },
+  'acceptance-calc': { name: '银承/存单收益先算明白', short: '别靠脑补估收益，先把账摊开。', path: '/acceptance-calculator' },
+  'material-checklist': { name: '客户要“一次性材料”就发这个', short: '常见材料清单直接收好，不用现拼。', path: '/material-checklist' },
+  'news-assistant': { name: 'AI 写完了，顺手排成能交的稿', short: '把零散内容收成能发、能交、能存的版式。', path: '/news-assistant' },
+  'business-guide': { name: '见客户前，先把打法过一遍', short: '产品、场景、行业先有个顺手入口。', path: '/business-guide' },
+  'to-myself-focus-timer': { name: '开一段不被打断的时间', short: '先把手头这件事做完。', path: '/scenarios' },
 };
+
+type WorkspaceGuidePost = {
+  id: string;
+  title: string;
+  intro: string;
+  problem: string;
+  path: string;
+  tags: string[];
+};
+
+const WORKSPACE_GUIDE_POSTS: WorkspaceGuidePost[] = [
+  {
+    id: 'sensitive-comm',
+    title: '客户一问收费就炸？先把话术收住',
+    intro: '最近又要通知收费、利率、暂缓，最难的不是政策，是怎么说不把客户点着。这个入口专门把这类消息写成能直接发的版本。',
+    problem: '解决收费通知、利率调整、暂缓办理这类容易翻车的沟通。',
+    path: '/sensitive-comm',
+    tags: ['对客沟通', '省命话术'],
+  },
+  {
+    id: 'material-checklist',
+    title: '客户说“一次性把材料发我”，那就别再一条条敲了',
+    intro: '常见材料已经按场景整理好，适合直接拿去发客户，也适合自己先核一遍有没有漏项。',
+    problem: '解决材料反复补、客户来回问、自己临时拼清单的问题。',
+    path: '/material-checklist',
+    tags: ['材料清单', '少来回'],
+  },
+  {
+    id: 'business-guide',
+    title: '见客户前十分钟，先把打法过一遍',
+    intro: '客户是什么行业、适合聊什么产品、第一句话怎么开，不用现场凭感觉翻。',
+    problem: '解决拜访前没思路、产品话术散、需求摸排不成体系的问题。',
+    path: '/business-guide',
+    tags: ['拜访前', '产品打法'],
+  },
+  {
+    id: 'news-assistant',
+    title: 'AI 是写好了，但我真的懒得排版',
+    intro: '内容有了，图片也有了，剩下最烦的是收成一篇能交出去的稿子。这个入口就是干这件事。',
+    problem: '解决新闻稿、活动稿、汇报稿写完后不好看也不好交的问题。',
+    path: '/news-assistant',
+    tags: ['排版', '能交付'],
+  },
+  {
+    id: 'rate-offer',
+    title: '利率优惠别只说“帮忙申请一下”',
+    intro: '优惠理由、业务贡献、审批边界都要讲清楚，不然来回改最耗时间。',
+    problem: '解决利率优惠申请口径散、理由弱、签报难成稿的问题。',
+    path: '/rate-offer',
+    tags: ['签报', '利率'],
+  },
+  {
+    id: 'acceptance-calc',
+    title: '银承/存单别靠脑补算收益',
+    intro: '客户问收益、成本、占用的时候，先把账算清楚，再决定怎么聊。',
+    problem: '解决业务收益口径不清、现场估算不稳的问题。',
+    path: '/acceptance-calculator',
+    tags: ['测算', '先算账'],
+  },
+];
 
 const DEFAULT_BOARD = 'experience-sharing';
 const MOCK_AVATARS = ['行内第一深情', '理性的终端机', '加班吃泡面', '打工人404'];
@@ -283,7 +345,6 @@ const WorkspacePage: React.FC = () => {
   const { customer, setCustomer, clearCustomer, hasCustomer } = useCustomer();
   const [boards, setBoards] = useState<ForumBoard[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [officialPosts, setOfficialPosts] = useState<Post[]>([]);
   const [recentArtifacts, setRecentArtifacts] = useState<GeneratedArtifact[]>([]);
   const [recentDrafts, setRecentDrafts] = useState<DraftRecord[]>([]);
   const [toolDataSource, setToolDataSource] = useState<ToolDataSource>('local');
@@ -331,20 +392,16 @@ const WorkspacePage: React.FC = () => {
   const loadCommunity = async () => {
     setLoading(true);
     try {
-      const [boardList, postList, officialList] = await Promise.all([
+      const [boardList, postList] = await Promise.all([
         forumApi.getBoards(),
         forumApi.getPosts({
           boardSlug: activeBoard === 'all' ? undefined : activeBoard,
           pageSize: 20,
         }),
-        forumApi.getOfficialPosts({
-          pageSize: 4,
-        }),
       ]);
 
       setBoards(boardList);
       setPosts(postList.items);
-      setOfficialPosts(officialList.items);
 
       if (!boardList.find((item) => item.slug === form.boardSlug && !item.isOfficial)) {
         const fallbackBoard = boardList.find((item) => !item.isOfficial)?.slug || DEFAULT_BOARD;
@@ -434,19 +491,19 @@ const WorkspacePage: React.FC = () => {
   }
 
   const toolDataStatusLabel = useMemo(() => {
-    if (toolDataSource === 'cloud') return '云端同步';
-    if (toolDataSource === 'mixed') return '云地混合';
-    return '本地保底';
+    if (toolDataSource === 'cloud') return '已同步';
+    if (toolDataSource === 'mixed') return '有暂存';
+    return '本机记录';
   }, [toolDataSource]);
 
   const toolDataStatusHint = useMemo(() => {
     if (artifactSource === 'local' || draftSource === 'local') {
-      return '云端为空或不可用时，当前列表已回退到本地暂存。';
+      return '先把本机最近做过的东西摆出来，接着干不用翻。';
     }
     if (artifactSource === 'empty' && draftSource === 'empty') {
-      return '当前没有可展示的草稿或物料。';
+      return '最近还没有产出，跑完一次清单、话术或排版，这里会自己记住。';
     }
-    return '当前展示优先读取云端草稿与物料。';
+    return '最近用过的东西已经排在这里，接着做不用翻。';
   }, [artifactSource, draftSource]);
 
   return (
@@ -459,24 +516,17 @@ const WorkspacePage: React.FC = () => {
               <p className="text-[11px] font-black tracking-[0.18em] uppercase text-neutral-400">APEX Workspace</p>
               <h1 className="mt-2 text-3xl sm:text-5xl font-black text-[#111827] tracking-tight">工作台</h1>
               <p className="mt-2 max-w-2xl text-[13px] sm:text-sm leading-relaxed text-neutral-500 font-medium">
-                把近期物料、草稿、客户上下文和高频工具放在一个安静的工作面板里。茶水间作为社区里的独立空间进入。
+                不放大段手册，只放能照着用的经验帖、最近做过的东西和马上能开的入口。
               </p>
             </div>
             
             <div className="flex gap-2">
-              <Link
-                to="/instructions"
-                className="flex-1 sm:flex-none flex justify-center items-center gap-1.5 rounded-2xl bg-white border border-neutral-200/80 px-4 py-3 min-h-[44px] text-[13px] font-bold text-neutral-600 hover:bg-neutral-50 shadow-sm transition-all active:scale-95"
-              >
-                <FileText size={14} />
-                官方帮助
-              </Link>
               <button
                 onClick={() => setComposing((current) => !current)}
                 className="flex-[2] sm:flex-none flex justify-center items-center gap-1.5 rounded-2xl bg-brand-dark px-5 py-3 min-h-[44px] text-[14px] font-bold text-white hover:bg-brand-dark/90 shadow-[0_10px_24px_rgba(15,23,42,0.16)] transition-all active:scale-95"
               >
                 <Plus size={16} />
-                我要发帖
+                写一条经验
               </button>
             </div>
           </div>
@@ -507,7 +557,7 @@ const WorkspacePage: React.FC = () => {
                 
                 <form className="grid gap-2 relative z-10" onSubmit={handleCreatePost}>
                   <div className="flex items-center justify-between mb-1 pb-2 border-b border-neutral-100/60">
-                     <h3 className="font-black text-neutral-900 flex items-center gap-1.5"><MessageSquare size={16}/> 撰写新帖子</h3>
+                     <h3 className="font-black text-neutral-900 flex items-center gap-1.5"><MessageSquare size={16}/> 写一条经验</h3>
                      <button
                        type="button" 
                        onClick={() => setIsAnonymous(!isAnonymous)}
@@ -546,7 +596,7 @@ const WorkspacePage: React.FC = () => {
                       value={form.title}
                       onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
                       className="bg-transparent px-1 py-1.5 text-base outline-none text-neutral-800 font-bold placeholder:text-neutral-300 placeholder:font-normal"
-                      placeholder="标题概括核心点"
+                      placeholder="一句话说清楚这帖值在哪"
                       required
                     />
                   </div>
@@ -554,7 +604,7 @@ const WorkspacePage: React.FC = () => {
                     value={form.content}
                     onChange={(event) => setForm((current) => ({ ...current, content: event.target.value }))}
                     className="min-h-[160px] resize-none bg-transparent px-1 py-2 text-[15px] leading-8 outline-none text-neutral-700 placeholder:text-neutral-300 mt-1"
-                    placeholder="详细说明背景、做法与结论。越真实的细节，越能帮到其他同事..."
+                    placeholder="把场景、坑点、你怎么处理写清楚就行。越像真实经历，后来人越能用上..."
                     required
                   />
                   <div className="border-t border-neutral-100/60 pt-2 flex items-center">
@@ -563,7 +613,7 @@ const WorkspacePage: React.FC = () => {
                       value={form.tags}
                       onChange={(event) => setForm((current) => ({ ...current, tags: event.target.value }))}
                       className="flex-1 bg-transparent px-1 py-1.5 text-sm outline-none text-neutral-600 placeholder:text-neutral-300"
-                      placeholder="附加标签 (二手, 求购物资)"
+                      placeholder="附加标签，比如收费、材料、排版"
                     />
                   </div>
                   <div className="flex justify-end gap-2 mt-2">
@@ -578,7 +628,7 @@ const WorkspacePage: React.FC = () => {
                       type="submit"
                       className="rounded-xl bg-brand-dark px-6 py-2.5 text-sm font-bold text-white hover:bg-brand-dark/90 transition-colors shadow-md"
                     >
-                      {isAnonymous ? '匿名发布' : '发布'}
+                      {isAnonymous ? '匿名开帖' : '发出去'}
                     </button>
                   </div>
                 </form>
@@ -597,7 +647,7 @@ const WorkspacePage: React.FC = () => {
                       : 'bg-white text-neutral-600 border-neutral-200 hover:bg-neutral-50'
                   )}
                 >
-                  全部板块
+                  全部帖子
                 </button>
                 {displayBoards.map((board) => (
                   <button
@@ -620,7 +670,7 @@ const WorkspacePage: React.FC = () => {
             <div className="grid gap-3">
               {loading ? (
                 <div className="rounded-[20px] p-8 text-center text-sm font-bold text-neutral-400">
-                  正在同步数据中...
+                  正在把帖子捞出来...
                 </div>
               ) : workspacePosts.length ? (
                 workspacePosts.map((post) => {
@@ -699,7 +749,7 @@ const WorkspacePage: React.FC = () => {
                 })
               ) : (
                 <div className="rounded-[20px] border border-dashed border-neutral-200 bg-white p-10 text-center text-sm font-bold text-neutral-400 shadow-sm">
-                  没有找到帖子信号，点击“我要发帖”新建一个。
+                  这里还没人开帖。把你刚踩过的坑写下来，后来人会感谢你。
                 </div>
               )}
             </div>
@@ -711,26 +761,42 @@ const WorkspacePage: React.FC = () => {
             mobileTab === 'posts' ? "hidden sm:flex" : "flex",
           )}>
             
-            {/* 官方帮助帖 (Pinned visual) */}
+            {/* Workbench guide posts */}
             <section className="rounded-[24px] border border-white bg-white/90 p-4 shadow-sm relative overflow-hidden">
                <div className="mb-3 flex items-center gap-1.5 text-[13px] font-extrabold text-neutral-900">
                 <Sparkles size={14} className="text-brand-gold" />
-                官方必读
+                先看这几帖
               </div>
               <div className="grid gap-2">
-                {officialPosts.map((post) => (
-                  <Link key={post.id} to={getPostPath(post)} className="rounded-2xl bg-neutral-50 border border-neutral-100 p-3 transition-colors hover:bg-white flex flex-col gap-1">
-                    <div className="text-[13px] font-bold text-neutral-800 tracking-tight leading-snug">{post.title}</div>
+                {WORKSPACE_GUIDE_POSTS.map((post) => (
+                  <Link
+                    key={post.id}
+                    to={post.path}
+                    className="group rounded-2xl bg-neutral-50 border border-neutral-100 p-3.5 transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-sm flex flex-col gap-2"
+                  >
+                    <div className="flex flex-wrap gap-1">
+                      {post.tags.map((tag) => (
+                        <span key={tag} className="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-neutral-400 ring-1 ring-neutral-100">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="text-[13px] font-extrabold text-neutral-900 tracking-tight leading-snug">{post.title}</div>
+                    <p className="text-[12px] leading-relaxed text-neutral-500 line-clamp-2">{post.intro}</p>
+                    <div className="flex items-end justify-between gap-3 pt-1">
+                      <p className="text-[11px] leading-relaxed text-neutral-400 line-clamp-2">{post.problem}</p>
+                      <span className="shrink-0 text-[11px] font-extrabold text-neutral-900 group-hover:translate-x-0.5 transition-transform">照着用</span>
+                    </div>
                   </Link>
                 ))}
               </div>
             </section>
 
-            {/* 高频小工作台 */}
+            {/* Quick entries */}
             <section className="rounded-[24px] border border-white bg-white/90 p-4 shadow-sm">
               <div className="mb-3 flex items-center gap-1.5 text-[13px] font-extrabold text-neutral-800">
                 <Wrench size={14} className="text-neutral-500" />
-                高频工具
+                马上开干
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {quickTools.map((tool) => (
@@ -739,7 +805,8 @@ const WorkspacePage: React.FC = () => {
                     to={tool.path}
                     className="flex flex-col gap-1 rounded-2xl border border-neutral-100 bg-neutral-50 p-3 text-neutral-700 hover:bg-white hover:shadow-sm hover:border-neutral-200 transition-all active:scale-95 text-left"
                   >
-                    <span className="text-[12px] font-bold line-clamp-1">{tool.name}</span>
+                    <span className="text-[12px] font-extrabold leading-snug line-clamp-2">{tool.name}</span>
+                    <span className="text-[11px] text-neutral-400 leading-relaxed line-clamp-2">{tool.short}</span>
                     <ArrowRight size={12} className="text-neutral-300 mt-auto ml-auto" />
                   </Link>
                 ))}
@@ -751,7 +818,7 @@ const WorkspacePage: React.FC = () => {
               <div className="flex flex-col gap-4">
                  <div>
                     <div className="mb-2 flex items-center justify-between text-[13px] font-extrabold text-neutral-800">
-                      <span>工作上下文</span>
+                      <span>案头这一摊</span>
                       <div className="flex items-center gap-2">
                         <span className={cn(
                           'text-[10px] font-bold',
@@ -764,7 +831,7 @@ const WorkspacePage: React.FC = () => {
                           {toolDataStatusLabel}
                         </span>
                       {hasCustomer && (
-                         <button type="button" onClick={clearCustomer} className="text-[11px] text-neutral-400 hover:text-red-500">清除暂存</button>
+                         <button type="button" onClick={clearCustomer} className="text-[11px] text-neutral-400 hover:text-red-500">先不看它</button>
                       )}
                       </div>
                     </div>
@@ -773,12 +840,12 @@ const WorkspacePage: React.FC = () => {
                     </div>
                      {hasCustomer ? (
                         <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 flex flex-col gap-1">
-                          <span className="text-[10px] text-blue-500 font-bold uppercase">当前案头客户</span>
+                          <span className="text-[10px] text-blue-500 font-bold uppercase">正在处理</span>
                           <span className="text-sm font-extrabold text-blue-900">{customer.name}</span>
                         </div>
                       ) : (
                         <input
-                          placeholder="输入名称后回车，挂载上下文"
+                          placeholder="输入客户名后回车，先把这摊事放桌面上"
                           className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs font-bold outline-none focus:border-blue-500"
                           onKeyDown={(event) => {
                             const value = (event.target as HTMLInputElement).value.trim();
@@ -794,7 +861,7 @@ const WorkspacePage: React.FC = () => {
                  <div className="border-t border-dashed border-neutral-200 pt-3">
                     <div className="mb-2 flex items-center gap-1.5 text-[13px] font-extrabold text-neutral-800">
                       <Briefcase size={12} className="text-neutral-400" />
-                      近期的物料
+                      最近做成的东西
                       <span className="text-[10px] font-medium text-neutral-400">
                         {artifactSource === 'cloud' ? '云端' : artifactSource === 'local' ? '本地' : '空'}
                       </span>
@@ -818,14 +885,14 @@ const WorkspacePage: React.FC = () => {
                         })}
                       </div>
                     ) : (
-                       <div className="text-xs font-medium text-neutral-400">无最新生成的文件物料。</div>
+                       <div className="text-xs font-medium text-neutral-400">最近还没产出文件。跑完一次清单、话术或排版，这里会自己记住。</div>
                     )}
                  </div>
 
                  <div className="border-t border-dashed border-neutral-200 pt-3">
                     <div className="mb-2 flex items-center gap-1.5 text-[13px] font-extrabold text-neutral-800">
                       <FileText size={12} className="text-neutral-400" />
-                      暂存草稿
+                      写到一半的草稿
                       <span className="text-[10px] font-medium text-neutral-400">
                         {draftSource === 'cloud' ? '云端' : draftSource === 'local' ? '本地' : '空'}
                       </span>
@@ -849,7 +916,7 @@ const WorkspacePage: React.FC = () => {
                         })}
                       </div>
                     ) : (
-                       <div className="text-xs font-medium text-neutral-400">无可用草稿，云端与本地都没有可展示数据。</div>
+                       <div className="text-xs font-medium text-neutral-400">暂时没有草稿。下次写到一半退出，也会在这里捡回来。</div>
                     )}
                  </div>
               </div>
@@ -912,7 +979,7 @@ const WorkspacePage: React.FC = () => {
                             <QrCode size={64} className="text-neutral-300" />
                             <div className="absolute inset-0 border-4 border-dashed border-neutral-300 rounded-xl" />
                          </div>
-                         <p className="text-xs text-neutral-500 font-bold mb-1">长按识别打赏码 (前端Mock)</p>
+                         <p className="text-xs text-neutral-500 font-bold mb-1">长按识别打赏码</p>
                          <p className="text-[10px] text-neutral-400 font-medium">所有的打赏将直接进入原贴主账户，平台不抽成。</p>
                       </div>
                     )}

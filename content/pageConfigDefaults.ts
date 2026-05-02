@@ -21,7 +21,7 @@ export const HOME_PAGE_DEFAULT_CONFIG: HomePageConfig = {
     {
       id: 'backoffice',
       title: '对中后台',
-      desc: '流程指引、材料清单、系统操作',
+      desc: '流程指引、材料清单、操作路径',
       path: '/scenarios?tab=backoffice',
     },
     {
@@ -32,7 +32,7 @@ export const HOME_PAGE_DEFAULT_CONFIG: HomePageConfig = {
     },
   ],
   footer: {
-    badgeText: 'APEX',
+    badgeText: 'finish work early',
     creditText: 'Designed by XD.HU & PHYLLIS FENG',
   },
 };

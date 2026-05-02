@@ -24,6 +24,7 @@ import FeedPage from './pages/Feed';
 import HomePage from './pages/Home';
 import MessagesPage from './pages/Messages';
 import ProfilePage from './pages/Profile';
+import AboutPage from './pages/About';
 import PublishPage from './pages/Publish';
 import WorkspacePage from './pages/Workspace';
 import BBSPage from './pages/community/BBS';
@@ -91,6 +92,7 @@ const App: React.FC = () => {
           {/* ─── 信息页（组件内自带 AppLayout） ─── */}
           <Route path="/updates" element={<UpdateLog />} />
           <Route path="/feedback" element={<Feedback />} />
+          <Route path="/about" element={<AboutPage />} />
 
           {/* ─── BBS 社区（双区架构） ─── */}
           <Route path="/bbs" element={<BBSHomePage />} />

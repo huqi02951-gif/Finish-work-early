@@ -159,10 +159,16 @@ function mapComment(comment: BackendForumComment): Comment {
 }
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const session = getAuthSession();
+  const authHeaders: Record<string, string> = {};
+  if (session?.accessToken) {
+    authHeaders.Authorization = `Bearer ${session.accessToken}`;
+  }
   const response = await fetch(`${API_ROOT}${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
+      ...authHeaders,
       ...(init?.headers || {}),
     },
   });

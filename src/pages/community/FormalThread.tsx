@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { MessageSquare } from 'lucide-react';
 import AppLayout from '../../components/layout/AppLayout';
+import LoadingState from '../../components/common/LoadingState';
+import EmptyState from '../../components/common/EmptyState';
+import ErrorState from '../../components/common/ErrorState';
 import { forumApi } from '../../services/forumApi';
 import type { Comment, Post } from '../../types';
 
@@ -41,9 +44,13 @@ const FormalThreadPage: React.FC = () => {
     <AppLayout title="经验与指引详情" showBack>
       <div className="mx-auto max-w-4xl px-4 py-5">
         {loading ? (
-          <div className="rounded-lg border border-brand-border/60 bg-white p-6 text-sm text-brand-gray">正在读取...</div>
+          <LoadingState variant="skeleton" shape="thread" label="正在读取" />
         ) : !post ? (
-          <div className="rounded-lg border border-brand-border/60 bg-white p-6 text-sm text-brand-gray">{loadError || '未找到这个帖子。'}</div>
+          <ErrorState
+            title="帖子暂时无法读取"
+            message={loadError || '未找到这个帖子。'}
+            onRetry={() => void load()}
+          />
         ) : (
           <div className="grid gap-6">
             <section className="bg-white px-2 py-4">
@@ -85,9 +92,12 @@ const FormalThreadPage: React.FC = () => {
                     </article>
                   ))
                 ) : (
-                  <div className="border border-dashed border-neutral-200/60 rounded-xl p-8 text-center text-sm text-neutral-400 font-medium">
-                    还没有评论，欢迎补第一条。
-                  </div>
+                  <EmptyState
+                    icon={MessageSquare}
+                    title="还没有评论"
+                    description="欢迎补第一条讨论。"
+                    size="sm"
+                  />
                 )}
               </div>
             </section>

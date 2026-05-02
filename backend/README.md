@@ -36,6 +36,58 @@
    ```
    服务将默认启动于 `http://localhost:3000`。
 
+## 本地 Docker PostgreSQL 开发库
+
+当前地下茶水间本地开发推荐使用项目根目录的 `docker-compose.yml` 启动独立 PostgreSQL，避免远程 Hostuno 数据库 IP 白名单和权限问题阻塞开发。
+
+1. 启动本地数据库：
+   ```bash
+   cd ..
+   docker compose up -d postgres
+   ```
+
+2. 使用本地数据库环境变量。不要覆盖生产/远程配置；可以临时复制一份：
+   ```bash
+   cd backend
+   cp .env.local-docker.example .env.local
+   ```
+
+3. 在当前 shell 导入 `.env.local` 后执行迁移和 seed：
+   ```bash
+   set -a
+   source .env.local
+   set +a
+   npx prisma migrate deploy
+   npx prisma db seed
+   npx prisma generate
+   ```
+
+4. 启动本地后端：
+   ```bash
+   set -a
+   source .env.local
+   set +a
+   npm run start
+   ```
+
+5. 前端仍然指向本地后端：
+   ```bash
+   VITE_API_BASE_URL=http://127.0.0.1:3001 npm run dev -- --host 127.0.0.1 --port 5173
+   ```
+
+本地开发库连接串：
+
+```bash
+DATABASE_URL="postgresql://finishwork:finishwork_dev@127.0.0.1:5432/finish_work_early?schema=public"
+```
+
+如果需要清空本地开发数据：
+
+```bash
+docker compose down -v
+docker compose up -d postgres
+```
+
 ## 已有旧版开发库的升级方式
 
 如果你的数据库里已经存在旧版 `users/posts/comments` 表，但字段还是早期 MVP 结构，先执行这份保守升级脚本：

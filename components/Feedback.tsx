@@ -1,13 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { MessageSquare, Send, CheckCircle2, AlertCircle, Sparkles, UserPlus, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
 import AppLayout from '../src/components/layout/AppLayout';
 import { saveLocalPost } from '../lib/localDB';
 
+type TabId = 'pain' | 'feature' | 'co-create' | 'trial';
+const VALID_TABS: TabId[] = ['pain', 'feature', 'co-create', 'trial'];
+
 const Feedback: React.FC = () => {
+  const location = useLocation();
+  const initialTab: TabId = (() => {
+    const params = new URLSearchParams(location.search);
+    const t = params.get('tab');
+    return t && (VALID_TABS as string[]).includes(t) ? (t as TabId) : 'pain';
+  })();
+
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState<'pain' | 'feature' | 'co-create' | 'trial'>('pain');
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const t = params.get('tab');
+    if (t && (VALID_TABS as string[]).includes(t)) {
+      setActiveTab(t as TabId);
+      setSubmitted(false);
+    }
+  }, [location.search]);
 
   const tabs = [
     { id: 'pain', label: '提交痛点', icon: AlertCircle, desc: '描述你在业务中遇到的繁琐、重复性工作。' },

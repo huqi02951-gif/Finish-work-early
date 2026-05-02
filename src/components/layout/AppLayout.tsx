@@ -6,6 +6,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import InitialBadge from '../common/InitialBadge';
 import { getAuthSession, clearAuthSession } from '../../services/authService';
 import { apiService } from '../../services/api';
+import PetCompanion from '../../../components/pet/PetCompanion';
 
 const NAV_ITEMS = [
   { path: '/', label: '首页', icon: HomeIcon },
@@ -69,9 +70,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack, theme 
             </Link>
           )}
             <div className="min-w-0">
-              <div className="truncate text-[15px] font-bold tracking-tight">{title || 'APEX'}</div>
+              <div className="truncate text-[15px] font-bold tracking-tight">{title || 'finish work early'}</div>
               <div className={cn("truncate text-[12px] font-medium", isCli ? "text-green-500/60" : "text-brand-gray")}>
-                APEX
+                finish work early
               </div>
             </div>
           </div>
@@ -147,6 +148,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack, theme 
           {children}
         </motion.div>
       </main>
+
+      <PetCompanion disabled={isCli} />
 
       <nav className={cn(
         "fixed bottom-0 left-0 right-0 z-50 border-t backdrop-blur safe-area-bottom",

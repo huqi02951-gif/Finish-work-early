@@ -20,6 +20,8 @@ import { forumApi } from '../../services/forumApi';
 import { Post as BackendPost } from '../../types';
 import { useToast } from '../../components/common/Toast';
 
+type CommunityChannel = '匿名吐槽' | 'Gossip 贴板' | '二手交易';
+
 const PANTRY_CHANNELS: CommunityChannel[] = ['匿名吐槽', 'Gossip 贴板', '二手交易'];
 const CHANNEL_FILTERS: Array<CommunityChannel | '全部'> = ['全部', ...PANTRY_CHANNELS];
 
@@ -80,6 +82,14 @@ const BBSPage: React.FC = () => {
         .includes(query),
     );
   }, [entries, searchQuery]);
+
+  const summary = useMemo(() => ({
+    latestGossip: entries.filter((entry) => entry.category === 'Gossip 贴板').slice(0, 5),
+    topics: entries.filter((entry) => entry.postType === 'GUIDE').slice(0, 5),
+    expiringThreads: entries.filter((entry) => entry.category === '匿名吐槽').slice(0, 5),
+  }), [entries]);
+
+  const formatExpiry = () => '24H';
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -279,7 +289,7 @@ const BBSPage: React.FC = () => {
                     </div>
                     <div className="mt-4 flex flex-wrap items-center gap-3 sm:gap-4 text-[9px] sm:text-[10px] text-[#00ff41]/50 font-bold">
                       <span className="text-[#00ff41] bg-[#00ff41]/10 px-1 py-0.5 max-w-[120px] truncate">AUTHOR: {entry.author.nickname}</span>
-                      <span className="inline-flex items-center gap-1"><MessageSquare size={10} /> REPS: {entry.replyCount || 0}</span>
+                      <span className="inline-flex items-center gap-1"><MessageSquare size={10} /> REPS: {entry.commentCount || 0}</span>
                     </div>
                   </Link>
                 ))
@@ -300,12 +310,12 @@ const BBSPage: React.FC = () => {
               <div className="grid gap-2">
                 {summary?.latestGossip.length ? summary.latestGossip.map((item) => (
                   <Link
-                    key={item.uid}
-                    to={`/bbs/thread/${item.uid}`}
+                    key={item.id}
+                    to={`/bbs/thread/${item.id}`}
                     className="border border-amber-900/50 bg-amber-950/20 p-3 text-xs text-amber-400 transition-colors hover:border-amber-500 hover:bg-amber-900/30 font-semibold"
                   >
                     <div className="line-clamp-2 leading-relaxed">{item.content}</div>
-                    <div className="mt-2 text-[9px] text-amber-500/70 tracking-widest">EXP: {formatExpiry(item.expiresAt)}</div>
+                    <div className="mt-2 text-[9px] text-amber-500/70 tracking-widest">EXP: {formatExpiry()}</div>
                   </Link>
                 )) : <div className="text-xs text-[#00ff41]/50">NO_DATA</div>}
               </div>
@@ -318,12 +328,12 @@ const BBSPage: React.FC = () => {
               <div className="grid gap-2">
                 {summary?.topics.length ? summary.topics.map((item) => (
                   <Link
-                    key={item.uid}
-                    to={`/bbs/topic/${item.uid}`}
+                    key={item.id}
+                    to={`/bbs/topic/${item.id}`}
                     className="border border-[#00ff41]/30 bg-[#00ff41]/5 p-3 text-xs text-[#00ff41] transition-colors hover:border-[#00ff41] hover:bg-[#00ff41]/10 font-bold"
                   >
                     <div className="leading-relaxed">{item.title}</div>
-                    <div className="mt-2 text-[9px] text-[#00ff41]/60 tracking-widest">{item.replyCount} REPLIES_ DETECTED</div>
+                    <div className="mt-2 text-[9px] text-[#00ff41]/60 tracking-widest">{item.commentCount || 0} REPLIES_ DETECTED</div>
                   </Link>
                 )) : <div className="text-xs text-[#00ff41]/50">NO_DATA</div>}
               </div>
@@ -336,13 +346,13 @@ const BBSPage: React.FC = () => {
               <div className="grid gap-2">
                 {summary?.expiringThreads.length ? summary.expiringThreads.map((item) => (
                   <Link
-                    key={item.uid}
-                    to={`/bbs/thread/${item.uid}`}
+                    key={item.id}
+                    to={`/bbs/thread/${item.id}`}
                     className="border border-red-900/50 bg-red-950/20 p-3 text-xs text-red-400 transition-colors hover:border-red-500 hover:bg-red-900/30 font-semibold"
                   >
                     <div className="line-clamp-2 leading-relaxed">{item.title}</div>
                     <div className="mt-2 inline-flex items-center gap-1 text-[9px] text-red-500/70 tracking-widest">
-                      EXP: {formatExpiry(item.expiresAt)}
+                      EXP: {formatExpiry()}
                     </div>
                   </Link>
                 )) : <div className="text-xs text-[#00ff41]/50">NO_DATA</div>}

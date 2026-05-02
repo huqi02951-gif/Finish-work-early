@@ -121,7 +121,7 @@ export async function getCommunitySummary() {
     .slice(0, 5);
   const expiringThreads = active
     .filter((t) => t.expiresAt)
-    .sort((a, b) => t.expiresAt!.getTime() - b.expiresAt!.getTime())
+    .sort((a, b) => a.expiresAt!.getTime() - b.expiresAt!.getTime())
     .slice(0, 5);
 
   return {

@@ -74,6 +74,74 @@ enum ModerationAction {
   UNLOCK_COMMENTS
 }
 
+enum PantryIdentityStatus {
+  ACTIVE
+  MUTED
+  BANNED
+}
+
+enum PantryVisibilityMode {
+  PERMANENT
+  EPHEMERAL
+}
+
+enum PantryReactionType {
+  FIRE
+  BRICK
+  EYES
+  TEA
+  SUPPORT
+}
+
+enum PantryReportTargetType {
+  POST
+  COMMENT
+  LISTING
+  MESSAGE
+}
+
+enum PantryReportStatus {
+  OPEN
+  REVIEWING
+  RESOLVED
+  REJECTED
+}
+
+enum MarketListingType {
+  SELL
+  WANTED
+}
+
+enum MarketListingStatus {
+  ACTIVE
+  RESERVED
+  SOLD
+  CANCELLED
+  HIDDEN
+  EXPIRED
+}
+
+enum TradeOrderStatus {
+  REQUESTED
+  ACCEPTED
+  PAID_OFF_PLATFORM
+  COMPLETED
+  CANCELLED
+  DISPUTED
+}
+
+enum DirectMessageStatus {
+  SENT
+  HIDDEN
+}
+
+enum PantryNotificationType {
+  ORDER
+  MESSAGE
+  REPORT
+  SYSTEM
+}
+
 model User {
   id           Int        @id @default(autoincrement())
   username     String     @unique
@@ -99,6 +167,17 @@ model User {
   drafts             Draft[]
   artifacts          Artifact[]
   auditLogs          AuditLog[]        @relation("AuditLogOperator")
+  communityIdentity  CommunityIdentity?
+  pantryReactions    PostReaction[]
+  pantryReports      Report[]          @relation("ReportReporter")
+  marketListings     MarketListing[]   @relation("MarketListingSeller")
+  buyingOrders       TradeOrder[]      @relation("TradeOrderBuyer")
+  sellingOrders      TradeOrder[]      @relation("TradeOrderSeller")
+  conversationsA     Conversation[]    @relation("ConversationUserA")
+  conversationsB     Conversation[]    @relation("ConversationUserB")
+  directMessages     DirectMessage[]   @relation("DirectMessageSender")
+  pantryBookmarks    PostBookmark[]
+  pantryNotifications PantryNotification[]
 
   @@map("users")
 }
@@ -136,6 +215,12 @@ model Post {
   pinnedAt           DateTime?      @map("pinned_at")
   status             PostStatus     @default(PUBLISHED)
   commentsLockedAt   DateTime?      @map("comments_locked_at")
+  visibilityMode     PantryVisibilityMode @default(PERMANENT) @map("visibility_mode")
+  expiresAt          DateTime?      @map("expires_at")
+  anonymousAlias     String?        @map("anonymous_alias") @db.VarChar(80)
+  heatScore          Int            @default(0) @map("heat_score")
+  reactionCount      Int            @default(0) @map("reaction_count")
+  bookmarkCount      Int            @default(0) @map("bookmark_count")
   reviewedAt         DateTime?      @map("reviewed_at")
   reviewReason       String?        @map("review_reason") @db.Text
   relatedProductSlug String?        @map("related_product_slug")
@@ -154,12 +239,16 @@ model Post {
   comments       Comment[]
   tags           PostTag[]
   moderationLogs ModerationLog[]
+  reactions      PostReaction[]
+  bookmarks      PostBookmark[]
 
   @@index([authorId])
   @@index([status, createdAt])
   @@index([boardId, status, isPinned, createdAt])
   @@index([isOfficial, status, isPinned, createdAt])
   @@index([postType, status, createdAt])
+  @@index([boardId, status, visibilityMode, expiresAt])
+  @@index([heatScore, reactionCount, createdAt])
   @@index([relatedProductSlug])
   @@index([relatedSkillSlug])
   @@map("posts")
@@ -183,6 +272,169 @@ model Comment {
   @@index([postId, status, createdAt])
   @@index([authorId, createdAt])
   @@map("comments")
+}
+
+model CommunityIdentity {
+  id          Int                  @id @default(autoincrement())
+  userId      Int                  @unique @map("user_id")
+  alias       String               @unique @db.VarChar(80)
+  color       String               @db.VarChar(24)
+  status      PantryIdentityStatus @default(ACTIVE)
+  mutedUntil  DateTime?            @map("muted_until")
+  coffeeQrUrl String?              @map("coffee_qr_url") @db.Text
+  coffeeNote  String?              @map("coffee_note") @db.Text
+  coffeePublic Boolean             @default(false) @map("coffee_public")
+  reputation  Int                  @default(0)
+  createdAt   DateTime             @default(now()) @map("created_at")
+  updatedAt   DateTime             @updatedAt @map("updated_at")
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, updatedAt])
+  @@map("community_identities")
+}
+
+model PostBookmark {
+  id        Int      @id @default(autoincrement())
+  postId    Int      @map("post_id")
+  userId    Int      @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([userId, createdAt])
+  @@index([postId, createdAt])
+  @@map("post_bookmarks")
+}
+
+model PostReaction {
+  id        Int                 @id @default(autoincrement())
+  postId    Int                 @map("post_id")
+  userId    Int                 @map("user_id")
+  type      PantryReactionType
+  createdAt DateTime            @default(now()) @map("created_at")
+  post      Post                @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId, type])
+  @@index([userId, createdAt])
+  @@index([postId, type])
+  @@map("post_reactions")
+}
+
+model Report {
+  id          Int                    @id @default(autoincrement())
+  reporterId  Int                    @map("reporter_id")
+  targetType  PantryReportTargetType @map("target_type")
+  targetId    Int                    @map("target_id")
+  reason      String                 @db.VarChar(100)
+  detail      String?                @db.Text
+  status      PantryReportStatus     @default(OPEN)
+  createdAt   DateTime               @default(now()) @map("created_at")
+  resolvedAt  DateTime?              @map("resolved_at")
+  reporter    User                   @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@index([targetType, targetId, status])
+  @@index([reporterId, createdAt])
+  @@index([status, createdAt])
+  @@map("reports")
+}
+
+model MarketListing {
+  id              Int                 @id @default(autoincrement())
+  sellerId        Int                 @map("seller_id")
+  type            MarketListingType   @default(SELL)
+  title           String              @db.VarChar(160)
+  description     String              @db.Text
+  category        String              @db.VarChar(80)
+  condition       String?             @db.VarChar(80)
+  priceCents      Int?                @map("price_cents")
+  priceText       String?             @map("price_text") @db.VarChar(80)
+  status          MarketListingStatus @default(ACTIVE)
+  anonymousAlias  String              @map("anonymous_alias") @db.VarChar(80)
+  expiresAt       DateTime?           @map("expires_at")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+  seller          User                @relation("MarketListingSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  orders          TradeOrder[]
+
+  @@index([status, type, createdAt])
+  @@index([sellerId, status, createdAt])
+  @@index([category, status, createdAt])
+  @@map("market_listings")
+}
+
+model TradeOrder {
+  id              Int              @id @default(autoincrement())
+  listingId       Int              @map("listing_id")
+  buyerId         Int              @map("buyer_id")
+  sellerId        Int              @map("seller_id")
+  status          TradeOrderStatus @default(REQUESTED)
+  note            String?          @db.Text
+  offPlatformNote String?          @map("off_platform_note") @db.Text
+  disputeReason   String?          @map("dispute_reason") @db.Text
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  listing         MarketListing    @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyer           User             @relation("TradeOrderBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller          User             @relation("TradeOrderSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([buyerId, status, createdAt])
+  @@index([sellerId, status, createdAt])
+  @@index([listingId, createdAt])
+  @@map("trade_orders")
+}
+
+model Conversation {
+  id          Int             @id @default(autoincrement())
+  userAId     Int             @map("user_a_id")
+  userBId     Int             @map("user_b_id")
+  listingId   Int?            @map("listing_id")
+  orderId     Int?            @map("order_id")
+  lastMessage String?         @map("last_message") @db.Text
+  lastAt      DateTime        @default(now()) @map("last_at")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  userA       User            @relation("ConversationUserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB       User            @relation("ConversationUserB", fields: [userBId], references: [id], onDelete: Cascade)
+  messages    DirectMessage[]
+
+  @@unique([userAId, userBId, listingId, orderId])
+  @@index([userAId, lastAt])
+  @@index([userBId, lastAt])
+  @@map("conversations")
+}
+
+model DirectMessage {
+  id             Int                 @id @default(autoincrement())
+  conversationId Int                 @map("conversation_id")
+  senderId       Int                 @map("sender_id")
+  content        String              @db.Text
+  status         DirectMessageStatus @default(SENT)
+  readAt         DateTime?           @map("read_at")
+  createdAt      DateTime            @default(now()) @map("created_at")
+  conversation   Conversation        @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User                @relation("DirectMessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([senderId, createdAt])
+  @@map("direct_messages")
+}
+
+model PantryNotification {
+  id          Int                     @id @default(autoincrement())
+  userId      Int                     @map("user_id")
+  type        PantryNotificationType
+  title       String                  @db.VarChar(160)
+  body        String?                 @db.Text
+  targetType  String?                 @map("target_type") @db.VarChar(80)
+  targetId    Int?                    @map("target_id")
+  readAt      DateTime?               @map("read_at")
+  createdAt   DateTime                @default(now()) @map("created_at")
+  user        User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt])
+  @@index([type, createdAt])
+  @@map("pantry_notifications")
 }
 
 model Tag {

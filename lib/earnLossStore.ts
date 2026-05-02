@@ -19,6 +19,24 @@ export interface EarnLossSummary {
   earnTotal: number;
   lossTotal: number;
   overtimeLossTotal: number;
+  /** 带薪拉屎: 累计赚到的钱 */
+  paidPoopEarn: number;
+  /** 带薪拉屎: 累计分钟数 */
+  paidPoopMin: number;
+  /** 带薪拉屎: 次数 */
+  paidPoopCount: number;
+  /** 摸鱼奖励: 累计赚到的钱 */
+  touchFishEarn: number;
+  /** 摸鱼奖励: 累计分钟数 */
+  touchFishMin: number;
+  /** 摸鱼奖励: 次数 */
+  touchFishCount: number;
+  /** 喝咖啡: 折算赚到的钱 */
+  coffeeEarn: number;
+  /** 喝咖啡: 杯数 */
+  coffeeCount: number;
+  /** 加班亏损: 累计分钟数 */
+  otMin: number;
 }
 
 const KEY_PREFIX = 'cl_earn_loss';
@@ -58,20 +76,43 @@ function getLastOvertimeRecord(dateKey: string): EarnLossRecord | null {
 }
 
 function summarize(records: EarnLossRecord[]): EarnLossSummary {
-  const overtimeLossTotal = records
-    .filter((r) => r.type === 'overtime_loss')
-    .reduce((sum, r) => sum + Math.abs(r.amount), 0);
-  const lossTotal = records
-    .filter((r) => r.amount < 0)
-    .reduce((sum, r) => sum + Math.abs(r.amount), 0);
-
-  return {
-    earnTotal: records
-      .filter((r) => r.amount > 0)
-      .reduce((sum, r) => sum + r.amount, 0),
-    lossTotal,
-    overtimeLossTotal,
+  const summary: EarnLossSummary = {
+    earnTotal: 0,
+    lossTotal: 0,
+    overtimeLossTotal: 0,
+    paidPoopEarn: 0,
+    paidPoopMin: 0,
+    paidPoopCount: 0,
+    touchFishEarn: 0,
+    touchFishMin: 0,
+    touchFishCount: 0,
+    coffeeEarn: 0,
+    coffeeCount: 0,
+    otMin: 0,
   };
+
+  for (const r of records) {
+    if (r.amount > 0) summary.earnTotal += r.amount;
+    if (r.amount < 0) summary.lossTotal += Math.abs(r.amount);
+
+    if (r.type === 'overtime_loss') {
+      summary.overtimeLossTotal += Math.abs(r.amount);
+      summary.otMin += Math.max(0, Math.round((r.duration || 0) / 60));
+    } else if (r.type === 'paid_poop') {
+      summary.paidPoopEarn += Math.max(0, r.amount);
+      summary.paidPoopMin += Math.max(0, Math.round((r.duration || 0) / 60));
+      summary.paidPoopCount += 1;
+    } else if (r.type === 'touch_fish') {
+      summary.touchFishEarn += Math.max(0, r.amount);
+      summary.touchFishMin += Math.max(0, Math.round((r.duration || 0) / 60));
+      summary.touchFishCount += 1;
+    } else if (r.type === 'drink_coffee') {
+      summary.coffeeEarn += Math.max(0, r.amount);
+      summary.coffeeCount += 1;
+    }
+  }
+
+  return summary;
 }
 
 export const earnLossStore = {

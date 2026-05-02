@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { BookOpenText, MessageSquare } from 'lucide-react';
 import AppLayout from '../../components/layout/AppLayout';
+import LoadingState from '../../components/common/LoadingState';
+import EmptyState from '../../components/common/EmptyState';
+import ErrorState from '../../components/common/ErrorState';
 import { forumApi } from '../../services/forumApi';
 import type { Comment, Post } from '../../types';
 
@@ -41,9 +44,13 @@ const FormalTopicPage: React.FC = () => {
     <AppLayout title="业务专题" showBack>
       <div className="mx-auto max-w-4xl px-4 py-5">
         {loading ? (
-          <div className="rounded-lg border border-brand-border/60 bg-white p-6 text-sm text-brand-gray">正在读取专题...</div>
+          <LoadingState variant="skeleton" shape="thread" label="正在读取专题" />
         ) : !post ? (
-          <div className="rounded-lg border border-brand-border/60 bg-white p-6 text-sm text-brand-gray">{loadError || '未找到这个专题。'}</div>
+          <ErrorState
+            title="专题暂时无法读取"
+            message={loadError || '未找到这个专题。'}
+            onRetry={() => void load()}
+          />
         ) : (
           <div className="grid gap-6">
             <section className="bg-white px-2 py-4">
@@ -80,9 +87,12 @@ const FormalTopicPage: React.FC = () => {
                     </article>
                   ))
                 ) : (
-                  <div className="border border-dashed border-neutral-200/60 rounded-xl p-8 text-center text-sm text-neutral-400 font-medium">
-                    还没有专题补充。
-                  </div>
+                  <EmptyState
+                    icon={MessageSquare}
+                    title="还没有专题补充"
+                    description="第一条讨论将出现在这里。"
+                    size="sm"
+                  />
                 )}
               </div>
             </section>

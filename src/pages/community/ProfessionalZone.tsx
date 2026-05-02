@@ -3,6 +3,9 @@ import { ArrowUp, Clock, Search, MessageSquare, Pin } from 'lucide-react';
 import AppLayout from '../../components/layout/AppLayout';
 import PostCard from '../../components/community/PostCard';
 import TagFilter from '../../components/community/TagFilter';
+import LoadingState from '../../components/common/LoadingState';
+import EmptyState from '../../components/common/EmptyState';
+import ErrorState from '../../components/common/ErrorState';
 import { cn } from '../../../lib/utils';
 import { useDebounce } from '../../../lib/utils';
 import { forumApi } from '../../services/forumApi';
@@ -130,36 +133,37 @@ const ProfessionalZonePage: React.FC = () => {
             {/* Posts List */}
             <div className="space-y-3 animate-fade-in-up">
               {loading ? (
-                <div className="text-center py-12 text-brand-gray text-sm">加载中...</div>
+                <LoadingState variant="skeleton" shape="list" rows={4} />
               ) : loadError ? (
-                <div className="text-center py-12 text-brand-gray">
-                  <MessageSquare className="w-10 h-10 mx-auto mb-3 opacity-20" />
-                  <p className="text-sm">{loadError}</p>
-                  <button onClick={() => void loadProfessionalPosts()} className="mt-2 text-xs text-brand-gold hover:underline min-h-[44px] px-4 py-2">
-                    重试
-                  </button>
-                </div>
+                <ErrorState
+                  title="专业业务区加载失败"
+                  message={loadError}
+                  onRetry={() => void loadProfessionalPosts()}
+                />
               ) : filteredPosts.length > 0 ? (
                 filteredPosts.map(post => (
                   <PostCard key={post.id} post={post} variant="professional" basePath="/bbs/professional" />
                 ))
+              ) : professionalPosts.length === 0 && !activeTag && !debouncedSearch ? (
+                <EmptyState
+                  icon={MessageSquare}
+                  title="专业业务区还没有帖子"
+                  description="成为第一个发起讨论的人，分享你的经验或提出问题。"
+                />
               ) : (
-                <div className="text-center py-12 text-brand-gray">
-                  <MessageSquare className="w-10 h-10 mx-auto mb-3 opacity-20" />
-                  {professionalPosts.length === 0 && !activeTag && !debouncedSearch ? (
-                    <p className="text-sm">专业业务区暂时还没有帖子</p>
-                  ) : (
-                    <>
-                      <p className="text-sm">没有找到匹配的帖子</p>
-                      <button
-                        onClick={() => { setActiveTag(null); setSearchQuery(''); }}
-                        className="mt-2 text-xs text-brand-gold hover:underline min-h-[44px] px-4 py-2"
-                      >
-                        清除筛选
-                      </button>
-                    </>
-                  )}
-                </div>
+                <EmptyState
+                  icon={Search}
+                  title="没有找到匹配的帖子"
+                  description="试着换个关键词，或清除筛选条件再看看。"
+                  action={{
+                    label: '清除筛选',
+                    onClick: () => {
+                      setActiveTag(null);
+                      setSearchQuery('');
+                    },
+                    variant: 'secondary',
+                  }}
+                />
               )}
             </div>
           </div>

@@ -12,6 +12,7 @@ import { RolesModule } from './roles/roles.module';
 import { CustomerContextModule } from './customer-context/customer-context.module';
 import { AuditLogModule } from './audit-log/audit-log.module';
 import { ToolDataModule } from './tool-data/tool-data.module';
+import { PantryModule } from './pantry/pantry.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ToolDataModule } from './tool-data/tool-data.module';
     CustomerContextModule,
     ToolDataModule,
     AuditLogModule,
+    PantryModule,
   ],
   controllers: [AppController],
   providers: [],

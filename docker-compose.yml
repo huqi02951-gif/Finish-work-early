@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: finish_work_early_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: finishwork
+      POSTGRES_PASSWORD: finishwork_dev
+      POSTGRES_DB: finish_work_early
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - finish_work_early_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finishwork -d finish_work_early"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  finish_work_early_pgdata:
