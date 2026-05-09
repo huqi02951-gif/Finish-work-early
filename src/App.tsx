@@ -14,12 +14,14 @@ import ProductScenePage from '../components/ProductScenePage';
 import UserManual from '../components/UserManual';
 import AcceptanceCalculator from '../components/tools/AcceptanceCalculator';
 import BatchBillingTool from '../components/tools/BatchBillingTool';
+import CDUnfreezeTool from '../components/tools/CDUnfreezeTool';
 import BusinessGuide from '../components/tools/BusinessGuide';
 import FeeDiscountTool from '../components/tools/FeeDiscountTool';
 import NewsTypesettingAssistant from '../components/tools/NewsTypesettingAssistant';
 import RateOfferTool from '../components/tools/RateOfferTool';
 import ChecklistGenerator from '../components/tools/ChecklistGenerator';
 import SensitiveCommAssistant from '../components/tools/SensitiveCommAssistant';
+import UnderInvoiceWorkflow from '../components/tools/UnderInvoiceWorkflow';
 import FeedPage from './pages/Feed';
 import HomePage from './pages/Home';
 import MessagesPage from './pages/Messages';
@@ -82,8 +84,10 @@ const App: React.FC = () => {
           <Route path="/fee-discount" element={<FeeDiscountTool />} />
           <Route path="/news-assistant" element={<NewsTypesettingAssistant />} />
           <Route path="/batch-billing" element={<BatchBillingTool />} />
+          <Route path="/cd-unfreeze" element={<CDUnfreezeTool />} />
           <Route path="/sensitive-comm" element={<SensitiveCommAssistant />} />
           <Route path="/business-guide" element={<BusinessGuide />} />
+          <Route path="/under-invoice-workflow" element={<UnderInvoiceWorkflow />} />
           <Route path="/product-scene" element={<ProductScenePage />} />
           <Route path="/apex-preview" element={<ApexPreviewPage />} />
           <Route path="/material-checklist" element={<AppLayout title="材料清单中心" showBack><MaterialChecklistCenter /></AppLayout>} />

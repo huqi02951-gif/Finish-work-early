@@ -27,6 +27,7 @@ import type { ForumBoard, Post } from '../types';
 import { useToast } from '../components/common/Toast';
 
 const TOOL_META: Record<string, { name: string; short: string; path: string }> = {
+  'under-invoice-workflow': { name: '项下开票超级智能贴', short: '银承+存单质押从测算、预约、柜台到质押登记一条龙。', path: '/under-invoice-workflow' },
   'sensitive-comm': { name: '收费、暂缓这种话先别硬发', short: '把容易炸的对客消息收成能发出去的话。', path: '/sensitive-comm' },
   'rate-offer': { name: '利率优惠别再从零写', short: '把申请理由、口径和边界先搭好。', path: '/rate-offer' },
   'acceptance-calc': { name: '银承/存单收益先算明白', short: '别靠脑补估收益，先把账摊开。', path: '/acceptance-calculator' },
@@ -46,6 +47,14 @@ type WorkspaceGuidePost = {
 };
 
 const WORKSPACE_GUIDE_POSTS: WorkspaceGuidePost[] = [
+  {
+    id: 'under-invoice-workflow',
+    title: '置顶超级智能贴：项下开票银承+存单质押全流程',
+    intro: '从轻量测算、发票前置判断、预约邮件、利率流程、柜台提醒，到合同系统文字、中登网、入库和TXT/JSON下载，一层楼一层楼照着做。',
+    problem: '解决项下开票流程长、字段前后不一致、邮件/OA/系统文字反复重写的问题。',
+    path: '/under-invoice-workflow',
+    tags: ['置顶', '超级智能贴', '项下开票'],
+  },
   {
     id: 'sensitive-comm',
     title: '客户一问收费就炸？先把话术收住',
@@ -367,7 +376,7 @@ const WorkspacePage: React.FC = () => {
   const [mobileTab, setMobileTab] = useState<'posts' | 'tools'>('posts');
 
   const quickTools = useMemo(
-    () => ['sensitive-comm', 'rate-offer', 'acceptance-calc', 'material-checklist'].map((id) => ({ id, ...TOOL_META[id] })),
+    () => ['under-invoice-workflow', 'sensitive-comm', 'rate-offer', 'acceptance-calc', 'material-checklist'].map((id) => ({ id, ...TOOL_META[id] })),
     [],
   );
 
@@ -772,7 +781,12 @@ const WorkspacePage: React.FC = () => {
                   <Link
                     key={post.id}
                     to={post.path}
-                    className="group rounded-2xl bg-neutral-50 border border-neutral-100 p-3.5 transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-sm flex flex-col gap-2"
+                    className={cn(
+                      'group rounded-2xl border p-3.5 transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-sm flex flex-col gap-2',
+                      post.id === 'under-invoice-workflow'
+                        ? 'border-amber-200 bg-amber-50 ring-2 ring-amber-100'
+                        : 'border-neutral-100 bg-neutral-50'
+                    )}
                   >
                     <div className="flex flex-wrap gap-1">
                       {post.tags.map((tag) => (

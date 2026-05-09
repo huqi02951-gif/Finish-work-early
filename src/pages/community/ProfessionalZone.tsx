@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowUp, Clock, Search, MessageSquare, Pin } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowUp, Clock, Search, MessageSquare, Pin, Sparkles, Coffee } from 'lucide-react';
 import AppLayout from '../../components/layout/AppLayout';
 import PostCard from '../../components/community/PostCard';
 import TagFilter from '../../components/community/TagFilter';
@@ -129,6 +130,35 @@ const ProfessionalZonePage: React.FC = () => {
             <div className="mb-6 animate-fade-in-up">
               <TagFilter tags={allTags} activeTag={activeTag} onTagClick={setActiveTag} />
             </div>
+
+            <Link
+              to="/under-invoice-workflow"
+              className="mb-6 block animate-fade-in-up rounded-[22px] border border-amber-200 bg-amber-50 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-md"
+            >
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1 rounded-full bg-brand-dark px-2.5 py-1 text-[11px] font-extrabold text-white">
+                  <Pin className="h-3 w-3" />
+                  专业业务区置顶
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-extrabold text-amber-700 ring-1 ring-amber-100">
+                  <Sparkles className="h-3 w-3" />
+                  超级智能贴
+                </span>
+              </div>
+              <h2 className="text-lg font-extrabold tracking-tight text-brand-dark">【项下开票实战帖】银承+存单质押全流程智能操作帖</h2>
+              <p className="mt-1 text-sm leading-6 text-brand-gray">
+                从轻量测算、发票前置判断、预约邮件、利率流程、柜台提醒，到合同系统文字、中登网登记、入库和用户必填清单下载，一楼一楼照着做。
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] font-bold text-brand-gray">
+                {['银承', '存单质押', '项下开票', '对中后台', '置顶'].map((tag) => (
+                  <span key={tag} className="rounded-full bg-white px-2 py-1 ring-1 ring-brand-border/15">#{tag}</span>
+                ))}
+                <span className="ml-auto inline-flex items-center gap-1 text-amber-700">
+                  <Coffee className="h-3.5 w-3.5" />
+                  如果好用，请我喝杯咖啡吧
+                </span>
+              </div>
+            </Link>
 
             {/* Posts List */}
             <div className="space-y-3 animate-fade-in-up">
