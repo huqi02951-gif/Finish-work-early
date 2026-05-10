@@ -28,3 +28,6 @@ dist-ssr
 
 graphify-out/
 
+# Claude local config
+.claude/settings.local.json
+

@@ -506,6 +506,25 @@ const flowSteps = [
   '重新上传用印后质押合同',
 ];
 
+// 带热气动画的咖啡小标签 —— 给"请喝杯咖啡"的位置用
+const SteamyCoffee: React.FC<{ className?: string }> = ({ className }) => (
+  <span className={cn('relative inline-flex h-4 w-4 items-center justify-center', className)} aria-hidden>
+    <span
+      className="fwe-coffee-steam absolute left-[3px] top-[-6px] h-2 w-[1.5px] rounded-full bg-[#a08566]"
+      style={{ animationDelay: '0s' }}
+    />
+    <span
+      className="fwe-coffee-steam absolute left-[7px] top-[-7px] h-2 w-[1.5px] rounded-full bg-[#a08566]"
+      style={{ animationDelay: '0.45s' }}
+    />
+    <span
+      className="fwe-coffee-steam absolute left-[11px] top-[-6px] h-2 w-[1.5px] rounded-full bg-[#a08566]"
+      style={{ animationDelay: '0.9s' }}
+    />
+    <Coffee className="h-4 w-4 relative" />
+  </span>
+);
+
 const CopyButton: React.FC<{ label?: string; text: string; onCopy: (text: string) => void; disabled?: boolean }> = ({
   label = '复制',
   text,
@@ -600,10 +619,19 @@ const Field: React.FC<{
   </label>
 );
 
+// 解析"6个月" / "6 月" / "6"等输入，回退默认 6 个月
+function parseTermMonths(text: string): number {
+  const matched = String(text || '').match(/-?\d+(\.\d+)?/);
+  if (!matched) return 6;
+  const n = Math.round(Number(matched[0]));
+  return Number.isFinite(n) && n > 0 ? n : 6;
+}
+
 const UnderInvoiceWorkflow: React.FC = () => {
   const toast = useToast();
   const [data, setData] = useState<ProjectData>(initialData);
-  const [depositTouched, setDepositTouched] = useState(false);
+  // 1 楼金额双向联动："bill" 表示开票金额是用户输入侧、存单为反算侧；"deposit" 反之。
+  const [linkedSource, setLinkedSource] = useState<'bill' | 'deposit'>('bill');
   const [finalConfirmed, setFinalConfirmed] = useState(false);
   const [showTxtPreview, setShowTxtPreview] = useState(true);
   const [invoiceGameProgress, setInvoiceGameProgress] = useState(0);
@@ -663,35 +691,95 @@ const UnderInvoiceWorkflow: React.FC = () => {
     setData((current) => ({ ...current, [key]: value }));
   };
 
+  // 按 linkedSource 反算另一侧金额（实际天数 = daysBetween，由 issueDate / maturityDate 决定）
+  const recomputeLinkedAmount = (current: ProjectData, source: 'bill' | 'deposit'): ProjectData => {
+    if (source === 'bill') {
+      const newDeposit = calcDepositForBill(current.preliminaryBillAmount, current.depositRate, current.issueDate, current.maturityDate);
+      return { ...current, preliminaryDepositAmount: newDeposit || current.preliminaryDepositAmount };
+    }
+    const newBill = calcBillForDeposit(current.preliminaryDepositAmount, current.depositRate, current.issueDate, current.maturityDate);
+    return { ...current, preliminaryBillAmount: newBill || current.preliminaryBillAmount };
+  };
+
+  // 改了银票开具日：默认按当前期限月数对日重算到期日，再按 linkedSource 反算另一侧金额
   const updateIssueDate = (value: string) => {
     setData((current) => {
-      const maturityDate = calcMaturityDate(value, 6);
-      return {
+      const months = parseTermMonths(current.depositTerm);
+      const maturityDate = addMonths(value, months);
+      const next: ProjectData = {
         ...current,
         issueDate: value,
         maturityDate,
         depositStartDate: value,
         depositEndDate: maturityDate,
-        preliminaryDepositAmount: depositTouched
-          ? current.preliminaryDepositAmount
-          : calcDepositForBill(current.preliminaryBillAmount, current.depositRate, value, maturityDate),
       };
+      return recomputeLinkedAmount(next, linkedSource);
     });
     setFinalConfirmed(false);
   };
 
-  const updatePreliminaryBill = (value: string) => {
-    const amount = parseWanInput(value);
-    setData((current) => ({
-      ...current,
-      preliminaryBillAmount: amount,
-      preliminaryDepositAmount: depositTouched ? current.preliminaryDepositAmount : calcDepositForBill(amount, current.depositRate, current.issueDate, current.maturityDate),
-    }));
+  // 改了银票期限月数：按对日重算到期日，days 跟着 daysBetween 自然变化（183/184/...）
+  const updateTermMonths = (value: string) => {
+    const months = parseTermMonths(value);
+    setData((current) => {
+      const maturityDate = addMonths(current.issueDate, months);
+      const next: ProjectData = {
+        ...current,
+        depositTerm: `${months}个月`,
+        maturityDate,
+        depositEndDate: maturityDate,
+      };
+      return recomputeLinkedAmount(next, linkedSource);
+    });
+    setFinalConfirmed(false);
   };
 
+  // 改了银票到期日：按实际日期差重新计算（非对日、隔天、手动改都按真实差）
+  const updateMaturityDate = (value: string) => {
+    setData((current) => {
+      const next: ProjectData = {
+        ...current,
+        maturityDate: value,
+        depositEndDate: value,
+      };
+      return recomputeLinkedAmount(next, linkedSource);
+    });
+    setFinalConfirmed(false);
+  };
+
+  // 改了存单利率：按 linkedSource 反算另一侧
+  const updateDepositRate = (value: string) => {
+    const rate = parseRateInput(value);
+    setData((current) => recomputeLinkedAmount({ ...current, depositRate: rate }, linkedSource));
+    setFinalConfirmed(false);
+  };
+
+  // 输入开票金额：linkedSource = bill，反算并填回拟存单金额
+  const updatePreliminaryBill = (value: string) => {
+    const amount = parseWanInput(value);
+    setLinkedSource('bill');
+    setData((current) => {
+      const newDeposit = calcDepositForBill(amount, current.depositRate, current.issueDate, current.maturityDate);
+      return {
+        ...current,
+        preliminaryBillAmount: amount,
+        preliminaryDepositAmount: newDeposit || (amount ? current.preliminaryDepositAmount : 0),
+      };
+    });
+  };
+
+  // 输入存单金额：linkedSource = deposit，反算并填回拟开票金额
   const updatePreliminaryDeposit = (value: string) => {
-    setDepositTouched(true);
-    update('preliminaryDepositAmount', parseWanInput(value));
+    const amount = parseWanInput(value);
+    setLinkedSource('deposit');
+    setData((current) => {
+      const newBill = calcBillForDeposit(amount, current.depositRate, current.issueDate, current.maturityDate);
+      return {
+        ...current,
+        preliminaryDepositAmount: amount,
+        preliminaryBillAmount: newBill || (amount ? current.preliminaryBillAmount : 0),
+      };
+    });
   };
 
   const confirmPreliminary = () => {
@@ -740,9 +828,45 @@ const UnderInvoiceWorkflow: React.FC = () => {
     setData((current) => ({ ...current, bills: current.bills.filter((bill) => bill.id !== id) }));
   };
 
+  // 第 8 楼"收款人名称" ↔ 第 12 楼分票明细的 payee 双向联动
+  // 8 楼字段展示的是 bills 里所有非空收款人，按顿号拼接（自动跟随 12 楼变化）
+  const payeesText = useMemo(
+    () => data.bills.map((bill) => bill.payee.trim()).filter(Boolean).join('、'),
+    [data.bills],
+  );
+
+  // 用户在 8 楼修改"收款人名称"时，按顿号/逗号/空白拆分，回写到 bills[i].payee
+  // 名称多于现有 bill 时自动追加新的空白 bill；少于时把多出来的 bill 的 payee 清空（保留账号等其它字段）
+  const updatePayeesFromText = (value: string) => {
+    const names = value.split(/[、，,\s]+/).map((s) => s.trim()).filter(Boolean);
+    setData((current) => {
+      const next = current.bills.map((bill, i) => ({
+        ...bill,
+        payee: i < names.length ? names[i] : '',
+      }));
+      // 名称比现有 bills 多时追加新的 bill，承接剩余名称
+      for (let i = next.length; i < names.length; i += 1) {
+        next.push({ ...makeBill(), payee: names[i] });
+      }
+      // 全清空时至少保留一条空白 bill，避免分票明细为空
+      if (next.length === 0) next.push(makeBill());
+      return { ...current, bills: next };
+    });
+  };
+
   return (
     <AppLayout title="项下开票智能帖" showBack>
       <div className="min-h-screen bg-[#f4efe5] pb-16 text-[#1f271f]">
+        {/* 咖啡热气动画 keyframes —— 局部样式，不污染全局 */}
+        <style>{`
+          @keyframes fwe-coffee-steam-kf {
+            0%   { transform: translateY(0)   scaleY(0.55); opacity: 0; }
+            18%  { transform: translateY(-2px) scaleY(0.85); opacity: 0.55; }
+            55%  { transform: translateY(-7px) scaleY(1);    opacity: 0.78; }
+            100% { transform: translateY(-13px) scaleY(0.7); opacity: 0; }
+          }
+          .fwe-coffee-steam { animation: fwe-coffee-steam-kf 1.6s ease-in-out infinite; }
+        `}</style>
         <div className="mx-auto max-w-6xl px-4 py-5 md:px-6 md:py-8">
           <header className="mb-4 border border-[#263d35]/15 bg-[#fffdf7] p-5">
             <div>
@@ -757,13 +881,14 @@ const UnderInvoiceWorkflow: React.FC = () => {
                 <span>技术支持：科技 胡工</span>
               </div>
               <div className="mt-4 max-w-4xl space-y-2 text-sm leading-6 text-[#4f5c52]">
-                <p>这是一条实操记录帖：先在 1 楼做银承/存单简化测算和发票前置判断，确认后再往下生成预约邮件、利率流程、柜台提醒、客户网银提票提醒、合同系统文字、质押登记和下载清单。</p>
-                <p>关键口径：本笔按存单质押办理，存单无需冻结，不生成存单冻结确认书；注意事项和可复制正文分开，复制框里的内容就是可直接发送/粘贴的成稿。</p>
-                <p>使用顺序：先录银票开具日、发票日期、开票金额或存单金额；柜台开出存单后再补录存单编号、存单账号；客户网银提票后才补录银承开票批次号/K 开头批次号。</p>
+                <p>各位工友好，楼主湾悦城冯工，这一条算是给同行的"还债帖"。每次接项下开票（银承+存单质押）那一摊事，从额度预约、利率优惠流程、柜台材料、网银提票，再到合同系统、中登网、押品入库……每一步都恨不得拿小抄，少一项 OA 就被催一遍。索性把脑子里那点东西一次性全倒出来，做成这条流水帖：1 楼先测算，往下一楼一楼填，需要发的话术和系统文字直接出现在复制框里，**不用你再二次加工**。</p>
+                <p>关键口径放最前面：本笔按 <b>存单质押</b> 办理，存单 <b>无需冻结</b>，不生成冻结确认书；注意事项与可复制正文是分开的，复制框里粘出来的就是成稿，别再润色一遍。</p>
+                <p>使用顺序很简单：1 楼先录银票开具日 / 发票日期 / 开票金额或存单金额 → 柜台开出存单后回 7 楼补存单编号、账号 → 客户网银提票后回 7 楼补银承开票批次号 / K 开头批次号。其它楼层文案会跟着自动变好，不用你 ctrl+c / ctrl+v 跑全场。</p>
+                <p className="text-[#7b4b21] font-bold">客户经理同行的辛苦我懂——这个帖子如果能帮你省去半天！减少头发的掉落！减少沟通完你的沟通你的的困惑！请请我们喝杯咖啡吧！👇</p>
               </div>
-              <div className="mt-4 inline-flex items-center gap-2 border border-[#9b6b43]/25 bg-[#fff7e8] px-3 py-2 text-sm font-black text-[#7b4b21]">
-                <Coffee className="h-4 w-4" />
-                如果这个帖子救了你半小时，请我喝杯咖啡吧！
+              <div className="mt-4 inline-flex items-center gap-2 border border-[#9b6b43]/25 bg-[#fff7e8] px-3 py-2.5 text-sm font-black text-[#7b4b21]">
+                <SteamyCoffee />
+                热乎的，请我们喝杯咖啡吧！
               </div>
             </div>
           </header>
@@ -783,10 +908,11 @@ const UnderInvoiceWorkflow: React.FC = () => {
                   <Field label="开票人名称" value={data.drawer} onChange={(value) => update('drawer', value)} placeholder="客户名称" />
                   <Field label="拟开票金额" value={data.preliminaryBillAmount ? String(data.preliminaryBillAmount / 10000) : ''} onChange={updatePreliminaryBill} type="number" suffix="万元" />
                   <Field label="拟存单金额" value={data.preliminaryDepositAmount ? String(data.preliminaryDepositAmount / 10000) : ''} onChange={updatePreliminaryDeposit} type="number" suffix="万元" />
-                  <Field label="银票期限" value={data.depositTerm} onChange={(value) => update('depositTerm', value)} placeholder="默认6个月" />
-                  <Field label="存单利率" value={formatRate(data.depositRate)} onChange={(value) => update('depositRate', parseRateInput(value))} placeholder="1.4%" />
-                  <Field label="发票开具日期" value={data.invoiceDate} onChange={(value) => update('invoiceDate', value)} type="date" />
+                  <Field label="银票期限" value={String(parseTermMonths(data.depositTerm))} onChange={updateTermMonths} type="number" suffix="个月" placeholder="默认 6" />
+                  <Field label="存单利率" value={formatRate(data.depositRate)} onChange={updateDepositRate} placeholder="1.4%" />
                   <Field label="预计银票开具日" value={data.issueDate} onChange={updateIssueDate} type="date" />
+                  <Field label="银票到期日" value={data.maturityDate} onChange={updateMaturityDate} type="date" />
+                  <Field label="银承项下发票开具日" value={data.invoiceDate} onChange={(value) => update('invoiceDate', value)} type="date" />
                 </div>
                 <div className="border border-[#24443a]/12 bg-white p-4">
                   <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -799,10 +925,11 @@ const UnderInvoiceWorkflow: React.FC = () => {
                   </div>
                   <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
                     <div><dt className="text-xs text-[#687064]">开票人</dt><dd className="font-black">{data.drawer || '待填'}</dd></div>
+                    <div><dt className="text-xs text-[#687064]">联动主输入</dt><dd className="font-black">{linkedSource === 'bill' ? '开票金额→反算存单' : '存单金额→反算开票'}</dd></div>
                     <div><dt className="text-xs text-[#687064]">拟开票金额</dt><dd className="font-black">{formatWan(data.preliminaryBillAmount)} 万</dd></div>
-                    <div><dt className="text-xs text-[#687064]">建议存单金额</dt><dd className="font-black">{formatWan(preliminaryDepositByBill || data.preliminaryDepositAmount)} 万</dd></div>
-                    <div><dt className="text-xs text-[#687064]">存单可开票金额</dt><dd className="font-black">{formatWan(preliminaryBillByDeposit || data.preliminaryBillAmount)} 万</dd></div>
+                    <div><dt className="text-xs text-[#687064]">拟存单金额</dt><dd className="font-black">{formatWan(data.preliminaryDepositAmount)} 万</dd></div>
                     <div><dt className="text-xs text-[#687064]">银票期限</dt><dd className="font-black">{data.depositTerm}</dd></div>
+                    <div><dt className="text-xs text-[#687064]">实际天数</dt><dd className="font-black">{daysBetween(data.issueDate, data.maturityDate)} 天</dd></div>
                     <div><dt className="text-xs text-[#687064]">存单利率</dt><dd className="font-black">{formatRate(data.depositRate)}</dd></div>
                     <div><dt className="text-xs text-[#687064]">手续费率</dt><dd className="font-black">万分之五</dd></div>
                     <div><dt className="text-xs text-[#687064]">银票开具日</dt><dd className="font-black">{data.issueDate}</dd></div>
@@ -1021,14 +1148,23 @@ const UnderInvoiceWorkflow: React.FC = () => {
               no={8}
               title="信贷系统用途和备注"
               doing="额度项下合同登记和系统录入。"
-              need="收款人列表、品名、最终金额和日期。"
+              need="收款人名称、品名、承兑人；最终金额和日期沿用 3 楼确认结果。"
               generate="用途、备注、用途+备注。"
-              reminder="多个收款人用顿号拼接，系统文字使用最终确认金额。"
+              reminder="收款人名称在此填写后，会自动同步到 12 楼分票明细；多个名称用顿号分隔。系统文字使用最终确认金额。"
             >
               <div className="mb-3 grid gap-3 md:grid-cols-2">
+                <Field
+                  label="收款人名称"
+                  value={payeesText}
+                  onChange={updatePayeesFromText}
+                  placeholder="如：上海某科技有限公司、厦门某贸易有限公司"
+                />
                 <Field label="采购品名" value={data.goodsName} onChange={(value) => update('goodsName', value)} placeholder="如 锌锭等原材料" />
                 <Field label="承兑人" value={data.acceptor} onChange={(value) => update('acceptor', value)} placeholder="通常同开票人" />
               </div>
+              <p className="mb-3 text-xs leading-5 text-[#687064]">
+                填写后，系统将自动按"用于向<b>{payeesText || '收款人名称'}</b>采购{data.goodsName || '原材料'}"格式拼接信贷系统用途；多个名称用顿号分隔，会自动按顺序填到 12 楼"分票明细"的每张票里。
+              </p>
               <div className="grid gap-3 lg:grid-cols-2">
                 <TextBlock title="信贷系统用途" text={purpose} onCopy={copyText} actions={[{ label: '复制用途', text: purpose }]} />
                 <TextBlock
@@ -1144,7 +1280,7 @@ const UnderInvoiceWorkflow: React.FC = () => {
                         ) : null}
                       </div>
                       <div className="grid gap-2 md:grid-cols-2">
-                        <Field label="收款人" value={bill.payee} onChange={(value) => updateBill(bill.id, 'payee', value)} />
+                        <Field label="收款人名称" value={bill.payee} onChange={(value) => updateBill(bill.id, 'payee', value)} />
                         <Field label="金额" value={bill.amount ? String(bill.amount / 10000) : ''} onChange={(value) => updateBill(bill.id, 'amount', parseWanInput(value))} type="number" suffix="万元" />
                         <Field label="收款人账号" value={bill.payeeAccount} onChange={(value) => updateBill(bill.id, 'payeeAccount', value)} />
                         <Field label="开户行行号" value={bill.payeeBankNo} onChange={(value) => updateBill(bill.id, 'payeeBankNo', value)} />
@@ -1220,9 +1356,9 @@ const UnderInvoiceWorkflow: React.FC = () => {
                 </div>
               </div>
               <pre className="max-h-96 overflow-auto whitespace-pre-wrap border border-[#24443a]/10 bg-white p-3 text-xs leading-5 text-[#2f372e]">{allCopyText}</pre>
-              <div className="mt-4 inline-flex items-center gap-2 border border-[#9b6b43]/25 bg-[#fff7e8] px-3 py-2 text-sm font-black text-[#7b4b21]">
-                <Coffee className="h-4 w-4" />
-                如果你觉得这个智能贴好用，请我喝杯咖啡吧！
+              <div className="mt-4 inline-flex items-center gap-2 border border-[#9b6b43]/25 bg-[#fff7e8] px-3 py-2.5 text-sm font-black text-[#7b4b21]">
+                <SteamyCoffee />
+                看到这了真不容易，请我们喝杯咖啡吧！
               </div>
             </Floor>
           </div>
