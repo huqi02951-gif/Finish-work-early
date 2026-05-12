@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/utils';
-import { LOCAL_NUMBER_KEYS, incrementLocalNumber, readLocalNumber, writeLocalNumber } from '../../lib/localSignals';
+import { LOCAL_NUMBER_KEYS, LOCAL_STRING_KEYS, incrementLocalNumber, readLocalNumber, writeLocalNumber, writeLocalString, subscribeLocalNumber, subscribeLocalString } from '../../lib/localSignals';
 import { getBestToken } from '../../src/services/authService';
 import { useToast } from '../../src/components/common/Toast';
 import { dispatchPetEvent } from '../../lib/petOs';
@@ -134,6 +134,18 @@ const SalaryMonitor: React.FC = () => {
   useEffect(() => { writeLocalNumber(LOCAL_NUMBER_KEYS.salary, salary); }, [salary]);
 
   useEffect(() => {
+    const unsub = subscribeLocalString(LOCAL_STRING_KEYS.workStart, '09:00', setWorkStart);
+    return unsub;
+  }, []);
+
+  useEffect(() => {
+    const unsub = subscribeLocalString(LOCAL_STRING_KEYS.workEnd, '17:00', setWorkEnd);
+    return unsub;
+  }, []);
+
+  useEffect(() => subscribeLocalNumber(LOCAL_NUMBER_KEYS.salary, 6000, setSalary), []);
+
+  useEffect(() => {
     setSummary(earnLossStore.getTodaySummary());
     return earnLossStore.subscribe(setSummary);
   }, []);
@@ -227,10 +239,8 @@ const SalaryMonitor: React.FC = () => {
   const saveSettings = () => {
     const v = Number(draft.salary);
     if (v > 0) setSalary(v);
-    setWorkStart(draft.start);
-    setWorkEnd(draft.end);
-    localStorage.setItem(SK.WORK_START, draft.start);
-    localStorage.setItem(SK.WORK_END, draft.end);
+    writeLocalString(LOCAL_STRING_KEYS.workStart, draft.start);
+    writeLocalString(LOCAL_STRING_KEYS.workEnd, draft.end);
     setShowSettings(false);
   };
 
@@ -390,6 +400,11 @@ const FocusTimer: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState<number>(25 * 60);
   const [isActive, setIsActive] = useState(false);
   const [sessions, setSessions] = useState(() => loadNum(SK.FOCUS_SESSIONS, 0));
+
+  useEffect(() => subscribeLocalString(LOCAL_STRING_KEYS.focusSessions, '0', (v) => {
+    const nv = Number(v);
+    if (!isNaN(nv)) setSessions(nv);
+  }), []);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const completionHandledRef = useRef(false);
   const toast = useToast();
@@ -427,7 +442,7 @@ const FocusTimer: React.FC = () => {
 
       const next = sessions + 1;
       setSessions(next);
-      localStorage.setItem(SK.FOCUS_SESSIONS, String(next));
+      writeLocalString(LOCAL_STRING_KEYS.focusSessions, String(next));
 
       void createArtifactRecord({
         toolId: 'to-myself-focus-timer',
@@ -719,61 +734,285 @@ const TodayTodo: React.FC = () => {
 };
 
 // ─── MODULE 4 · Food Selector ──────────────────────────────────────────────────
+// 打工人食堂 —— 按品类分组的打工人真实食谱
+// 每个条目：emoji + 名称 + 品类 + 价格区间 + 口味标签
 const FOODS = [
-  { emoji: '🍔', item: '麦当劳 1+1' }, { emoji: '🍗', item: 'KFC 疯狂四' },
-  { emoji: '🍚', item: '猪脚饭' },    { emoji: '🍜', item: '兰州拉面' },
-  { emoji: '🥗', item: '鸡胸沙拉' },  { emoji: '🌶️', item: '麻辣烫' },
-  { emoji: '🍱', item: '台式卤肉饭' }, { emoji: '🍝', item: '意大利面' },
-  { emoji: '🥙', item: '全麦三明治' }, { emoji: '🍲', item: '螺蛳粉' },
+  // 💰 10元以内吃饱 (15)
+  { emoji: '🫓', item: '煎饼果子', cat: '早餐', price: 8, taste: '咸香' },
+  { emoji: '🥞', item: '手抓饼', cat: '早餐', price: 10, taste: '咸香' },
+  { emoji: '🫔', item: '粽子 + 豆浆', cat: '早餐', price: 8, taste: '甜' },
+  { emoji: '🥟', item: '小笼包 8 个', cat: '早餐', price: 10, taste: '咸香' },
+  { emoji: '🥟', item: '包子 2 个 + 稀饭', cat: '早餐', price: 6, taste: '咸香' },
+  { emoji: '🍳', item: '蛋炒饭', cat: '快餐', price: 10, taste: '咸香' },
+  { emoji: '🍜', item: '沙县拌面', cat: '面/粉', price: 8, taste: '清淡' },
+  { emoji: '🥟', item: '沙县馄饨', cat: '快餐', price: 10, taste: '清淡' },
+  { emoji: '🥮', item: '肉夹馍', cat: '小吃', price: 10, taste: '咸香' },
+  { emoji: '🫓', item: '鸡蛋灌饼', cat: '小吃', price: 8, taste: '咸香' },
+  { emoji: '🥟', item: '饺子 1 份', cat: '快餐', price: 10, taste: '咸香' },
+  { emoji: '🍜', item: '热干面', cat: '面/粉', price: 8, taste: '重口' },
+  { emoji: '🥘', item: '土豆丝盖饭', cat: '米饭', price: 10, taste: '清淡' },
+  { emoji: '🍳', item: '蛋饼 + 豆浆', cat: '早餐', price: 8, taste: '清淡' },
+  { emoji: '🍜', item: '阳春面', cat: '面/粉', price: 8, taste: '清淡' },
+
+  // 💰 15-25元吃好 (30)
+  { emoji: '🍚', item: '猪脚饭', cat: '米饭', price: 18, taste: '重口' },
+  { emoji: '🍛', item: '黄焖鸡米饭', cat: '米饭', price: 18, taste: '重口' },
+  { emoji: '🍱', item: '台式卤肉饭', cat: '米饭', price: 16, taste: '咸香' },
+  { emoji: '🍖', item: '烤肉拌饭', cat: '米饭', price: 16, taste: '重口' },
+  { emoji: '🍳', item: '煲仔饭', cat: '米饭', price: 18, taste: '咸香' },
+  { emoji: '🍚', item: '木桶饭', cat: '米饭', price: 16, taste: '重口' },
+  { emoji: '🍛', item: '鱼香肉丝盖饭', cat: '米饭', price: 16, taste: '重口' },
+  { emoji: '🥘', item: '宫保鸡丁饭', cat: '米饭', price: 16, taste: '微辣' },
+  { emoji: '🍖', item: '红烧排骨饭', cat: '米饭', price: 20, taste: '咸香' },
+  { emoji: '🍛', item: '咖喱鸡饭', cat: '米饭', price: 18, taste: '微辣' },
+  { emoji: '🍜', item: '兰州拉面', cat: '面/粉', price: 15, taste: '清淡' },
+  { emoji: '🍜', item: '重庆小面', cat: '面/粉', price: 15, taste: '重口' },
+  { emoji: '🍜', item: '酸辣粉', cat: '面/粉', price: 12, taste: '重口' },
+  { emoji: '🌶️', item: '麻辣烫', cat: '面/粉', price: 18, taste: '重口' },
+  { emoji: '🍲', item: '螺蛳粉', cat: '面/粉', price: 16, taste: '重口' },
+  { emoji: '🍜', item: '炸酱面', cat: '面/粉', price: 15, taste: '咸香' },
+  { emoji: '🍜', item: '刀削面', cat: '面/粉', price: 15, taste: '清淡' },
+  { emoji: '🍜', item: '老友粉', cat: '面/粉', price: 16, taste: '重口' },
+  { emoji: '🍜', item: '桂林米粉', cat: '面/粉', price: 15, taste: '清淡' },
+  { emoji: '🍜', item: '过桥米线', cat: '面/粉', price: 18, taste: '清淡' },
+  { emoji: '🔥', item: '麻辣香锅', cat: '火锅', price: 25, taste: '重口' },
+  { emoji: '🍲', item: '一人食火锅', cat: '火锅', price: 25, taste: '重口' },
+  { emoji: '🍢', item: '串串香', cat: '火锅', price: 22, taste: '重口' },
+  { emoji: '🐟', item: '烤鱼', cat: '火锅', price: 25, taste: '重口' },
+  { emoji: '🍲', item: '冒菜', cat: '火锅', price: 20, taste: '重口' },
+  { emoji: '🥘', item: '干锅', cat: '火锅', price: 22, taste: '重口' },
+  { emoji: '🥗', item: '鸡胸沙拉', cat: '轻食', price: 22, taste: '清淡' },
+  { emoji: '🥙', item: '全麦三明治', cat: '轻食', price: 18, taste: '清淡' },
+  { emoji: '🥬', item: 'Wagas 能量碗', cat: '轻食', price: 25, taste: '清淡' },
+  { emoji: '🌯', item: '赛百味 Subway', cat: '轻食', price: 22, taste: '清淡' },
+
+  // 🍗 快餐连锁 (12)
+  { emoji: '🍔', item: '麦当劳 1+1', cat: '快餐', price: 14, taste: '重口' },
+  { emoji: '🍗', item: 'KFC 疯狂四', cat: '快餐', price: 16, taste: '重口' },
+  { emoji: '🍟', item: '华莱士全鸡', cat: '快餐', price: 22, taste: '重口' },
+  { emoji: '🌮', item: '塔斯汀汉堡', cat: '快餐', price: 18, taste: '重口' },
+  { emoji: '🍔', item: '汉堡王套餐', cat: '快餐', price: 25, taste: '重口' },
+  { emoji: '🍟', item: '德克士手枪腿', cat: '快餐', price: 18, taste: '重口' },
+  { emoji: '🍟', item: '麦当劳麦辣鸡腿堡', cat: '快餐', price: 16, taste: '重口' },
+  { emoji: '🍗', item: '正新鸡排 + 可乐', cat: '快餐', price: 12, taste: '重口' },
+  { emoji: '🍕', item: '达美乐披萨', cat: '快餐', price: 25, taste: '咸香' },
+  { emoji: '🌯', item: '肯德基嫩牛五方', cat: '快餐', price: 16, taste: '微辣' },
+  { emoji: '🍔', item: '魏家凉皮套餐', cat: '快餐', price: 15, taste: '微辣' },
+  { emoji: '🥤', item: '杨国福麻辣烫套餐', cat: '快餐', price: 22, taste: '重口' },
+
+  // 🍣 外卖/品质 (18)
+  { emoji: '🍣', item: '回转寿司', cat: '日料', price: 40, taste: '清淡' },
+  { emoji: '🍜', item: '日式拉面', cat: '日料', price: 32, taste: '咸香' },
+  { emoji: '🍱', item: '日式便当', cat: '日料', price: 30, taste: '清淡' },
+  { emoji: '🍱', item: '日料便当外卖', cat: '日料', price: 28, taste: '清淡' },
+  { emoji: '🍛', item: '日式咖喱饭', cat: '日料', price: 28, taste: '咸香' },
+  { emoji: '🐟', item: '三文鱼定食', cat: '日料', price: 38, taste: '清淡' },
+  { emoji: '🥡', item: '东北盒饭', cat: '外卖', price: 16, taste: '咸香' },
+  { emoji: '🥗', item: '减脂餐外卖', cat: '外卖', price: 28, taste: '清淡' },
+  { emoji: '🍛', item: '咖喱饭外卖', cat: '外卖', price: 22, taste: '咸香' },
+  { emoji: '🥡', item: '煲仔饭外卖', cat: '外卖', price: 20, taste: '咸香' },
+  { emoji: '🥘', item: '湘菜小炒外卖', cat: '外卖', price: 25, taste: '重口' },
+  { emoji: '🍖', item: '烤鸭饭', cat: '外卖', price: 22, taste: '咸香' },
+  { emoji: '🥩', item: '隆江猪脚饭', cat: '外卖', price: 18, taste: '咸香' },
+  { emoji: '🍛', item: '咖喱牛腩饭', cat: '外卖', price: 25, taste: '微辣' },
+  { emoji: '🥘', item: '新疆大盘鸡', cat: '地方', price: 28, taste: '重口' },
+  { emoji: '🥟', item: '广东肠粉', cat: '地方', price: 12, taste: '清淡' },
+  { emoji: '🍜', item: '成都冒菜', cat: '地方', price: 20, taste: '重口' },
+  { emoji: '🥘', item: '贵州酸汤鱼饭', cat: '地方', price: 22, taste: '微辣' },
+
+  // 🥪 轻食/异国 (12)
+  { emoji: '🥪', item: 'Pret 三明治', cat: '轻食', price: 25, taste: '清淡' },
+  { emoji: '🥑', item: '牛油果吐司', cat: '轻食', price: 22, taste: '清淡' },
+  { emoji: '🥗', item: '凯撒沙拉', cat: '轻食', price: 22, taste: '清淡' },
+  { emoji: '🌮', item: '墨西哥卷饼', cat: '异国', price: 28, taste: '微辣' },
+  { emoji: '🥙', item: '土耳其烤肉卷', cat: '异国', price: 22, taste: '重口' },
+  { emoji: '🍝', item: '意大利面', cat: '异国', price: 25, taste: '咸香' },
+  { emoji: '🥘', item: '泰式打抛猪饭', cat: '异国', price: 28, taste: '重口' },
+  { emoji: '🍜', item: '越南河粉 Pho', cat: '异国', price: 28, taste: '清淡' },
+  { emoji: '🥗', item: '波奇饭 Poke', cat: '异国', price: 32, taste: '清淡' },
+  { emoji: '🥘', item: '韩式拌饭', cat: '异国', price: 22, taste: '重口' },
+  { emoji: '🍜', item: '韩式炸酱面', cat: '异国', price: 22, taste: '咸香' },
+  { emoji: '🥟', item: '韩式泡菜饺子', cat: '异国', price: 22, taste: '重口' },
+
+  // 🍖 犒劳自己/奢侈 (12)
+  { emoji: '🥩', item: '牛排套餐', cat: '奢侈', price: 68, taste: '咸香' },
+  { emoji: '🍖', item: '烤肉自助', cat: '奢侈', price: 55, taste: '重口' },
+  { emoji: '🍖', item: '北京烤鸭', cat: '奢侈', price: 58, taste: '咸香' },
+  { emoji: '🍣', item: '日料 Omakase', cat: '奢侈', price: 88, taste: '清淡' },
+  { emoji: '🥘', item: '铁板烧', cat: '奢侈', price: 55, taste: '重口' },
+  { emoji: '🦞', item: '海鲜大餐', cat: '奢侈', price: 78, taste: '咸香' },
+  { emoji: '🍲', item: '椰子鸡火锅', cat: '奢侈', price: 58, taste: '清淡' },
+  { emoji: '🥩', item: '烤肉 + 啤酒', cat: '奢侈', price: 48, taste: '重口' },
+  { emoji: '🍲', item: '重庆老火锅', cat: '奢侈', price: 55, taste: '重口' },
+  { emoji: '🍗', item: '脆皮烤乳猪', cat: '奢侈', price: 48, taste: '咸香' },
+  { emoji: '🥩', item: '黑椒牛柳意面', cat: '奢侈', price: 38, taste: '咸香' },
+  { emoji: '🍲', item: '云南汽锅鸡', cat: '奢侈', price: 45, taste: '清淡' },
+
+  // 🥧 下午茶/加餐 (10)
+  { emoji: '☕', item: '星巴克 + 蛋糕', cat: '下午茶', price: 38, taste: '甜' },
+  { emoji: '🧋', item: '奶茶 + 小料', cat: '下午茶', price: 18, taste: '甜' },
+  { emoji: '🍰', item: '甜品店小蛋糕', cat: '下午茶', price: 22, taste: '甜' },
+  { emoji: '🥐', item: '面包店新品', cat: '下午茶', price: 15, taste: '甜' },
+  { emoji: '🍩', item: '甜甜圈 + 美式', cat: '下午茶', price: 20, taste: '甜' },
+  { emoji: '🧁', item: '泡芙 + 拿铁', cat: '下午茶', price: 22, taste: '甜' },
+  { emoji: '🥤', item: '瑞幸咖啡 + 点心', cat: '下午茶', price: 18, taste: '甜' },
+  { emoji: '🍪', item: '曲奇 + 奶茶', cat: '下午茶', price: 15, taste: '甜' },
+  { emoji: '🧊', item: '冰淇淋/冰沙', cat: '下午茶', price: 12, taste: '甜' },
+  { emoji: '🥜', item: '坚果 + 酸奶', cat: '下午茶', price: 15, taste: '清淡' },
 ];
+
+type FoodHistoryEntry = { item: string; date: string };
+
+const PRICE_TIERS = [
+  { key: '全部', label: '全部', icon: '🍽️' },
+  { key: '省钱', label: '省钱 (<¥15)', icon: '💰' },
+  { key: '正常', label: '正常 (¥15-30)', icon: '🍚' },
+  { key: '奢侈', label: '奢侈 (>¥30)', icon: '🍖' },
+];
+
+const TASTE_FILTERS = ['全部', '清淡', '咸香', '微辣', '重口', '甜'];
 
 const FoodSelector: React.FC = () => {
   const [idx, setIdx] = useState<number | null>(null);
   const [isRolling, setIsRolling] = useState(false);
   const [displayIdx, setDisplayIdx] = useState(0);
-  const [skipIdx, setSkipIdx] = useState<number | null>(null);
   const [lastEaten, setLastEaten] = useState<string | null>(() => localStorage.getItem(SK.LAST_FOOD));
+
+  // Persistent skip list (JSON array of item names)
+  const [skipList, setSkipList] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem(SK.SKIP_FOOD);
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
+  });
+
+  // Recent 7-day food history
+  const [history, setHistory] = useState<FoodHistoryEntry[]>(() => {
+    try {
+      const raw = localStorage.getItem('cl_food_history');
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
+  });
+
+  // Batch exclusion panel toggle
+  const [showExclusions, setShowExclusions] = useState(false);
+
+  const [showCategoryFilter, setShowCategoryFilter] = useState(false);
+  const [activeCat, setActiveCat] = useState<string>('全部');
+  const [activePrice, setActivePrice] = useState<string>('全部');
+  const [activeTaste, setActiveTaste] = useState<string>('全部');
+  const [isSurprise, setIsSurprise] = useState(false);
+
   const rollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => () => { if (rollRef.current) clearInterval(rollRef.current); }, []);
 
-  const rollExcluding = (excludeIdx: number | null) => {
+  const categories = useMemo(() => {
+    const cats = new Set(FOODS.map(f => f.cat));
+    return ['全部', ...Array.from(cats)];
+  }, []);
+
+  // Penalty map: recently eaten items get lower probability
+  const recentPenalties = useMemo(() => {
+    const map = new Map<string, number>();
+    for (let i = 0; i < Math.min(history.length, 10); i++) {
+      map.set(history[i].item, 10 - i);
+    }
+    return map;
+  }, [history]);
+
+  const toggleSkip = (item: string) => {
+    setSkipList(prev => {
+      const next = prev.includes(item) ? prev.filter(x => x !== item) : [...prev, item];
+      localStorage.setItem(SK.SKIP_FOOD, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const pushHistory = (item: string) => {
+    const today = new Date().toISOString().slice(0, 10);
+    const updated = [{ item, date: today }, ...history.filter(e => e.item !== item)].slice(0, 20);
+    setHistory(updated);
+    localStorage.setItem('cl_food_history', JSON.stringify(updated));
+  };
+
+  const getFilteredPool = (excludeNames: string[], effectiveCat: string): number[] => {
+    let pool = FOODS.map((_, i) => i);
+    if (effectiveCat !== '全部') pool = pool.filter(i => FOODS[i].cat === effectiveCat);
+    if (activePrice === '省钱') pool = pool.filter(i => FOODS[i].price < 15);
+    else if (activePrice === '正常') pool = pool.filter(i => FOODS[i].price >= 15 && FOODS[i].price <= 30);
+    else if (activePrice === '奢侈') pool = pool.filter(i => FOODS[i].price > 30);
+    if (activeTaste !== '全部') pool = pool.filter(i => FOODS[i].taste === activeTaste);
+    pool = pool.filter(i => !skipList.includes(FOODS[i].item));
+    pool = pool.filter(i => !excludeNames.includes(FOODS[i].item));
+    return pool;
+  };
+
+  // Weighted random: recent items get much lower probability
+  const weightedPick = (pool: number[]): number => {
+    if (pool.length === 0) return Math.floor(Math.random() * FOODS.length);
+    const weights = pool.map(i => {
+      const penalty = recentPenalties.get(FOODS[i].item) ?? 0;
+      return Math.max(1, 10 - penalty * 2);
+    });
+    const total = weights.reduce((a, b) => a + b, 0);
+    let r = Math.random() * total;
+    for (let j = 0; j < pool.length; j++) {
+      r -= weights[j];
+      if (r <= 0) return pool[j];
+    }
+    return pool[pool.length - 1];
+  };
+
+  const rollExcluding = (excludeNames: string[]) => {
     if (isRolling) return;
+
+    let effectiveCat = activeCat;
+    if (isSurprise) {
+      const catOptions = FOODS.map(f => f.cat).filter((v, i, a) => a.indexOf(v) === i);
+      effectiveCat = catOptions[Math.floor(Math.random() * catOptions.length)];
+    }
+
+    const candidatePool = getFilteredPool(excludeNames, effectiveCat);
+
     setIsRolling(true);
     rollRef.current = setInterval(() => {
       setDisplayIdx(Math.floor(Math.random() * FOODS.length));
     }, 80);
     setTimeout(() => {
       clearInterval(rollRef.current!);
-      let final: number;
-      const pool = FOODS.map((_, i) => i).filter(i => i !== excludeIdx);
-      final = pool[Math.floor(Math.random() * pool.length)];
+      const final = candidatePool.length > 0
+        ? weightedPick(candidatePool)
+        : weightedPick(FOODS.map((_, i) => i));
       setIdx(final);
       setDisplayIdx(final);
-      setSkipIdx(null);
       setIsRolling(false);
       const name = FOODS[final].item;
       localStorage.setItem(SK.LAST_FOOD, name);
       setLastEaten(name);
+      pushHistory(name);
     }, 1400);
   };
 
-  const roll = () => rollExcluding(null);
+  const roll = () => rollExcluding(Array.from(recentPenalties.keys()).slice(0, 5));
 
   const skipCurrent = () => {
     if (idx === null) return;
-    setSkipIdx(idx);
-    rollExcluding(idx);
+    const next = skipList.includes(FOODS[idx].item) ? skipList : [...skipList, FOODS[idx].item];
+    localStorage.setItem(SK.SKIP_FOOD, JSON.stringify(next));
+    setSkipList(next);
+    rollExcluding([...Array.from(recentPenalties.keys()).slice(0, 5), FOODS[idx].item]);
   };
 
   const current = FOODS[isRolling ? displayIdx : (idx ?? displayIdx)];
+  const skipCount = skipList.length;
 
   return (
-    <div className="bg-white rounded-[24px] border border-brand-border/10 shadow-sm p-6 flex flex-col h-full min-h-[300px]">
+    <div className="bg-white rounded-[24px] border border-brand-border/10 shadow-sm p-6 flex flex-col h-full min-h-[420px]">
       <div className="flex items-center justify-between mb-4">
         <div className="flex flex-col gap-1">
           <p className="text-[10px] font-bold text-brand-gray/50 uppercase tracking-[0.15em]">Food Selector</p>
-          <span className="text-xs font-bold text-brand-dark">今天吃什么</span>
+          <span className="text-xs font-bold text-brand-dark">今天吃什么 · {FOODS.length} 种选择</span>
         </div>
         <div className="w-8 h-8 rounded-full bg-brand-offwhite flex items-center justify-center">
           <Utensils size={13} className="text-brand-gray" />
@@ -781,30 +1020,147 @@ const FoodSelector: React.FC = () => {
       </div>
 
       {lastEaten && idx === null && (
-        <p className="text-[10px] text-brand-gray/40 font-medium mb-2 text-center">上次吃了：{lastEaten}</p>
+        <p className="text-[10px] text-brand-gray/40 font-medium mb-1 text-center">上次吃了：{lastEaten}</p>
       )}
 
-      <div className="flex-grow flex flex-col items-center justify-center gap-4">
+      {/* Filters: category + price + taste */}
+      <div className="mb-3 space-y-2">
+        {/* Category row */}
+        <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
+          {categories.map(cat => (
+            <button key={cat} onClick={() => { setActiveCat(cat); setIsSurprise(false); }}
+              className={cn(
+                'shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all',
+                activeCat === cat && !isSurprise
+                  ? 'bg-brand-dark text-white border-brand-dark'
+                  : 'bg-brand-offwhite text-brand-gray/50 border-brand-border/10 hover:text-brand-dark'
+              )}>
+              {cat}
+            </button>
+          ))}
+          <button onClick={() => { setIsSurprise(!isSurprise); setActiveCat('全部'); }}
+            className={cn(
+              'shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all',
+              isSurprise
+                ? 'bg-amber-400 text-amber-900 border-amber-300'
+                : 'bg-brand-offwhite text-brand-gray/50 border-brand-border/10 hover:text-brand-dark'
+            )}>
+            🎲 盲选品类
+          </button>
+        </div>
+        {/* Price tier row */}
+        <div className="flex gap-1">
+          {PRICE_TIERS.map(t => (
+            <button key={t.key} onClick={() => setActivePrice(t.key)}
+              className={cn(
+                'flex-1 py-1 rounded-lg text-[9px] font-bold border transition-all',
+                activePrice === t.key
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : 'bg-brand-offwhite text-brand-gray/40 border-brand-border/10 hover:text-brand-gray'
+              )}>
+              {t.icon} {t.label}
+            </button>
+          ))}
+        </div>
+        {/* Taste filter row */}
+        <div className="flex gap-1">
+          {TASTE_FILTERS.map(t => (
+            <button key={t} onClick={() => setActiveTaste(t)}
+              className={cn(
+                'flex-1 py-1 rounded-lg text-[9px] font-bold border transition-all',
+                activeTaste === t
+                  ? 'bg-brand-dark text-white border-brand-dark'
+                  : 'bg-brand-offwhite text-brand-gray/40 border-brand-border/10 hover:text-brand-gray'
+              )}>
+              {t === '清淡' ? '🥬' : t === '咸香' ? '🧂' : t === '微辣' ? '🌶️' : t === '重口' ? '🔥' : t === '甜' ? '🍬' : '🍽️'} {t}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent history */}
+      {history.length > 1 && idx === null && (
+        <div className="mb-2 px-1">
+          <p className="text-[9px] font-bold text-brand-gray/30 uppercase tracking-widest mb-1">最近吃过（自动降低概率）</p>
+          <div className="flex gap-1.5 flex-wrap">
+            {history.slice(0, 6).map((e, i) => {
+              const food = FOODS.find(f => f.item === e.item);
+              return (
+                <span key={i} title={e.date} className="text-[10px] px-1.5 py-0.5 rounded bg-brand-offwhite text-brand-gray/50 cursor-help">
+                  {food ? food.emoji : '🍽️'} {e.item}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Main display */}
+      <div className="flex-grow flex flex-col items-center justify-center gap-3">
         <div className="w-20 h-20 bg-brand-offwhite border border-brand-border/10 rounded-[24px] flex items-center justify-center overflow-hidden">
           <span className={cn('text-3xl transition-all duration-75', isRolling && 'scale-95 opacity-50 blur-[1px]')}>
             {current.emoji}
           </span>
         </div>
 
-        <div className="h-8 flex items-center justify-center">
+        <div className="h-14 flex flex-col items-center justify-center">
           <AnimatePresence mode="wait">
             {!isRolling && idx !== null && (
-              <motion.p key={idx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                className="text-sm font-black text-brand-dark">
-                {FOODS[idx].item}
-              </motion.p>
+              <motion.div key={idx} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                className="text-center">
+                <p className="text-sm font-black text-brand-dark">{FOODS[idx].item}</p>
+                <div className="flex items-center justify-center gap-2 mt-1">
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-brand-offwhite text-brand-gray/60 font-bold">
+                    {FOODS[idx].cat}
+                  </span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 font-bold">
+                    ¥{FOODS[idx].price}
+                  </span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-orange-50 text-orange-500 font-bold">
+                    {FOODS[idx].taste}
+                  </span>
+                </div>
+              </motion.div>
             )}
           </AnimatePresence>
           {idx === null && !isRolling && (
-            <p className="text-[11px] font-bold text-brand-gray/50 tracking-wider">听天由命</p>
+            <p className="text-[11px] font-bold text-brand-gray/50 tracking-wider text-center">
+              {isSurprise ? '🎲 随机品类 + 随机选择' : '听天由命'}
+              {recentPenalties.size > 0 && (
+                <span className="text-brand-gray/30 text-[10px] block mt-0.5">最近吃过的概率更低</span>
+              )}
+            </p>
           )}
         </div>
       </div>
+
+      {/* Exclusion panel */}
+      <AnimatePresence>
+        {showExclusions && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+            className="mb-3 overflow-hidden">
+            <div className="bg-brand-offwhite rounded-2xl p-3 border border-brand-border/10 max-h-[120px] overflow-y-auto">
+              <p className="text-[9px] font-bold text-brand-gray/40 uppercase tracking-widest mb-2">不想吃（点选排除）</p>
+              <div className="flex gap-1.5 flex-wrap">
+                {FOODS.map(f => {
+                  const skipped = skipList.includes(f.item);
+                  return (
+                    <button key={f.item} onClick={() => toggleSkip(f.item)}
+                      className={cn(
+                        'px-2 py-1 rounded-lg text-[10px] font-bold border transition-all',
+                        skipped
+                          ? 'bg-red-50 text-red-500 border-red-200 line-through opacity-60'
+                          : 'bg-white text-brand-gray/70 border-brand-border/20 hover:border-brand-dark/30'
+                      )}>
+                      {f.emoji} {f.item}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="mt-4 flex gap-2">
         <motion.button whileTap={{ scale: 0.96 }} onClick={roll} disabled={isRolling}
@@ -812,11 +1168,20 @@ const FoodSelector: React.FC = () => {
           {isRolling ? <Sparkles size={13} className="animate-spin" /> : <RefreshCw size={11} />}
           {isRolling ? '随机中...' : idx !== null ? '再来一个' : '帮我决定'}
         </motion.button>
+        <motion.button whileTap={{ scale: 0.96 }} onClick={() => setShowExclusions(!showExclusions)}
+          className={cn(
+            'px-3 py-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-1 border',
+            showExclusions
+              ? 'bg-red-50 text-red-500 border-red-200'
+              : 'bg-brand-offwhite text-brand-gray border-brand-border/10 hover:text-brand-dark'
+          )}>
+          {skipCount > 0 ? <><X size={11} /> {skipCount}项</> : <><X size={11} /> 排除</>}
+        </motion.button>
         {idx !== null && !isRolling && (
           <motion.button whileTap={{ scale: 0.96 }} onClick={skipCurrent}
-            className="px-4 py-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-1 bg-brand-offwhite text-brand-gray border border-brand-border/10 hover:text-red-500">
+            className="px-3 py-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-1 bg-brand-offwhite text-brand-gray border border-brand-border/10 hover:text-red-500">
             <ThumbsDown size={11} />
-            不想吃
+            换一个
           </motion.button>
         )}
       </div>
@@ -851,7 +1216,9 @@ const EarnedTodayBadge: React.FC<{ type: 'paid_poop' | 'touch_fish' | 'drink_cof
 const PaidPoopModule: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
   const [seconds, setSeconds] = useState(0);
-  const [salary] = useState(() => loadNum(SK.SALARY, 6000));
+  const [salary, setSalary] = useState(() => loadNum(SK.SALARY, 6000));
+
+  useEffect(() => subscribeLocalNumber(LOCAL_NUMBER_KEYS.salary, 6000, setSalary), []);
   const hourlyRate = (salary / 22) / 8;
   const earned = (seconds / 3600) * hourlyRate;
 
@@ -917,9 +1284,21 @@ const PaidPoopModule: React.FC = () => {
 // ─── MODULE 5b · 摸鱼 ────────────────────────────────────────────────────────
 const TouchFishModule: React.FC = () => {
   const toast = useToast();
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(() => loadNum(LOCAL_NUMBER_KEYS.touchFishCounter, 0));
+  const [cooldownLeft, setCooldownLeft] = useState(0);
+  const cooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const COOLDOWN_SEC = 30;
+
+  useEffect(() => subscribeLocalNumber(LOCAL_NUMBER_KEYS.touchFishCounter, 0, setCount), []);
+
+  useEffect(() => {
+    if (cooldownLeft <= 0) return;
+    const t = setInterval(() => setCooldownLeft((c) => (c <= 1 ? 0 : c - 1)), 1000);
+    return () => clearInterval(t);
+  }, [cooldownLeft > 0]);
 
   const handleTouchFish = () => {
+    if (cooldownLeft > 0) return;
     incrementLocalNumber(LOCAL_NUMBER_KEYS.touchFishCounter, 0);
     void dispatchPetEvent('touch_fish');
     const salary = readLocalNumber(LOCAL_NUMBER_KEYS.salary, 6000);
@@ -933,6 +1312,7 @@ const TouchFishModule: React.FC = () => {
       dateKey: new Date().toDateString(),
     });
     setCount(c => c + 1);
+    setCooldownLeft(COOLDOWN_SEC);
     toast.success(`已摸鱼 +¥${earned.toFixed(2)}`);
   };
 
@@ -961,9 +1341,17 @@ const TouchFishModule: React.FC = () => {
         )}
       </div>
 
-      <motion.button whileTap={{ scale: 0.96 }} onClick={handleTouchFish}
-        className="w-full py-3.5 rounded-2xl text-xs font-bold transition-all shadow-sm flex justify-center items-center bg-brand-dark text-white border border-brand-dark">
-        <Fish size={14} className="mr-1.5" /> 摸一下
+      <motion.button whileTap={cooldownLeft > 0 ? undefined : { scale: 0.96 }}
+        disabled={cooldownLeft > 0}
+        onClick={handleTouchFish}
+        className={cn(
+          'w-full py-3.5 rounded-2xl text-xs font-bold transition-all shadow-sm flex justify-center items-center border',
+          cooldownLeft > 0
+            ? 'bg-white/20 text-white/40 border-white/10 cursor-not-allowed'
+            : 'bg-brand-dark text-white border-brand-dark'
+        )}>
+        <Fish size={14} className="mr-1.5" />
+        {cooldownLeft > 0 ? `冷却中 ${cooldownLeft}s` : '摸一下'}
       </motion.button>
       <EarnedTodayBadge type="touch_fish" label="今天摸鱼赚了" />
     </div>
@@ -973,9 +1361,21 @@ const TouchFishModule: React.FC = () => {
 // ─── MODULE 5c · 喝咖啡 ──────────────────────────────────────────────────────
 const CoffeeModule: React.FC = () => {
   const toast = useToast();
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(() => loadNum(LOCAL_NUMBER_KEYS.coffeeCounter, 0));
+  const [cooldownLeft, setCooldownLeft] = useState(0);
+  const cooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const COOLDOWN_SEC = 60;
+
+  useEffect(() => subscribeLocalNumber(LOCAL_NUMBER_KEYS.coffeeCounter, 0, setCount), []);
+
+  useEffect(() => {
+    if (cooldownLeft <= 0) return;
+    const t = setInterval(() => setCooldownLeft((c) => (c <= 1 ? 0 : c - 1)), 1000);
+    return () => clearInterval(t);
+  }, [cooldownLeft > 0]);
 
   const handleDrinkCoffee = () => {
+    if (cooldownLeft > 0) return;
     incrementLocalNumber(LOCAL_NUMBER_KEYS.coffeeCounter, 0);
     void dispatchPetEvent('drink_coffee');
     const salary = readLocalNumber(LOCAL_NUMBER_KEYS.salary, 6000);
@@ -989,6 +1389,7 @@ const CoffeeModule: React.FC = () => {
       dateKey: new Date().toDateString(),
     });
     setCount(c => c + 1);
+    setCooldownLeft(COOLDOWN_SEC);
     toast.success(`已喝咖啡 +¥${earned.toFixed(2)}`);
   };
 
@@ -1017,9 +1418,17 @@ const CoffeeModule: React.FC = () => {
         )}
       </div>
 
-      <motion.button whileTap={{ scale: 0.96 }} onClick={handleDrinkCoffee}
-        className="w-full py-3.5 rounded-2xl text-xs font-bold transition-all shadow-sm flex justify-center items-center bg-brand-dark text-white border border-brand-dark">
-        <Coffee size={14} className="mr-1.5" /> 喝一杯
+      <motion.button whileTap={cooldownLeft > 0 ? undefined : { scale: 0.96 }}
+        disabled={cooldownLeft > 0}
+        onClick={handleDrinkCoffee}
+        className={cn(
+          'w-full py-3.5 rounded-2xl text-xs font-bold transition-all shadow-sm flex justify-center items-center border',
+          cooldownLeft > 0
+            ? 'bg-white/20 text-white/40 border-white/10 cursor-not-allowed'
+            : 'bg-brand-dark text-white border-brand-dark'
+        )}>
+        <Coffee size={14} className="mr-1.5" />
+        {cooldownLeft > 0 ? `冷却中 ${cooldownLeft}s` : '喝一杯'}
       </motion.button>
       <EarnedTodayBadge type="drink_coffee" label="今天喝咖啡赚了" />
     </div>

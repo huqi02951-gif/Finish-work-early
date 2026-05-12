@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  ArrowRight,
   Briefcase,
   FileText,
   MessageSquare,
@@ -15,7 +14,12 @@ import {
   HeartHandshake,
   User,
   X,
-  QrCode
+  QrCode,
+  Search,
+  RefreshCw,
+  Trash2,
+  Clock,
+  Edit3,
 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import { cn } from '../../lib/utils';
@@ -252,6 +256,30 @@ function pickToolDataSource(
   return 'empty';
 }
 
+// Fixed hash for author stats (replaces Math.random)
+function hashNumber(str: string): number {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
+// Relative time formatter
+function formatRelativeTime(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSec = Math.floor(diffMs / 1000);
+  if (diffSec < 60) return '刚刚';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `${diffMin}分钟前`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}小时前`;
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffDay < 7) return `${diffDay}天前`;
+  return date.toLocaleDateString('zh-CN');
+}
+
 function combineToolDataSource(
   artifactSource: ToolDataChannelSource,
   draftSource: ToolDataChannelSource,
@@ -356,7 +384,6 @@ const WorkspacePage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [recentArtifacts, setRecentArtifacts] = useState<GeneratedArtifact[]>([]);
   const [recentDrafts, setRecentDrafts] = useState<DraftRecord[]>([]);
-  const [toolDataSource, setToolDataSource] = useState<ToolDataSource>('local');
   const [artifactSource, setArtifactSource] = useState<ToolDataChannelSource>('empty');
   const [draftSource, setDraftSource] = useState<ToolDataChannelSource>('empty');
   const [loading, setLoading] = useState(true);
@@ -366,7 +393,18 @@ const WorkspacePage: React.FC = () => {
   const [anonName, setAnonName] = useState(MOCK_AVATARS[0]);
   const [selectedAuthor, setSelectedAuthor] = useState<{nickname: string, isAnon: boolean} | null>(null);
   const [showQr, setShowQr] = useState(false);
-  
+
+  // Search & pagination
+  const [searchQuery, setSearchQuery] = useState('');
+  const [postPage, setPostPage] = useState(1);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [postsLoading, setPostsLoading] = useState(false);
+
+  // Delete state
+  const [deletingArtifactId, setDeletingArtifactId] = useState<number | undefined>(undefined);
+  const [deletingDraftId, setDeletingDraftId] = useState<number | undefined>(undefined);
+
   const [form, setForm] = useState({
     boardSlug: DEFAULT_BOARD,
     title: '',
@@ -385,32 +423,50 @@ const WorkspacePage: React.FC = () => {
     [boards],
   );
 
-  const workspacePosts = useMemo(
-    () => posts.filter((post) => post.board?.slug !== 'pantry'),
-    [posts],
-  );
+  const workspacePosts = useMemo(() => {
+    let filtered = posts.filter((post) => post.board?.slug !== 'pantry');
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(p =>
+        p.title.toLowerCase().includes(q) ||
+        (p.content || '').toLowerCase().includes(q) ||
+        p.tags.some(t => t.toLowerCase().includes(q))
+      );
+    }
+    return filtered;
+  }, [posts, searchQuery]);
 
   const applyToolData = (toolData: ToolDataLoadResult) => {
     setRecentArtifacts(toolData.artifacts);
     setRecentDrafts(toolData.drafts);
-    setToolDataSource(toolData.source);
     setArtifactSource(toolData.artifactSource);
     setDraftSource(toolData.draftSource);
   };
 
-  const loadCommunity = async () => {
-    setLoading(true);
+  const loadCommunity = async (loadPage = 1) => {
+    if (loadPage === 1) setPostsLoading(true);
     try {
       const [boardList, postList] = await Promise.all([
         forumApi.getBoards(),
         forumApi.getPosts({
           boardSlug: activeBoard === 'all' ? undefined : activeBoard,
           pageSize: 20,
+          page: loadPage,
         }),
       ]);
 
       setBoards(boardList);
-      setPosts(postList.items);
+      if (loadPage > 1) {
+        setPosts(prev => {
+          const existing = new Set(prev.map(p => p.id));
+          const newPosts = postList.items.filter(p => !existing.has(p.id));
+          return [...prev, ...newPosts];
+        });
+      } else {
+        setPosts(postList.items);
+      }
+      setPostPage(loadPage);
+      setHasMorePosts(postList.items.length >= 20);
 
       if (!boardList.find((item) => item.slug === form.boardSlug && !item.isOfficial)) {
         const fallbackBoard = boardList.find((item) => !item.isOfficial)?.slug || DEFAULT_BOARD;
@@ -419,8 +475,22 @@ const WorkspacePage: React.FC = () => {
     } catch (error) {
       console.error('Failed to load workspace community', error);
     } finally {
-      setLoading(false);
+      if (loadPage === 1) setPostsLoading(false);
     }
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await Promise.all([
+      loadCommunity(1),
+      (async () => {
+        const localData = await loadLocalWorkspaceToolData();
+        const mergedData = await loadWorkspaceToolData(localData);
+        applyToolData(mergedData);
+      })(),
+    ]);
+    setIsRefreshing(false);
+    toast.success('已刷新');
   };
 
   useEffect(() => {
@@ -451,6 +521,32 @@ const WorkspacePage: React.FC = () => {
     const random = MOCK_AVATARS[Math.floor(Math.random() * MOCK_AVATARS.length)];
     setAnonName(random);
   }
+
+  const handleDeleteArtifact = async (id: number) => {
+    setDeletingArtifactId(id);
+    try {
+      await db.artifacts.delete(id);
+      setRecentArtifacts(prev => prev.filter(a => a.id !== id));
+      toast.success('已删除');
+    } catch {
+      toast.error('删除失败');
+    } finally {
+      setDeletingArtifactId(undefined);
+    }
+  };
+
+  const handleDeleteDraft = async (id: number) => {
+    setDeletingDraftId(id);
+    try {
+      await db.drafts.delete(id);
+      setRecentDrafts(prev => prev.filter(d => d.id !== id));
+      toast.success('已删除');
+    } catch {
+      toast.error('删除失败');
+    } finally {
+      setDeletingDraftId(undefined);
+    }
+  };
 
   const handleCreatePost = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -499,21 +595,6 @@ const WorkspacePage: React.FC = () => {
     setShowQr(false);
   }
 
-  const toolDataStatusLabel = useMemo(() => {
-    if (toolDataSource === 'cloud') return '已同步';
-    if (toolDataSource === 'mixed') return '有暂存';
-    return '本机记录';
-  }, [toolDataSource]);
-
-  const toolDataStatusHint = useMemo(() => {
-    if (artifactSource === 'local' || draftSource === 'local') {
-      return '先把本机最近做过的东西摆出来，接着干不用翻。';
-    }
-    if (artifactSource === 'empty' && draftSource === 'empty') {
-      return '最近还没有产出，跑完一次清单、话术或排版，这里会自己记住。';
-    }
-    return '最近用过的东西已经排在这里，接着做不用翻。';
-  }, [artifactSource, draftSource]);
 
   return (
     <AppLayout title="工作台" theme="default">
@@ -530,6 +611,14 @@ const WorkspacePage: React.FC = () => {
             </div>
             
             <div className="flex gap-2">
+              <button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="flex justify-center items-center gap-1.5 rounded-2xl bg-white border border-neutral-200 px-4 py-3 min-h-[44px] text-[14px] font-bold text-neutral-600 hover:bg-neutral-50 shadow-sm transition-all active:scale-95 disabled:opacity-50"
+              >
+                <RefreshCw size={16} className={cn(isRefreshing && 'animate-spin')} />
+                刷新
+              </button>
               <button
                 onClick={() => setComposing((current) => !current)}
                 className="flex-[2] sm:flex-none flex justify-center items-center gap-1.5 rounded-2xl bg-brand-dark px-5 py-3 min-h-[44px] text-[14px] font-bold text-white hover:bg-brand-dark/90 shadow-[0_10px_24px_rgba(15,23,42,0.16)] transition-all active:scale-95"
@@ -644,55 +733,76 @@ const WorkspacePage: React.FC = () => {
               </section>
             ) : null}
 
-            {/* Board filter Pill Tabs */}
-            <section className="py-1 sticky top-14 z-30">
-              <div className="flex flex-wrap gap-2 rounded-2xl border border-white/80 bg-white/80 p-2 shadow-sm backdrop-blur">
+            {/* Unified Toolbar: Search + Board Filter */}
+            <div className="rounded-[20px] bg-white/90 border border-white shadow-sm p-3 flex flex-col gap-2 sticky top-14 z-30 backdrop-blur">
+              <div className="relative">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
+                <input
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="搜索帖子标题、内容或标签..."
+                  className="w-full rounded-xl border border-neutral-200 bg-neutral-50 pl-9 pr-4 py-2.5 text-[13px] font-medium outline-none focus:border-blue-500/50 focus:bg-white transition-all placeholder:text-neutral-300"
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600">
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
                 <button
                   onClick={() => setActiveBoard('all')}
                   className={cn(
-                    "rounded-xl px-4 py-2 text-xs font-extrabold transition-all border",
+                    "rounded-lg px-3 py-1.5 text-[11px] font-extrabold transition-all border",
                     activeBoard === 'all'
                       ? 'bg-brand-dark text-white border-brand-dark shadow-sm'
-                      : 'bg-white text-neutral-600 border-neutral-200 hover:bg-neutral-50'
+                      : 'bg-transparent text-neutral-500 border-neutral-200 hover:bg-neutral-100'
                   )}
                 >
-                  全部帖子
+                  全部
                 </button>
                 {displayBoards.map((board) => (
                   <button
                     key={board.slug}
                     onClick={() => setActiveBoard(board.slug)}
                     className={cn(
-                      "rounded-xl px-4 py-2 text-xs font-bold transition-all border",
+                      "rounded-lg px-3 py-1.5 text-[11px] font-bold transition-all border",
                       activeBoard === board.slug
                          ? 'bg-brand-dark text-white border-brand-dark shadow-sm'
-                         : 'bg-white text-neutral-600 border-neutral-200 hover:bg-neutral-50'
+                         : 'bg-transparent text-neutral-500 border-neutral-200 hover:bg-neutral-100'
                     )}
                   >
                     {board.name}
                   </button>
                 ))}
               </div>
-            </section>
+            </div>
 
             {/* Posts List */}
             <div className="grid gap-3">
-              {loading ? (
+              {postsLoading ? (
                 <div className="rounded-[20px] p-8 text-center text-sm font-bold text-neutral-400">
                   正在把帖子捞出来...
                 </div>
               ) : workspacePosts.length ? (
-                workspacePosts.map((post) => {
-                  const isTradeItem = post.tags.some(t => ['二手','交换','出售','求购','置换'].includes(t));
-                  const isHot = (post.commentCount || 0) > 5;
-                  
-                  return (
-                    <article 
-                      key={post.id} 
-                      className={cn(
-                        "rounded-[22px] p-4 sm:p-5 transition-all hover:-translate-y-0.5 active:scale-[0.99] relative overflow-hidden bg-white border border-white shadow-sm",
-                        isHot ? "outline outline-1 outline-blue-500/10" : ""
-                      )}
+                <>
+                  {searchQuery && (
+                    <p className="text-[11px] font-bold text-neutral-400 px-1">
+                      找到 {workspacePosts.length} 条结果
+                    </p>
+                  )}
+                  {workspacePosts.map((post) => {
+                    const postDate = post.createdAt ? new Date(post.createdAt) : null;
+                    const isTradeItem = post.tags.some(t => ['二手','交换','出售','求购','置换'].includes(t));
+                    const isHot = (post.commentCount || 0) > 5;
+
+                    return (
+                      <article
+                        key={post.id}
+                        className={cn(
+                          "rounded-[22px] p-4 sm:p-5 transition-all hover:-translate-y-0.5 active:scale-[0.99] relative overflow-hidden bg-white border border-white shadow-sm",
+                          isHot ? "outline outline-1 outline-blue-500/10" : ""
+                        )}
                     >
                       <div className="flex flex-wrap items-center gap-1.5 text-[11px] mb-2 font-bold relative z-10">
                         {post.isPinned ? (
@@ -735,7 +845,7 @@ const WorkspacePage: React.FC = () => {
                       </Link>
 
                       <div className="mt-3.5 flex flex-wrap items-center justify-between relative z-10">
-                        <div className="flex gap-1.5">
+                        <div className="flex gap-1.5 flex-wrap items-center">
                            {post.tags.slice(0, 3).map((tag) => (
                              <span key={tag} className={cn(
                                "rounded px-1.5 py-0.5 text-[10px] font-bold",
@@ -744,6 +854,11 @@ const WorkspacePage: React.FC = () => {
                                #{tag}
                              </span>
                            ))}
+                           {postDate && (
+                             <span className="flex items-center gap-1 text-[10px] font-bold text-neutral-400">
+                               <Clock size={10} /> {formatRelativeTime(postDate)}
+                             </span>
+                           )}
                         </div>
                         <div className={cn(
                           "flex items-center gap-3 text-[11px] font-bold",
@@ -755,10 +870,21 @@ const WorkspacePage: React.FC = () => {
                       </div>
                     </article>
                   );
-                })
+                })}
+
+                    {/* Load More */}
+                  {hasMorePosts && !searchQuery && (
+                    <button
+                      onClick={() => void loadCommunity(postPage + 1)}
+                      className="py-3 rounded-2xl text-[13px] font-bold text-neutral-500 border border-neutral-200 bg-white hover:bg-neutral-50 transition-all active:scale-95 shadow-sm"
+                    >
+                      加载更多帖子
+                    </button>
+                  )}
+                </>
               ) : (
                 <div className="rounded-[20px] border border-dashed border-neutral-200 bg-white p-10 text-center text-sm font-bold text-neutral-400 shadow-sm">
-                  这里还没人开帖。把你刚踩过的坑写下来，后来人会感谢你。
+                  {searchQuery ? '没有找到匹配的帖子' : '这里还没人开帖。把你刚踩过的坑写下来，后来人会感谢你。'}
                 </div>
               )}
             </div>
@@ -769,20 +895,22 @@ const WorkspacePage: React.FC = () => {
             "flex flex-col gap-4",
             mobileTab === 'posts' ? "hidden sm:flex" : "flex",
           )}>
-            
-            {/* Workbench guide posts */}
+
+            {/* Navigation: Guide Posts + Quick Entries */}
             <section className="rounded-[24px] border border-white bg-white/90 p-4 shadow-sm relative overflow-hidden">
-               <div className="mb-3 flex items-center gap-1.5 text-[13px] font-extrabold text-neutral-900">
+              <div className="mb-3 flex items-center gap-1.5 text-[13px] font-extrabold text-neutral-900">
                 <Sparkles size={14} className="text-brand-gold" />
-                先看这几帖
+                导航面板
               </div>
-              <div className="grid gap-2">
+
+              {/* Guide Posts */}
+              <div className="grid gap-2 mb-3">
                 {WORKSPACE_GUIDE_POSTS.map((post) => (
                   <Link
                     key={post.id}
                     to={post.path}
                     className={cn(
-                      'group rounded-2xl border p-3.5 transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-sm flex flex-col gap-2',
+                      'group rounded-2xl border p-3 transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-sm flex flex-col gap-2',
                       post.id === 'under-invoice-workflow'
                         ? 'border-amber-200 bg-amber-50 ring-2 ring-amber-100'
                         : 'border-neutral-100 bg-neutral-50'
@@ -797,145 +925,153 @@ const WorkspacePage: React.FC = () => {
                     </div>
                     <div className="text-[13px] font-extrabold text-neutral-900 tracking-tight leading-snug">{post.title}</div>
                     <p className="text-[12px] leading-relaxed text-neutral-500 line-clamp-2">{post.intro}</p>
-                    <div className="flex items-end justify-between gap-3 pt-1">
-                      <p className="text-[11px] leading-relaxed text-neutral-400 line-clamp-2">{post.problem}</p>
-                      <span className="shrink-0 text-[11px] font-extrabold text-neutral-900 group-hover:translate-x-0.5 transition-transform">照着用</span>
-                    </div>
                   </Link>
                 ))}
               </div>
+
+              {/* Quick Entries */}
+              <div className="pt-3 border-t border-dashed border-neutral-200">
+                <div className="mb-2 flex items-center gap-1.5 text-[12px] font-extrabold text-neutral-700">
+                  <Wrench size={12} className="text-neutral-400" />
+                  马上开干
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {quickTools.map((tool) => (
+                    <Link
+                      key={tool.id}
+                      to={tool.path}
+                      className="flex flex-col gap-0.5 rounded-xl border border-neutral-100 bg-neutral-50 p-2.5 text-neutral-700 hover:bg-white hover:shadow-sm hover:border-neutral-200 transition-all active:scale-95 text-left"
+                    >
+                      <span className="text-[11px] font-extrabold leading-snug line-clamp-2">{tool.name}</span>
+                      <span className="text-[10px] text-neutral-400 leading-relaxed line-clamp-2">{tool.short}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             </section>
 
-            {/* Quick entries */}
+            {/* Workbench: Customer + Artifacts + Drafts */}
             <section className="rounded-[24px] border border-white bg-white/90 p-4 shadow-sm">
-              <div className="mb-3 flex items-center gap-1.5 text-[13px] font-extrabold text-neutral-800">
-                <Wrench size={14} className="text-neutral-500" />
-                马上开干
+              <div className="mb-3 flex items-center gap-1.5 text-[13px] font-extrabold text-neutral-900">
+                <Briefcase size={14} className="text-blue-500" />
+                案头这一摊
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                {quickTools.map((tool) => (
-                  <Link
-                    key={tool.id}
-                    to={tool.path}
-                    className="flex flex-col gap-1 rounded-2xl border border-neutral-100 bg-neutral-50 p-3 text-neutral-700 hover:bg-white hover:shadow-sm hover:border-neutral-200 transition-all active:scale-95 text-left"
-                  >
-                    <span className="text-[12px] font-extrabold leading-snug line-clamp-2">{tool.name}</span>
-                    <span className="text-[11px] text-neutral-400 leading-relaxed line-clamp-2">{tool.short}</span>
-                    <ArrowRight size={12} className="text-neutral-300 mt-auto ml-auto" />
-                  </Link>
-                ))}
-              </div>
-            </section>
 
-            {/* Context & Artifacts */}
-            <section className="rounded-[24px] border border-white bg-white/90 p-4 shadow-sm">
-              <div className="flex flex-col gap-4">
-                 <div>
-                    <div className="mb-2 flex items-center justify-between text-[13px] font-extrabold text-neutral-800">
-                      <span>案头这一摊</span>
-                      <div className="flex items-center gap-2">
-                        <span className={cn(
-                          'text-[10px] font-bold',
-                          toolDataSource === 'cloud'
-                            ? 'text-emerald-600'
-                            : toolDataSource === 'mixed'
-                              ? 'text-sky-600'
-                              : 'text-neutral-400'
-                        )}>
-                          {toolDataStatusLabel}
-                        </span>
-                      {hasCustomer && (
-                         <button type="button" onClick={clearCustomer} className="text-[11px] text-neutral-400 hover:text-red-500">先不看它</button>
-                      )}
-                      </div>
+              {/* Customer */}
+              {hasCustomer ? (
+                <div className="mb-3 bg-blue-50 border border-blue-100 rounded-xl p-3 flex items-center gap-2">
+                  <span className="text-sm font-extrabold text-blue-900 flex-1">{customer.name}</span>
+                  <button type="button" onClick={clearCustomer} className="text-[11px] text-neutral-400 hover:text-red-500 shrink-0">清除</button>
+                </div>
+              ) : (
+                <input
+                  placeholder="输入客户名后回车..."
+                  className="mb-3 w-full rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs font-bold outline-none focus:border-blue-500"
+                  onKeyDown={(event) => {
+                    const value = (event.target as HTMLInputElement).value.trim();
+                    if (event.key === 'Enter' && value) {
+                      setCustomer({ name: value });
+                      (event.target as HTMLInputElement).value = '';
+                    }
+                  }}
+                />
+              )}
+
+              {/* Artifacts + Drafts in a 2-col grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Artifacts */}
+                <div>
+                  <div className="mb-1.5 flex items-center gap-1 text-[11px] font-extrabold text-neutral-700">
+                    <FileText size={11} className="text-neutral-400" />
+                    产出的文件
+                    <span className={cn(
+                      'ml-auto text-[10px] font-bold',
+                      artifactSource === 'cloud' ? 'text-emerald-600' : 'text-neutral-300'
+                    )}>
+                      {artifactSource === 'cloud' ? '云' : artifactSource === 'local' ? '本' : '-'}
+                    </span>
+                  </div>
+                  {recentArtifacts.length ? (
+                    <div className="flex flex-col gap-1.5">
+                      {recentArtifacts.map((item, index) => {
+                        const path = getToolPath(item.toolId);
+                        const key = `${item.toolId}-${item.id ?? 'local'}-${item.createdAt.getTime()}-${index}`;
+                        const isDeleting = deletingArtifactId === item.id;
+                        return (
+                          <div key={key} className="group flex items-center gap-0.5">
+                            {path ? (
+                              <Link to={path} className="flex-1 text-[11px] font-bold text-neutral-600 truncate hover:text-blue-600 transition-colors">
+                                {item.title}
+                              </Link>
+                            ) : (
+                              <div className="flex-1 text-[11px] font-bold text-neutral-600 truncate">
+                                {item.title}
+                              </div>
+                            )}
+                            <button
+                              onClick={() => item.id && handleDeleteArtifact(item.id)}
+                              disabled={isDeleting}
+                              className="shrink-0 p-0.5 rounded text-neutral-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50"
+                              title="删除"
+                            >
+                              <Trash2 size={10} />
+                            </button>
+                          </div>
+                        );
+                      })}
                     </div>
-                    <div className="mb-2 text-[10px] text-neutral-400">
-                      {toolDataStatusHint}
+                  ) : (
+                    <div className="text-[11px] font-medium text-neutral-300">暂无产出</div>
+                  )}
+                </div>
+
+                {/* Drafts */}
+                <div>
+                  <div className="mb-1.5 flex items-center gap-1 text-[11px] font-extrabold text-neutral-700">
+                    <Edit3 size={11} className="text-blue-300" />
+                    草稿
+                    <span className={cn(
+                      'ml-auto text-[10px] font-bold',
+                      draftSource === 'cloud' ? 'text-emerald-600' : 'text-neutral-300'
+                    )}>
+                      {draftSource === 'cloud' ? '云' : draftSource === 'local' ? '本' : '-'}
+                    </span>
+                  </div>
+                  {recentDrafts.length ? (
+                    <div className="flex flex-col gap-1.5">
+                      {recentDrafts.map((item, index) => {
+                        const path = getToolPath(item.toolId);
+                        const key = `${item.toolId}-${item.id ?? 'local'}-${item.updatedAt.getTime()}-${index}`;
+                        const isDeleting = deletingDraftId === item.id;
+                        return (
+                          <div key={key} className="group flex items-center gap-0.5">
+                            {path ? (
+                              <Link to={path} className="flex-1 text-[11px] font-bold text-neutral-600 truncate hover:text-blue-600 transition-colors">
+                                {item.title}
+                              </Link>
+                            ) : (
+                              <div className="flex-1 text-[11px] font-bold text-neutral-600 truncate">
+                                {item.title}
+                              </div>
+                            )}
+                            <button
+                              onClick={() => item.id && handleDeleteDraft(item.id)}
+                              disabled={isDeleting}
+                              className="shrink-0 p-0.5 rounded text-neutral-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50"
+                              title="删除"
+                            >
+                              <Trash2 size={10} />
+                            </button>
+                          </div>
+                        );
+                      })}
                     </div>
-                     {hasCustomer ? (
-                        <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 flex flex-col gap-1">
-                          <span className="text-[10px] text-blue-500 font-bold uppercase">正在处理</span>
-                          <span className="text-sm font-extrabold text-blue-900">{customer.name}</span>
-                        </div>
-                      ) : (
-                        <input
-                          placeholder="输入客户名后回车，先把这摊事放桌面上"
-                          className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2 text-xs font-bold outline-none focus:border-blue-500"
-                          onKeyDown={(event) => {
-                            const value = (event.target as HTMLInputElement).value.trim();
-                            if (event.key === 'Enter' && value) {
-                              setCustomer({ name: value });
-                              (event.target as HTMLInputElement).value = '';
-                            }
-                          }}
-                        />
-                      )}
-                 </div>
-
-                 <div className="border-t border-dashed border-neutral-200 pt-3">
-                    <div className="mb-2 flex items-center gap-1.5 text-[13px] font-extrabold text-neutral-800">
-                      <Briefcase size={12} className="text-neutral-400" />
-                      最近做成的东西
-                      <span className="text-[10px] font-medium text-neutral-400">
-                        {artifactSource === 'cloud' ? '云端' : artifactSource === 'local' ? '本地' : '空'}
-                      </span>
-                    </div>
-                    {recentArtifacts.length ? (
-                      <div className="flex flex-col gap-2">
-                        {recentArtifacts.map((item, index) => {
-                          const path = getToolPath(item.toolId);
-                          const key = `${item.toolId}-${item.id ?? 'local'}-${item.createdAt.getTime()}-${index}`;
-                          const className = 'text-xs font-bold text-neutral-600 truncate border-l-2 border-neutral-200 pl-2 py-0.5 hover:text-blue-600 transition-colors';
-
-                          return path ? (
-                            <Link key={key} to={path} className={className}>
-                              {item.title}
-                            </Link>
-                          ) : (
-                            <div key={key} className={className}>
-                              {item.title}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                       <div className="text-xs font-medium text-neutral-400">最近还没产出文件。跑完一次清单、话术或排版，这里会自己记住。</div>
-                    )}
-                 </div>
-
-                 <div className="border-t border-dashed border-neutral-200 pt-3">
-                    <div className="mb-2 flex items-center gap-1.5 text-[13px] font-extrabold text-neutral-800">
-                      <FileText size={12} className="text-neutral-400" />
-                      写到一半的草稿
-                      <span className="text-[10px] font-medium text-neutral-400">
-                        {draftSource === 'cloud' ? '云端' : draftSource === 'local' ? '本地' : '空'}
-                      </span>
-                    </div>
-                    {recentDrafts.length ? (
-                      <div className="flex flex-col gap-2">
-                        {recentDrafts.map((item, index) => {
-                          const path = getToolPath(item.toolId);
-                          const key = `${item.toolId}-${item.id ?? 'local'}-${item.updatedAt.getTime()}-${index}`;
-                          const className = 'text-xs font-bold text-neutral-600 truncate border-l-2 border-blue-200 pl-2 py-0.5 hover:text-blue-600 transition-colors';
-
-                          return path ? (
-                            <Link key={key} to={path} className={className}>
-                              {item.title}
-                            </Link>
-                          ) : (
-                            <div key={key} className={className}>
-                              {item.title}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                       <div className="text-xs font-medium text-neutral-400">暂时没有草稿。下次写到一半退出，也会在这里捡回来。</div>
-                    )}
-                 </div>
+                  ) : (
+                    <div className="text-[11px] font-medium text-neutral-300">暂无草稿</div>
+                  )}
+                </div>
               </div>
             </section>
-
           </div>
         </div>
       </div>
@@ -968,7 +1104,7 @@ const WorkspacePage: React.FC = () => {
                    selectedAuthor.isAnon ? "text-white font-mono" : "text-neutral-800"
                  )}>{selectedAuthor.nickname}</h3>
                  <div className={cn("text-xs font-bold mb-6 px-3 py-1 rounded-full", selectedAuthor.isAnon ? "bg-[#00FFAA]/10 text-[#00FFAA]" : "bg-blue-50 text-blue-600")}>
-                    累计精华贡献：{Math.floor(Math.random() * 20 + 1)} 篇
+                    累计精华贡献：{(hashNumber(selectedAuthor.nickname) % 20) + 1} 篇
                  </div>
 
                  {/* Action */}

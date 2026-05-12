@@ -276,6 +276,24 @@ const CDUnfreezeTool: React.FC = () => {
   }, [form]);
 
   const ready = requiredMissing.length === 0 && amountResult.ok;
+  const documentMissing = useMemo(() => {
+    const miss: string[] = [];
+    if (!form.customerName.trim()) miss.push('客户名称');
+    if (!form.cdAccount.trim()) miss.push('存单账号');
+    if (!form.cdAmountYuan.trim()) miss.push('存单金额');
+    if (!form.cdMaturityDate.trim()) miss.push('存单到期日');
+    return miss;
+  }, [form]);
+  const documentReady = documentMissing.length === 0 && amountResult.ok;
+  const listMissing = useMemo(() => {
+    const miss: string[] = [];
+    if (!form.cdAmountYuan.trim()) miss.push('存单金额');
+    if (!form.cdMaturityDate.trim()) miss.push('存单到期日');
+    if (!form.branchName.trim()) miss.push('经办支行');
+    if (!(form.drawerName.trim() || form.customerName.trim())) miss.push('出票人或客户名称');
+    return miss;
+  }, [form]);
+  const listReady = listMissing.length === 0 && amountResult.ok;
   const hasAnyInput = Object.values(form).some((value) => value.trim());
   const customerName = form.customerName.trim();
   const cdAccount = form.cdAccount.trim();
@@ -350,7 +368,10 @@ ${new Date().toLocaleDateString('zh-CN')}`;
   };
 
   const buildNoticeDocx = async () => {
-    if (!ready) throw new Error('请先填写所有必填项，并确认金额为万元整数倍。');
+    if (!documentReady) {
+      const amountMessage = form.cdAmountYuan.trim() && !amountResult.ok ? `；金额：${amountError}` : '';
+      throw new Error(`请先补齐通知书必填信息：${documentMissing.join('、') || '金额'}${amountMessage}`);
+    }
 
     const zip = await JSZip.loadAsync(await fetchTemplate('cd-unfreeze-notice.docx'));
     const documentPath = 'word/document.xml';
@@ -376,7 +397,10 @@ ${new Date().toLocaleDateString('zh-CN')}`;
   };
 
   const buildBackingListXlsx = async () => {
-    if (!ready) throw new Error('请先填写所有必填项，并确认金额为万元整数倍。');
+    if (!listReady) {
+      const amountMessage = form.cdAmountYuan.trim() && !amountResult.ok ? `；金额：${amountError}` : '';
+      throw new Error(`请先补齐清单必填信息：${listMissing.join('、') || '金额'}${amountMessage}`);
+    }
 
     const zip = await JSZip.loadAsync(await fetchTemplate('manual-backing-list.xlsx'));
     const sheetPath = 'xl/worksheets/sheet1.xml';
@@ -390,12 +414,20 @@ ${new Date().toLocaleDateString('zh-CN')}`;
       /<c r="A1"[^>]*>[\s\S]*?<\/c>/,
       `<c r="A1" s="1" t="inlineStr"><is><t>${xmlEscape(title)}</t></is></c>`,
     );
-    xml = xml.replace(
-      /<row r="3"[^>]*>[\s\S]*?<\/row>/,
-      `<row r="3" ht="20" customHeight="1" spans="1:5"><c r="A3" s="5"><v>1</v></c><c r="B3" s="6"/><c r="C3" s="7"/><c r="D3" s="8"><v>${amount}</v></c><c r="E3" s="5" t="inlineStr"><is><t>${xmlEscape(drawer)}</t></is></c></row>`,
-    );
+    xml = xml
+      .replace(/<c r="A3" s="5">[\s\S]*?<\/c>/, '<c r="A3" s="5"><v>1</v></c>')
+      .replace(/<c r="B3" s="6" t="s">[\s\S]*?<\/c>/, '<c r="B3" s="6"/>')
+      .replace(/<c r="C3" s="7">[\s\S]*?<\/c>/, '<c r="C3" s="7"/>')
+      .replace(/<c r="D3" s="8">[\s\S]*?<\/c>/, `<c r="D3" s="8"><v>${amount}</v></c>`)
+      .replace(/<c r="E3" s="5" t="s">[\s\S]*?<\/c>/, `<c r="E3" s="5" t="inlineStr"><is><t>${xmlEscape(drawer)}</t></is></c>`);
     [4, 5, 6, 7].forEach((row) => {
-      xml = xml.replace(new RegExp(`<row r="${row}"[^>]*>[\\s\\S]*?<\\/row>`), `<row r="${row}" ht="20" customHeight="1"/>`);
+      xml = xml
+        .replace(new RegExp(`<c r="A${row}" s="5">[\\s\\S]*?<\\/c>`), `<c r="A${row}" s="5"/>`)
+        .replace(new RegExp(`<c r="B${row}" s="9" t="s">[\\s\\S]*?<\\/c>`), `<c r="B${row}" s="9"/>`)
+        .replace(new RegExp(`<c r="B${row}" s="6" t="s">[\\s\\S]*?<\\/c>`), `<c r="B${row}" s="6"/>`)
+        .replace(new RegExp(`<c r="C${row}" s="7">[\\s\\S]*?<\\/c>`), `<c r="C${row}" s="7"/>`)
+        .replace(new RegExp(`<c r="D${row}" s="8">[\\s\\S]*?<\\/c>`), `<c r="D${row}" s="8"/>`)
+        .replace(new RegExp(`<c r="E${row}" s="5" t="s">[\\s\\S]*?<\\/c>`), `<c r="E${row}" s="5"/>`);
     });
 
     zip.file(sheetPath, xml);
@@ -597,7 +629,7 @@ ${new Date().toLocaleDateString('zh-CN')}`;
             title="存单解冻通知书"
             actions={
               <div className="flex flex-wrap justify-end gap-2">
-                <DownloadChip label="下载 Word" onClick={buildNoticeDocx} disabled={!ready} />
+                <DownloadChip label="下载 Word" onClick={buildNoticeDocx} />
                 <CopyChip label="复制全文" text={cdNoticeText} disabled={!hasAnyInput} />
               </div>
             }
@@ -612,7 +644,7 @@ ${new Date().toLocaleDateString('zh-CN')}`;
             title="支行手工备款票据清单（模板）"
             actions={
               <div className="flex flex-wrap justify-end gap-2">
-                <DownloadChip label="下载 Excel" onClick={buildBackingListXlsx} disabled={!ready} />
+                <DownloadChip label="下载 Excel" onClick={buildBackingListXlsx} />
                 <CopyChip label="复制为表格" text={billingTabText} disabled={!hasAnyInput} />
               </div>
             }

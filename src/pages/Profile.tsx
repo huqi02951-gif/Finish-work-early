@@ -14,18 +14,16 @@ import { cn } from '../../lib/utils';
 import { earnLossStore } from '../../lib/earnLossStore';
 import {
   LOCAL_NUMBER_KEYS,
+  LOCAL_STRING_KEYS,
   readLocalNumber,
   writeLocalNumber,
   subscribeLocalNumber,
+  readLocalString,
+  writeLocalString,
+  subscribeLocalString,
 } from '../../lib/localSignals';
 import { getDayMode, getHolidayToday } from '../../lib/holidays';
 import { getPetCompanionHidden, setPetCompanionHidden } from '../../components/pet/PetCompanion';
-
-const SK = {
-  WORK_START: 'cl_work_start',
-  WORK_END:   'cl_work_end',
-  FOCUS_SESSIONS: 'cl_focus_sessions',
-};
 
 // ─── 数字滚动动画 ─────────────────────────────────────────────
 const AnimatedAmount: React.FC<{ value: number; prefix?: string; decimals?: number; className?: string }> = ({
@@ -67,12 +65,12 @@ const Profile: React.FC = () => {
   const [touchFishCounter, setTouchFishCounter] = useState(() => readLocalNumber(LOCAL_NUMBER_KEYS.touchFishCounter, 0));
   const [coffeeCounter, setCoffeeCounter] = useState(() => readLocalNumber(LOCAL_NUMBER_KEYS.coffeeCounter, 0));
   const [focusSessions, setFocusSessions] = useState(() => {
-    const raw = localStorage.getItem(SK.FOCUS_SESSIONS);
+    const raw = localStorage.getItem(LOCAL_STRING_KEYS.focusSessions);
     const v = Number(raw);
     return !isNaN(v) ? v : 0;
   });
-  const [workStart, setWorkStart] = useState(() => localStorage.getItem(SK.WORK_START) || '09:00');
-  const [workEnd, setWorkEnd] = useState(() => localStorage.getItem(SK.WORK_END) || '17:00');
+  const [workStart, setWorkStart] = useState(() => readLocalString(LOCAL_STRING_KEYS.workStart, '09:00'));
+  const [workEnd, setWorkEnd] = useState(() => readLocalString(LOCAL_STRING_KEYS.workEnd, '17:00'));
 
   const [showWageEditor, setShowWageEditor] = useState(false);
   const [draft, setDraft] = useState({ salary: String(salary), start: workStart, end: workEnd });
@@ -83,10 +81,12 @@ const Profile: React.FC = () => {
   useEffect(() => subscribeLocalNumber(LOCAL_NUMBER_KEYS.salary, 6000, setSalary), []);
   useEffect(() => subscribeLocalNumber(LOCAL_NUMBER_KEYS.touchFishCounter, 0, setTouchFishCounter), []);
   useEffect(() => subscribeLocalNumber(LOCAL_NUMBER_KEYS.coffeeCounter, 0, setCoffeeCounter), []);
+  useEffect(() => subscribeLocalString(LOCAL_STRING_KEYS.workStart, '09:00', setWorkStart), []);
+  useEffect(() => subscribeLocalString(LOCAL_STRING_KEYS.workEnd, '17:00', setWorkEnd), []);
   useEffect(() => {
     const t = window.setInterval(() => {
       setNow(new Date());
-      const raw = localStorage.getItem(SK.FOCUS_SESSIONS);
+      const raw = localStorage.getItem(LOCAL_STRING_KEYS.focusSessions);
       const v = Number(raw);
       setFocusSessions(!isNaN(v) ? v : 0);
     }, 30_000);
@@ -122,10 +122,8 @@ const Profile: React.FC = () => {
       writeLocalNumber(LOCAL_NUMBER_KEYS.salary, v);
       setSalary(v);
     }
-    localStorage.setItem(SK.WORK_START, draft.start);
-    localStorage.setItem(SK.WORK_END, draft.end);
-    setWorkStart(draft.start);
-    setWorkEnd(draft.end);
+    writeLocalString(LOCAL_STRING_KEYS.workStart, draft.start);
+    writeLocalString(LOCAL_STRING_KEYS.workEnd, draft.end);
     setShowWageEditor(false);
   };
 
