@@ -10,6 +10,7 @@ interface SpinningTargetProps {
   fireSignal?: number;
   showInlineButton?: boolean;
   onHit: (result: TargetHitResult) => void;
+  ultimateActive?: boolean;
 }
 
 interface TargetNeedle {
@@ -131,7 +132,8 @@ export const SpinningTarget: React.FC<SpinningTargetProps> = ({
   dangerColor,
   fireSignal = 0,
   showInlineButton = true,
-  onHit
+  onHit,
+  ultimateActive = false
 }) => {
   const [needles, setNeedles] = useState<TargetNeedle[]>([]);
   const [validHitCount, setValidHitCount] = useState(0);
@@ -151,6 +153,17 @@ export const SpinningTarget: React.FC<SpinningTargetProps> = ({
   const [charging, setCharging] = useState(false);
   const [mechanicHint, setMechanicHint] = useState('');
   const [shotFlashId, setShotFlashId] = useState(0);
+
+  useEffect(() => {
+    if (ultimateActive) {
+      setFogCleared(true);
+      setShieldHp(0);
+      setFrozen(false);
+      setStainWipeCount(3);
+      setTruthRevealed(true);
+      setErupting(false);
+    }
+  }, [ultimateActive]);
 
   const startTimeRef = useRef(performance.now());
   const chargeStartRef = useRef(0);

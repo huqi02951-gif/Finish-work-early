@@ -1,10 +1,14 @@
 import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
+import { SupabaseAuthService } from './supabase-auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly supabaseAuthService: SupabaseAuthService
+  ) {}
 
   @Post('register')
   async register(@Body() body: any) {
@@ -19,6 +23,15 @@ export class AuthController {
   @Post('demo-session')
   async createDemoSession(@Body() body: any) {
     return this.authService.createOrLoginDemoSession(body.clientKey, body.nickname);
+  }
+
+  @Post('supabase/exchange')
+  async exchangeSupabaseSession(@Body() body: { accessToken?: string }, @Req() req) {
+    const bearerToken = req.headers.authorization?.startsWith('Bearer ')
+      ? req.headers.authorization.slice('Bearer '.length)
+      : undefined;
+
+    return this.supabaseAuthService.exchange(body?.accessToken || bearerToken);
   }
 
   @UseGuards(AuthGuard)

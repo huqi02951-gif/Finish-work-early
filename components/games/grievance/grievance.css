@@ -3867,8 +3867,13 @@
   }
 
   .grievance-game-root #battle_screen_root .active-tag-dock button {
-    padding: 4px 6px;
-    font-size: 9px;
+    padding: 8px 10px;
+    font-size: 10px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
   }
 
   .grievance-game-root #battle_screen_root .ritual-dock {
@@ -3890,10 +3895,14 @@
   }
 
   .grievance-game-root #battle_screen_root .ritual-action-panel button {
-    min-height: 34px;
+    min-height: 44px;
     padding: 4px 3px;
     gap: 3px;
-    font-size: 9px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
   }
 
   .grievance-game-root #battle_screen_root .settlement-modal {
@@ -3916,3 +3925,694 @@
     font-size: 11px;
   }
 }
+
+/* === Victory Overlay and Centering === */
+.grievance-game-root .settlement-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+
+.grievance-game-root .settlement-modal {
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+  width: min(460px, 90%) !important;
+  margin: 0 auto !important;
+}
+
+/* === Boss State Extra Visual Feedback === */
+
+/* Red slap/hit visual flash */
+.grievance-game-root .boss-state-hit .boss-sprite-img {
+  filter: drop-shadow(0 0 14px rgba(239, 68, 68, 0.85)) sepia(0.45) saturate(2.2) hue-rotate(-50deg) !important;
+  transition: filter 0.08s ease-out;
+}
+
+.grievance-game-root .boss-state-heavy .boss-sprite-img {
+  filter: drop-shadow(0 0 24px rgba(239, 68, 68, 0.95)) sepia(0.65) saturate(3.2) hue-rotate(-50deg) !important;
+  transition: filter 0.08s ease-out;
+}
+
+/* Dizzy Stars */
+.grievance-game-root .boss-dizzy-stars-container {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.grievance-game-root .boss-dizzy-stars-container span {
+  font-size: 26px;
+  animation: dizzy-star-float 1.2s ease-in-out infinite alternate;
+}
+
+.grievance-game-root .boss-dizzy-stars-container .star-1 { animation-delay: 0s; }
+.grievance-game-root .boss-dizzy-stars-container .star-2 { animation-delay: 0.25s; }
+.grievance-game-root .boss-dizzy-stars-container .star-3 { animation-delay: 0.5s; }
+
+@keyframes dizzy-star-float {
+  0% { transform: translateY(0) rotate(0deg) scale(0.85); }
+  100% { transform: translateY(-16px) rotate(360deg) scale(1.15); }
+}
+
+/* Crying Tears */
+.grievance-game-root .boss-crying-tears-container {
+  position: absolute;
+  top: 25%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 18%;
+  pointer-events: none;
+}
+
+.grievance-game-root .boss-crying-tears-container span {
+  font-size: 26px;
+  animation: tear-gush-left 0.7s ease-in infinite;
+}
+
+.grievance-game-root .boss-crying-tears-container .tear-left {
+  animation-name: tear-gush-left;
+}
+
+.grievance-game-root .boss-crying-tears-container .tear-right {
+  animation-name: tear-gush-right;
+}
+
+@keyframes tear-gush-left {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 1; }
+  50% { transform: translate(-32px, 28px) scale(1.2); opacity: 0.9; }
+  100% { transform: translate(-48px, 72px) scale(0.7); opacity: 0; }
+}
+
+@keyframes tear-gush-right {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 1; }
+  50% { transform: translate(32px, 28px) scale(1.2); opacity: 0.9; }
+  100% { transform: translate(48px, 72px) scale(0.7); opacity: 0; }
+}
+
+/* Soul Flying Out */
+.grievance-game-root .boss-soul-container {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 22;
+  pointer-events: none;
+}
+
+.grievance-game-root .boss-soul-container span {
+  font-size: 58px;
+  display: inline-block;
+  animation: soul-float-up 2.0s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes soul-float-up {
+  0% { transform: translateY(16px) scale(0.5); opacity: 0; }
+  15% { transform: translateY(0) scale(1.2); opacity: 0.9; }
+  50% { transform: translateY(-62px) scale(1.05) rotate(8deg); opacity: 0.75; }
+  100% { transform: translateY(-132px) scale(0.8) rotate(-16deg); opacity: 0; }
+}
+
+/* ==========================================================================
+   Major Gameplay Improvements: Slap Phase, Ultimates & Alternate Modes
+   ========================================================================== */
+
+/* 1. Mode Control Panel (Left Side of Battle Arena) */
+.grievance-game-root .mode-control-panel {
+  width: min(28vw, 304px);
+  min-width: 230px;
+  position: relative;
+  z-index: 22;
+  border: 1px solid rgba(215, 168, 77, 0.34);
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--level-accent) 14%, transparent), transparent 48%),
+    linear-gradient(180deg, rgba(19, 12, 8, 0.88), rgba(3, 5, 6, 0.92));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 16px 32px rgba(0, 0, 0, 0.52);
+  padding: 18px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.grievance-game-root .mode-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px dashed rgba(215, 168, 77, 0.22);
+  padding-bottom: 10px;
+}
+
+.grievance-game-root .mode-icon {
+  font-size: 28px;
+}
+
+.grievance-game-root .mode-header h4 {
+  color: var(--level-accent);
+  font-family: var(--font-brush);
+  font-size: 18px;
+  font-weight: 900;
+  margin: 0;
+}
+
+.grievance-game-root .mode-header p {
+  font-size: 11px;
+  color: #a7a29a;
+  margin: 2px 0 0 0;
+  line-height: 1.3;
+}
+
+.grievance-game-root .weapon-status-card {
+  background: rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 10px;
+}
+
+.grievance-game-root .weapon-status-card span {
+  font-size: 12px;
+  font-weight: 900;
+  color: #e2d7c5;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.grievance-game-root .weapon-status-card p {
+  font-size: 11px;
+  color: #9f9688;
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* SP Ultimate bar & trigger button */
+.grievance-game-root .ultimate-charge-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 0;
+}
+
+.grievance-game-root .ult-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 900;
+  color: #d8c9b0;
+}
+
+.grievance-game-root .ult-progress-bar {
+  height: 6px;
+  background: rgba(0, 0, 0, 0.52);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.grievance-game-root .ult-progress-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.grievance-game-root .ult-release-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  font-family: var(--font-brush);
+  font-size: 16px;
+  font-weight: 900;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: not-allowed;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grievance-game-root .ult-release-btn.is-charged {
+  cursor: pointer;
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  border: 2px solid #facc15;
+  color: #fff2ce;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.6);
+}
+
+.grievance-game-root .ult-release-btn.is-charged:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.85);
+}
+
+.grievance-game-root .mode-guide-alert {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.18);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.grievance-game-root .mode-guide-alert span {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--level-danger);
+  display: block;
+}
+
+.grievance-game-root .mode-guide-alert p {
+  font-size: 10.5px;
+  color: #cfc5b3;
+  margin: 2px 0 0 0;
+  line-height: 1.35;
+}
+
+/* 2. Interactive Whack & QTE Targets overlay styling */
+.grievance-game-root .boss-weakness-pin {
+  transition: all 0.2s ease;
+}
+
+/* Whack target mode style */
+.grievance-game-root .boss-weakness-pin.whack-active {
+  z-index: 50 !important;
+  cursor: pointer !important;
+}
+
+.grievance-game-root .boss-weakness-pin.whack-active i {
+  width: 32px;
+  height: 32px;
+  background: radial-gradient(circle, #ff3333 30%, transparent 70%);
+  border: 3px solid #ffcc00 !important;
+  box-shadow: 0 0 18px #ff3333;
+  animation: whack-pulse 0.7s infinite alternate;
+}
+
+.grievance-game-root .boss-weakness-pin.whack-active span {
+  display: block !important;
+  background: #ff3333 !important;
+  color: #ffffff !important;
+  font-size: 12px !important;
+  border: 1px solid #ffcc00 !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  animation: whack-text-glow 0.7s infinite alternate;
+}
+
+@keyframes whack-pulse {
+  0% { transform: translate(-50%, -50%) scale(0.9); box-shadow: 0 0 10px #ff3333; }
+  100% { transform: translate(-50%, -50%) scale(1.35); box-shadow: 0 0 24px #ff3333; }
+}
+
+@keyframes whack-text-glow {
+  0% { opacity: 0.85; }
+  100% { opacity: 1; transform: scale(1.05); }
+}
+
+/* QTE target mode style */
+.grievance-game-root .boss-weakness-pin.qte-active {
+  z-index: 50 !important;
+  cursor: pointer !important;
+}
+
+.grievance-game-root .boss-weakness-pin.qte-active i {
+  width: 28px;
+  height: 28px;
+  background: radial-gradient(circle, #fbbf24 35%, transparent 70%);
+  border: 3px solid #ffffff !important;
+  box-shadow: 0 0 18px #fbbf24;
+}
+
+.grievance-game-root .boss-weakness-pin.qte-active span {
+  display: block !important;
+  background: #fbbf24 !important;
+  color: #000000 !important;
+  font-weight: 900 !important;
+  font-size: 12px !important;
+}
+
+.grievance-game-root .qte-timing-ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-sizing: border-box;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--boss-danger) 40%, transparent);
+}
+
+/* 3. Deflect Mode Projectiles Button */
+.grievance-game-root .deflect-item-btn {
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 2px solid #ff5533;
+  color: #ffefe0;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-brush);
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.6), 0 0 12px rgba(255, 85, 51, 0.4);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  user-select: none;
+}
+
+.grievance-game-root .deflect-item-btn:hover {
+  transform: translate(-50%, -50%) scale(1.08) !important;
+  border-color: #ffcc00;
+}
+
+.grievance-game-root .deflect-item-btn .deflect-emoji {
+  font-size: 18px;
+  animation: spin-slow 4s linear infinite;
+}
+
+.grievance-game-root .deflect-item-btn.deflected {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 20px #38bdf8 !important;
+  pointer-events: none;
+  animation: deflect-bounce-glow 0.3s infinite alternate;
+}
+
+@keyframes deflect-bounce-glow {
+  0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+}
+
+@keyframes spin-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 4. Fullscreen Ultimate Move Overlays */
+.grievance-game-root .ultimate-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.58);
+  pointer-events: none;
+  overflow: hidden;
+  backdrop-filter: blur(4px);
+}
+
+.grievance-game-root .shred-vortex-container,
+.grievance-game-root .seal-container,
+.grievance-game-root .chime-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.grievance-game-root .ultimate-overlay h2 {
+  font-family: var(--font-brush);
+  font-size: 42px;
+  font-weight: 900;
+  text-shadow: 3px 3px 0 #000, 0 0 22px currentColor;
+  margin-top: 24px;
+  animation: text-pulse-glow 0.6s infinite alternate;
+}
+
+/* Shred Vortex Ultimate */
+.grievance-game-root .ult-shred-overlay {
+  color: #ef4444;
+}
+
+.grievance-game-root .vortex-core {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  border: 4px dashed #ef4444;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 20%, transparent 70%);
+  animation: spin-vortex 1.2s linear infinite;
+  box-shadow: 0 0 38px rgba(239, 68, 68, 0.5);
+}
+
+.grievance-game-root .ult-paper {
+  position: absolute;
+  font-size: 28px;
+  animation: vortex-paper-suck 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+}
+
+.grievance-game-root .paper-1 { animation-delay: 0s; --angle: 0deg; }
+.grievance-game-root .paper-2 { animation-delay: 0.3s; --angle: 90deg; }
+.grievance-game-root .paper-3 { animation-delay: 0.6s; --angle: 180deg; }
+.grievance-game-root .paper-4 { animation-delay: 0.9s; --angle: 270deg; }
+
+@keyframes spin-vortex {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes vortex-paper-suck {
+  0% { transform: rotate(var(--angle)) translateY(220px) rotate(0deg); opacity: 1; scale: 1.2; }
+  100% { transform: rotate(var(--angle)) translateY(0) rotate(720deg); opacity: 0; scale: 0.2; }
+}
+
+/* Judge Seal Ultimate */
+.grievance-game-root .ult-seal-overlay {
+  color: #fbbf24;
+}
+
+.grievance-game-root .yin-yang-glow {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 6px double #fbbf24;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.18) 30%, transparent 70%);
+  box-shadow: 0 0 42px rgba(251, 191, 36, 0.4);
+  animation: yin-yang-spin 4s linear infinite;
+}
+
+.grievance-game-root .massive-seal-stamp {
+  position: absolute;
+  font-family: var(--font-brush);
+  font-size: 110px;
+  font-weight: 900;
+  color: #fbbf24;
+  text-shadow: 0 0 42px rgba(251, 191, 36, 0.85);
+  animation: seal-drop 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes yin-yang-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}
+
+@keyframes seal-drop {
+  0% { transform: scale(5.2); opacity: 0; }
+  100% { transform: scale(1.0); opacity: 1; }
+}
+
+/* Chime Ultimate */
+.grievance-game-root .ult-chime-overlay {
+  color: #22d3ee;
+}
+
+.grievance-game-root .bronze-bell {
+  font-size: 110px;
+  filter: drop-shadow(0 0 32px #22d3ee);
+  animation: bell-swing 1.5s ease-in-out infinite alternate;
+}
+
+.grievance-game-root .soundwave {
+  position: absolute;
+  border: 4px solid #22d3ee;
+  border-radius: 50%;
+  opacity: 0;
+  animation: soundwave-expand 1.5s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+}
+
+.grievance-game-root .wave-1 { animation-delay: 0s; }
+.grievance-game-root .wave-2 { animation-delay: 0.5s; }
+.grievance-game-root .wave-3 { animation-delay: 1.0s; }
+
+@keyframes bell-swing {
+  0% { transform: rotate(-18deg); }
+  100% { transform: rotate(18deg); }
+}
+
+@keyframes soundwave-expand {
+  0% { width: 50px; height: 50px; opacity: 0.8; }
+  100% { width: 450px; height: 450px; opacity: 0; border-width: 1px; }
+}
+
+@keyframes text-pulse-glow {
+  0% { transform: scale(0.96); opacity: 0.85; filter: brightness(0.9); }
+  100% { transform: scale(1.04); opacity: 1; filter: brightness(1.2); }
+}
+
+/* 5. Slap Phase Countdown & Prop Panel Overlay */
+.grievance-game-root .slap-countdown-overlay {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 90;
+  pointer-events: none;
+}
+
+.grievance-game-root .slap-timer-container {
+  background: rgba(36, 12, 9, 0.94);
+  border: 3px double #ef4444;
+  border-radius: 12px;
+  padding: 12px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.72), 0 0 24px rgba(239, 68, 68, 0.35);
+  pointer-events: auto;
+  min-width: 280px;
+}
+
+.grievance-game-root .slap-title {
+  font-family: var(--font-brush);
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff2ce;
+  text-shadow: 2px 2px 0 #000;
+  margin-bottom: 6px;
+}
+
+.grievance-game-root .slap-countdown-text {
+  font-family: var(--font-number);
+  font-size: 44px;
+  font-weight: 900;
+  color: #ef4444;
+  text-shadow: 0 0 16px rgba(239, 68, 68, 0.8);
+  line-height: 1.1;
+  margin-bottom: 4px;
+  animation: countdown-heartbeat 0.5s infinite alternate;
+}
+
+.grievance-game-root .slap-counter-pill {
+  background: rgba(0, 0, 0, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 3px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  color: #e2d7c5;
+  margin-bottom: 8px;
+}
+
+.grievance-game-root .slap-counter-pill b {
+  color: #facc15;
+  font-size: 14px;
+}
+
+.grievance-game-root .slap-prop-hint {
+  font-size: 10px;
+  color: #9f9688;
+  margin-bottom: 10px;
+}
+
+.grievance-game-root .slap-props-dock {
+  display: flex;
+  gap: 8px;
+}
+
+.grievance-game-root .slap-prop-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0,0,0,0.52);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.grievance-game-root .slap-prop-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.grievance-game-root .slap-prop-item.active {
+  background: color-mix(in srgb, var(--level-accent) 15%, rgba(0,0,0,0.7));
+  border-color: var(--level-accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--level-accent) 40%, transparent);
+}
+
+.grievance-game-root .slap-prop-item .prop-emoji {
+  font-size: 22px;
+}
+
+.grievance-game-root .slap-prop-item .prop-label {
+  font-size: 9px;
+  color: #cfc5b3;
+}
+
+@keyframes countdown-heartbeat {
+  0% { transform: scale(0.96); }
+  100% { transform: scale(1.04); }
+}
+
+/* 6. Slap Completed Summary Modal */
+.grievance-game-root .slap-summary-modal {
+  border-color: #facc15 !important;
+  box-shadow: 0 0 32px rgba(250, 204, 21, 0.42) !important;
+  text-align: center;
+}
+
+.grievance-game-root .slap-summary-modal h3 {
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff2ce;
+  margin: 10px 0;
+}
+
+.grievance-game-root .slap-summary-modal p b {
+  color: #facc15;
+  font-size: 20px;
+}
+
+/* 7. Footer Ultimate Action Button */
+.grievance-game-root .ritual-ult-action {
+  font-family: var(--font-brush);
+  font-size: 14px;
+  font-weight: 900;
+  color: #fff2ce;
+  background: linear-gradient(135deg, #ef4444, #f97316);
+  border: 2px solid #facc15;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.52);
+  border-radius: 4px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.grievance-game-root .ritual-ult-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.8);
+}
+
+

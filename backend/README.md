@@ -90,12 +90,13 @@ docker compose up -d postgres
 
 ## Supabase PostgreSQL
 
-如果要把注册用户直接落到 Supabase 后台可见的 `public.users` 表，保持现有后端注册链路不变，只需要把后端 `DATABASE_URL` 切到 Supabase Postgres 并执行 Prisma migration。
+如果要把注册用户落到 Supabase，当前推荐链路是：前端用 Supabase Auth 邮箱 OTP 注册/登录，后端用 `POST /api/v1/auth/supabase/exchange` 校验 Supabase token，并签发 APEX JWT。这样用户能进入 Supabase `auth.users`，同时仍能使用 APEX 原有后端功能。
 
 安全模板见 `.env.supabase.example`，完整步骤见 `../docs/supabase-prisma-setup.md`。
 
 关键点：
-- 前端邮箱注册会调用后端，后端通过 Prisma 写 `users`
+- 前端邮箱注册由 Supabase Auth 处理
+- 后端 exchange 会同步 `users.supabase_auth_id`
 - `sb_publishable_...` 是浏览器公开 key，不能作为 Prisma 的数据库连接串
 - 真实 database password、service role key、JWT secret 不要提交到 GitHub
 

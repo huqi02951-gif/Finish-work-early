@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Award, Flame, Shield, Sparkles, Zap } from 'lucide-react';
 import {
   BattleMetrics,
+  BodyPart,
   BossSpriteState,
   CoinParticle,
   DialogueBubble,
@@ -16,7 +17,7 @@ import {
 } from '../types';
 import { getLevelArtPreset, karmaFurnaceAsset } from '../artPresets';
 import { MONSTER_STYLES, STRESS_TYPES } from '../data';
-import { getLevelMechanic } from '../levelMechanics';
+import { BODY_PART_LABELS, getLevelMechanic } from '../levelMechanics';
 import { MonsterVisual } from './MonsterVisual';
 import { SpinningTarget } from './SpinningTarget';
 
@@ -47,6 +48,74 @@ type ArenaShot = {
 const TAG_DAMAGE = 1450;
 const MAX_DIALOGUES = 5;
 const MAX_FX = 42;
+
+interface HitSpark {
+  id: number;
+  x: number;
+  y: number;
+  labelText: string;
+  emoji: string;
+  kind: string;
+  rotate: number;
+}
+
+const HIT_EFFECTS = [
+  { emoji: '👟', label: '飞鞋伺候' },
+  { emoji: '🥚', label: '臭蛋暴击' },
+  { emoji: '👅', label: '扯长舌头' },
+  { emoji: '🔨', label: '正义大锤' },
+  { emoji: '💩', label: '天降狗屎' },
+  { emoji: '🧹', label: '扫地出门' },
+  { emoji: '📌', label: '万针扎心' },
+  { emoji: '🔥', label: '业火焚身' },
+  { emoji: '⚡', label: '五雷轰顶' },
+  { emoji: '🩴', label: '拖鞋抽脸' },
+  { emoji: '🥊', label: '社会重拳' },
+  { emoji: '🍳', label: '铁锅煎熬' },
+] as const;
+
+const getMechanicHelpText = (levelId: string) => {
+  switch (levelId) {
+    case 'hell_tongue':
+      return '指针转到嘴门/话根弱点时发射，一针封口！【新手推荐：玄机小针】';
+    case 'hell_scissor':
+      return '离间红线阻挡！先点右侧「剪断线结」剪断红线，再扎弱点！';
+    case 'hell_iron_tree':
+      return '轮盘上布满旧针，扎到会撞针！瞄准空隙中的「背刺点」扎入！';
+    case 'hell_mirror':
+      return '小人带着白莲假面！先点下方「孽镜照伪」照出真容，再扎真弱点！';
+    case 'hell_steam':
+      return '热雾油烟遮挡！先点下方「净气符」吹散大雾，弱点才会显露！';
+    case 'hell_copper':
+      return '小人有铜盾护身！扎中非弱点会损耗铜盾，撞碎铜盾即可破防！';
+    case 'hell_blade_mountain':
+      return '轮盘上有旋转刀网！算好提前量，等刀刃转过去再扎！';
+    case 'hell_ice':
+      return '定期冰冻战场！在冰冻状态下无法射击，等冰融化再扎！';
+    case 'hell_oil':
+      return '油泡阻挡！先用鼠标/手指点破屏幕上的油泡，再发射飞针！';
+    case 'hell_ox':
+      return '牛坑吸血鬼会吸走功德！扎中弱点触发暴击可打断吸血！';
+    case 'hell_stone':
+      return '甩锅黑锅满屏飞！等锅子飞开、空挡露出来的时候再射击！';
+    case 'hell_mortar':
+      return '轮盘忽快忽慢、反向旋转并剧烈抖动！考验你的反应速度！';
+    case 'hell_reputation':
+      return '弱点被血池污水盖住！先点「擦污名」抹去脏水，再找破绽！';
+    case 'hell_wronged':
+      return '小心假证陷阱！先点「判笔验真」，有金边的才是真弱点！';
+    case 'hell_scheme':
+      return '弱点有因果顺序锁！必须按提示顺序依次扎中弱点才能破防！';
+    case 'hell_volcano':
+      return '火山定期喷发！喷火期间发射的针会被吞掉，等火熄灭再射！';
+    case 'hell_millstone':
+      return '重甲无法刺穿！长按「长按蓄力」按钮至满格，松开发射磨盘破甲！';
+    case 'hell_final':
+      return '【阿鼻总清算】终极挑战！所有障碍会交替出现，瞄准嘴/心/背/影！';
+    default:
+      return '看准指针对准弱点时发射，给小人应有的清算！';
+  }
+};
 
 const createWeaponUsage = (): Record<WeaponId, number> => ({
   pin: 0,
@@ -116,7 +185,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
   const [unlockBanner, setUnlockBanner] = useState<string | null>(null);
   const [lockedShakeLevel, setLockedShakeLevel] = useState<number | null>(null);
   const [dialogues, setDialogues] = useState<DialogueBubble[]>([]);
-  const [sparks, setSparks] = useState<{ id: number; x: number; y: number; text: string; kind: string; rotate: number }[]>([]);
+  const [sparks, setSparks] = useState<HitSpark[]>([]);
   const [particles, setParticles] = useState<CoinParticle[]>([]);
   const [arenaShots, setArenaShots] = useState<ArenaShot[]>([]);
 
@@ -125,11 +194,62 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
   const comboTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const preserveRunOnBossChangeRef = useRef(false);
   const drainPausedUntilRef = useRef(0);
+  const slapTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Slap Bonus & Alternative Modes states
+  const [isSlapPhase, setIsSlapPhase] = useState(false);
+  const [slapTimer, setSlapTimer] = useState(5.0);
+  const [slapCount, setSlapCount] = useState(0);
+  const [slapComplete, setSlapComplete] = useState(false);
+  const [slapDone, setSlapDone] = useState(false);
+  const [selectedSlapProp, setSelectedSlapProp] = useState('👋');
+  
+  const [activeWhackPart, setActiveWhackPart] = useState<BodyPart | null>(null);
+  const [activeQtePart, setActiveQtePart] = useState<BodyPart | null>(null);
+  const [qteScale, setQteScale] = useState(2.5);
+  
+  interface DeflectItem {
+    id: number;
+    emoji: string;
+    label: string;
+    x: number;
+    y: number;
+    speedX: number;
+    speedY: number;
+    status: 'falling' | 'deflected' | 'hit_player';
+  }
+  const [deflectItems, setDeflectItems] = useState<DeflectItem[]>([]);
+  const [ultimateActive, setUltimateActive] = useState<'none' | 'shred' | 'seal' | 'chime'>('none');
+  const [ultimatesUsedState, setUltimatesUsedState] = useState(0);
+  const [, setFogCleared] = useState(false);
+  const [, setShieldHp] = useState(3);
+  const [, setFrozen] = useState(false);
+  const [, setErupting] = useState(false);
+  const [, setStainWipeCount] = useState(0);
+  const [, setTruthRevealed] = useState(false);
+
+  const getPlayMode = (level: number): 'turntable' | 'whack' | 'qte' | 'clicker' | 'deflect' => {
+    if ([1, 2, 6, 12, 18].includes(level)) return 'turntable';
+    if ([3, 4, 9, 13, 15].includes(level)) return 'whack';
+    if ([7, 8, 14].includes(level)) return 'qte';
+    if ([5, 10, 16].includes(level)) return 'clicker';
+    return 'deflect'; // levels 11, 17
+  };
+
+  const playMode = getPlayMode(selectedStress.level);
+
+  const getSlapPropsForLevel = (lvl: number) => {
+    const props = ['👋'];
+    if (lvl >= 1) props.push('👟');
+    if (lvl >= 2) props.push('🥚');
+    if (lvl >= 3) props.push('🧱');
+    return props;
+  };
 
   const bossHpPercent = Math.max(0, Math.round((bossHp / currentBossHpMax) * 100));
   const comboTarget = selectedStress.comboTarget || artPreset.comboTarget;
   const currentLevelComboPeak = Math.max(levelMaxCombo, comboCount);
-  const settlementReady = bossHp <= 0 && !furnaceActive;
+  const settlementReady = bossHp <= 0 && !furnaceActive && !isSlapPhase && !slapComplete && bossKo;
   const villainPhase = useMemo<VillainPhase>(() => {
     if (bossHp <= 0) return 'condemned';
     if (villainStats.judgment >= 92) return 'judging';
@@ -160,14 +280,15 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     window.setTimeout(() => setArenaShake('none'), intensity === 'heavy' ? 280 : 160);
   };
 
-  const spawnSpark = (x: number, y: number, text: string, kind: string) => {
+  const spawnSpark = (x: number, y: number, labelText: string, kind: string, emoji: string) => {
     const spark = {
       id: Date.now() + Math.random(),
       x,
       y,
-      text,
+      labelText,
+      emoji,
       kind,
-      rotate: Math.random() * 24 - 12
+      rotate: Math.random() * 32 - 16
     };
     setSparks(prev => [...prev, spark].slice(-MAX_FX));
     window.setTimeout(() => setSparks(prev => prev.filter(item => item.id !== spark.id)), 850);
@@ -266,9 +387,186 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     setBossHp(prevHp => {
       const nextHp = Math.max(0, prevHp - damage);
       setInnerFriction(Math.round((nextHp / currentBossHpMax) * 100));
-      if (nextHp <= 0 && prevHp > 0) window.setTimeout(markKo, 0);
+      if (nextHp <= 0 && prevHp > 0) {
+        if (!slapDone) {
+          window.setTimeout(() => {
+            setIsSlapPhase(true);
+            setSlapTimer(5.0);
+            setSlapCount(0);
+            setSlapComplete(false);
+            setMonsterState('kneeling');
+            pushDialogue('小人血条已空！解锁暴打道具，进入5秒疯狂大巴掌暴打时间！', 50, 70, 'xuanxue');
+          }, 200);
+        } else {
+          window.setTimeout(markKo, 0);
+        }
+      }
       return nextHp;
     });
+  };
+
+  const completeSlappingAndSettle = () => {
+    setSlapComplete(false);
+    setSlapDone(true);
+    const extraMerits = slapCount * (12 + selectedStress.level);
+    setMerits(prev => prev + extraMerits);
+    pushDialogue(`暴打结算：共掌掴 ${slapCount} 次，额外功德 +${extraMerits.toLocaleString()}！`, 50, 76, 'xuanxue');
+    markKo();
+  };
+
+  const handleSlapHit = (x: number, y: number) => {
+    if (slapTimer <= 0) return;
+    setSlapCount(prev => prev + 1);
+    setRelief(prev => Math.min(100, prev + 2));
+    setMonsterState(Math.random() > 0.5 ? 'hit' : 'hit_heavy');
+    triggerShake('light');
+
+    const prop = selectedSlapProp;
+    let label = '啪！';
+    if (prop === '👟') label = '板鞋抽脸！';
+    if (prop === '🥚') label = '臭蛋砸脸！';
+    if (prop === '🧱') label = '合同砸头！';
+
+    const meritsEarned = 12 + selectedStress.level;
+    spawnSpark(x, y, `${label} 爽感 +2 功德 +${meritsEarned}`, 'punch', prop);
+    spawnBurst(x, y, 6, 'confetti');
+
+    if (slapTimeoutRef.current) clearTimeout(slapTimeoutRef.current);
+    slapTimeoutRef.current = setTimeout(() => {
+      setMonsterState('kneeling');
+    }, 180);
+  };
+
+  const triggerUltimateMove = () => {
+    if (spGauge < 100 || bossHp <= 0 || furnaceActive || isSlapPhase) return;
+    
+    const ultType = artPreset.ultimateSkin || 'shred';
+    setUltimateActive(ultType);
+    setSpGauge(0);
+    setUltimatesUsedState(prev => prev + 1);
+    
+    triggerShake('heavy');
+    setSuperFlash(ultType === 'seal' ? 'gold' : ultType === 'shred' ? 'red' : 'cyan');
+    
+    const ultDamage = Math.round(currentBossHpMax * 0.4);
+    
+    let msg = '';
+    if (ultType === 'shred') {
+      msg = '释放大招【碎纸龙卷风】：全屏甩锅标签瞬间粉碎，小人心理防线彻底崩溃！';
+    } else if (ultType === 'seal') {
+      msg = '释放大招【太极因果判官印】：天道好轮回，巨大判章破除小人一切假面！';
+    } else {
+      msg = '释放大招【净心打工警钟】：警钟长鸣，震碎已读不回、深夜加班一切恶障！';
+    }
+    pushDialogue(msg, 50, 20, 'xuanxue');
+    spawnBurst(50, 40, 25, 'freedom');
+
+    // Wipe obstacles
+    setFogCleared(true);
+    setShieldHp(0);
+    setFrozen(false);
+    setErupting(false);
+    setStainWipeCount(3);
+    setTruthRevealed(true);
+
+    applyDamage(ultDamage, 28, 25);
+    setMonsterState('hit_heavy');
+
+    window.setTimeout(() => {
+      setUltimateActive('none');
+      setSuperFlash('none');
+      if (bossHpRef.current > 0) {
+        setMonsterState('idle');
+      }
+    }, 2200);
+  };
+
+  const handleWhackClick = (part: BodyPart) => {
+    if (bossHp <= 0 || isSlapPhase) return;
+    
+    const result: TargetHitResult = {
+      hitType: 'critical',
+      part,
+      partLabel: BODY_PART_LABELS[part],
+      isWeakness: true,
+      needleCount: targetNeedleCount + 1,
+      quotaComplete: targetNeedleCount + 1 >= comboTarget,
+      rotationDegrees: 0,
+      message: `戳破小人弱点【${BODY_PART_LABELS[part]}】！`
+    };
+    handleTargetHit(result);
+    
+    const parts = levelMechanic.weaknessParts;
+    const filtered = parts.filter(p => p !== part);
+    const nextPart = filtered[Math.floor(Math.random() * filtered.length)] || parts[0] || 'mouth';
+    setActiveWhackPart(nextPart);
+  };
+
+  const handleQteClick = (part: BodyPart) => {
+    if (bossHp <= 0 || isSlapPhase) return;
+    
+    const diff = Math.abs(qteScale - 1.0);
+    let hitType: TargetHitResult['hitType'] = 'miss';
+    let message = '';
+    
+    if (diff <= 0.16) {
+      hitType = 'critical';
+      message = 'PERFECT! 完美反击小人弱点！';
+    } else if (diff <= 0.38) {
+      hitType = 'normal';
+      message = 'GREAT! 打中小人弱点！';
+    } else {
+      hitType = 'blocked';
+      message = 'COOL! 错失节拍，被小人挡下了！';
+    }
+    
+    const result: TargetHitResult = {
+      hitType,
+      part,
+      partLabel: BODY_PART_LABELS[part],
+      isWeakness: hitType !== 'blocked',
+      needleCount: targetNeedleCount + 1,
+      quotaComplete: targetNeedleCount + 1 >= comboTarget,
+      rotationDegrees: 0,
+      message
+    };
+    handleTargetHit(result);
+    
+    const parts = levelMechanic.weaknessParts;
+    const filtered = parts.filter(p => p !== part);
+    setActiveQtePart(filtered[Math.floor(Math.random() * filtered.length)] || parts[0] || 'mouth');
+    setQteScale(2.5);
+  };
+
+  const handleDirectClickerHit = (x: number, y: number) => {
+    if (bossHp <= 0 || isSlapPhase) return;
+    
+    const parts = levelMechanic.weaknessParts;
+    const part = parts[Math.floor(Math.random() * parts.length)] || 'mouth';
+    
+    const result: TargetHitResult = {
+      hitType: Math.random() > 0.75 ? 'critical' : 'normal',
+      part,
+      partLabel: BODY_PART_LABELS[part],
+      isWeakness: true,
+      needleCount: targetNeedleCount + 1,
+      quotaComplete: targetNeedleCount + 1 >= comboTarget,
+      rotationDegrees: 0,
+      message: '暴打小人！'
+    };
+    handleTargetHit(result);
+  };
+
+  const handleDeflectClick = (id: number) => {
+    setDeflectItems(prev => prev.map(item => {
+      if (item.id === id && item.status === 'falling') {
+        recordStrike();
+        setSpGauge(s => Math.min(100, s + 15));
+        setRelief(r => Math.min(100, r + 5));
+        return { ...item, status: 'deflected' as const };
+      }
+      return item;
+    }));
   };
 
   const recordStrike = () => {
@@ -296,7 +594,8 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       setMerits(prev => Math.max(0, prev - 4));
       setMonsterState('dizzy');
       triggerShake('light');
-      spawnSpark(50, 46, result.message, 'pin');
+      const failEmoji = result.hitType === 'collision' ? '💥' : result.hitType === 'blocked' ? '🛡️' : '💨';
+      spawnSpark(50, 46, result.message, 'pin', failEmoji);
       pushDialogue(result.message, 50, 74, 'toast');
       window.setTimeout(() => setMonsterState(bossHpRef.current <= 0 ? 'flat_dead' : 'idle'), 380);
       return;
@@ -315,7 +614,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     const x = 24 + Math.random() * 52;
     const y = 24 + Math.random() * 42;
 
-    registerWeaponUse('pin');
+    registerWeaponUse(levelMechanic.recommendedWeapons[0] || 'pin');
     recordStrike();
     setSpGauge(prev => Math.min(100, prev + (isCritical ? 28 : 14)));
     setRelief(prev => Math.min(100, prev + (isCritical ? 8 : 4)));
@@ -324,7 +623,10 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     setMonsterState(isCritical ? 'hit_heavy' : 'hit');
     triggerShake(isCritical ? 'heavy' : 'light');
     applyDamage(totalDamage, isCritical ? 15 : 7, isCritical ? 14 : 6);
-    spawnSpark(x, y, `${result.message} -${totalDamage.toLocaleString()}`, isCritical ? 'hammer' : 'pin');
+    
+    const effect = HIT_EFFECTS[Math.floor(Math.random() * HIT_EFFECTS.length)];
+    const sparkText = `${effect.label} -${totalDamage.toLocaleString()}`;
+    spawnSpark(x, y, sparkText, isCritical ? 'hammer' : 'pin', effect.emoji);
     spawnBurst(x, y, isCritical ? 14 : 8, isCritical ? 'ticket' : 'confetti');
 
     if (result.quotaComplete) {
@@ -341,7 +643,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
   };
 
   const handleTagPoke = (tagText: string, index: number) => {
-    registerWeaponUse('pin');
+    registerWeaponUse(levelMechanic.recommendedWeapons[0] || 'pin');
     recordStrike();
     setActiveTags(prev => prev.filter(tag => tag !== tagText));
     setTagsDestroyed(prev => prev + 1);
@@ -353,7 +655,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     applyDamage(TAG_DAMAGE + selectedStress.level * 55, 18, 16);
     const x = 24 + (index % 4) * 16;
     const y = 62 + Math.floor(index / 4) * 10;
-    spawnSpark(x, y, `撕碎：${tagText}`, 'pin');
+    spawnSpark(x, y, `撕碎：${tagText}`, 'pin', '👋');
     spawnBurst(x, y, 12, 'ticket');
     pushDialogue(`执念标签「${tagText}」已撕烂，${selectedStress.punishment.shortEffect}。`, 50, 16, 'xuanxue');
   };
@@ -364,6 +666,17 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     if (!rect) return;
     const x = ((event.clientX - rect.left) / rect.width) * 100;
     const y = ((event.clientY - rect.top) / rect.height) * 100;
+
+    if (isSlapPhase) {
+      handleSlapHit(x, y);
+      return;
+    }
+
+    if (playMode === 'clicker') {
+      handleDirectClickerHit(x, y);
+      return;
+    }
+
     fireFromStagePoint(x, y);
   };
 
@@ -464,6 +777,16 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     setShrinkFactor(1);
     setHighestBossHp(prev => preserveRun ? Math.max(prev, currentBossHpMax) : currentBossHpMax);
 
+    setSlapDone(false);
+    setIsSlapPhase(false);
+    setSlapComplete(false);
+    setSlapCount(0);
+    setDeflectItems([]);
+    setActiveWhackPart(null);
+    setActiveQtePart(null);
+    setQteScale(2.5);
+    setUltimateActive('none');
+
     if (!preserveRun) {
       setStagesCleared(Math.max(0, selectedStress.level - 1));
       setRelief(0);
@@ -474,12 +797,177 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       setTagsDestroyed(0);
       setWeaponUsage(createWeaponUsage());
     }
-
     const introTimer = window.setTimeout(() => {
       pushDialogue(`第 ${selectedStress.level} 层开庭：${selectedStress.hellName}，Boss 血条 ${currentBossHpMax.toLocaleString()}。`, 50, 16, 'xuanxue');
     }, 0);
-    return () => window.clearTimeout(introTimer);
+    return () => {
+      window.clearTimeout(introTimer);
+    };
   }, [selectedStress, selectedMonsterStyle, currentBossHpMax]);
+
+  // 1. Slap Countdown Timer useEffect
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (isSlapPhase && slapTimer > 0) {
+      interval = setInterval(() => {
+        setSlapTimer(prev => {
+          if (prev <= 0.1) {
+            clearInterval(interval!);
+            setIsSlapPhase(false);
+            setSlapComplete(true);
+            return 0;
+          }
+          return Number((prev - 0.1).toFixed(1));
+        });
+      }, 100);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isSlapPhase, slapTimer]);
+
+  // 2. Whack-A-Mole Mode Target rotation useEffect
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (playMode === 'whack' && bossHp > 0 && !isSlapPhase && !furnaceActive) {
+      if (!activeWhackPart) {
+        const parts = levelMechanic.weaknessParts;
+        const randomPart = parts[Math.floor(Math.random() * parts.length)] || 'mouth';
+        setActiveWhackPart(randomPart);
+      }
+
+      interval = setInterval(() => {
+        const parts = levelMechanic.weaknessParts;
+        setActiveWhackPart(current => {
+          const filtered = parts.filter(p => p !== current);
+          const nextPart = filtered[Math.floor(Math.random() * filtered.length)] || parts[0] || 'mouth';
+          pushDialogue('反应慢了！小人弱点已转移！', 50, 74, 'toast');
+          setComboCount(0);
+          return nextPart;
+        });
+      }, Math.max(1200, 2400 - selectedStress.level * 80));
+    } else {
+      setActiveWhackPart(null);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [playMode, activeWhackPart, bossHp, isSlapPhase, furnaceActive, levelMechanic.weaknessParts]);
+
+  // 3. QTE Shrinking Circle Loop useEffect
+  useEffect(() => {
+    let frameId: number;
+    let startTime = performance.now();
+    const duration = Math.max(1000, 1800 - selectedStress.level * 60);
+
+    const tick = (now: number) => {
+      if (playMode === 'qte' && bossHp > 0 && !isSlapPhase && !furnaceActive) {
+        setActiveQtePart(currentPart => {
+          if (!currentPart) {
+            const parts = levelMechanic.weaknessParts;
+            const randomPart = parts[Math.floor(Math.random() * parts.length)] || 'mouth';
+            startTime = now;
+            return randomPart;
+          }
+          return currentPart;
+        });
+
+        const elapsed = now - startTime;
+        const progress = elapsed / duration;
+
+        if (progress >= 1) {
+          setComboCount(0);
+          pushDialogue('节拍漏掉！小人防线恢复！', 50, 74, 'toast');
+          const parts = levelMechanic.weaknessParts;
+          setActiveQtePart(parts[Math.floor(Math.random() * parts.length)] || 'mouth');
+          startTime = now;
+          setQteScale(2.5);
+        } else {
+          const currentScale = 2.5 - progress * 1.7;
+          setQteScale(currentScale);
+        }
+        frameId = requestAnimationFrame(tick);
+      }
+    };
+
+    if (playMode === 'qte' && bossHp > 0 && !isSlapPhase && !furnaceActive) {
+      frameId = requestAnimationFrame(tick);
+    } else {
+      setActiveQtePart(null);
+    }
+    return () => {
+      if (frameId) cancelAnimationFrame(frameId);
+    };
+  }, [playMode, activeQtePart, bossHp, isSlapPhase, furnaceActive, levelMechanic.weaknessParts]);
+
+  // 4. Deflect Mode Projectiles Physics & Spawning useEffect
+  useEffect(() => {
+    let spawnTimer: NodeJS.Timeout | null = null;
+    let animFrame: number;
+
+    if (playMode === 'deflect' && bossHp > 0 && !isSlapPhase && !furnaceActive) {
+      const spawn = () => {
+        const itemTypes = [
+          { emoji: '📄', label: '甩锅文件' },
+          { emoji: '📁', label: '烂摊收据' },
+          { emoji: '💣', label: 'KPI指标雷' },
+          { emoji: '☕', label: '有毒咖啡' }
+        ];
+        const type = itemTypes[Math.floor(Math.random() * itemTypes.length)]!;
+        const newItem: DeflectItem = {
+          id: Date.now() + Math.random(),
+          emoji: type.emoji,
+          label: type.label,
+          x: 25 + Math.random() * 50,
+          y: 28,
+          speedX: (Math.random() - 0.5) * 0.4,
+          speedY: 0.8 + selectedStress.level * 0.08,
+          status: 'falling'
+        };
+        setDeflectItems(prev => [...prev, newItem].slice(-10));
+        spawnTimer = setTimeout(spawn, Math.max(1000, 2500 - selectedStress.level * 80));
+      };
+
+      spawnTimer = setTimeout(spawn, 800);
+
+      const update = () => {
+        setDeflectItems(prev => {
+          return prev.map(item => {
+            if (item.status === 'falling') {
+              const nextY = item.y + item.speedY;
+              if (nextY >= 90) {
+                setBoundary(b => Math.max(0, b - 8));
+                setComboCount(0);
+                pushDialogue(`被「${item.label}」砸中！防线受损 -8！`, 50, 76, 'toast');
+                return { ...item, y: nextY, status: 'hit_player' as const };
+              }
+              return { ...item, y: nextY, x: item.x + item.speedX };
+            } else if (item.status === 'deflected') {
+              const nextY = item.y - 4.5;
+              if (nextY <= 26) {
+                applyDamage(850 + selectedStress.level * 120, 10, 10);
+                spawnSpark(item.x, item.y, `反弹！${item.label} -${(850 + selectedStress.level * 120).toLocaleString()}`, 'smash', item.emoji);
+                setMonsterState('hit');
+                setTimeout(() => setMonsterState('idle'), 220);
+                return null;
+              }
+              return { ...item, y: nextY };
+            }
+            return item;
+          }).filter(Boolean) as DeflectItem[];
+        });
+        animFrame = requestAnimationFrame(update);
+      };
+      animFrame = requestAnimationFrame(update);
+    } else {
+      setDeflectItems([]);
+    }
+
+    return () => {
+      if (spawnTimer) clearTimeout(spawnTimer);
+      if (animFrame) cancelAnimationFrame(animFrame);
+    };
+  }, [playMode, bossHp, isSlapPhase, furnaceActive]);
 
   useEffect(() => {
     if (selectedStress.level !== 10 || bossHp <= 0 || furnaceActive) return;
@@ -614,8 +1102,65 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
           <div className="stage-vignette" />
           <div className="stage-fire-hint" data-no-stage-fire="true">
             <b>{levelMechanic.playName}</b>
-            <span>点击战场任意位置发射 · 空格快捷打小人</span>
+            <span>{getMechanicHelpText(selectedStress.id)}</span>
           </div>
+
+          {/* Deflect items falling overlay */}
+          {playMode === 'deflect' && deflectItems.map(item => {
+            if (item.status === 'hit_player') return null;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={`deflect-item-btn ${item.status}`}
+                style={{
+                  position: 'absolute',
+                  left: `${item.x}%`,
+                  top: `${item.y}%`,
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: 40
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeflectClick(item.id);
+                }}
+              >
+                <span className="deflect-emoji">{item.emoji}</span>
+                <span className="deflect-label">{item.label}</span>
+              </button>
+            );
+          })}
+
+
+
+          {/* Slap Countdown overlay */}
+          {isSlapPhase && (
+            <div className="slap-countdown-overlay" data-no-stage-fire="true">
+              <div className="slap-timer-container">
+                <div className="slap-timer-glow" />
+                <div className="slap-timer-glow-inner" />
+                <span className="slap-title">疯狂大耳光时间！</span>
+                <div className="slap-countdown-text">{slapTimer.toFixed(1)}s</div>
+                <div className="slap-counter-pill">当前暴打：<b>{slapCount}</b> 次</div>
+                <div className="slap-prop-hint">选择道具并在 Boss 脸上疯狂点击！</div>
+                <div className="slap-props-dock">
+                  {getSlapPropsForLevel(selectedStress.level).map(prop => (
+                    <button
+                      key={prop}
+                      type="button"
+                      className={`slap-prop-item ${selectedSlapProp === prop ? 'active' : ''}`}
+                      onClick={() => setSelectedSlapProp(prop)}
+                    >
+                      <span className="prop-emoji">{prop}</span>
+                      <span className="prop-label">
+                        {prop === '👋' ? '大耳光' : prop === '👟' ? '臭板鞋' : prop === '🥚' ? '臭鸡蛋' : '霸王合同'}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           <section className="boss-hud">
             <div className="boss-title-row">
@@ -675,48 +1220,77 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
               )}
             </AnimatePresence>
 
-            <AnimatePresence>
-              {settlementReady && (
-                <motion.section
-                  className="settlement-modal"
-                  data-no-stage-fire="true"
-                  initial={{ opacity: 0, y: 18, scale: 0.92 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 12, scale: 0.94 }}
-                >
-                  <div className="settlement-seal">{isFinalHellLevel ? '终局' : '终审'}</div>
-                  <span>第 {selectedStress.level} 层已 K.O.</span>
-                  <h3>{furnaceBurns > 0 ? '罪状已入业火炉' : '血条已空，准备焚案'}</h3>
-                  <p>
-                    {furnaceBurns > 0
-                      ? `${selectedStress.verdict} 清算值 +${merits.toLocaleString()}，可以继续推进。`
-                      : `把「${selectedStress.tags.slice(0, 3).join(' / ')}」推进炉里，烧成灰再判。`}
-                  </p>
-                  <div className="settlement-actions">
-                    <button type="button" className="settlement-fire" onClick={triggerFurnaceBurn} disabled={furnaceBurns > 0}>
-                      <Flame className="h-4 w-4" />
-                      {furnaceBurns > 0 ? '已焚案' : '业火炉焚案'}
-                    </button>
-                    <button type="button" className="settlement-next" onClick={startNextBoss}>
-                      {isFinalHellLevel ? '终局宣判' : '下一层'}
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </button>
-                    <button type="button" className="settlement-soft" onClick={handleFinalSubmit}>本层宣判</button>
-                  </div>
-                </motion.section>
-              )}
-            </AnimatePresence>
+
 
             <div className="target-battle-stack">
-              <SpinningTarget
-                mechanic={levelMechanic}
-                disabled={bossHp <= 0 || furnaceActive}
-                accentColor={artPreset.accentColor}
-                dangerColor={artPreset.dangerColor}
-                fireSignal={fireSignal}
-                showInlineButton={false}
-                onHit={handleTargetHit}
-              />
+              {playMode === 'turntable' ? (
+                <SpinningTarget
+                  mechanic={levelMechanic}
+                  disabled={bossHp <= 0 || furnaceActive}
+                  accentColor={artPreset.accentColor}
+                  dangerColor={artPreset.dangerColor}
+                  fireSignal={fireSignal}
+                  showInlineButton={false}
+                  onHit={handleTargetHit}
+                  ultimateActive={ultimateActive !== 'none'}
+                />
+              ) : (
+                <div className="mode-control-panel" data-no-stage-fire="true">
+                  <div className="mode-header">
+                    <span className="mode-icon">
+                      {playMode === 'whack' ? '🎯' : playMode === 'qte' ? '⏱️' : playMode === 'clicker' ? '🥊' : '🛡️'}
+                    </span>
+                    <div>
+                      <h4>{levelMechanic.playName}</h4>
+                      <p>{levelMechanic.coreMechanic}</p>
+                    </div>
+                  </div>
+
+                  <div className="weapon-status-card">
+                    <span>当前武器：{levelMechanic.toolName} {levelMechanic.toolIcon}</span>
+                    <p>{levelMechanic.dockHint}</p>
+                  </div>
+
+                  {selectedStress.level >= 2 && (
+                    <div className="ultimate-charge-section">
+                      <div className="ult-label">
+                        <span>清算大招 (SP)</span>
+                        <b style={{ color: spGauge >= 100 ? 'var(--level-danger)' : 'var(--level-accent)' }}>
+                          {spGauge}/100
+                        </b>
+                      </div>
+                      <div className="ult-progress-bar">
+                        <i style={{ width: `${spGauge}%`, background: spGauge >= 100 ? 'var(--level-danger)' : 'var(--level-accent)' }} />
+                      </div>
+                      <button
+                        type="button"
+                        className={`ult-release-btn ${spGauge >= 100 ? 'is-charged animate-pulse' : ''}`}
+                        disabled={spGauge < 100 || bossHp <= 0}
+                        onClick={triggerUltimateMove}
+                      >
+                        {spGauge >= 100 ? (
+                          <>
+                            <Zap className="h-4 w-4 mr-1 animate-bounce" />
+                            释放大招！
+                          </>
+                        ) : (
+                          `充能中 (${spGauge}%)`
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="mode-guide-alert">
+                    <span>操作指南：</span>
+                    <p>
+                      {playMode === 'whack' && '在Boss身体上直接点击红色发光的弱点区域！'}
+                      {playMode === 'qte' && '等金光外圈收缩到与弱点内圈重合时点击弱点！'}
+                      {playMode === 'clicker' && '无需瞄准，高频疯狂点击小人即可疯狂殴打！'}
+                      {playMode === 'deflect' && '点击天空中飞下来的红线文件/甩锅，反弹回去！'}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <MonsterVisual
                 styleId={selectedMonsterStyle.id}
@@ -732,6 +1306,11 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
                 artPreset={artPreset}
                 villainPhase={villainPhase}
                 weaknessParts={levelMechanic.weaknessParts}
+                playMode={playMode}
+                activeWhackPart={activeWhackPart}
+                activeQtePart={activeQtePart}
+                qteScale={qteScale}
+                onWeaknessClick={playMode === 'whack' ? handleWhackClick : playMode === 'qte' ? handleQteClick : undefined}
               />
             </div>
           </section>
@@ -758,12 +1337,19 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
             <motion.div
               key={spark.id}
               className={`hit-spark hit-spark-${spark.kind}`}
-              initial={{ scale: 0.5, y: 8, opacity: 0 }}
-              animate={{ scale: 1, y: -18, opacity: 1 }}
+              initial={{ scale: 0.3, y: 15, opacity: 0 }}
+              animate={{ scale: [0.3, 1.4, 1], y: -25, opacity: 1 }}
               exit={{ opacity: 0 }}
               style={{ left: `${spark.x}%`, top: `${spark.y}%`, rotate: `${spark.rotate}deg` }}
             >
-              {spark.text}
+              <div className="flex flex-col items-center justify-center" style={{ pointerEvents: 'none' }}>
+                <span className="text-5xl filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.4)] mb-1 block select-none">
+                  {spark.emoji}
+                </span>
+                <span className="text-xs bg-black/80 px-2 py-0.5 rounded border border-rose-500/40 text-[#ffefc5] font-black uppercase tracking-wide whitespace-nowrap shadow-lg">
+                  {spark.labelText}
+                </span>
+              </div>
             </motion.div>
           ))}
 
@@ -859,6 +1445,12 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
             <Shield className="h-4 w-4" />
             护自己
           </button>
+          {selectedStress.level >= 2 && spGauge >= 100 && (
+            <button type="button" onClick={triggerUltimateMove} className="ritual-ult-action animate-pulse">
+              <Zap className="h-4 w-4" />
+              释放大招
+            </button>
+          )}
           <button type="button" onClick={triggerFurnaceBurn} className="ritual-fire-action" disabled={bossHp > 0}>
             <Flame className="h-4 w-4" />
             业火炉焚案
@@ -879,6 +1471,98 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
           <span><Sparkles className="h-3.5 w-3.5" /> 爽感 {relief}%</span>
         </div>
       </footer>
+
+      {/* Fullscreen Ultimate Overlays */}
+      {ultimateActive === 'shred' && (
+        <div className="ultimate-overlay ult-shred-overlay" data-no-stage-fire="true">
+          <div className="shred-vortex-container">
+            <div className="vortex-core" />
+            <span className="ult-paper paper-1">📄</span>
+            <span className="ult-paper paper-2">📁</span>
+            <span className="ult-paper paper-3">📄</span>
+            <span className="ult-paper paper-4">📝</span>
+            <h2 className="ult-txt-shred">碎纸清算风暴！</h2>
+          </div>
+        </div>
+      )}
+
+      {ultimateActive === 'seal' && (
+        <div className="ultimate-overlay ult-seal-overlay" data-no-stage-fire="true">
+          <div className="seal-container">
+            <div className="yin-yang-glow" />
+            <div className="massive-seal-stamp">判</div>
+            <h2 className="ult-txt-seal">因果清算大印！</h2>
+          </div>
+        </div>
+      )}
+
+      {ultimateActive === 'chime' && (
+        <div className="ultimate-overlay ult-chime-overlay" data-no-stage-fire="true">
+          <div className="chime-container">
+            <div className="bronze-bell">🔔</div>
+            <div className="soundwave wave-1" />
+            <div className="soundwave wave-2" />
+            <div className="soundwave wave-3" />
+            <h2 className="ult-txt-chime">净心警钟长鸣！</h2>
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen Settlement Overlays */}
+      <AnimatePresence>
+        {settlementReady && (
+          <div className="settlement-overlay" data-no-stage-fire="true">
+            <motion.section
+              className="settlement-modal"
+              initial={{ opacity: 0, y: 18, scale: 0.92 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.94 }}
+            >
+              <div className="settlement-seal">{isFinalHellLevel ? '终局' : '终审'}</div>
+              <span>第 {selectedStress.level} 层已 K.O.</span>
+              <h3>{furnaceBurns > 0 ? '罪状已入业火炉' : '血条已空，准备焚案'}</h3>
+              <p>
+                {furnaceBurns > 0
+                  ? `${selectedStress.verdict} 清算值 +${merits.toLocaleString()}，可以继续推进。`
+                  : `把「${selectedStress.tags.slice(0, 3).join(' / ')}」推进炉里，烧成灰再判。`}
+              </p>
+              <div className="settlement-actions">
+                <button type="button" className="settlement-fire" onClick={triggerFurnaceBurn} disabled={furnaceBurns > 0}>
+                  <Flame className="h-4 w-4" />
+                  {furnaceBurns > 0 ? '已焚案' : '业火炉焚案'}
+                </button>
+                <button type="button" className="settlement-next" onClick={startNextBoss}>
+                  {isFinalHellLevel ? '终局宣判' : '下一层'}
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+                <button type="button" className="settlement-soft" onClick={handleFinalSubmit}>本层宣判</button>
+              </div>
+            </motion.section>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {slapComplete && (
+          <div className="settlement-overlay" data-no-stage-fire="true">
+            <motion.section
+              className="settlement-modal slap-summary-modal"
+              initial={{ opacity: 0, y: 18, scale: 0.92 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.94 }}
+            >
+              <div className="settlement-seal">清算</div>
+              <span>第 {selectedStress.level} 层暴打完成！</span>
+              <h3>共疯狂掌掴 Boss {slapCount} 次</h3>
+              <p>获得额外功德奖励：<b>+{(slapCount * (12 + selectedStress.level)).toLocaleString()}</b></p>
+              <button type="button" className="settlement-next" onClick={completeSlappingAndSettle}>
+                录入清算案卷
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            </motion.section>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 
@@ -899,7 +1583,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       meritsEarned: merits,
       unlockedAmuletsCount: Math.min(5, 2 + tagsDestroyed + furnaceBurns),
       maxCombo: Math.max(maxCombo, comboCount),
-      ultimatesUsed: furnaceBurns,
+      ultimatesUsed: furnaceBurns + ultimatesUsedState,
       favoriteWeaponId,
       tagsDestroyed,
       stagesCleared: reportedStagesCleared,

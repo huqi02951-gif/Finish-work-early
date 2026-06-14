@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Smartphone, User, AlertCircle, Loader2 } from 'lucide-react';
+import { Mail, AlertCircle, Loader2 } from 'lucide-react';
 import { apiService } from '../../services/api';
 import { setAuthSession } from '../../services/authService';
+import { sendSupabaseEmailCode, syncSupabaseProfile, verifySupabaseEmailCode } from '../../services/supabaseAuth';
 
 const EmailLogin: React.FC = () => {
   const navigate = useNavigate();
@@ -30,8 +31,8 @@ const EmailLogin: React.FC = () => {
     setError(null);
     setSending(true);
     try {
-      await apiService.sendEmailCode(email.trim().toLowerCase());
-      setSuccess('验证码已发送，请查看邮箱');
+      await sendSupabaseEmailCode(email.trim().toLowerCase());
+      setSuccess('Supabase 验证码已发送，请查看邮箱');
       setCountdown(60);
       const timer = setInterval(() => {
         setCountdown((prev) => {
@@ -63,7 +64,14 @@ const EmailLogin: React.FC = () => {
     setSuccess(null);
     setVerifying(true);
     try {
-      const result = await apiService.verifyEmailCode(email.trim().toLowerCase(), code.trim());
+      const supabaseSession = await verifySupabaseEmailCode(email.trim().toLowerCase(), code.trim());
+      const result = await apiService.exchangeSupabaseSession(supabaseSession.session.access_token);
+      await syncSupabaseProfile({
+        id: supabaseSession.user.id,
+        email: result.user.email || email.trim().toLowerCase(),
+        nickname: result.user.nickname || result.user.username,
+        apexUserId: result.user.id,
+      });
 
       setAuthSession({
         accessToken: result.access_token,
@@ -77,6 +85,7 @@ const EmailLogin: React.FC = () => {
         },
         loginMethod: 'email',
         loginTime: new Date().toISOString(),
+        supabaseUserId: result.user.supabaseAuthId || supabaseSession.user.id,
       });
 
       navigate(from, { replace: true });
@@ -161,7 +170,7 @@ const EmailLogin: React.FC = () => {
       </button>
 
       <p className="text-[11px] text-brand-gray text-center leading-relaxed">
-        首次使用将自动注册账号。验证码 10 分钟内有效。
+        首次使用将由 Supabase 自动注册账号。验证码 10 分钟内有效。
       </p>
     </div>
   );

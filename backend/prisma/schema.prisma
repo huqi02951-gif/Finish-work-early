@@ -154,6 +154,7 @@ model User {
   role         UserRole   @default(USER)
   status       UserStatus @default(ACTIVE)
   clientKey    String?    @unique @map("client_key")
+  supabaseAuthId String?  @unique @map("supabase_auth_id")
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
 

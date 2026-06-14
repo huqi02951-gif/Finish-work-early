@@ -18,6 +18,7 @@ interface BackendUser {
   nickname: string;
   email?: string;
   phone?: string;
+  supabaseAuthId?: string;
   role: BackendRole;
   createdAt: string;
 }
@@ -134,6 +135,14 @@ export const apiService = {
     return requestJson('/auth/email/verify', {
       method: 'POST',
       body: JSON.stringify({ email, code }),
+    });
+  },
+
+  exchangeSupabaseSession: async (accessToken: string): Promise<{ access_token: string; user: BackendUser }> => {
+    return requestJson('/auth/supabase/exchange', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify({ accessToken }),
     });
   },
 

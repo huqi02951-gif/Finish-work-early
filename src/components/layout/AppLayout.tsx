@@ -6,6 +6,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import InitialBadge from '../common/InitialBadge';
 import { getAuthSession, clearAuthSession } from '../../services/authService';
 import { apiService } from '../../services/api';
+import { signOutSupabase } from '../../services/supabaseAuth';
 import PetCompanion from '../../../components/pet/PetCompanion';
 
 const NAV_ITEMS = [
@@ -41,6 +42,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({
   const handleLogout = async () => {
     try {
       await apiService.logout();
+    } catch { /* ignore */ }
+    try {
+      await signOutSupabase();
     } catch { /* ignore */ }
     clearAuthSession();
     setShowUserMenu(false);

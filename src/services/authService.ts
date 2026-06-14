@@ -9,6 +9,7 @@ export interface AuthSession {
   user: User;
   loginMethod: 'email' | 'phone' | 'demo';
   loginTime: string;
+  supabaseUserId?: string;
 }
 
 /**

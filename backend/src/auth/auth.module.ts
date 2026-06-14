@@ -5,6 +5,7 @@ import { EmailAuthModule } from './email-auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { getJwtSecret, getJwtSignOptions } from './auth.config';
 import { AuthGuard } from './auth.guard';
+import { SupabaseAuthService } from './supabase-auth.service';
 
 @Global()
 @Module({
@@ -19,7 +20,7 @@ import { AuthGuard } from './auth.guard';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthGuard],
+  providers: [AuthService, SupabaseAuthService, AuthGuard],
   exports: [AuthGuard, JwtModule],
 })
 export class AuthModule {}
