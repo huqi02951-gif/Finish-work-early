@@ -564,442 +564,130 @@ const getBossFilter = (level: number, isLowHp: boolean, isKo: boolean, shredProg
   return [baseFilter, blurFilter, lowHpFilter, koFilter].filter(Boolean).join(' ');
 };
 
-const ProceduralBody: React.FC<{ level: number; state: BossSpriteState }> = ({ level, state }) => {
+const GothicAccessoryOverlay: React.FC<{ level: number; state: BossSpriteState }> = ({ level, state }) => {
   const isKo = state === 'flat_dead' || state === 'flattened';
-  const isKneeling = state === 'kneeling' || state === 'apologizing' || state === 'crying';
-  const isHit = state === 'hit' || state === 'hit_heavy';
-  const isDizzy = state === 'dizzy';
+  if (isKo) return null;
 
-  let bodyType: 'standard' | 'bulky' | 'tall' | 'hunched' | 'spiky' = 'standard';
-  if ([1, 2, 12].includes(level)) bodyType = 'hunched';
-  else if ([5, 11, 17].includes(level)) bodyType = 'bulky';
-  else if ([6, 10, 18].includes(level)) bodyType = 'tall';
-  else if ([3, 7, 16].includes(level)) bodyType = 'spiky';
-
-  let hornStyle: 'short' | 'long' | 'broken' | 'crown' = 'short';
-  if (level >= 15) hornStyle = 'crown';
-  else if (level >= 9) hornStyle = 'long';
-  else if (level >= 4) hornStyle = 'broken';
-
-  if (isKo) {
-    return (
-      <svg
-        viewBox="0 0 100 100"
-        className="boss-sprite-img"
-        style={{
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none',
-        }}
-      >
-        <ellipse cx="50" cy="88" rx="36" ry="6" fill="#cbd5e1" stroke="#000" strokeWidth="1.8" />
-        <ellipse cx="50" cy="88" rx="20" ry="3" fill="#1e293b" opacity="0.6" />
-        <ellipse cx="50" cy="84" rx="14" ry="4" fill="#cbd5e1" stroke="#000" strokeWidth="1.5" />
-        <path d="M 49 84 L 51 84 L 52 89 L 48 89 Z" fill="#991b1b" stroke="#000" strokeWidth="0.8" />
-        <path d="M 22 88 L 32 87 M 68 88 L 78 87 M 42 85 L 45 84" stroke="#000" strokeWidth="1" />
-      </svg>
-    );
-  }
-
-  const hx = 50;
-  const hy = isKneeling ? 32 : 22;
-  const hr = 11.5;
-
-  let sLy = isKneeling ? 46 : (bodyType === 'hunched' ? 36 : 42);
-  let sRy = isKneeling ? 46 : (bodyType === 'hunched' ? 36 : 42);
-  let sLx = bodyType === 'bulky' ? 30 : (bodyType === 'tall' ? 38 : 34);
-  let sRx = bodyType === 'bulky' ? 70 : (bodyType === 'tall' ? 62 : 66);
-
-  if (bodyType === 'spiky' && !isKneeling) {
-    sLy -= 4;
-    sRy -= 4;
-  }
-
-  const bLy = isKneeling ? 72 : 78;
-  const bRy = isKneeling ? 72 : 78;
-  const bLx = bodyType === 'bulky' ? 32 : (bodyType === 'tall' ? 39 : 36);
-  const bRx = bodyType === 'bulky' ? 68 : (bodyType === 'tall' ? 61 : 64);
-
-  let handLx = sLx - 14;
-  let handLy = sLy + 10;
-  let handRx = sRx + 14;
-  let handRy = sRy + 10;
-
-  if (isHit) {
-    handLx = sLx - 18;
-    handLy = sLy - 15;
-    handRx = sRx + 18;
-    handRy = sRy - 15;
-  } else if (isDizzy) {
-    handLx = sLx - 4;
-    handLy = sLy + 18;
-    handRx = sRx + 4;
-    handRy = sRy + 18;
-  } else if (isKneeling) {
-    handLx = hx - 6;
-    handLy = hy + 6;
-    handRx = hx + 6;
-    handRy = hy + 6;
-  }
-
-  const transform = isHit ? 'rotate(8 50 50) translate(2, -2)' : '';
-
-  const renderHorns = () => {
-    switch (hornStyle) {
-      case 'crown':
+  const renderAccessories = () => {
+    switch (level) {
+      case 1:
         return (
           <g>
-            <path d={`M ${hx - 8} ${hy - 8} L ${hx - 12} ${hy - 14} L ${hx - 4} ${hy - 11} L ${hx} ${hy - 18} L ${hx + 4} ${hy - 11} L ${hx + 12} ${hy - 14} L ${hx + 8} ${hy - 8} Z`} fill="#fbbf24" stroke="#000" strokeWidth="1.2" />
-            <path d={`M ${hx - 10} ${hy - 8} Q ${hx} ${hy - 5} ${hx + 10} ${hy - 8}`} fill="none" stroke="#000" strokeWidth="1" />
+            <g transform="rotate(-15 38 54)">
+              <rect x="33" y="48" width="10" height="14" fill="#fbbf24" stroke="#000" strokeWidth="1.2" />
+              <text x="38" y="57" fontFamily="monospace" fontWeight="900" fontSize="5" fill="#000" textAnchor="middle">闲话</text>
+              <circle cx="38" cy="51" r="1.2" fill="#475569" stroke="#000" strokeWidth="0.8" />
+            </g>
+            <g transform="rotate(10 62 64)">
+              <rect x="57" y="58" width="10" height="14" fill="#fbbf24" stroke="#000" strokeWidth="1.2" />
+              <text x="62" y="67" fontFamily="monospace" fontWeight="900" fontSize="5" fill="#000" textAnchor="middle">嚼舌</text>
+              <circle cx="62" cy="61" r="1.2" fill="#475569" stroke="#000" strokeWidth="0.8" />
+            </g>
+            <g transform="rotate(-5 48 30)">
+              <rect x="43" y="24" width="10" height="14" fill="#fbbf24" stroke="#000" strokeWidth="1.2" />
+              <text x="48" y="33" fontFamily="monospace" fontWeight="900" fontSize="5" fill="#000" textAnchor="middle">造谣</text>
+              <circle cx="48" cy="27" r="1.2" fill="#475569" stroke="#000" strokeWidth="0.8" />
+            </g>
           </g>
         );
-      case 'long':
+      case 2:
         return (
-          <g stroke="#000" strokeWidth="1.8" fill="#cbd5e1" strokeLinejoin="round">
-            <path d={`M ${hx - 5} ${hy - 8} C ${hx - 14} ${hy - 20}, ${hx - 20} ${hy - 12}, ${hx - 18} ${hy - 15} C ${hx - 14} ${hy - 10}, ${hx - 8} ${hy - 9}, ${hx - 2} ${hy - 8}`} />
-            <path d={`M ${hx + 5} ${hy - 8} C ${hx + 14} ${hy - 20}, ${hx + 20} ${hy - 12}, ${hx + 18} ${hy - 15} C ${hx + 14} ${hy - 10}, ${hx + 8} ${hy - 9}, ${hx + 2} ${hy - 8}`} />
+          <g stroke="#ef4444" strokeWidth="2.2" fill="none" strokeLinecap="round">
+            <path d="M 21 55 Q 35 52 50 51" />
+            <path d="M 71 48 Q 50 51 21 55" />
+            <path d="M 35 45 Q 50 65 65 45" />
+            <path d="M 38 60 Q 50 50 62 60" />
           </g>
         );
-      case 'broken':
+      case 3:
         return (
-          <g stroke="#000" strokeWidth="1.8" fill="#cbd5e1" strokeLinejoin="round">
-            <path d={`M ${hx - 5} ${hy - 8} Q ${hx - 10} ${hy - 16} ${hx - 12} ${hy - 14} Q ${hx - 8} ${hy - 10} ${hx - 2} ${hy - 8}`} />
-            <path d={`M ${hx + 2} ${hy - 8} L ${hx + 7} ${hy - 10} L ${hx + 6} ${hy - 7} Z`} />
+          <g>
+            <g stroke="#475569" strokeWidth="1.8">
+              <line x1="32" y1="45" x2="24" y2="38" />
+              <circle cx="24" cy="38" r="2" fill="#94a3b8" stroke="#000" strokeWidth="0.8" />
+              <line x1="68" y1="45" x2="76" y2="38" />
+              <circle cx="76" cy="38" r="2" fill="#94a3b8" stroke="#000" strokeWidth="0.8" />
+              <line x1="71" y1="48" x2="79" y2="52" />
+              <circle cx="79" cy="52" r="2" fill="#94a3b8" stroke="#000" strokeWidth="0.8" />
+            </g>
+            <g stroke="#334155" strokeWidth="1.2" fill="none">
+              <rect x="42" y="52" width="6" height="10" rx="3" transform="rotate(25 45 57)" />
+              <rect x="52" y="55" width="6" height="10" rx="3" transform="rotate(-15 55 60)" />
+            </g>
           </g>
         );
-      case 'short':
+      case 6:
+        return (
+          <g>
+            <path d="M 47 39 L 45 48 L 50 51" stroke="#ef4444" strokeWidth="1" fill="none" />
+            <path d="M 53 39 L 55 48 L 50 51" stroke="#ef4444" strokeWidth="1" fill="none" />
+            <g transform="translate(42, 50)">
+              <rect x="0" y="0" width="16" height="12" rx="1.5" fill="#ffffff" stroke="#475569" strokeWidth="1.2" />
+              <rect x="2" y="2" width="4" height="4" fill="#ef4444" />
+              <rect x="8" y="2" width="6" height="1.5" fill="#334155" />
+              <text x="8" y="8" fontFamily="monospace" fontSize="3" fontWeight="bold" fill="#d7a84d">VP 授权</text>
+              <path d="M 1 1 L 15 11" stroke="rgba(255, 255, 255, 0.5)" strokeWidth="1.5" />
+            </g>
+          </g>
+        );
+      case 10:
+        return (
+          <g>
+            <path d="M 46 38 L 26 22 L 36 38 Z" fill="#991b1b" stroke="#000" strokeWidth="1.5" />
+            <path d="M 46 38 L 26 22 L 36 38 Z" fill="#1e1b4b" clipPath="polygon(0 0, 100% 0, 100% 100%)" opacity="0.3" />
+            <path d="M 54 38 L 74 22 L 64 38 Z" fill="#991b1b" stroke="#000" strokeWidth="1.5" />
+            <path d="M 54 38 L 74 22 L 64 38 Z" fill="#1e1b4b" clipPath="polygon(0 0, 100% 0, 100% 100%)" opacity="0.3" />
+            <path d="M 36 38 Q 50 42 64 38" stroke="#000" strokeWidth="1.5" fill="none" />
+          </g>
+        );
+      case 11:
+        return (
+          <g>
+            <path d="M 28 14 Q 22 2 50 1 Q 78 2 72 14 Q 50 16 28 14 Z" fill="#475569" stroke="#000" strokeWidth="1.5" />
+            <path d="M 38 10 L 42 6 L 40 4" stroke="#1e293b" strokeWidth="1" fill="none" />
+            <path d="M 60 11 L 57 7 L 61 5" stroke="#1e293b" strokeWidth="1" fill="none" />
+            <path d="M 48 13 L 51 9 L 49 7" stroke="#1e293b" strokeWidth="1" fill="none" />
+            <text x="50" y="9" fontFamily="monospace" fontSize="5.5" fontWeight="900" fill="#f87171" textAnchor="middle">KPI指标</text>
+          </g>
+        );
+      case 14:
+        return (
+          <g>
+            <line x1="36" y1="54" x2="33" y2="44" stroke="#475569" strokeWidth="2" />
+            <line x1="64" y1="54" x2="67" y2="44" stroke="#475569" strokeWidth="2" />
+            <circle cx="50" cy="58" r="14" fill="#1e293b" stroke="#000" strokeWidth="1.6" />
+            <circle cx="50" cy="58" r="11" fill="#0f172a" stroke="#334155" strokeWidth="0.8" />
+            <path d="M 36 58 Q 31 55 36 52" stroke="#000" strokeWidth="1.5" fill="none" />
+            <path d="M 64 58 Q 69 55 64 52" stroke="#000" strokeWidth="1.5" fill="none" />
+            <text x="50" y="61" fontFamily="monospace" fontSize="6.5" fontWeight="bold" fill="#94a3b8" textAnchor="middle">锅</text>
+          </g>
+        );
+      case 18:
+        return (
+          <g>
+            <path d="M 40 10 L 43 4 L 47 7 L 50 2 L 53 7 L 57 4 L 60 10 Z" fill="#991b1b" stroke="#450a0a" strokeWidth="1.2" />
+            <path d="M 44 9 L 46 7 M 55 9 L 57 7" stroke="#000" strokeWidth="0.8" />
+          </g>
+        );
       default:
-        return (
-          <g stroke="#000" strokeWidth="1.8" fill="#cbd5e1" strokeLinejoin="round">
-            <path d={`M ${hx - 5} ${hy - 8} Q ${hx - 9} ${hy - 14} ${hx - 10} ${hy - 12} Q ${hx - 7} ${hy - 9} ${hx - 2} ${hy - 8}`} />
-            <path d={`M ${hx + 5} ${hy - 8} Q ${hx + 9} ${hy - 14} ${hx + 10} ${hy - 12} Q ${hx + 7} ${hy - 9} ${hx + 2} ${hy - 8}`} />
-          </g>
-        );
+        return null;
     }
-  };
-
-  const renderArms = () => {
-    let sleeveColor = '#cbd5e1';
-    if (level === 2) sleeveColor = '#cbd5e1';
-    else if (level === 3) sleeveColor = '#334155';
-    else if (level === 4) sleeveColor = '#1e293b';
-    else if (level === 6) sleeveColor = '#1e1b4b';
-    else if (level === 7) sleeveColor = '#475569';
-    else if (level === 10) sleeveColor = '#1e293b';
-    else if (level === 11) sleeveColor = '#64748b';
-    else if (level === 15) sleeveColor = '#1e293b';
-    else if (level === 16) sleeveColor = '#7f1d1d';
-    else if (level === 18) sleeveColor = '#1e293b';
-
-    return (
-      <g stroke="#000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d={`M ${sLx} ${sLy} Q ${(sLx + handLx) / 2} ${(sLy + handLy) / 2 - 3} ${handLx} ${handLy}`} fill="none" stroke={sleeveColor} strokeWidth="6" />
-        <path d={`M ${sLx} ${sLy} Q ${(sLx + handLx) / 2} ${(sLy + handLy) / 2 - 3} ${handLx} ${handLy}`} fill="none" stroke="#000" strokeWidth="1.8" />
-        <circle cx={handLx} cy={handLy} r="3" fill="#f1f5f9" stroke="#000" strokeWidth="1.5" />
-
-        <path d={`M ${sRx} ${sRy} Q ${(sRx + handRx) / 2} ${(sRy + handRy) / 2 - 3} ${handRx} ${handRy}`} fill="none" stroke={level === 4 ? '#cbd5e1' : sleeveColor} strokeWidth="6" />
-        <path d={`M ${sRx} ${sRy} Q ${(sRx + handRx) / 2} ${(sRy + handRy) / 2 - 3} ${handRx} ${handRy}`} fill="none" stroke="#000" strokeWidth="1.8" />
-        <circle cx={handRx} cy={handRy} r="3" fill="#f1f5f9" stroke="#000" strokeWidth="1.5" />
-      </g>
-    );
-  };
-
-  const renderLegs = () => {
-    let pantsColor = '#cbd5e1';
-    if (level === 3 || level === 15 || level === 18) pantsColor = '#1e293b';
-    else if (level === 6) pantsColor = '#1f2937';
-    else if (level === 7) pantsColor = '#334155';
-    else if (level === 10) pantsColor = '#0f172a';
-    else if (level === 11) pantsColor = '#475569';
-
-    if (isKneeling) {
-      return (
-        <g stroke="#000" strokeWidth="1.8" fill={pantsColor} strokeLinecap="round" strokeLinejoin="round">
-          <path d={`M ${bLx + 3} ${bLy} Q ${bLx - 2} ${bLy + 6} ${bLx + 2} ${bLy + 8} L ${bLx + 12} ${bLy + 8}`} />
-          <path d={`M ${bRx - 3} ${bRy} Q ${bRx + 2} ${bRy + 6} ${bRx - 2} ${bRy + 8} L ${bRx - 12} ${bLy + 8}`} />
-          <path d={`M ${bLx - 1} ${bLy + 8} L ${bLx - 4} ${bLy + 7} L ${bLx - 3} ${bLy + 5} Z`} fill="#1e293b" stroke="#000" strokeWidth="1" />
-          <path d={`M ${bRx + 1} ${bRy + 8} L ${bRx + 4} ${bRy + 7} L ${bRx + 3} ${bRy + 5} Z`} fill="#1e293b" stroke="#000" strokeWidth="1" />
-        </g>
-      );
-    }
-
-    return (
-      <g stroke="#000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <line x1={bLx + 3} y1={bLy} x2={bLx + 3} y2={88} stroke={pantsColor} strokeWidth="5" />
-        <line x1={bLx + 3} y1={bLy} x2={bLx + 3} y2={88} stroke="#000" strokeWidth="1.8" />
-        <path d={`M ${bLx - 1} 88 L ${bLx + 6} 88 L ${bLx + 4} 91 L ${bLx - 3} 91 Z`} fill="#1e293b" stroke="#000" strokeWidth="1.5" />
-
-        <line x1={bRx - 3} y1={bRy} x2={bRx - 3} y2={88} stroke={pantsColor} strokeWidth="5" />
-        <line x1={bRx - 3} y1={bRy} x2={bRx - 3} y2={88} stroke="#000" strokeWidth="1.8" />
-        <path d={`M ${bRx - 6} 88 L ${bRx + 1} 88 L ${bRx + 3} 91 L ${bRx - 4} 91 Z`} fill="#1e293b" stroke="#000" strokeWidth="1.5" />
-      </g>
-    );
-  };
-
-  const renderTorsoAndOutfit = () => {
-    let baseFill = '#cbd5e1';
-    let outlineStroke = '#000';
-
-    const drawBaseTorso = (fillColor: string, strokeColor: string, strokeW: number) => {
-      if (bodyType === 'bulky') {
-        return (
-          <path
-            d={`M ${sLx} ${sLy} L ${sRx} ${sRy} C ${sRx + 10} ${sLy + 12}, ${sRx + 10} ${bLy - 6}, ${bRx} ${bLy} C ${(bRx+bLx)/2} ${bLy+2}, ${(bRx+bLx)/2} ${bLy+2}, ${bLx} ${bLy} C ${sLx - 10} ${bLy - 6}, ${sLx - 10} ${sLy + 12}, ${sLx} ${sLy} Z`}
-            fill={fillColor}
-            stroke={strokeColor}
-            strokeWidth={strokeW}
-            strokeLinejoin="round"
-          />
-        );
-      }
-      if (bodyType === 'hunched') {
-        return (
-          <path
-            d={`M ${sLx} ${sLy} C ${(sLx+sRx)/2} ${sLy + 8}, ${(sLx+sRx)/2} ${sLy + 8}, ${sRx} ${sRy} L ${bRx} ${bLy} C ${(bRx+bLx)/2} ${bLy+2}, ${(bRx+bLx)/2} ${bLy+2}, ${bLx} ${bLy} Z`}
-            fill={fillColor}
-            stroke={strokeColor}
-            strokeWidth={strokeW}
-            strokeLinejoin="round"
-          />
-        );
-      }
-      return (
-        <path
-          d={`M ${sLx} ${sLy} L ${sRx} ${sRy} L ${bRx} ${bLy} L ${bLx} ${bLy} Z`}
-          fill={fillColor}
-          stroke={strokeColor}
-          strokeWidth={strokeW}
-          strokeLinejoin="round"
-        />
-      );
-    };
-
-    const renderOutfitDetails = () => {
-      const items = [];
-      const cx = 50;
-      const cy = (sLy + bLy) / 2;
-
-      const renderCollarAndTie = (tieColor = '#991b1b', collarColor = '#f1f5f9') => {
-        return (
-          <g key="collar-tie">
-            <path d={`M ${cx - 5} ${sLy} L ${cx} ${sLy + 6} L ${cx + 5} ${sLy}`} fill={collarColor} stroke="#000" strokeWidth="1.2" />
-            <path d={`M ${cx - 1.5} ${sLy + 4} L ${cx + 1.5} ${sLy + 4} L ${cx + 3} ${sLy + 18} L ${cx} ${sLy + 21} L ${cx - 3} ${sLy + 18} Z`} fill={tieColor} stroke="#000" strokeWidth="0.8" />
-          </g>
-        );
-      };
-
-      if (level === 1) {
-        items.push(renderCollarAndTie('#64748b'));
-        items.push(
-          <g key="sticky-notes">
-            <rect x="38" y="48" width="6" height="6" fill="#fef08a" stroke="#000" strokeWidth="0.8" transform="rotate(-10 41 51)" />
-            <rect x="56" y="52" width="5" height="5" fill="#fef08a" stroke="#000" strokeWidth="0.8" transform="rotate(15 58 54)" />
-            <rect x="42" y="62" width="6" height="5" fill="#fef08a" stroke="#000" strokeWidth="0.8" transform="rotate(5 45 64)" />
-          </g>
-        );
-      } else if (level === 2) {
-        items.push(
-          <g key="vest">
-            <path d={`M ${sLx} ${sLy} L ${cx} ${sLy + 8} L ${cx} ${bLy} L ${bLx} ${bLy} Z`} fill="#475569" stroke="#000" strokeWidth="1.2" />
-            <path d={`M ${sRx} ${sRy} L ${cx} ${sLy + 8} L ${cx} ${bLy} L ${bRx} ${bLy} Z`} fill="#475569" stroke="#000" strokeWidth="1.2" />
-            <path d={`M ${cx} ${sLy + 8} L ${cx} ${bLy}`} stroke="#ef4444" strokeWidth="1.2" strokeDasharray="2,2" />
-          </g>
-        );
-      } else if (level === 3) {
-        items.push(renderCollarAndTie('#991b1b', '#cbd5e1'));
-        items.push(
-          <g key="spikes" stroke="#000" strokeWidth="1.2">
-            <line x1={sLx + 4} y1={sLy + 8} x2={sLx - 2} y2={sLy + 6} />
-            <line x1={sRx - 4} y1={sRy + 8} x2={sRx + 2} y2={sRy + 6} />
-            <line x1={cx - 8} y1={cy} x2={cx - 12} y2={cy - 4} />
-            <line x1={cx + 8} y1={cy} x2={cx + 12} y2={cy + 4} />
-          </g>
-        );
-      } else if (level === 4) {
-        items.push(
-          <g key="yin-yang-lapels">
-            <path d={`M 50 ${sLy} L 45 ${sLy + 8} L 50 ${sLy + 12} Z`} fill="#cbd5e1" stroke="#000" strokeWidth="1" />
-            <path d={`M 50 ${sLy} L 55 ${sLy + 8} L 50 ${sLy + 12} Z`} fill="#1e293b" stroke="#000" strokeWidth="1" />
-            <circle cx="46" cy="56" r="1.2" fill="#fff" />
-            <circle cx="54" cy="56" r="1.2" fill="#000" />
-          </g>
-        );
-      } else if (level === 5) {
-        items.push(
-          <g key="chef-buttons">
-            <path d={`M 50 ${sLy} L 44 ${sLy + 6} L 48 ${sLy + 10} Z`} fill="#fff" stroke="#000" strokeWidth="1" />
-            <circle cx="45" cy="53" r="1.5" fill="#000" />
-            <circle cx="55" cy="53" r="1.5" fill="#000" />
-            <circle cx="45" cy="62" r="1.5" fill="#000" />
-            <circle cx="55" cy="62" r="1.5" fill="#000" />
-          </g>
-        );
-      } else if (level === 6) {
-        items.push(
-          <g key="military-coat">
-            <path d={`M ${sLx - 1} ${sLy - 2} L ${sLx + 6} ${sLy - 1} L ${sLx + 4} ${sLy + 3} L ${sLx - 2} ${sLy + 2} Z`} fill="#eab308" stroke="#000" strokeWidth="1" />
-            <path d={`M ${sRx + 1} ${sRy - 2} L ${sRx - 6} ${sRy - 1} L ${sRx - 4} ${sRy + 3} L ${sRx + 2} ${sRy + 2} Z`} fill="#eab308" stroke="#000" strokeWidth="1" />
-            <rect x="46" y="52" width="8" height="11" fill="#eab308" stroke="#000" strokeWidth="1.2" rx="0.5" />
-            <rect x="48" y="54" width="4" height="4" fill="#fff" />
-            <line x1="46" y1="52" x2="50" y2="45" stroke="#000" strokeWidth="1" />
-          </g>
-        );
-      } else if (level === 7) {
-        items.push(renderCollarAndTie('#ea580c', '#f1f5f9'));
-        items.push(
-          <g key="cuts" stroke="#000" strokeWidth="1">
-            <path d="M 38 52 L 48 56 L 46 58 L 36 54 Z" fill="#ef4444" />
-            <path d="M 52 64 L 62 60 L 61 62 L 53 66 Z" fill="#ef4444" />
-          </g>
-        );
-      } else if (level === 8) {
-        items.push(
-          <g key="puffer-segs" stroke="#000" strokeWidth="1.2">
-            <path d={`M ${sLx + 2} 50 Q 50 52 ${sRx - 2} 50`} fill="none" />
-            <path d={`M ${bLx + 1} 60 Q 50 62 ${bRx - 1} 60`} fill="none" />
-            <path d={`M ${bLx + 2} 70 Q 50 72 ${bRx - 2} 70`} fill="none" />
-          </g>
-        );
-      } else if (level === 9) {
-        items.push(
-          <g key="apron">
-            <path d="M 42 46 L 58 46 L 60 74 L 40 74 Z" fill="#b45309" stroke="#000" strokeWidth="1.2" />
-            <line x1="42" y1="46" x2={sLx} y2={sLy} stroke="#000" strokeWidth="1.2" />
-            <line x1="58" y1="46" x2={sRx} y2={sRy} stroke="#000" strokeWidth="1.2" />
-            <circle cx="46" cy="56" r="3.5" fill="#78350f" opacity="0.6" />
-          </g>
-        );
-      } else if (level === 10) {
-        items.push(renderCollarAndTie('#ef4444', '#1e293b'));
-      } else if (level === 11) {
-        items.push(
-          <g key="stone-crush">
-            <ellipse cx="50" cy={sLy - 2} rx="22" ry="12" fill="#475569" stroke="#000" strokeWidth="1.5" />
-            <text x="50" y={sLy + 2} fontFamily="sans-serif" fontWeight="bold" fontSize="9" fill="#000" textAnchor="middle" dominantBaseline="middle">锅</text>
-          </g>
-        );
-      } else if (level === 12) {
-        items.push(
-          <g key="pj-stripes" stroke="#94a3b8" strokeWidth="1.5">
-            <line x1="42" y1={sLy} x2="42" y2={bLy} />
-            <line x1="48" y1={sLy} x2="48" y2={bLy} />
-            <line x1="54" y1={sLy} x2="54" y2={bLy} />
-            <line x1="60" y1={sLy} x2="60" y2={bLy} />
-          </g>
-        );
-      } else if (level === 13) {
-        items.push(
-          <g key="ink-splats">
-            <path d="M 42 52 Q 44 48 48 50 Q 52 54 46 58 Z" fill="#0f172a" />
-            <circle cx="56" cy="62" r="3" fill="#0f172a" />
-            <circle cx="38" cy="60" r="1.5" fill="#0f172a" />
-          </g>
-        );
-      } else if (level === 14) {
-        items.push(
-          <g key="wok">
-            <circle cx="50" cy="60" r="13" fill="#1e293b" stroke="#000" strokeWidth="1.5" />
-            <circle cx="50" cy="60" r="11" fill="#0f172a" />
-            <path d="M 37 60 Q 34 57 37 54" fill="none" stroke="#000" strokeWidth="1.2" />
-            <path d="M 63 60 Q 66 57 63 54" fill="none" stroke="#000" strokeWidth="1.2" />
-            <line x1="37" y1="60" x2={sLx} y2={sLy} stroke="#000" strokeWidth="1.5" />
-            <line x1="63" y1="60" x2={sRx} y2={sRy} stroke="#000" strokeWidth="1.5" />
-          </g>
-        );
-      } else if (level === 15) {
-        items.push(renderCollarAndTie('#475569', '#1e293b'));
-        items.push(
-          <g key="cobweb" stroke="#475569" strokeWidth="0.8">
-            <line x1="50" y1="60" x2="38" y2="48" />
-            <line x1="50" y1="60" x2="62" y2="48" />
-            <line x1="50" y1="60" x2="36" y2="72" />
-            <line x1="50" y1="60" x2="64" y2="72" />
-            <path d="M 45 56 C 47 54 53 54 55 56" fill="none" />
-            <path d="M 42 52 C 45 49 55 49 58 52" fill="none" />
-          </g>
-        );
-      } else if (level === 16) {
-        items.push(
-          <g key="fire-collar">
-            <path d={`M ${cx - 6} ${sLy} L ${cx} ${sLy + 8} L ${cx + 6} ${sLy} Z`} fill="#f97316" stroke="#ef4444" strokeWidth="1" />
-            <path d="M 44 44 L 46 36 L 48 42 L 50 34 L 52 42 L 54 36 L 56 44" fill="none" stroke="#f97316" strokeWidth="1.5" />
-          </g>
-        );
-      } else if (level === 17) {
-        items.push(
-          <g key="patchwork">
-            <rect x="38" y="52" width="10" height="10" fill="#b45309" stroke="#000" strokeWidth="0.8" strokeDasharray="2,2" />
-            <rect x="52" y="62" width="8" height="8" fill="#475569" stroke="#000" strokeWidth="0.8" strokeDasharray="2,2" />
-          </g>
-        );
-      } else if (level === 18) {
-        items.push(
-          <g key="torn-suit">
-            <path d="M 36 60 L 44 64 L 42 66 L 36 62 Z" fill="#b91c1c" stroke="#000" strokeWidth="0.8" />
-            <path d="M 64 56 L 56 60 L 58 62 L 64 58 Z" fill="#b91c1c" stroke="#000" strokeWidth="0.8" />
-            <path d={`M ${cx - 5} ${sLy} L ${cx} ${sLy + 6} L ${cx + 5} ${sLy}`} fill="#cbd5e1" stroke="#000" strokeWidth="1.2" />
-            <path d={`M ${cx - 1.5} ${sLy + 4} L ${cx + 1.5} ${sLy + 4} L ${cx + 2} ${sLy + 12} L ${cx - 2} ${sLy + 13} Z`} fill="#991b1b" stroke="#000" strokeWidth="1" />
-          </g>
-        );
-      } else {
-        items.push(renderCollarAndTie());
-      }
-
-      return items;
-    };
-
-    if (level === 4) {
-      baseFill = '#cbd5e1';
-    } else if (level === 3 || level === 15 || level === 18) {
-      baseFill = '#334155';
-    } else if (level === 6) {
-      baseFill = '#1e1b4b';
-    } else if (level === 7) {
-      baseFill = '#475569';
-    } else if (level === 10) {
-      baseFill = '#1e293b';
-    } else if (level === 11) {
-      baseFill = '#64748b';
-    } else if (level === 16) {
-      baseFill = '#7f1d1d';
-    }
-
-    return (
-      <g transform={transform}>
-        {drawBaseTorso(baseFill, outlineStroke, 1.8)}
-        {renderOutfitDetails()}
-      </g>
-    );
-  };
-
-  const renderHeadAndHorns = () => {
-    return (
-      <g transform={isHit ? 'rotate(8 50 50) translate(2, -2)' : ''}>
-        {renderHorns()}
-        <line x1="50" y1={hy} x2="50" y2={sLy + 4} stroke="#000" strokeWidth="6" strokeLinecap="round" />
-        <line x1="50" y1={hy} x2="50" y2={sLy + 4} stroke="#cbd5e1" strokeWidth="4" strokeLinecap="round" />
-        <circle cx={hx} cy={hy} r={hr} fill="#f1f5f9" stroke="#000" strokeWidth="1.8" />
-        {level === 12 && (
-          <path d={`M ${hx - 12} ${hy - 6} Q ${hx - 16} ${hy - 12} ${hx - 12} ${hy - 10} Q ${hx - 15} ${hy - 4} ${hx - 10} ${hy - 2}`} fill="none" stroke="#000" strokeWidth="1.5" />
-        )}
-      </g>
-    );
   };
 
   return (
     <svg
+      className="boss-custom-accessories-svg"
       viewBox="0 0 100 100"
-      className="boss-sprite-img"
       style={{
+        position: 'absolute',
+        inset: 0,
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
+        zIndex: 9,
       }}
     >
-      {renderLegs()}
-      {renderArms()}
-      {renderTorsoAndOutfit()}
-      {renderHeadAndHorns()}
+      {renderAccessories()}
     </svg>
   );
 };
@@ -1037,10 +725,32 @@ export const MonsterVisual: React.FC<MonsterVisualProps> = ({
   const match = artPreset.id.match(/_(\d+)$/);
   const levelNum = match ? parseInt(match[1]) : 1;
 
+  const getMorphTransform = (lvl: number) => {
+    if ([6, 10, 18].includes(lvl)) return 'scaleX(0.92) scaleY(1.08)';
+    if ([5, 11, 17].includes(lvl)) return 'scaleX(1.15) scaleY(0.92)';
+    if ([1, 2, 12].includes(lvl)) return 'skewX(-5deg) scaleY(0.96) translateY(2%)';
+    if ([3, 7, 16].includes(lvl)) return 'rotate(1deg) scale(1.02) skewY(1deg)';
+    return 'scale(1)';
+  };
+
+  const getStateTransform = (st: BossSpriteState) => {
+    if (st === 'flat_dead' || st === 'flattened') return 'scaleY(0.12) translateY(360%)';
+    if (st === 'kneeling' || st === 'apologizing' || st === 'crying') return 'scaleY(0.76) translateY(15%)';
+    if (st === 'hit' || st === 'hit_heavy') return 'rotate(8deg) translate(6px, -6px)';
+    if (st === 'dizzy') return 'rotate(-3deg) translate(-4px, 4px) skewX(4deg)';
+    return '';
+  };
+
+  const baseScale = Math.max(0.45, shrinkFactor);
+  const morph = getMorphTransform(levelNum);
+  const stateTransform = getStateTransform(state);
+
   const spriteStyle: React.CSSProperties = {
-    transform: `scale(${Math.max(0.45, shrinkFactor)})`,
+    transform: `scale(${baseScale}) ${morph} ${stateTransform}`,
     opacity: Math.max(0.18, 1 - shredProgress * 0.72),
-    filter: getBossFilter(levelNum, isLowHp, isKo, shredProgress)
+    filter: getBossFilter(levelNum, isLowHp, isKo, shredProgress),
+    transformOrigin: '50% 88%',
+    transition: 'transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1)'
   };
 
   return (
@@ -1062,17 +772,14 @@ export const MonsterVisual: React.FC<MonsterVisualProps> = ({
       </div>
 
       <div className="boss-sprite-frame" style={spriteStyle}>
-        {uploadedPhotoUrl ? (
-          <img
-            className="boss-sprite-img"
-            src={artPreset.boss.asset}
-            alt={artPreset.bossTitle}
-            draggable={false}
-          />
-        ) : (
-          <ProceduralBody level={levelNum} state={state} />
-        )}
+        <img
+          className="boss-sprite-img"
+          src={artPreset.boss.asset}
+          alt={artPreset.bossTitle}
+          draggable={false}
+        />
 
+        {!uploadedPhotoUrl && <GothicAccessoryOverlay level={levelNum} state={state} />}
         {!uploadedPhotoUrl && <AnnoyingFace level={levelNum} state={state} />}
 
         {uploadedPhotoUrl && (
