@@ -1,5 +1,10 @@
 import { LevelArtPreset, StressType } from './types';
 import officePaperDemonAsset from './assets/bosses/office-paper-demon.png';
+import officePaperDemonHunched from './assets/bosses/office-paper-demon-hunched.png';
+import officePaperDemonBulky from './assets/bosses/office-paper-demon-bulky.png';
+import officePaperDemonTall from './assets/bosses/office-paper-demon-tall.png';
+import officePaperDemonSpiky from './assets/bosses/office-paper-demon-spiky.png';
+import officePaperDemonEmperor from './assets/bosses/office-paper-demon-emperor.png';
 import karmaFurnaceAsset from './assets/effects/karma-furnace.png';
 import officeHellStageAsset from './assets/ui/office-hell-stage.png';
 
@@ -72,6 +77,15 @@ const ultimateForLevel = (level: number): LevelArtPreset['ultimateSkin'] => {
   return 'shred';
 };
 
+const getBossAssetForLevel = (level: number) => {
+  if ([1, 2, 12, 13].includes(level)) return officePaperDemonHunched;
+  if ([5, 9, 11, 14, 17].includes(level)) return officePaperDemonBulky;
+  if ([6, 8, 10, 15].includes(level)) return officePaperDemonTall;
+  if ([3, 7, 16].includes(level)) return officePaperDemonSpiky;
+  if (level === 18) return officePaperDemonEmperor;
+  return officePaperDemonAsset;
+};
+
 export const HELL_ART_PRESETS: LevelArtPreset[] = bossNames.map(([title, subtitle], index) => {
   const level = index + 1;
   const colors = colorForLevel(level);
@@ -91,7 +105,7 @@ export const HELL_ART_PRESETS: LevelArtPreset[] = bossNames.map(([title, subtitl
       id: `boss_paper_${level}`,
       title,
       subtitle,
-      asset: officePaperDemonAsset,
+      asset: getBossAssetForLevel(level),
       maskLabel: ['造谣', '离间', '背刺', '伪善', '恶口', '借势', '卡位', '冷暴', '反咬', '吸血', '甩锅', '返工', '污名', '诬陷', '设局', '迁怒', '拖累', '阿鼻'][index],
       paperTags: [title.slice(0, 4), '职场小人', '恶业在审'],
       horns: level >= 15 ? 'crown' : level >= 9 ? 'long' : level >= 4 ? 'broken' : 'short',
