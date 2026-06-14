@@ -1,14 +1,29 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Mail, AlertCircle, Loader2 } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { AlertCircle, Loader2, Smartphone } from 'lucide-react';
 import { apiService } from '../../services/api';
 import { setAuthSession } from '../../services/authService';
-import { sendSupabaseEmailCode, syncSupabaseProfile, verifySupabaseEmailCode } from '../../services/supabaseAuth';
+import { sendSupabasePhoneCode, syncSupabaseProfile, verifySupabasePhoneCode } from '../../services/supabaseAuth';
 
-const EmailLogin: React.FC = () => {
+function normalizePhone(rawPhone: string) {
+  const trimmed = rawPhone.trim();
+  const digits = trimmed.replace(/\D/g, '');
+
+  if (trimmed.startsWith('+') && digits.length >= 8) {
+    return `+${digits}`;
+  }
+
+  if (/^1\d{10}$/.test(digits)) {
+    return `+86${digits}`;
+  }
+
+  return null;
+}
+
+const PhoneLogin: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -19,20 +34,17 @@ const EmailLogin: React.FC = () => {
   const from = (location.state as any)?.from || '/';
 
   const handleSendCode = async () => {
-    if (!email.trim()) {
-      setError('请输入邮箱地址');
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError('邮箱格式不正确');
+    const normalizedPhone = normalizePhone(phone);
+    if (!normalizedPhone) {
+      setError('请输入手机号。中国大陆手机号可直接输入 11 位，其他地区请使用 +国家码。');
       return;
     }
 
     setError(null);
     setSending(true);
     try {
-      await sendSupabaseEmailCode(email.trim().toLowerCase());
-      setSuccess('Supabase 验证码已发送，请查看邮箱');
+      await sendSupabasePhoneCode(normalizedPhone);
+      setSuccess(`Supabase 手机验证码已发送至 ${normalizedPhone}`);
       setCountdown(60);
       const timer = setInterval(() => {
         setCountdown((prev) => {
@@ -51,8 +63,9 @@ const EmailLogin: React.FC = () => {
   };
 
   const handleVerify = async () => {
-    if (!code.trim()) {
-      setError('请输入验证码');
+    const normalizedPhone = normalizePhone(phone);
+    if (!normalizedPhone) {
+      setError('请输入有效手机号');
       return;
     }
     if (!/^\d{6}$/.test(code.trim())) {
@@ -64,19 +77,18 @@ const EmailLogin: React.FC = () => {
     setSuccess(null);
     setVerifying(true);
     try {
-      const normalizedEmail = email.trim().toLowerCase();
-      const supabaseSession = await verifySupabaseEmailCode(normalizedEmail, code.trim());
+      const supabaseSession = await verifySupabasePhoneCode(normalizedPhone, code.trim());
       await syncSupabaseProfile({
         id: supabaseSession.user.id,
-        email: normalizedEmail,
-        nickname: supabaseSession.user.user_metadata?.nickname || normalizedEmail.split('@')[0],
+        phone: normalizedPhone,
+        nickname: normalizedPhone.replace(/^\+86/, ''),
       });
 
       const result = await apiService.exchangeSupabaseSession(supabaseSession.session.access_token);
       await syncSupabaseProfile({
         id: supabaseSession.user.id,
-        email: result.user.email || normalizedEmail,
-        phone: result.user.phone || null,
+        email: result.user.email || null,
+        phone: result.user.phone || normalizedPhone,
         nickname: result.user.nickname || result.user.username,
         apexUserId: result.user.id,
       });
@@ -88,10 +100,11 @@ const EmailLogin: React.FC = () => {
           nickname: result.user.nickname || result.user.username,
           avatar: '',
           role: result.user.role === 'ADMIN' ? 'admin' : result.user.role === 'MANAGER' ? 'manager' : 'user',
-          email: result.user.email || normalizedEmail,
+          email: result.user.email,
+          phone: result.user.phone || normalizedPhone,
           createdAt: result.user.createdAt,
         },
-        loginMethod: 'email',
+        loginMethod: 'phone',
         loginTime: new Date().toISOString(),
         supabaseUserId: result.user.supabaseAuthId || supabaseSession.user.id,
       });
@@ -107,14 +120,14 @@ const EmailLogin: React.FC = () => {
   return (
     <div className="space-y-5">
       <div>
-        <label className="block text-xs font-bold text-brand-gray mb-2">邮箱地址</label>
+        <label className="block text-xs font-bold text-brand-gray mb-2">手机号码</label>
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-gray/40" size={18} />
+          <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-gray/40" size={18} />
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="请输入你的邮箱"
+            type="tel"
+            value={phone}
+            onChange={(event) => setPhone(event.target.value)}
+            placeholder="13800000000 / +86..."
             className="w-full pl-10 pr-4 py-3 bg-white border border-brand-border/10 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-brand-gold/20 transition-all"
           />
         </div>
@@ -124,11 +137,11 @@ const EmailLogin: React.FC = () => {
         <label className="block text-xs font-bold text-brand-gray mb-2">验证码</label>
         <div className="flex gap-3">
           <div className="relative flex-1">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-gray/40" size={18} />
+            <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-gray/40" size={18} />
             <input
               type="text"
               value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="6 位验证码"
               maxLength={6}
               className="w-full pl-10 pr-4 py-3 bg-white border border-brand-border/10 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-brand-gold/20 transition-all"
@@ -167,21 +180,21 @@ const EmailLogin: React.FC = () => {
       <button
         type="button"
         onClick={handleVerify}
-        disabled={verifying || !email || !code}
+        disabled={verifying || !phone || !code}
         className="w-full py-3.5 bg-brand-dark text-white rounded-2xl font-bold text-sm shadow-lg disabled:opacity-50 hover:bg-brand-dark/90 transition-all active:scale-[0.98]"
       >
         {verifying ? (
           <span className="flex items-center justify-center gap-2"><Loader2 size={16} className="animate-spin" />验证中</span>
         ) : (
-          '登录 / 注册'
+          '手机登录 / 注册'
         )}
       </button>
 
       <p className="text-[11px] text-brand-gray text-center leading-relaxed">
-        首次使用将由 Supabase 自动注册账号。验证码 10 分钟内有效。
+        手机验证码由 Supabase Auth 发送。短信能力需要在 Supabase 控制台启用 SMS Provider。
       </p>
     </div>
   );
 };
 
-export default EmailLogin;
+export default PhoneLogin;

@@ -814,7 +814,7 @@ export const MonsterVisual: React.FC<MonsterVisualProps> = ({
           return (
             <div
               key={part}
-              className={`boss-weakness-pin ${playMode === 'whack' && activeWhackPart === part ? 'whack-active' : ''} ${playMode === 'qte' && activeQtePart === part ? 'qte-active' : ''}`}
+              className={`boss-weakness-pin weakness-hit-zone ${playMode === 'whack' && activeWhackPart === part ? 'whack-active' : ''} ${playMode === 'qte' && activeQtePart === part ? 'qte-active' : ''}`}
               style={{ left: `${coord.x}%`, top: `${coord.y}%` }}
               data-no-stage-fire="true"
               onClick={(event) => {

@@ -81,7 +81,7 @@ const getMechanicHelpText = (levelId: string) => {
     case 'hell_scissor':
       return '离间红线阻挡！先点右侧「剪断线结」剪断红线，再扎弱点！';
     case 'hell_iron_tree':
-      return '轮盘上布满旧针，扎到会撞针！瞄准空隙中的「背刺点」扎入！';
+      return '背刺点会在小人身上乱窜，看到红色发光点就直接点击，把暗箭钉回去！';
     case 'hell_mirror':
       return '小人带着白莲假面！先点下方「孽镜照伪」照出真容，再扎真弱点！';
     case 'hell_steam':

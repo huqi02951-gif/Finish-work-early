@@ -2,18 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Smartphone, User } from 'lucide-react';
 import EmailLogin from './EmailLogin';
-import { setAuthSession, clearAuthSession } from '../../services/authService';
+import PhoneLogin from './PhoneLogin';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'email' | 'phone' | 'demo'>('email');
-
-  const handleGuestLogin = () => {
-    // Use existing demo session mechanism
-    const clientKey = crypto.randomUUID();
-    localStorage.setItem('fwe:demo-client-key', clientKey);
-    navigate('/', { replace: true });
-  };
 
   const handleContinueDemo = () => {
     // Keep current demo session, just navigate back
@@ -79,20 +72,7 @@ const LoginPage: React.FC = () => {
           {/* Tab Content */}
           {activeTab === 'email' && <EmailLogin />}
 
-          {activeTab === 'phone' && (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 bg-brand-light-gray rounded-full flex items-center justify-center mx-auto mb-4">
-                <Smartphone size={28} className="text-brand-gray/40" />
-              </div>
-              <h3 className="text-sm font-bold text-brand-dark mb-2">手机验证码登录</h3>
-              <p className="text-xs text-brand-gray mb-4 leading-relaxed">
-                即将开放。需接入短信平台（阿里云/腾讯云 SMS）。
-              </p>
-              <div className="px-4 py-2 bg-brand-gold/5 border border-brand-gold/10 rounded-xl inline-block">
-                <span className="text-[11px] text-brand-gold font-bold">Phase 2 开发中</span>
-              </div>
-            </div>
-          )}
+          {activeTab === 'phone' && <PhoneLogin />}
 
           {activeTab === 'demo' && (
             <div className="space-y-4">

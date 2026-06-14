@@ -4211,6 +4211,10 @@
 .grievance-game-root .boss-weakness-pin.whack-active {
   z-index: 50 !important;
   cursor: pointer !important;
+  width: 56px;
+  height: 56px;
+  pointer-events: auto;
+  touch-action: manipulation;
 }
 
 .grievance-game-root .boss-weakness-pin.whack-active i {
@@ -4246,6 +4250,10 @@
 .grievance-game-root .boss-weakness-pin.qte-active {
   z-index: 50 !important;
   cursor: pointer !important;
+  width: 56px;
+  height: 56px;
+  pointer-events: auto;
+  touch-action: manipulation;
 }
 
 .grievance-game-root .boss-weakness-pin.qte-active i {
@@ -4614,5 +4622,4 @@
   transform: translateY(-1px);
   box-shadow: 0 0 18px rgba(239, 68, 68, 0.8);
 }
-
 

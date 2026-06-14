@@ -51,6 +51,8 @@ function mapBackendUser(user: BackendUser): User {
     nickname: user.nickname || user.username,
     avatar: '',
     role: mapBackendRole(user.role),
+    email: user.email,
+    phone: user.phone,
     createdAt: user.createdAt,
   };
 }
