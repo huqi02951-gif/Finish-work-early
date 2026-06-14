@@ -20,9 +20,18 @@ interface AppLayoutProps {
   title?: string;
   showBack?: boolean;
   theme?: 'default' | 'cli';
+  hideBottomNav?: boolean;
+  hidePet?: boolean;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack, theme = 'default' }) => {
+const AppLayout: React.FC<AppLayoutProps> = ({
+  children,
+  title,
+  showBack,
+  theme = 'default',
+  hideBottomNav = false,
+  hidePet = false,
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -52,7 +61,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack, theme 
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4">
           <div className="flex min-w-0 flex-1 items-center gap-3">
           {showBack ? (
-            <button 
+            <button
               onClick={() => navigate(-1)}
               className={cn(
                 "inline-flex h-9 w-9 items-center justify-center rounded-md border transition-colors",
@@ -139,7 +148,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack, theme 
         </div>
       </header>
 
-      <main className="flex-grow pb-20">
+      <main className={cn("flex-grow", hideBottomNav ? "pb-0" : "pb-20")}>
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -149,38 +158,40 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, title, showBack, theme 
         </motion.div>
       </main>
 
-      <PetCompanion disabled={isCli} />
+      <PetCompanion disabled={isCli || hidePet} />
 
-      <nav className={cn(
-        "fixed bottom-0 left-0 right-0 z-50 border-t backdrop-blur safe-area-bottom",
-        isCli ? "border-green-500/30 bg-black/90" : "border-brand-border/40 bg-white/94"
-      )}>
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-around px-2">
-          {NAV_ITEMS.map((item) => {
-            const isActive = item.path === '/' 
-              ? location.pathname === '/' 
-              : item.path.includes('?') 
-                ? location.pathname + location.search === item.path
-                : location.pathname === item.path && !location.search.includes('tab=self');
-            
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  "flex h-full flex-1 flex-col items-center justify-center gap-1 transition-colors px-1",
-                  isCli 
-                    ? (isActive ? "text-green-400 font-bold drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]" : "text-green-700 hover:text-green-500")
-                    : (isActive ? "text-brand-dark" : "text-brand-gray hover:text-brand-dark")
-                )}
-              >
-                <item.icon size={20} className={cn("transition-transform", isActive && "scale-110")} />
-                <span className="text-[11px] font-bold tracking-tight whitespace-nowrap">{item.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
+      {!hideBottomNav && (
+        <nav className={cn(
+          "fixed bottom-0 left-0 right-0 z-50 border-t backdrop-blur safe-area-bottom",
+          isCli ? "border-green-500/30 bg-black/90" : "border-brand-border/40 bg-white/94"
+        )}>
+          <div className="mx-auto flex h-16 max-w-6xl items-center justify-around px-2">
+            {NAV_ITEMS.map((item) => {
+              const isActive = item.path === '/'
+                ? location.pathname === '/'
+                : item.path.includes('?')
+                  ? location.pathname + location.search === item.path
+                  : location.pathname === item.path && !location.search.includes('tab=self');
+
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    "flex h-full flex-1 flex-col items-center justify-center gap-1 transition-colors px-1",
+                    isCli
+                      ? (isActive ? "text-green-400 font-bold drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]" : "text-green-700 hover:text-green-500")
+                      : (isActive ? "text-brand-dark" : "text-brand-gray hover:text-brand-dark")
+                  )}
+                >
+                  <item.icon size={20} className={cn("transition-transform", isActive && "scale-110")} />
+                  <span className="text-[11px] font-bold tracking-tight whitespace-nowrap">{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+      )}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { HashRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import { ToastProvider } from './components/common/Toast';
 import AppLayout from './components/layout/AppLayout';
@@ -41,6 +41,8 @@ import FormalThreadPage from './pages/community/FormalThread';
 import FormalTopicPage from './pages/community/FormalTopic';
 import LoginPage from './pages/auth/LoginPage';
 
+const GrievanceGamePage = lazy(() => import('./pages/GrievanceGamePage'));
+
 /* ─── 404 Not Found ─── */
 const NotFoundPage = () => (
   <AppLayout title="页面未找到">
@@ -54,6 +56,18 @@ const NotFoundPage = () => (
       >
         返回首页
       </Link>
+    </div>
+  </AppLayout>
+);
+
+const GrievanceGameFallback = () => (
+  <AppLayout title="职场怨气回收站" showBack hideBottomNav hidePet>
+    <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center bg-brand-dark px-6 text-center text-white">
+      <div>
+        <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-2xl bg-white/10" />
+        <p className="text-sm font-black">正在进入怨气回收站</p>
+        <p className="mt-2 text-xs font-semibold text-white/45">正在加载游戏资源...</p>
+      </div>
     </div>
   </AppLayout>
 );
@@ -92,6 +106,11 @@ const App: React.FC = () => {
           <Route path="/apex-preview" element={<ApexPreviewPage />} />
           <Route path="/material-checklist" element={<AppLayout title="材料清单中心" showBack><MaterialChecklistCenter /></AppLayout>} />
           <Route path="/checklist-generator" element={<AppLayout title="检核表生成器" showBack><ChecklistGenerator /></AppLayout>} />
+          <Route path="/grievance-game" element={
+            <Suspense fallback={<GrievanceGameFallback />}>
+              <GrievanceGamePage />
+            </Suspense>
+          } />
 
           {/* ─── 信息页（组件内自带 AppLayout） ─── */}
           <Route path="/updates" element={<UpdateLog />} />

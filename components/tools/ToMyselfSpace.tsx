@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { LOCAL_NUMBER_KEYS, LOCAL_STRING_KEYS, incrementLocalNumber, readLocalNumber, writeLocalNumber, writeLocalString, subscribeLocalNumber, subscribeLocalString } from '../../lib/localSignals';
 import { getBestToken } from '../../src/services/authService';
@@ -16,6 +17,7 @@ import {
   Coffee, Sparkles, Timer, Utensils, Play, Square,
   Fish, Timer as TimerIcon,
   AlertTriangle, Clock, Briefcase, RefreshCw, ThumbsDown,
+  ArrowRight, Gamepad2,
 } from 'lucide-react';
 
 // ─── Storage helpers ──────────────────────────────────────────────────────────
@@ -384,6 +386,72 @@ const SalaryMonitor: React.FC = () => {
         <p className="text-[11px] text-white/40 mt-1 font-medium">{VERDICT.hint}</p>
       </div>
     </div>
+  );
+};
+
+// ─── MODULE 2 · Grievance Game Entry ──────────────────────────────────────────
+
+const GrievanceGameEntry: React.FC = () => {
+  const navigate = useNavigate();
+
+  return (
+    <motion.button
+      type="button"
+      onClick={() => navigate('/grievance-game')}
+      whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.985 }}
+      className="group relative flex h-full min-h-[320px] w-full flex-col overflow-hidden rounded-[24px] border border-rose-200/60 bg-[linear-gradient(135deg,#fff7ed_0%,#ffffff_42%,#fff1f2_100%)] p-6 text-left shadow-sm transition-shadow hover:shadow-xl hover:shadow-rose-950/8"
+    >
+      <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full border border-rose-200/70 bg-rose-100/40" />
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-[radial-gradient(circle_at_20%_100%,rgba(251,191,36,0.28),transparent_62%)]" />
+
+      <div className="relative z-10 flex items-start justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-dark text-white shadow-lg shadow-rose-900/20">
+            <Gamepad2 size={20} strokeWidth={2.5} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-rose-500/80">职场扎小人</p>
+            <h3 className="mt-1 text-base font-black tracking-tight text-brand-dark">职场怨气回收站</h3>
+          </div>
+        </div>
+        <div className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[9px] font-black text-emerald-700">
+          自愈中心
+        </div>
+      </div>
+
+      <div className="relative z-10 mt-6 flex flex-1 flex-col justify-between">
+        <div>
+          <p className="max-w-[28rem] text-[13px] font-semibold leading-6 text-brand-dark/72">
+            先给小人立案，再把它扎入职场十八层地狱。一层层扎下去，怨气回收，功德到账。
+          </p>
+          <div className="mt-5 grid grid-cols-2 gap-2">
+            <div className="rounded-2xl border border-rose-100 bg-white/70 px-3 py-3">
+              <p className="text-[9px] font-black uppercase tracking-widest text-brand-gray/60">玩法</p>
+              <p className="mt-1 text-xs font-black leading-snug text-brand-dark">一层层扎下去</p>
+            </div>
+            <div className="rounded-2xl border border-amber-100 bg-white/70 px-3 py-3">
+              <p className="text-[9px] font-black uppercase tracking-widest text-brand-gray/60">状态</p>
+              <p className="mt-1 flex items-center gap-1.5 text-xs font-black text-brand-dark">
+                <Sparkles size={13} className="text-amber-500" />
+                获取职场功德
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center justify-between">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-dark px-3 py-1.5 text-[10px] font-black text-white">
+            <Sparkles size={12} />
+            APEX · 开始清算
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-xs font-black text-rose-600 transition-transform group-hover:translate-x-1">
+            开始清算
+            <ArrowRight size={14} />
+          </span>
+        </div>
+      </div>
+    </motion.button>
   );
 };
 
@@ -1440,6 +1508,9 @@ export default function ToMyselfSpace() {
   return (
     <div className="w-full max-w-full mx-auto pb-10 overflow-x-hidden">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 auto-rows-max">
+        <div className="md:col-span-2 lg:col-span-3 min-h-[320px]">
+          <GrievanceGameEntry />
+        </div>
         <div className="md:col-span-2 lg:col-span-2 min-h-[320px]">
           <SalaryMonitor />
         </div>

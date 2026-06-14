@@ -88,6 +88,17 @@ docker compose down -v
 docker compose up -d postgres
 ```
 
+## Supabase PostgreSQL
+
+如果要把注册用户直接落到 Supabase 后台可见的 `public.users` 表，保持现有后端注册链路不变，只需要把后端 `DATABASE_URL` 切到 Supabase Postgres 并执行 Prisma migration。
+
+安全模板见 `.env.supabase.example`，完整步骤见 `../docs/supabase-prisma-setup.md`。
+
+关键点：
+- 前端邮箱注册会调用后端，后端通过 Prisma 写 `users`
+- `sb_publishable_...` 是浏览器公开 key，不能作为 Prisma 的数据库连接串
+- 真实 database password、service role key、JWT secret 不要提交到 GitHub
+
 ## 已有旧版开发库的升级方式
 
 如果你的数据库里已经存在旧版 `users/posts/comments` 表，但字段还是早期 MVP 结构，先执行这份保守升级脚本：
@@ -120,28 +131,28 @@ npx prisma db execute --file prisma/manual/20260412_legacy_dev_upgrade.sql --sch
 
 - [ ] **1. 健康检查**：
   访问 `GET http://localhost:3000/api/v1/health`，应返回 `OK` (HTTP 200)。证明核心框架路由成功启动。
-  
+
 - [ ] **2. 用户注册**：
   访问 `POST http://localhost:3000/api/v1/auth/register` 提供：
   ```json
   { "username": "testuser", "password": "123" }
   ```
   成功则返回生成的用户对象 `{ "id": 1, "username": "testuser" }`，象征持久化入库成功。
-  
+
 - [ ] **3. 用户登录**：
   访问 `POST http://localhost:3000/api/v1/auth/login` 提供同上信息。应收到 `{"access_token": "eyJhbGci..."}` 的响应格式。
-  
+
 - [ ] **4. 自身数据校验 (鉴权通道)**：
-  在 Header 中携带 `Authorization: Bearer <填入上一步获取到的token>` 
+  在 Header 中携带 `Authorization: Bearer <填入上一步获取到的token>`
   再去访问 `GET http://localhost:3000/api/v1/users/me`，若解出了当前库中存储的用户身份，证明全局 JWT 鉴权层运转正常。
-  
+
 - [ ] **5. 发送帖子**：
   携带 token 访问 `POST http://localhost:3000/api/v1/forum/posts` 提交：
   ```json
   { "boardSlug": "experience-sharing", "title": "my first post", "content": "hello world" }
   ```
   能顺利返回带有 `id` 及其时间戳的整条新记录，证明发帖（鉴权身份提取外联）逻辑贯通。
-  
+
 - [ ] **6. 发表评论**：
   携带 token 访问 `POST http://localhost:3000/api/v1/forum/posts/1/comments` (假设上一个发帖 ID 为 1) 提交：
   ```json
