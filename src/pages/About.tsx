@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowUpRight, MessageSquare, Lightbulb, Rocket,
-  Sparkles, Heart, Clock,
+  Sparkles, Heart, Clock, Mic, Paperclip, Send,
 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import { earnLossStore } from '../../lib/earnLossStore';
@@ -77,6 +77,89 @@ const About: React.FC = () => {
               我们相信每个人都在自己的世界里有一套理解, 那些被觉得"奇怪"的角度, 往往就是下一次突破。<br />
               所以这里没有 KPI, 没有进度条 ——<span className="text-brand-dark font-bold">只有你, 和你的下班时间。</span>
             </p>
+          </motion.section>
+
+          {/* ─── Echo 声音界面 ───────────────────────────── */}
+          <motion.section
+            id="echo"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.16, duration: 0.7 }}
+            className="relative overflow-hidden rounded-[32px] border border-white/70 bg-white/82 p-5 shadow-[0_26px_90px_-42px_rgba(15,23,42,0.32)] backdrop-blur-2xl sm:p-7"
+          >
+            <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_35%_35%,rgba(255,255,255,0.98),rgba(199,210,254,0.42)_38%,rgba(244,114,182,0.18)_62%,transparent_74%)] blur-[1px]" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-indigo-50/60 to-transparent" />
+
+            <div className="relative z-10 grid gap-7 lg:grid-cols-[0.86fr_1.14fr] lg:items-center">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.22em] text-brand-gray/60">
+                  Echo · AI 口
+                </p>
+                <h3 className="mt-3 text-[30px] font-black tracking-[-0.04em] text-brand-dark sm:text-[42px]">
+                  Ask 小海螺 Echo
+                </h3>
+                <p className="mt-3 max-w-md text-[13px] font-medium leading-relaxed text-brand-gray sm:text-[14px]">
+                  它不是一个新按钮，而是 APEX 的声音入口。你可以问业务、交材料、要清单，也可以在快撑不住的时候，把那句话轻轻说出来。
+                </p>
+              </div>
+
+              <div className="rounded-[28px] border border-brand-border/20 bg-white/88 p-4 shadow-[0_22px_70px_-42px_rgba(15,23,42,0.45)] sm:p-5">
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-brand-dark text-white">
+                      <Sparkles size={15} />
+                    </span>
+                    <div>
+                      <p className="text-[11px] font-black text-brand-dark">小海螺在呢</p>
+                      <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-brand-gray/50">Voice / Text / Skills</p>
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-700">
+                    Ready
+                  </span>
+                </div>
+
+                <div className="rounded-[24px] border border-brand-border/20 bg-[#fbfbfd] px-4 pb-4 pt-4">
+                  <p className="text-[13px] font-bold leading-relaxed text-brand-dark sm:text-[15px]">
+                    在 APEX 中构建、询问、完成工作
+                  </p>
+                  <p className="mt-2 text-[12px] font-medium leading-relaxed text-brand-gray">
+                    帮我查一下客户工商信息，生成授信调查报告，再把今天的卡点做一个低压复盘。
+                  </p>
+                  <div className="mt-4 flex items-center justify-between">
+                    <div className="flex gap-2">
+                      <span className="grid h-9 w-9 place-items-center rounded-full border border-brand-border/20 bg-white text-brand-dark">
+                        <Mic size={15} />
+                      </span>
+                      <span className="grid h-9 w-9 place-items-center rounded-full border border-brand-border/20 bg-white text-brand-dark">
+                        <Paperclip size={15} />
+                      </span>
+                    </div>
+                    <span className="grid h-10 w-10 place-items-center rounded-full bg-brand-dark text-white shadow-lg shadow-brand-dark/15">
+                      <Send size={15} />
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-2 pb-1">
+                  {[
+                    ['查工商信息', '/skills'],
+                    ['生成调查报告', '/material-checklist'],
+                    ['转补件清单', '/checklist-generator'],
+                    ['今天中午吃什么', '/scenarios?tab=self'],
+                    ['陪我低压复盘', '/feedback?tab=co-create'],
+                  ].map(([label, to]) => (
+                    <Link
+                      key={label}
+                      to={to}
+                      className="rounded-full border border-brand-border/20 bg-white px-3.5 py-2 text-[11px] font-black text-brand-dark shadow-sm transition-colors hover:bg-brand-offwhite"
+                    >
+                      {label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
           </motion.section>
 
           {/* ─── 三个信念 ──────────────────────────────── */}

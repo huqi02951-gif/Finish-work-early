@@ -4,7 +4,7 @@ import { motion, useSpring, useTransform } from 'framer-motion';
 import {
   Settings, LogOut, ChevronRight, Briefcase,
   Coffee, Fish, Timer, Flame, Heart, Info,
-  Sparkles, X, Check, Users, Toilet, MoonStar, Sun,
+  Sparkles, X, Check, Users, Toilet, MoonStar, Sun, Mic,
 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import InitialBadge from '../components/common/InitialBadge';
@@ -342,6 +342,13 @@ const Profile: React.FC = () => {
               meta={petHidden ? '休眠中,点这里把它请回来' : '正在右下角陪着你'}
               onClick={togglePetHidden}
               actionLabel={petHidden ? '唤回' : '收起'}
+            />
+            <Divider />
+            <RowLink
+              icon={<Mic size={16} />}
+              title="小海螺 · Echo"
+              meta="业务和状态的声音入口"
+              to="/about"
             />
             <Divider />
             <RowLink
