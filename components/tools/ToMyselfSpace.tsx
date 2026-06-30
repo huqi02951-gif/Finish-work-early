@@ -17,7 +17,7 @@ import {
   Coffee, Sparkles, Timer, Utensils, Play, Square,
   Fish, Timer as TimerIcon,
   AlertTriangle, Clock, Briefcase, RefreshCw, ThumbsDown,
-  ArrowRight, Gamepad2,
+  ArrowRight, Gamepad2, Heart, Sun, Compass,
 } from 'lucide-react';
 
 // ─── Storage helpers ──────────────────────────────────────────────────────────
@@ -28,6 +28,10 @@ const SK = {
   FOCUS_SESSIONS: 'cl_focus_sessions',
   LAST_FOOD:    'cl_last_food',
   SKIP_FOOD:    'cl_skip_food',
+  BIRTH_YEAR:   'cl_birth_year',
+  BIRTH_MONTH:  'cl_birth_month',
+  BIRTH_DAY:    'cl_birth_day',
+  RETIRE_AGE:   'cl_retire_age',
 } as const;
 
 const TOOL_DATA_API_ROOT = (
@@ -116,6 +120,43 @@ const URGENCY_HINT: Record<TodoUrgency, string> = {
   unset:        '还没决定',
 };
 
+// ─── 夸夸语录 ────────────────────────────────────────────────────────────────
+const PRAISES = [
+  "你是最棒的人！",
+  "今天的你，在认真为自己上班",
+  "深呼吸，你比早上更值钱了",
+  "不是你的锅，但你已经做得很好了",
+  "下班快乐！自由属于你",
+  "今天也存活下来了，厉害！",
+  "摸摸鱼怎么了，这是你的权利",
+  "你值得拥有不加班的人生",
+  "你的时间很值钱，别忘了",
+  "今天辛苦了，你超棒的",
+  "今天也是认真生活的一天呢",
+  "你的存在本身就是有意义的",
+  "辛苦了，奖励自己一朵小红花",
+  "你是办公室里最亮的光",
+  "今天也努力了，你已经很棒了",
+];
+
+// ─── 可爱配色 ────────────────────────────────────────────────────────────────
+const CUTE = {
+  green:  'text-emerald-400',
+  greenBg: 'bg-emerald-400',
+  yellow: 'text-amber-300',
+  yellowBg: 'bg-amber-300',
+  blue:   'text-blue-300',
+  blueBg: 'bg-blue-300',
+  red:    'text-rose-300',
+  redBg:  'bg-rose-300',
+  greenBorder: 'border-emerald-400/30',
+  yellowBorder: 'border-amber-300/30',
+  blueBorder: 'border-blue-300/30',
+  greenBgSoft: 'bg-emerald-400/10',
+  yellowBgSoft: 'bg-amber-300/10',
+  blueBgSoft: 'bg-blue-400/10',
+} as const;
+
 // ─── MODULE 1 · 高效下班系统 ──────────────────────────────────────────────────
 
 const SalaryMonitor: React.FC = () => {
@@ -124,9 +165,29 @@ const SalaryMonitor: React.FC = () => {
   const [workEnd, setWorkEnd]     = useState(() => localStorage.getItem(SK.WORK_END)   || '17:00');
   const [now, setNow]             = useState(() => new Date());
   const [showSettings, setShowSettings] = useState(false);
-  const [draft, setDraft] = useState({ salary: '6000', start: '09:00', end: '17:00' });
+  const [draft, setDraft] = useState({ salary: '6000', start: '09:00', end: '17:00', birthYear: '1995', birthMonth: '1', birthDay: '1', retireAge: '60' });
   const [summary, setSummary] = useState(() => earnLossStore.getTodaySummary());
   const lastOtRef = useRef(0);
+
+  // 退休相关状态
+  const [birthYear, setBirthYear] = useState(() => loadNum(SK.BIRTH_YEAR, 0));
+  const [birthMonth, setBirthMonth] = useState(() => loadNum(SK.BIRTH_MONTH, 0));
+  const [birthDay, setBirthDay] = useState(() => loadNum(SK.BIRTH_DAY, 0));
+  const [retireAge, setRetireAge] = useState(() => loadNum(SK.RETIRE_AGE, 0));
+
+  // 夸夸状态
+  const [praise, setPraise] = useState<string | null>(() => {
+    const today = new Date().toDateString();
+    const stored = localStorage.getItem('cl_praise_date');
+    if (stored === today) return localStorage.getItem('cl_praise_text');
+    return null;
+  });
+
+  // 账单展开状态
+  const [showBill, setShowBill] = useState(false);
+
+  // 已下班状态
+  const [stoppedToday, setStoppedToday] = useState(() => earnLossStore.isOvertimeStopped());
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
@@ -150,6 +211,29 @@ const SalaryMonitor: React.FC = () => {
   useEffect(() => {
     setSummary(earnLossStore.getTodaySummary());
     return earnLossStore.subscribe(setSummary);
+  }, []);
+
+  // 每日重置夸夸
+  useEffect(() => {
+    const today = new Date().toDateString();
+    const stored = localStorage.getItem('cl_praise_date');
+    if (stored !== today) {
+      localStorage.setItem('cl_praise_date', today);
+      const randomPraise = PRAISES[Math.floor(Math.random() * PRAISES.length)];
+      localStorage.setItem('cl_praise_text', randomPraise);
+      setPraise(randomPraise);
+    }
+  }, []);
+
+  // 每日重置停止状态
+  useEffect(() => {
+    const today = new Date().toDateString();
+    const stored = localStorage.getItem('cl_stopped_date');
+    if (stored !== today) {
+      localStorage.removeItem('cl_stopped_date');
+      earnLossStore.resetStopped();
+      setStoppedToday(false);
+    }
   }, []);
 
   const { startMin, endMin } = useMemo(() => {
@@ -181,18 +265,41 @@ const SalaryMonitor: React.FC = () => {
 
   useEffect(() => {
     if (!isOvertime) return;
+    if (stoppedToday) return;
     if (otMin <= lastOtRef.current) return;
     const recorded = earnLossStore.recordOvertimeLoss({ minuteRate, otMinutes: otMin, dateKey: todayDateKey });
     if (recorded) lastOtRef.current = otMin;
-  }, [isOvertime, minuteRate, otMin, todayDateKey]);
+  }, [isOvertime, minuteRate, otMin, todayDateKey, stoppedToday]);
 
   useEffect(() => {
     if (otMin === 0) lastOtRef.current = 0;
   }, [otMin, todayDateKey]);
 
+  // ─── 退休计算 ────────────────────────────────────────────────────────────────
+  const retirement = useMemo(() => {
+    if (!birthYear || !birthMonth || !birthDay || !retireAge) return null;
+    const today = new Date();
+    const retireDate = new Date(birthYear + retireAge, birthMonth - 1, birthDay);
+    const diffMs = retireDate.getTime() - today.getTime();
+    const totalDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+    const yearsLeft = Math.floor(totalDays / 365);
+    const leftDays = totalDays % 365;
+
+    // 工作进度
+    const workStartAge = 22;
+    const totalWorkYears = retireAge - workStartAge;
+    const currentAge = today.getFullYear() - birthYear -
+      (today.getMonth() + 1 < birthMonth || (today.getMonth() + 1 === birthMonth && today.getDate() < birthDay) ? 1 : 0);
+    const workedYears = Math.max(0, Math.min(currentAge - workStartAge, totalWorkYears));
+    const workedPercent = totalWorkYears > 0 ? (workedYears / totalWorkYears) * 100 : 0;
+
+    return { totalDays, yearsLeft, leftDays, workedPercent, totalWorkYears, workedYears, retireDate };
+  }, [birthYear, birthMonth, birthDay, retireAge, now]);
+
   // ─── 4-state verdict ───────────────────────────────────────────────────────
-  type VerdictState = 'before' | 'working' | 'go_now' | 'overtime';
+  type VerdictState = 'before' | 'working' | 'go_now' | 'overtime' | 'stopped';
   const verdictState: VerdictState =
+    stoppedToday ? 'stopped' :
     isBefore ? 'before' :
     isOvertime && otMin <= 5 ? 'go_now' :
     isOvertime ? 'overtime' :
@@ -217,24 +324,52 @@ const SalaryMonitor: React.FC = () => {
       label: '到点了，快跑',
       hint:  `已过 ${workEnd}，你还在干嘛`,
       icon:  <Check size={14} />,
-      color: 'text-emerald-300',
+      color: CUTE.green,
     },
     overtime: {
       label: `已免费打工 ${otMin} 分钟`,
       hint:  '你的时间值钱，但你不在乎',
       icon:  <AlertTriangle size={14} />,
-      color: 'text-red-400',
+      color: CUTE.red,
+    },
+    stopped: {
+      label: '已下班，自由啦',
+      hint:  '亏损已停止，今天辛苦了',
+      icon:  <Sun size={14} />,
+      color: CUTE.yellow,
     },
   }[verdictState];
 
   const statusText =
-    verdictState === 'before'   ? '尚未开工' :
-    verdictState === 'overtime' ? '免费加班进行中' :
-    verdictState === 'go_now'   ? '到点，走人' :
+    verdictState === 'stopped'    ? '已下班，自由啦' :
+    verdictState === 'before'     ? '尚未开工' :
+    verdictState === 'overtime'   ? '免费加班进行中' :
+    verdictState === 'go_now'     ? '到点，走人' :
     '正在工作时段中';
 
+  const triggerPraise = () => {
+    const randomPraise = PRAISES[Math.floor(Math.random() * PRAISES.length)];
+    localStorage.setItem('cl_praise_text', randomPraise);
+    localStorage.setItem('cl_praise_date', new Date().toDateString());
+    setPraise(randomPraise);
+  };
+
+  const handleClockOff = () => {
+    earnLossStore.stopOvertime();
+    setStoppedToday(true);
+    localStorage.setItem('cl_stopped_date', new Date().toDateString());
+    triggerPraise();
+    setShowBill(true);
+  };
+
   const openSettings = () => {
-    setDraft({ salary: String(salary), start: workStart, end: workEnd });
+    setDraft({
+      salary: String(salary), start: workStart, end: workEnd,
+      birthYear: String(birthYear || 1995),
+      birthMonth: String(birthMonth || 1),
+      birthDay: String(birthDay || 1),
+      retireAge: String(retireAge || 60),
+    });
     setShowSettings(true);
   };
 
@@ -243,22 +378,39 @@ const SalaryMonitor: React.FC = () => {
     if (v > 0) setSalary(v);
     writeLocalString(LOCAL_STRING_KEYS.workStart, draft.start);
     writeLocalString(LOCAL_STRING_KEYS.workEnd, draft.end);
+    const by = Number(draft.birthYear);
+    const bm = Number(draft.birthMonth);
+    const bd = Number(draft.birthDay);
+    const ra = Number(draft.retireAge);
+    if (by > 1900 && by < 2010) { localStorage.setItem(SK.BIRTH_YEAR, String(by)); setBirthYear(by); }
+    if (bm > 0 && bm <= 12) { localStorage.setItem(SK.BIRTH_MONTH, String(bm)); setBirthMonth(bm); }
+    if (bd > 0 && bd <= 31) { localStorage.setItem(SK.BIRTH_DAY, String(bd)); setBirthDay(bd); }
+    if (ra > 30 && ra < 100) { localStorage.setItem(SK.RETIRE_AGE, String(ra)); setRetireAge(ra); }
     setShowSettings(false);
   };
 
+  const netIncome = summary.earnTotal - summary.lossTotal;
+
   return (
-    <div className="bg-brand-dark rounded-[24px] p-6 flex flex-col h-full relative overflow-hidden shadow-sm">
-      <div className="flex items-start justify-between mb-8 relative z-10">
+    <div className="bg-gradient-to-br from-emerald-900/90 via-blue-900/90 to-slate-900 rounded-[24px] p-6 flex flex-col h-full relative overflow-hidden shadow-sm">
+      {/* 装饰气泡 */}
+      <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full bg-emerald-400/10 blur-xl" />
+      <div className="absolute -left-4 bottom-20 w-16 h-16 rounded-full bg-amber-300/10 blur-lg" />
+      <div className="absolute right-10 bottom-40 w-12 h-12 rounded-full bg-blue-300/10 blur-md" />
+
+      {/* 顶部标题栏 */}
+      <div className="flex items-start justify-between mb-6 relative z-10">
         <div>
-          <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.15em] mb-2">高效下班系统</p>
+          <p className="text-[10px] font-bold text-emerald-300/70 uppercase tracking-[0.15em] mb-2">高效下班系统</p>
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
               {verdictState === 'working' && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-40"></span>}
               <span className={cn('relative inline-flex rounded-full h-2 w-2',
-                verdictState === 'overtime' ? 'bg-red-400' :
-                verdictState === 'go_now'   ? 'bg-emerald-400' :
+                verdictState === 'overtime' ? CUTE.redBg :
+                verdictState === 'go_now'   ? CUTE.greenBg :
+                verdictState === 'stopped'  ? CUTE.yellowBg :
                 verdictState === 'before'   ? 'bg-white/20' :
-                'bg-emerald-400'
+                CUTE.greenBg
               )}></span>
             </span>
             <span className="text-xs font-bold text-white/70">{statusText}</span>
@@ -269,6 +421,25 @@ const SalaryMonitor: React.FC = () => {
         </button>
       </div>
 
+      {/* 夸夸卡片 */}
+      <AnimatePresence>
+        {praise && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative z-10 mb-5 rounded-2xl px-4 py-3 bg-gradient-to-r from-emerald-400/15 to-amber-300/15 border border-emerald-300/20 cursor-pointer"
+            onClick={triggerPraise}
+          >
+            <div className="flex items-center gap-2">
+              <Heart size={12} className="text-rose-300 fill-rose-300/50" />
+              <p className="text-xs font-bold text-emerald-200">{praise}</p>
+              <Sparkles size={10} className="text-amber-300 ml-auto shrink-0" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 设置面板 */}
       <AnimatePresence>
         {showSettings && (
           <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
@@ -285,26 +456,54 @@ const SalaryMonitor: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[10px] text-white/40 font-bold block mb-1">上班</label>
+                  <label className="text-[10px] text-white/40 font-bold block mb-1">上班时间</label>
                   <input type="time" value={draft.start} onChange={e => setDraft(d => ({ ...d, start: e.target.value }))}
                     className="w-full bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl px-3 py-2 outline-none focus:border-white/30" />
                 </div>
                 <div>
-                  <label className="text-[10px] text-white/40 font-bold block mb-1">下班</label>
+                  <label className="text-[10px] text-white/40 font-bold block mb-1">下班时间</label>
                   <input type="time" value={draft.end} onChange={e => setDraft(d => ({ ...d, end: e.target.value }))}
                     className="w-full bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl px-3 py-2 outline-none focus:border-white/30" />
                 </div>
               </div>
+              {/* 退休设置 */}
+              <div className="pt-2 border-t border-white/10">
+                <p className="text-[10px] font-bold text-amber-300/60 mb-2">退休计划设置</p>
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  <div>
+                    <label className="text-[10px] text-white/40 font-bold block mb-1">出生年</label>
+                    <input type="number" value={draft.birthYear} onChange={e => setDraft(d => ({ ...d, birthYear: e.target.value }))}
+                      className="w-full bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl px-3 py-2 outline-none focus:border-white/30" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <div>
+                      <label className="text-[10px] text-white/40 font-bold block mb-1">月</label>
+                      <input type="number" min="1" max="12" value={draft.birthMonth} onChange={e => setDraft(d => ({ ...d, birthMonth: e.target.value }))}
+                        className="w-full bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl px-3 py-2 outline-none focus:border-white/30" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-white/40 font-bold block mb-1">日</label>
+                      <input type="number" min="1" max="31" value={draft.birthDay} onChange={e => setDraft(d => ({ ...d, birthDay: e.target.value }))}
+                        className="w-full bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl px-3 py-2 outline-none focus:border-white/30" />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] text-white/40 font-bold block mb-1">退休年龄</label>
+                  <input type="number" value={draft.retireAge} onChange={e => setDraft(d => ({ ...d, retireAge: e.target.value }))}
+                    className="w-full bg-white/5 border border-white/10 text-white text-xs font-bold rounded-xl px-3 py-2 outline-none focus:border-white/30" />
+                </div>
+              </div>
             </div>
-            <button onClick={saveSettings} className="w-full py-2.5 bg-white text-brand-dark text-xs font-bold rounded-xl hover:bg-white/90 transition-all">保存</button>
+            <button onClick={saveSettings} className="w-full py-2.5 bg-gradient-to-r from-emerald-400 to-blue-400 text-brand-dark text-xs font-bold rounded-xl hover:from-emerald-300 hover:to-blue-300 transition-all">保存设置</button>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* 实时薪资 */}
-      <div className="relative z-10 mb-8">
+      <div className="relative z-10 mb-6">
         <div className="flex items-baseline gap-1">
-          <span className="text-xl font-medium text-white/50">¥</span>
+          <span className="text-xl font-medium text-emerald-300/50">¥</span>
           <motion.p key={Math.floor(earned * 10)} initial={{ opacity: .8 }} animate={{ opacity: 1 }}
             className="text-5xl md:text-6xl font-black text-white tabular-nums tracking-tighter"
             style={{ fontFamily: 'ui-monospace, SFMono-Regular, monospace' }}>
@@ -312,30 +511,30 @@ const SalaryMonitor: React.FC = () => {
           </motion.p>
         </div>
         <p className="text-[11px] text-white/50 mt-3 font-medium flex gap-3">
-          <span>时薪 ¥{hourlyRate.toFixed(1)}</span>
+          <span className="text-emerald-300/70">时薪 ¥{hourlyRate.toFixed(1)}</span>
           <span className="text-white/20">|</span>
-          <span>分薪 ¥{minuteRate.toFixed(3)}</span>
+          <span className="text-amber-300/70">分薪 ¥{minuteRate.toFixed(3)}</span>
         </p>
       </div>
 
       {/* 时间进度条 */}
-      <div className="relative z-10 mb-8">
-        <div className="flex justify-between text-[11px] font-bold mb-2 text-white/40">
-          <span>{workStart}</span>
+      <div className="relative z-10 mb-6">
+        <div className="flex justify-between text-[11px] font-bold mb-2">
+          <span className="text-blue-300/60">{workStart}</span>
           <span className={cn(
-            isOvertime ? 'text-red-400/80' :
+            isOvertime ? CUTE.red :
             isBefore   ? 'text-white/20' :
-            remainSec <= 3600 ? 'text-amber-300/80' : 'text-white/80'
+            remainSec <= 3600 ? CUTE.yellow : 'text-emerald-300/80'
           )}>
             {isOvertime ? `免费加班 ${otMin}m` : isBefore ? '等待开工' : `距下班 ${remH > 0 ? remH + 'h ' : ''}${remM}m`}
           </span>
-          <span>{workEnd}</span>
+          <span className="text-blue-300/60">{workEnd}</span>
         </div>
-        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
           <motion.div
             className={cn('h-full rounded-full transition-colors duration-500',
-              isOvertime ? 'bg-red-400' :
-              remainSec <= 3600 ? 'bg-amber-300' : 'bg-white'
+              isOvertime ? 'bg-gradient-to-r from-rose-400 to-red-400' :
+              remainSec <= 3600 ? 'bg-gradient-to-r from-amber-300 to-yellow-300' : 'bg-gradient-to-r from-emerald-300 to-green-400'
             )}
             initial={{ width: 0 }}
             animate={{ width: `${Math.min(progress, 100)}%` }}
@@ -346,31 +545,62 @@ const SalaryMonitor: React.FC = () => {
 
       {/* 今日账单 */}
       <div className={cn(
-        'relative z-10 mb-5 rounded-2xl p-4 border transition-colors',
-        verdictState === 'overtime' ? 'bg-red-500/10 border-red-400/30' : 'bg-white/5 border-white/10'
+        'relative z-10 mb-4 rounded-2xl p-4 border transition-colors',
+        verdictState === 'overtime' ? 'bg-rose-400/10 border-rose-300/20' : 'bg-white/5 border-white/10'
       )}>
-        <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.15em] mb-3">今日账单</p>
+        <p className="text-[10px] font-bold text-blue-300/60 uppercase tracking-[0.15em] mb-3">今日账单</p>
         <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-xl bg-white/5 px-3 py-3">
+          <div className="rounded-xl bg-emerald-400/10 px-3 py-3">
             <p className="text-[9px] text-emerald-400/60 font-bold uppercase">今日赚钱</p>
             <p className="mt-1 text-lg font-black text-emerald-300 tabular-nums">¥{summary.earnTotal.toFixed(2)}</p>
           </div>
-          <div className="rounded-xl bg-white/5 px-3 py-3">
-            <p className="text-[9px] text-red-400/60 font-bold uppercase">今日亏钱</p>
-            <p className="mt-1 text-lg font-black text-red-400 tabular-nums">¥{summary.lossTotal.toFixed(2)}</p>
+          <div className="rounded-xl bg-rose-400/10 px-3 py-3">
+            <p className="text-[9px] text-rose-400/60 font-bold uppercase">今日亏钱</p>
+            <p className="mt-1 text-lg font-black text-rose-300 tabular-nums">¥{summary.lossTotal.toFixed(2)}</p>
           </div>
-          <div className="rounded-xl bg-white/5 px-3 py-3">
-            <p className="text-[9px] text-amber-300/70 font-bold uppercase">加班白干</p>
+          <div className="rounded-xl bg-amber-300/10 px-3 py-3">
+            <p className="text-[9px] text-amber-300/60 font-bold uppercase">加班白干</p>
             <p className="mt-1 text-lg font-black text-amber-200 tabular-nums">¥{summary.overtimeLossTotal.toFixed(2)}</p>
           </div>
         </div>
       </div>
 
-      {/* 下班判断 */}
+      {/* 退休倒计时 */}
+      {retirement && (
+        <div className="relative z-10 mb-4 rounded-2xl p-4 border border-blue-300/20 bg-blue-400/5">
+          <div className="flex items-center gap-2 mb-3">
+            <Sun size={12} className="text-amber-300" />
+            <p className="text-[10px] font-bold text-blue-300/60 uppercase tracking-[0.15em]">退休倒计时</p>
+          </div>
+          <div className="flex items-baseline gap-1 mb-1">
+            <span className="text-2xl font-black text-emerald-300">{retirement.yearsLeft}</span>
+            <span className="text-xs text-emerald-300/70 font-bold">年</span>
+            <span className="text-2xl font-black text-emerald-300 ml-2">{retirement.leftDays}</span>
+            <span className="text-xs text-emerald-300/70 font-bold">天</span>
+          </div>
+          <p className="text-[11px] text-white/40 mb-3">距离 {retireAge} 岁自由还有 {retirement.totalDays.toLocaleString()} 天</p>
+          {/* 工作进度条 */}
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[9px] text-blue-300/60 font-bold">已工作 {retirement.workedYears}/{retirement.totalWorkYears} 年</span>
+            <span className="text-[9px] text-amber-300/60 font-bold ml-auto">{retirement.workedPercent.toFixed(1)}%</span>
+          </div>
+          <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full rounded-full bg-gradient-to-r from-amber-300 to-emerald-400"
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.min(retirement.workedPercent, 100)}%` }}
+              transition={{ duration: 1 }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* 下班判断 + 停止亏损按钮 */}
       <div className={cn(
         'relative z-10 rounded-2xl p-4 border transition-colors',
-        verdictState === 'go_now'   ? 'bg-emerald-400/10 border-emerald-400/30' :
-        verdictState === 'overtime' ? 'bg-red-400/10 border-red-400/30' :
+        verdictState === 'go_now'   ? CUTE.greenBgSoft :
+        verdictState === 'overtime' ? 'bg-rose-400/10' :
+        verdictState === 'stopped'  ? CUTE.yellowBgSoft :
         'bg-white/5 border-white/10'
       )}>
         <div className="flex items-center justify-between mb-1">
@@ -379,13 +609,161 @@ const SalaryMonitor: React.FC = () => {
             {verdictState === 'overtime' || verdictState === 'go_now' ? `已过 ${workEnd}` : `等到 ${workEnd}`}
           </span>
         </div>
-        <p className={cn('text-base font-black tracking-tight flex items-center gap-2', VERDICT.color)}>
+        <p className={cn('text-base font-black tracking-tight flex items-center gap-2 mb-3', VERDICT.color)}>
           {VERDICT.icon}
           {VERDICT.label}
         </p>
-        <p className="text-[11px] text-white/40 mt-1 font-medium">{VERDICT.hint}</p>
+        <p className="text-[11px] text-white/40 mb-3 font-medium">{VERDICT.hint}</p>
+
+        {/* 已下班按钮 */}
+        {verdictState === 'go_now' || verdictState === 'overtime' ? (
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={handleClockOff}
+            className="w-full py-3 rounded-2xl text-xs font-bold bg-gradient-to-r from-emerald-400 to-green-400 text-brand-dark shadow-lg shadow-emerald-400/20 hover:from-emerald-300 hover:to-green-300 transition-all flex items-center justify-center gap-2"
+          >
+            <Check size={14} />
+            我已下班！停止亏损
+          </motion.button>
+        ) : verdictState === 'stopped' ? (
+          <div className="w-full py-3 rounded-2xl text-xs font-bold bg-emerald-400/20 text-emerald-300 border border-emerald-300/30 flex items-center justify-center gap-2">
+            <Sun size={14} />
+            已下班，今天亏损已停止
+          </div>
+        ) : null}
+      </div>
+
+      {/* 可展开的今日账单详情 */}
+      <div className="relative z-10 mt-4">
+        <button
+          onClick={() => setShowBill(!showBill)}
+          className="w-full py-2.5 rounded-xl text-[10px] font-bold text-white/40 hover:text-white/70 bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center gap-1"
+        >
+          {showBill ? '收起账单' : '查看今日详细账单'}
+          <motion.span animate={{ rotate: showBill ? 180 : 0 }} transition={{ duration: 0.2 }}>
+            <ArrowRight size={10} className="rotate-90" />
+          </motion.span>
+        </button>
+        <AnimatePresence>
+          {showBill && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-2 rounded-2xl p-4 bg-white/5 border border-white/10 space-y-2">
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">今日详细</p>
+
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-white/50">基础薪资</span>
+                  <span className="text-white font-bold tabular-nums">¥{earned.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-white/50">摸鱼收入 ({summary.touchFishCount}次)</span>
+                  <span className="text-emerald-300 font-bold tabular-nums">+¥{summary.touchFishEarn.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-white/50">带薪拉屎 ({summary.paidPoopCount}次/{summary.paidPoopMin}min)</span>
+                  <span className="text-emerald-300 font-bold tabular-nums">+¥{summary.paidPoopEarn.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-white/50">咖啡回血 ({summary.coffeeCount}杯)</span>
+                  <span className="text-emerald-300 font-bold tabular-nums">+¥{summary.coffeeEarn.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-white/50">加班亏损 ({summary.otMin}min)</span>
+                  <span className="text-rose-300 font-bold tabular-nums">-¥{summary.overtimeLossTotal.toFixed(2)}</span>
+                </div>
+
+                <div className="pt-2 mt-2 border-t border-white/10 flex justify-between items-center">
+                  <span className="text-sm font-bold text-white/70">今日净收入</span>
+                  <span className={cn(
+                    'text-xl font-black tabular-nums',
+                    netIncome >= 0 ? 'text-emerald-300' : 'text-rose-300'
+                  )}>
+                    ¥{netIncome.toFixed(2)}
+                  </span>
+                </div>
+
+                {praise && (
+                  <div className="pt-2 flex items-center gap-2 justify-center">
+                    <Heart size={10} className="text-rose-300 fill-rose-300/50" />
+                    <p className="text-[10px] font-bold text-emerald-200">{praise}</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
+  );
+};
+
+// ─── MODULE 1b · Apex 算一卦 Entry ────────────────────────────────────────────
+
+const ApexGuaEntry: React.FC = () => {
+  const navigate = useNavigate();
+
+  return (
+    <motion.button
+      type="button"
+      onClick={() => navigate('/apex-gua')}
+      whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.985 }}
+      className="group relative flex h-full min-h-[320px] w-full flex-col overflow-hidden rounded-[24px] border border-stone-200/60 bg-[linear-gradient(135deg,#faf5f5_0%,#ffffff_42%,#fef2f2_100%)] p-6 text-left shadow-sm transition-shadow hover:shadow-xl hover:shadow-stone-950/8"
+    >
+      <div className="absolute -right-16 -top-16 h-36 w-36 rounded-full border border-stone-200/70 bg-stone-100/40" />
+      <div className="absolute bottom-0 left-0 right-0 h-24 bg-[radial-gradient(circle_at_20%_100%,rgba(192,57,43,0.12),transparent_62%)]" />
+
+      <div className="relative z-10 flex items-start justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#c0392b] text-white shadow-lg shadow-red-900/20">
+            <Compass size={20} strokeWidth={2.5} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-red-500/80">CSPRNG 起卦</p>
+            <h3 className="mt-1 text-base font-black tracking-tight text-brand-dark">Apex 算一卦</h3>
+          </div>
+        </div>
+        <div className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[9px] font-black text-rose-600">
+          易经
+        </div>
+      </div>
+
+      <div className="relative z-10 mt-6 flex flex-1 flex-col justify-between">
+        <div>
+          <p className="max-w-[28rem] text-[13px] font-semibold leading-6 text-brand-dark/72">
+            大衍蓍法或铜钱速卜，六次轻触成卦。卦匣收藏，卦象解读，一键起卦。
+          </p>
+          <div className="mt-5 grid grid-cols-2 gap-2">
+            <div className="rounded-2xl border border-red-100 bg-white/70 px-3 py-3">
+              <p className="text-[9px] font-black uppercase tracking-widest text-brand-gray/60">方法</p>
+              <p className="mt-1 text-xs font-black leading-snug text-brand-dark">蓍草 / 铜钱</p>
+            </div>
+            <div className="rounded-2xl border border-amber-100 bg-white/70 px-3 py-3">
+              <p className="text-[9px] font-black uppercase tracking-widest text-brand-gray/60">收藏</p>
+              <p className="mt-1 flex items-center gap-1.5 text-xs font-black text-brand-dark">
+                <Sparkles size={13} className="text-amber-500" />
+                卦匣存档
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center justify-between">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#c0392b] px-3 py-1.5 text-[10px] font-black text-white">
+            <Sparkles size={12} />
+            APEX · 起一卦
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-xs font-black text-red-600 transition-transform group-hover:translate-x-1">
+            开始算卦
+            <ArrowRight size={14} />
+          </span>
+        </div>
+      </div>
+    </motion.button>
   );
 };
 
@@ -1508,6 +1886,9 @@ export default function ToMyselfSpace() {
   return (
     <div className="w-full max-w-full mx-auto pb-10 overflow-x-hidden">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 auto-rows-max">
+        <div className="md:col-span-2 lg:col-span-3 min-h-[320px]">
+          <ApexGuaEntry />
+        </div>
         <div className="md:col-span-2 lg:col-span-3 min-h-[320px]">
           <GrievanceGameEntry />
         </div>

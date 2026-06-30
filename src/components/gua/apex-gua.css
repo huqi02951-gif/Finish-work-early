@@ -1,0 +1,282 @@
+/* Apex 算一卦 — scoped styles, embedded in Apex 对自己 */
+.apex-gua-embedded {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.apex-gua-embedded .app-header { padding: 24px 24px 0; }
+
+.apex-gua-embedded .app-header__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.apex-gua-embedded .app-header h1,
+.apex-gua-embedded .result-heading h2 {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.apex-gua-embedded .app-header h1 { font-size: clamp(22px, 6vw, 28px); }
+.apex-gua-embedded .app-header p { margin: 2px 0 0; color: #6b6b6b; font-size: 13px; }
+
+.apex-gua-embedded .gua-buddy {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  color: #1a1a1a;
+}
+
+.apex-gua-embedded .gua-buddy svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.apex-gua-embedded .gua-buddy svg circle { fill: currentColor; stroke: none; }
+
+.apex-gua-embedded .casting-stage { padding: 20px 24px 24px; }
+
+.apex-gua-embedded .method-toggle {
+  display: flex;
+  gap: 4px;
+  margin: 0 0 20px;
+  padding: 3px;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+.apex-gua-embedded .method-toggle button {
+  flex: 1;
+  min-height: 36px;
+  padding: 6px 12px;
+  color: #6b6b6b;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.apex-gua-embedded .method-toggle button.is-active {
+  color: #1a1a1a;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.apex-gua-embedded .method-toggle button:disabled { opacity: 0.4; cursor: default; }
+
+.apex-gua-embedded .cast-panel { text-align: center; }
+.apex-gua-embedded .cast-progress { margin: 0; color: #c0392b; font-size: 32px; font-weight: 600; letter-spacing: -0.04em; }
+.apex-gua-embedded .cast-message { min-height: 18px; margin: 6px 0 16px; color: #6b6b6b; font-size: 12px; }
+
+.apex-gua-embedded .line-stack { width: 100%; max-width: 280px; margin: 0 auto; }
+
+.apex-gua-embedded .yao-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 36px;
+  justify-content: center;
+}
+
+.apex-gua-embedded .yao-row__label { color: #6b6b6b; font-size: 12px; width: 24px; text-align: right; }
+.apex-gua-embedded .yao-row__marker { color: #c0392b; font-size: 10px; font-weight: 600; width: 16px; }
+
+.apex-gua-embedded .yao-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 160px;
+  height: 8px;
+}
+
+.apex-gua-embedded .yao-line span {
+  flex: 1 1 auto;
+  height: 6px;
+  background: #1a1a1a;
+  border-radius: 3px;
+}
+
+.apex-gua-embedded .yao-row--empty .yao-line { opacity: 0.1; }
+.apex-gua-embedded .yao-row--empty .yao-line span { height: 2px; }
+.apex-gua-embedded .yao-row--changing .yao-line span { background: #c0392b; }
+.apex-gua-embedded .line-stack__hint { margin: 8px 0 0; color: #6b6b6b; font-size: 10px; }
+
+.apex-gua-embedded .cast-button {
+  width: 100%;
+  max-width: 280px;
+  min-height: 48px;
+  margin-top: 20px;
+  padding: 14px 24px;
+  color: #fff;
+  background: #c0392b;
+  border: 0;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.apex-gua-embedded .cast-button:disabled { opacity: 0.5; cursor: wait; }
+
+.apex-gua-embedded .error-message { color: #c0392b; font-size: 12px; margin-top: 8px; }
+
+.apex-gua-embedded .widget-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.apex-gua-embedded .archive-trigger {
+  color: #6b6b6b;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.apex-gua-embedded .archive-trigger small {
+  color: #6b6b6b;
+  font-size: 12px;
+}
+
+/* Result screen */
+.apex-gua-embedded .result-screen { padding: 16px 24px 32px; }
+.apex-gua-embedded .result-scroll { border-top: 1px solid #e5e5e5; padding-top: 16px; }
+
+.apex-gua-embedded .result-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0 16px;
+}
+
+.apex-gua-embedded .result-heading h2 { font-size: 28px; }
+.apex-gua-embedded .result-heading .gua-buddy { width: 36px; height: 36px; }
+
+.apex-gua-embedded .result-figure .line-stack { max-width: 240px; }
+.apex-gua-embedded .result-figure .line-stack__hint { display: none; }
+.apex-gua-embedded .result-figure .yao-row { min-height: 28px; }
+
+.apex-gua-embedded .trigram-facts { margin-top: 16px; }
+
+.apex-gua-embedded .fact-row {
+  padding: 10px 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.apex-gua-embedded .fact-row strong { font-size: 13px; font-weight: 600; }
+.apex-gua-embedded .fact-row small { display: block; margin-top: 2px; color: #6b6b6b; font-size: 11px; }
+.apex-gua-embedded .fact-symbol { font-size: 16px; }
+
+.apex-gua-embedded .special-rule {
+  margin: 12px 0;
+  padding: 10px 12px;
+  color: #c0392b;
+  border-left: 2px solid #c0392b;
+  background: rgba(192, 57, 43, 0.08);
+  font-size: 12px;
+}
+
+.apex-gua-embedded .meaning-section,
+.apex-gua-embedded .weather-section { padding: 16px 0; border-bottom: 1px solid #e5e5e5; }
+
+.apex-gua-embedded .meaning-section h3,
+.apex-gua-embedded .weather-section h3 {
+  margin: 0 0 6px;
+  color: #c0392b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.apex-gua-embedded .meaning-section p,
+.apex-gua-embedded .weather-section p {
+  margin: 0;
+  color: #444;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.apex-gua-embedded .result-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding-top: 16px;
+}
+
+.apex-gua-embedded .primary-button {
+  min-height: 44px;
+  padding: 12px;
+  color: #fff;
+  background: #c0392b;
+  border: 0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.apex-gua-embedded .secondary-button {
+  min-height: 44px;
+  padding: 12px;
+  color: #c0392b;
+  background: transparent;
+  border: 1px solid #c0392b;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.apex-gua-embedded .result-actions button:disabled { opacity: 0.5; }
+
+.apex-gua-embedded .save-confirmation { margin: 12px 0 0; color: #6b6b6b; font-size: 12px; text-align: center; }
+
+/* Archive panel */
+.apex-gua-embedded .archive-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  min-height: 100%;
+  padding: 24px;
+  background: #ffffff;
+  overflow-y: auto;
+}
+
+.apex-gua-embedded .archive-panel__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.apex-gua-embedded .archive-panel__header h2 { margin: 0; font-size: 22px; font-weight: 600; }
+.apex-gua-embedded .archive-panel__header button,
+.apex-gua-embedded .archive-list button { min-height: 36px; padding: 6px; color: #6b6b6b; background: transparent; border: 0; cursor: pointer; font-size: 12px; }
+
+.apex-gua-embedded .archive-empty { display: grid; place-items: center; min-height: 300px; color: #6b6b6b; text-align: center; }
+.apex-gua-embedded .archive-empty p { margin: 8px 0 0; font-size: 14px; color: #1a1a1a; }
+.apex-gua-embedded .archive-empty small { margin-top: 4px; }
+
+.apex-gua-embedded .archive-list { margin: 0; padding: 0; list-style: none; }
+.apex-gua-embedded .archive-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid #e5e5e5; }
+.apex-gua-embedded .archive-list time { display: block; color: #6b6b6b; font-size: 10px; }
+.apex-gua-embedded .archive-list strong { display: block; margin-top: 4px; font-size: 14px; }
+.apex-gua-embedded .archive-list p { margin: 3px 0 0; color: #6b6b6b; font-size: 11px; }

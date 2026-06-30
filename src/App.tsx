@@ -42,6 +42,7 @@ import FormalTopicPage from './pages/community/FormalTopic';
 import LoginPage from './pages/auth/LoginPage';
 
 const GrievanceGamePage = lazy(() => import('./pages/GrievanceGamePage'));
+const ApexGuaPage = lazy(() => import('./pages/ApexGuaPage'));
 
 /* ─── 404 Not Found ─── */
 const NotFoundPage = () => (
@@ -109,6 +110,21 @@ const App: React.FC = () => {
           <Route path="/grievance-game" element={
             <Suspense fallback={<GrievanceGameFallback />}>
               <GrievanceGamePage />
+            </Suspense>
+          } />
+          <Route path="/apex-gua" element={
+            <Suspense fallback={
+              <AppLayout title="Apex 算一卦" showBack>
+                <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center bg-[#fafafa] px-6 text-center">
+                  <div>
+                    <div className="mx-auto mb-4 h-10 w-10 animate-pulse rounded-2xl bg-black/5" />
+                    <p className="text-sm font-black text-brand-dark">正在进入 Apex 算一卦</p>
+                    <p className="mt-2 text-xs font-semibold text-brand-gray">加载卦象资源中...</p>
+                  </div>
+                </div>
+              </AppLayout>
+            }>
+              <ApexGuaPage />
             </Suspense>
           } />
 
