@@ -16,7 +16,7 @@ import {
   Weapon,
 } from '../types';
 import { getLevelArtPreset, karmaFurnaceAsset } from '../artPresets';
-import { MONSTER_STYLES, STRESS_TYPES } from '../data';
+import { LEVEL2_SANG_QUOTES, MONSTER_STYLES, STRESS_TYPES } from '../data';
 import { BODY_PART_LABELS, getLevelMechanic } from '../levelMechanics';
 import { MonsterVisual } from './MonsterVisual';
 import { SpinningTarget } from './SpinningTarget';
@@ -198,6 +198,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
 
   // Slap Bonus & Alternative Modes states
   const [isSlapPhase, setIsSlapPhase] = useState(false);
+  const [pinnedParts, setPinnedParts] = useState<BodyPart[]>([]);
   const [slapTimer, setSlapTimer] = useState(5.0);
   const [slapCount, setSlapCount] = useState(0);
   const [slapComplete, setSlapComplete] = useState(false);
@@ -596,9 +597,19 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       triggerShake('light');
       const failEmoji = result.hitType === 'collision' ? '💥' : result.hitType === 'blocked' ? '🛡️' : '💨';
       spawnSpark(50, 46, result.message, 'pin', failEmoji);
-      pushDialogue(result.message, 50, 74, 'toast');
+      if (selectedStress.level === 2) {
+        const sangQuote = LEVEL2_SANG_QUOTES[Math.floor(Math.random() * LEVEL2_SANG_QUOTES.length)];
+        pushDialogue(`🧊 ${sangQuote}`, 50, 74, 'toast');
+      } else {
+        pushDialogue(result.message, 50, 74, 'toast');
+      }
       window.setTimeout(() => setMonsterState(bossHpRef.current <= 0 ? 'flat_dead' : 'idle'), 380);
       return;
+    }
+
+    // Track pinned weaknesses for Level 1 and Level 2
+    if ((selectedStress.level === 1 || selectedStress.level === 2) && result.isWeakness) {
+      setPinnedParts(prev => prev.includes(result.part) ? prev : [...prev, result.part]);
     }
 
     const isCritical = result.hitType === 'critical';
@@ -628,6 +639,12 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     const sparkText = `${effect.label} -${totalDamage.toLocaleString()}`;
     spawnSpark(x, y, sparkText, isCritical ? 'hammer' : 'pin', effect.emoji);
     spawnBurst(x, y, isCritical ? 14 : 8, isCritical ? 'ticket' : 'confetti');
+
+    // Level 2: inject 丧语录 on successful weakness hits
+    if (selectedStress.level === 2 && result.isWeakness) {
+      const sangQuote = LEVEL2_SANG_QUOTES[Math.floor(Math.random() * LEVEL2_SANG_QUOTES.length)];
+      pushDialogue(`🧊 ${sangQuote}`, 50, 18, 'xuanxue');
+    }
 
     if (result.quotaComplete) {
       setSuperFlash('gold');
@@ -775,6 +792,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     setSuperFlash('none');
     setShredProgress(0);
     setShrinkFactor(1);
+    setPinnedParts([]);
     setHighestBossHp(prev => preserveRun ? Math.max(prev, currentBossHpMax) : currentBossHpMax);
 
     setSlapDone(false);
@@ -1310,6 +1328,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
                 activeWhackPart={activeWhackPart}
                 activeQtePart={activeQtePart}
                 qteScale={qteScale}
+                pinnedParts={pinnedParts}
                 onWeaknessClick={playMode === 'whack' ? handleWhackClick : playMode === 'qte' ? handleQteClick : undefined}
               />
             </div>

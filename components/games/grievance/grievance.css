@@ -4623,3 +4623,59 @@
   box-shadow: 0 0 18px rgba(239, 68, 68, 0.8);
 }
 
+/* ========== Voodoo Pin & Body Freeze Mechanics ========== */
+
+.grievance-game-root .voodoo-pin {
+  position: absolute;
+  z-index: 17;
+  transform: translate(-50%, -80%) rotate(-8deg);
+  pointer-events: none;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.7));
+  animation: pin-stab-in 0.3s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes pin-stab-in {
+  0% { opacity: 0; transform: translate(-50%, -160%) rotate(-8deg) scale(0.6); }
+  60% { opacity: 1; transform: translate(-50%, -70%) rotate(-8deg) scale(1.08); }
+  100% { opacity: 1; transform: translate(-50%, -80%) rotate(-8deg) scale(1); }
+}
+
+.grievance-game-root .mouth-sealed-overlay {
+  position: absolute;
+  z-index: 18;
+  font-size: 28px;
+  color: #dc2626;
+  font-weight: 900;
+  text-shadow: 0 0 8px rgba(220,38,38,0.6);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: seal-stamp 0.35s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes seal-stamp {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(2.6); }
+  70% { opacity: 0.9; transform: translate(-50%, -50%) scale(0.92); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.grievance-game-root .eyes-pained-overlay {
+  position: absolute;
+  z-index: 18;
+  font-size: 22px;
+  color: #1a1a2e;
+  font-weight: 900;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  text-shadow: 0 0 4px rgba(0,0,0,0.5);
+}
+
+/* Pause boss and overlays when all pinned */
+.grievance-game-root .boss-visual-root[data-pin-ratio="frozen"] .boss-sprite-frame,
+.grievance-game-root .boss-visual-root[data-pin-ratio="frozen"] .boss-weakness-pin,
+.grievance-game-root .boss-visual-root[data-pin-ratio="frozen"] .voodoo-pin,
+.grievance-game-root .boss-visual-root[data-pin-ratio="frozen"] .boss-photo-sticker,
+.grievance-game-root .boss-visual-root[data-pin-ratio="frozen"] .boss-custom-face-svg,
+.grievance-game-root .boss-visual-root[data-pin-ratio="frozen"] .boss-custom-accessories-svg {
+  animation-play-state: paused !important;
+}
+

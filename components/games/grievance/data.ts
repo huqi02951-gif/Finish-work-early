@@ -676,6 +676,20 @@ export const HELL_LEVELS: HellLevel[] = RAW_HELL_LEVELS.map(level => {
 
 export const STRESS_TYPES = HELL_LEVELS;
 
+// 第二层老油条"丧"语录——谐音梗/冷笑话/消极怠工解构职场
+export const LEVEL2_SANG_QUOTES: string[] = [
+  '关关难过，那就哄哄关关。',
+  '明知山有虎，那就别去明知山！',
+  '不要总和别人比，比前十觉得自己差，如果比利时，那是欧洲的国家！',
+  '你要稳稳的幸福，那稳稳怎么办？',
+  '太空有空间站，太挤就没有空间站。',
+  '你歇斯底里是崩溃，歇斯是美味。',
+  '一人做事一人当，当当做事当当当。',
+  '是金子总会花光的。',
+  '水 100 度就是开，人 100 度就得癌。',
+  '慢慢挤，不要来。'
+];
+
 // The 5 visual styles of monsters
 export const MONSTER_STYLES: MonsterStyle[] = [
   {

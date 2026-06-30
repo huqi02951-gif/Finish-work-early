@@ -23,7 +23,21 @@ interface MonsterVisualProps {
   activeQtePart?: BodyPart | null;
   qteScale?: number;
   onWeaknessClick?: (part: BodyPart) => void;
+  pinnedParts?: BodyPart[];
 }
+
+const pinRotations: Record<BodyPart, number> = {
+  mouth: -8,
+  throat: -12,
+  eyes: 6,
+  hands: -18,
+  back: 14,
+  heart: -5,
+  belly: 10,
+  feet: -3,
+  head: 8,
+  shadow: -15
+};
 
 const fallbackArt = getLevelArtPreset(HELL_LEVELS[0]);
 
@@ -710,6 +724,7 @@ export const MonsterVisual: React.FC<MonsterVisualProps> = ({
   activeQtePart = null,
   qteScale = 1,
   onWeaknessClick,
+  pinnedParts = [],
 }) => {
   const isLowHp = bossHpPercent <= 35;
   const isKo = state === 'flat_dead' || state === 'flattened';
@@ -745,17 +760,32 @@ export const MonsterVisual: React.FC<MonsterVisualProps> = ({
   const morph = getMorphTransform(levelNum);
   const stateTransform = getStateTransform(state);
 
+  const pinnedWeaknessCount = (levelNum === 1 || levelNum === 2) && weaknessParts.length > 0
+    ? pinnedParts.filter(p => weaknessParts.includes(p)).length
+    : 0;
+  const pinRatio = (levelNum === 1 || levelNum === 2) && weaknessParts.length > 0
+    ? pinnedWeaknessCount / weaknessParts.length
+    : 0;
+  const allPinned = (levelNum === 1 || levelNum === 2) && pinRatio >= 1;
+
+  const isMouthSealed = levelNum === 1 && (pinnedParts.includes('mouth') || pinnedParts.includes('throat'));
+  const isEyesPained = levelNum === 2 && (pinnedParts.includes('eyes') || pinnedParts.includes('head') || pinnedParts.includes('hands') || pinnedParts.includes('back'));
+
   const spriteStyle: React.CSSProperties = {
     transform: `scale(${baseScale}) ${morph} ${stateTransform}`,
     opacity: Math.max(0.18, 1 - shredProgress * 0.72),
     filter: getBossFilter(levelNum, isLowHp, isKo, shredProgress),
     transformOrigin: '50% 88%',
-    transition: 'transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1)'
+    transition: 'transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1)',
+    ...((levelNum === 1 || levelNum === 2) && pinRatio > 0 && !allPinned && state === 'idle' ? {
+      animationDuration: levelNum === 1 ? '6.4s' : `${3.2 + pinRatio * 4.8}s`
+    } : {}),
   };
 
   return (
     <div
       className={`boss-visual-root ${stateClassMap[state]}`}
+      data-pin-ratio={(levelNum === 1 || levelNum === 2) && allPinned ? 'frozen' : 'none'}
       style={{
         '--boss-accent': artPreset.accentColor,
         '--boss-ghost': artPreset.ghostColor,
@@ -808,7 +838,7 @@ export const MonsterVisual: React.FC<MonsterVisualProps> = ({
           {villainPhase === 'condemned' ? '定罪' : villainPhase === 'judging' ? '终审' : villainPhase === 'weak' ? '破防' : villainPhase === 'breaking' ? '开裂' : '在审'}
         </div>
 
-        {weaknessParts.map(part => {
+        {((levelNum === 1 || levelNum === 2) ? weaknessParts.filter(p => !pinnedParts.includes(p)) : weaknessParts).map(part => {
           const coord = weaknessCoords[part];
           const isInteractive = (playMode === 'whack' && activeWhackPart === part) || (playMode === 'qte' && activeQtePart === part);
           return (
@@ -831,6 +861,59 @@ export const MonsterVisual: React.FC<MonsterVisualProps> = ({
             </div>
           );
         })}
+
+        {/* ===== Voodoo Pins: physical needles at pinned weakness coords ===== */}
+        {(levelNum === 1 || levelNum === 2) && pinnedParts.map(part => {
+          const coord = weaknessCoords[part];
+          const rot = pinRotations[part] || -8;
+          return (
+            <div
+              key={`pin-${part}`}
+              className="voodoo-pin"
+              style={{
+                left: `${coord.x}%`,
+                top: `${coord.y}%`,
+                transform: `translate(-50%, -80%) rotate(${rot}deg)`
+              }}
+            >
+              <svg width="24" height="52" viewBox="0 0 24 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Pin head - dark red bead */}
+                <circle cx="12" cy="6" r="5.5" fill="#8b1a1a" stroke="#3a0505" strokeWidth="1.5"/>
+                <circle cx="10" cy="4" r="1.5" fill="rgba(255,180,180,0.5)"/>
+                {/* Pin shaft */}
+                <line x1="12" y1="12" x2="12" y2="50" stroke="#1a1a2e" strokeWidth="2.5" strokeLinecap="round"/>
+                {/* Shaft highlight */}
+                <line x1="13" y1="14" x2="13" y2="46" stroke="rgba(255,255,255,0.18)" strokeWidth="0.8"/>
+              </svg>
+            </div>
+          );
+        })}
+
+        {/* ===== Mouth Sealed Overlay: red ✕ when mouth/throat pinned ===== */}
+        {isMouthSealed && (
+          <div
+            className="mouth-sealed-overlay"
+            style={{
+              left: `${weaknessCoords.mouth.x}%`,
+              top: `${weaknessCoords.mouth.y}%`
+            }}
+          >
+            ✕
+          </div>
+        )}
+
+        {/* ===== Eyes Pained Overlay: >_< when eyes/head/hands/back pinned ===== */}
+        {isEyesPained && (
+          <div
+            className="eyes-pained-overlay"
+            style={{
+              left: `${weaknessCoords.eyes.x}%`,
+              top: `${weaknessCoords.eyes.y}%`
+            }}
+          >
+            {'>'}_{'<'}
+          </div>
+        )}
 
         <div className="boss-paper-tag boss-paper-tag-left">{artPreset.boss.paperTags[0]}</div>
         <div className="boss-paper-tag boss-paper-tag-right">{punishmentPreset?.label || artPreset.boss.paperTags[1]}</div>

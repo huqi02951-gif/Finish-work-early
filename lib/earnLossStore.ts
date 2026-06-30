@@ -41,9 +41,14 @@ export interface EarnLossSummary {
 
 const KEY_PREFIX = 'cl_earn_loss';
 const CHANGE_EVENT = 'fwe:earn-loss-change';
+const STOPPED_KEY = 'cl_overtime_stopped';
 
 function todayKey() {
   return `${KEY_PREFIX}_${new Date().toDateString()}`;
+}
+
+function todayStoppedKey() {
+  return `${STOPPED_KEY}_${new Date().toDateString()}`;
 }
 
 function readRecords(): EarnLossRecord[] {
@@ -133,6 +138,7 @@ export const earnLossStore = {
     otMinutes: number;
     dateKey: string;
   }): EarnLossRecord | null {
+    if (this.isOvertimeStopped()) return null;
     const lastRecord = getLastOvertimeRecord(params.dateKey);
     const now = Date.now();
     if (lastRecord && now - lastRecord.timestamp < OVERTIME_MIN_INTERVAL_MS) {
@@ -188,5 +194,21 @@ export const earnLossStore = {
 
   clearToday() {
     writeRecords([]);
+  },
+
+  /** 标记今天已停止加班亏损 */
+  stopOvertime() {
+    localStorage.setItem(todayStoppedKey(), 'true');
+    window.dispatchEvent(new CustomEvent(CHANGE_EVENT, { detail: readRecords() }));
+  },
+
+  /** 检查今天是否已停止加班亏损 */
+  isOvertimeStopped() {
+    return localStorage.getItem(todayStoppedKey()) === 'true';
+  },
+
+  /** 重置今天的停止状态（新一天自动重置） */
+  resetStopped() {
+    localStorage.removeItem(todayStoppedKey());
   },
 };
