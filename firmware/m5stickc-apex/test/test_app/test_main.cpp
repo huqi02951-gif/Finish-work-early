@@ -61,10 +61,24 @@ void test_new_day_clears_settlement() {
   TEST_ASSERT_EQUAL_INT32(20000, model.dayKey());
 }
 
+void test_settings_can_save_back_to_main_and_restore_settlement() {
+  apex::FinishWorkModel model;
+  model.handleButton(apex::ButtonEvent::M5Click, 0);
+  model.handleButton(apex::ButtonEvent::M5DoubleClick, 1000);
+  TEST_ASSERT_EQUAL(apex::FinishScreen::Settings, model.screen());
+  model.showMain();
+  TEST_ASSERT_EQUAL(apex::FinishScreen::Main, model.screen());
+  model.restoreSettled(20400);
+  TEST_ASSERT_EQUAL(apex::SettlementPhase::Settled,
+                    model.settlementPhase());
+  TEST_ASSERT_EQUAL_INT32(20400, model.dayKey());
+}
+
 int main(int, char**) {
   UNITY_BEGIN();
   RUN_TEST(test_main_confirmation_times_out_and_second_click_settles);
   RUN_TEST(test_double_hold_and_b_events_use_launcher_safe_mapping);
   RUN_TEST(test_new_day_clears_settlement);
+  RUN_TEST(test_settings_can_save_back_to_main_and_restore_settlement);
   return UNITY_END();
 }

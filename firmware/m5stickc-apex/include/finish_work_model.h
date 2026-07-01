@@ -22,6 +22,7 @@ class FinishWorkModel {
   void update(uint32_t nowMs);
   void resetForDay(int32_t dayKey);
   void restoreSettled(int32_t dayKey);
+  void showMain();
 
   FinishScreen screen() const { return screen_; }
   SettlementPhase settlementPhase() const { return settlementPhase_; }

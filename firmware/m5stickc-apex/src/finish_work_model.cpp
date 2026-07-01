@@ -77,4 +77,8 @@ void FinishWorkModel::restoreSettled(int32_t dayKey) {
   settlementPhase_ = SettlementPhase::Settled;
 }
 
+void FinishWorkModel::showMain() {
+  screen_ = FinishScreen::Main;
+}
+
 }  // namespace apex
