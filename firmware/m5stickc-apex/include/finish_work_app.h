@@ -4,6 +4,7 @@
 
 #include "app_input.h"
 #include "finish_work_model.h"
+#include "finish_work_settings.h"
 #include "finish_work_store.h"
 #include "finish_work_view.h"
 
@@ -19,26 +20,12 @@ class FinishWorkApp {
   bool setClock(const m5::rtc_datetime_t& clock);
 
  private:
-  enum class SettingField : uint8_t {
-    Salary,
-    WorkStart,
-    WorkEnd,
-    BirthYear,
-    RetirementAge,
-    DateYear,
-    DateMonth,
-    DateDay,
-    ClockHour,
-    ClockMinute,
-    Count,
-  };
-
   FinishWorkModel model_;
   FinishWorkStore store_;
   FinishWorkView view_;
   FinishSettings settings_;
   SettlementSnapshot settlement_;
-  SettingField settingField_ = SettingField::Salary;
+  FinishSettingField settingField_ = FinishSettingField::Salary;
   m5::rtc_datetime_t clock_{};
   m5::rtc_datetime_t draftClock_{};
   SalaryStatus salary_{};

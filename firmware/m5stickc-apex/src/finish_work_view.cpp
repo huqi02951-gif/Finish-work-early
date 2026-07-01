@@ -40,13 +40,20 @@ bool FinishWorkView::begin() {
   canvas_.setTextWrap(false);
   if (canvas_.createSprite(240, 135) == nullptr) return false;
   canvas_.setFont(&fonts::efontCN_12);
-  const bool labelsFit =
-      canvas_.textWidth("M5下班  长按详情  B切换") <= kFooterBounds.width &&
-      canvas_.textWidth("单击返回  双击设置  B切换") <= kFooterBounds.width &&
-      canvas_.textWidth("单击增加  双击减少") <= kSafeBounds.width &&
-      canvas_.textWidth("长按下一项  B切换") <= kSafeBounds.width &&
+  const bool footerLabelsFit =
+      canvas_.textWidth("M5 off  Hold detail  B next") <=
+          kFooterBounds.width &&
+      canvas_.textWidth("M5 back  Double settings  B next") <=
+          kFooterBounds.width &&
+      canvas_.textWidth("M5 +   Double -") <= kSafeBounds.width &&
+      canvas_.textWidth("Hold next  Exit page saves") <= kSafeBounds.width &&
+      canvas_.textWidth("M5 / Hold = Save Exit") <= kSafeBounds.width &&
       canvas_.textWidth("距退休 99年 364天") <=
           kRetirementBounds.width - 12;
+  canvas_.setTextFont(2);
+  const bool exitButtonFits = canvas_.textWidth("SAVE EXIT") <= 112;
+  canvas_.setFont(&fonts::efontCN_12);
+  const bool labelsFit = footerLabelsFit && exitButtonFits;
   Serial.printf("UI_LAYOUT_CHECK static_labels=%s safe=240x135\n",
                 labelsFit ? "OK" : "OVERFLOW");
   return labelsFit;
@@ -82,7 +89,8 @@ void FinishWorkView::drawSplash() {
   canvas_.drawString("APEX", 120, 61);
   canvas_.setFont(&fonts::efontCN_12);
   canvas_.setTextColor(kBlue, kBlack);
-  canvas_.drawString("按 M5 进入", 120, 104);
+  canvas_.setTextFont(2);
+  canvas_.drawString("Press M5 to start", 120, 104);
 }
 
 void FinishWorkView::drawTop(const FinishViewModel& model) {
@@ -131,13 +139,13 @@ void FinishWorkView::drawMain(const FinishViewModel& model) {
     char earned[24];
     formatMoneyNumber(model.salary.earnedMilliCents, earned, sizeof(earned));
     char line[40];
-    snprintf(line, sizeof(line), "已赚 ¥%s", earned);
+    snprintf(line, sizeof(line), "Earned ¥%s", earned);
     drawChinese(line, kMoneyBounds.x, kMoneyBounds.y + 47, kGreen);
   } else if (confirming) {
-    drawChinese("再按一次确认下班", kMoneyBounds.x,
+    drawChinese("Press M5 again", kMoneyBounds.x,
                 kMoneyBounds.y + 47, kYellow);
   } else {
-    drawChinese(settled ? "今天辛苦啦" : "工资正在增长",
+    drawChinese(settled ? "Clocked off" : "Earning now",
                 kMoneyBounds.x, kMoneyBounds.y + 47,
                 settled ? kYellow : kGray);
   }
@@ -157,13 +165,13 @@ void FinishWorkView::drawMain(const FinishViewModel& model) {
   drawChinese(retirement, 120, kRetirementBounds.y + 4, kCream,
               textdatum_t::top_center);
 
-  drawChinese("M5下班  长按详情  B切换", kFooterBounds.x,
+  drawChinese("M5 off  Hold detail  B next", kFooterBounds.x,
               kFooterBounds.y + 2, kGray);
 }
 
 void FinishWorkView::drawDetail(const FinishViewModel& model) {
   drawTop(model);
-  drawChinese("今日详细", 8, 27, kBlue);
+  drawChinese("Today detail", 8, 27, kBlue);
   drawChinese("已赚", 10, 50, kGreen);
   drawMoney(58, 45, model.salary.earnedMilliCents, kCream, false);
   drawChinese("损失", 10, 73, kRed);
@@ -171,7 +179,7 @@ void FinishWorkView::drawDetail(const FinishViewModel& model) {
   drawChinese("净赚", 10, 96, kYellow);
   drawMoney(58, 91, model.salary.netMilliCents, kCream, false);
   drawPet(model.petState, model.animationFrame);
-  drawChinese("单击返回  双击设置  B切换", 6, 118, kGray);
+  drawChinese("M5 back  Double settings  B next", 6, 118, kGray);
 }
 
 void FinishWorkView::drawSettings(const FinishViewModel& model) {
@@ -182,14 +190,25 @@ void FinishWorkView::drawSettings(const FinishViewModel& model) {
   canvas_.drawFastHLine(8, 27, 224, kDarkBlue);
   drawChinese(model.settingLabel, 120, 38, kGray,
               textdatum_t::top_center);
-  canvas_.setTextFont(4);
+  if (model.settingIsExit) {
+    canvas_.drawRoundRect(60, 58, 120, 34, 6, kYellow);
+    canvas_.fillRect(64, 62, 112, 26, kDarkBlue);
+  }
+  canvas_.setTextFont(model.settingIsExit ? 2 : 4);
   canvas_.setTextDatum(textdatum_t::middle_center);
-  canvas_.setTextColor(kCream, kBlack);
+  canvas_.setTextColor(model.settingIsExit ? kYellow : kCream,
+                       model.settingIsExit ? kDarkBlue : kBlack);
   canvas_.drawString(model.settingValue, 120, 76);
-  drawChinese("单击增加  双击减少", 120, 103, kGreen,
-              textdatum_t::top_center);
-  drawChinese("长按下一项  B切换", 120, 119, kGray,
-              textdatum_t::top_center);
+  canvas_.setTextFont(1);
+  canvas_.setTextDatum(textdatum_t::top_center);
+  canvas_.setTextColor(kGreen, kBlack);
+  canvas_.drawString(model.settingIsExit ? "M5 / Hold = Save Exit"
+                                         : "M5 +   Double -",
+                     120, 103);
+  canvas_.setTextColor(kGray, kBlack);
+  canvas_.drawString(model.settingIsExit ? "B stays app switch"
+                                         : "Hold next  Exit page saves",
+                     120, 119);
 }
 
 void FinishWorkView::drawPet(PetState state, uint8_t frame) {

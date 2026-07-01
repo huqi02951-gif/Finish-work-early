@@ -142,74 +142,78 @@ void FinishWorkApp::refreshData() {
 
 void FinishWorkApp::openSettings() {
   draftClock_ = clock_;
-  settingField_ = SettingField::Salary;
+  settingField_ = FinishSettingField::Salary;
   normalizeDraftClock();
 }
 
 void FinishWorkApp::adjustSetting(int direction) {
+  if (isExitSetting(settingField_)) {
+    saveSettings();
+    model_.showMain();
+    return;
+  }
   switch (settingField_) {
-    case SettingField::Salary:
+    case FinishSettingField::Salary:
       settings_.monthlySalaryCents = wrapValue(
           settings_.monthlySalaryCents + direction * 10000,
           100000, 9999900);
       break;
-    case SettingField::WorkStart:
+    case FinishSettingField::WorkStart:
       settings_.workStartMinute = wrapValue(
           settings_.workStartMinute + direction * 15, 0, 22 * 60 + 45);
       if (settings_.workStartMinute >= settings_.workEndMinute) {
         settings_.workEndMinute = settings_.workStartMinute + 15;
       }
       break;
-    case SettingField::WorkEnd:
+    case FinishSettingField::WorkEnd:
       settings_.workEndMinute = wrapValue(
           settings_.workEndMinute + direction * 15, 15, 23 * 60 + 45);
       if (settings_.workEndMinute <= settings_.workStartMinute) {
         settings_.workEndMinute = settings_.workStartMinute + 15;
       }
       break;
-    case SettingField::BirthYear:
+    case FinishSettingField::BirthYear:
       settings_.birthYear = wrapValue(settings_.birthYear + direction,
                                       1950, 2020);
       break;
-    case SettingField::RetirementAge:
+    case FinishSettingField::RetirementAge:
       settings_.retirementAge = wrapValue(
           settings_.retirementAge + direction, 40, 80);
       break;
-    case SettingField::DateYear:
+    case FinishSettingField::DateYear:
       draftClock_.date.year = wrapValue(
           draftClock_.date.year + direction, 2024, 2099);
       break;
-    case SettingField::DateMonth:
+    case FinishSettingField::DateMonth:
       draftClock_.date.month = wrapValue(
           draftClock_.date.month + direction, 1, 12);
       break;
-    case SettingField::DateDay:
+    case FinishSettingField::DateDay:
       draftClock_.date.date = wrapValue(
           draftClock_.date.date + direction, 1,
           daysInMonth(draftClock_.date.year, draftClock_.date.month));
       break;
-    case SettingField::ClockHour:
+    case FinishSettingField::ClockHour:
       draftClock_.time.hours = wrapValue(
           draftClock_.time.hours + direction, 0, 23);
       break;
-    case SettingField::ClockMinute:
+    case FinishSettingField::ClockMinute:
       draftClock_.time.minutes = wrapValue(
           draftClock_.time.minutes + direction * 5, 0, 59);
       break;
-    case SettingField::Count:
+    case FinishSettingField::Exit:
       break;
   }
   normalizeDraftClock();
 }
 
 void FinishWorkApp::nextSetting() {
-  const uint8_t next = static_cast<uint8_t>(settingField_) + 1;
-  if (next >= static_cast<uint8_t>(SettingField::Count)) {
+  if (isExitSetting(settingField_)) {
     saveSettings();
     model_.showMain();
     return;
   }
-  settingField_ = static_cast<SettingField>(next);
+  settingField_ = nextSettingField(settingField_);
 }
 
 void FinishWorkApp::saveSettings() {
@@ -268,7 +272,8 @@ FinishViewModel FinishWorkApp::makeViewModel() {
   result.hour = clock_.time.hours;
   result.minute = clock_.time.minutes;
   result.settingIndex = static_cast<uint8_t>(settingField_);
-  result.settingCount = static_cast<uint8_t>(SettingField::Count);
+  result.settingCount = finishSettingCount();
+  result.settingIsExit = isExitSetting(settingField_);
   result.settingLabel = settingLabel();
   result.settingValue = settingValue();
   result.petState = pet;
@@ -278,67 +283,67 @@ FinishViewModel FinishWorkApp::makeViewModel() {
 
 const char* FinishWorkApp::settingLabel() const {
   switch (settingField_) {
-    case SettingField::Salary: return "月薪（元）";
-    case SettingField::WorkStart: return "上班时间";
-    case SettingField::WorkEnd: return "下班时间";
-    case SettingField::BirthYear: return "出生年份";
-    case SettingField::RetirementAge: return "退休年龄";
-    case SettingField::DateYear: return "日期·年";
-    case SettingField::DateMonth: return "日期·月";
-    case SettingField::DateDay: return "日期·日";
-    case SettingField::ClockHour: return "时间·时";
-    case SettingField::ClockMinute: return "时间·分";
-    case SettingField::Count: return "";
+    case FinishSettingField::Salary: return "月薪（元）";
+    case FinishSettingField::WorkStart: return "上班时间";
+    case FinishSettingField::WorkEnd: return "下班时间";
+    case FinishSettingField::BirthYear: return "出生年份";
+    case FinishSettingField::RetirementAge: return "退休年龄";
+    case FinishSettingField::DateYear: return "日期·年";
+    case FinishSettingField::DateMonth: return "日期·月";
+    case FinishSettingField::DateDay: return "日期·日";
+    case FinishSettingField::ClockHour: return "时间·时";
+    case FinishSettingField::ClockMinute: return "时间·分";
+    case FinishSettingField::Exit: return "返回首页";
   }
   return "";
 }
 
 const char* FinishWorkApp::settingValue() {
   switch (settingField_) {
-    case SettingField::Salary:
+    case FinishSettingField::Salary:
       snprintf(settingValue_, sizeof(settingValue_), "%ld",
                static_cast<long>(settings_.monthlySalaryCents / 100));
       break;
-    case SettingField::WorkStart:
+    case FinishSettingField::WorkStart:
       snprintf(settingValue_, sizeof(settingValue_), "%02u:%02u",
                settings_.workStartMinute / 60,
                settings_.workStartMinute % 60);
       break;
-    case SettingField::WorkEnd:
+    case FinishSettingField::WorkEnd:
       snprintf(settingValue_, sizeof(settingValue_), "%02u:%02u",
                settings_.workEndMinute / 60,
                settings_.workEndMinute % 60);
       break;
-    case SettingField::BirthYear:
+    case FinishSettingField::BirthYear:
       snprintf(settingValue_, sizeof(settingValue_), "%u",
                settings_.birthYear);
       break;
-    case SettingField::RetirementAge:
+    case FinishSettingField::RetirementAge:
       snprintf(settingValue_, sizeof(settingValue_), "%u",
                settings_.retirementAge);
       break;
-    case SettingField::DateYear:
+    case FinishSettingField::DateYear:
       snprintf(settingValue_, sizeof(settingValue_), "%04u",
                draftClock_.date.year);
       break;
-    case SettingField::DateMonth:
+    case FinishSettingField::DateMonth:
       snprintf(settingValue_, sizeof(settingValue_), "%02u",
                draftClock_.date.month);
       break;
-    case SettingField::DateDay:
+    case FinishSettingField::DateDay:
       snprintf(settingValue_, sizeof(settingValue_), "%02u",
                draftClock_.date.date);
       break;
-    case SettingField::ClockHour:
+    case FinishSettingField::ClockHour:
       snprintf(settingValue_, sizeof(settingValue_), "%02u",
                draftClock_.time.hours);
       break;
-    case SettingField::ClockMinute:
+    case FinishSettingField::ClockMinute:
       snprintf(settingValue_, sizeof(settingValue_), "%02u",
                draftClock_.time.minutes);
       break;
-    case SettingField::Count:
-      settingValue_[0] = '\0';
+    case FinishSettingField::Exit:
+      snprintf(settingValue_, sizeof(settingValue_), "SAVE EXIT");
       break;
   }
   return settingValue_;

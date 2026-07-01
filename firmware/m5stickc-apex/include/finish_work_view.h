@@ -21,6 +21,7 @@ struct FinishViewModel {
   uint8_t minute = 0;
   uint8_t settingIndex = 0;
   uint8_t settingCount = 0;
+  bool settingIsExit = false;
   const char* settingLabel = "";
   const char* settingValue = "";
   PetState petState = PetState::Sleep;
