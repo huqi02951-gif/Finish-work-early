@@ -38,7 +38,18 @@ FinishWorkView::FinishWorkView() : canvas_(&M5.Display) {}
 bool FinishWorkView::begin() {
   canvas_.setColorDepth(16);
   canvas_.setTextWrap(false);
-  return canvas_.createSprite(240, 135) != nullptr;
+  if (canvas_.createSprite(240, 135) == nullptr) return false;
+  canvas_.setFont(&fonts::efontCN_12);
+  const bool labelsFit =
+      canvas_.textWidth("M5下班  长按详情  B切换") <= kFooterBounds.width &&
+      canvas_.textWidth("单击返回  双击设置  B切换") <= kFooterBounds.width &&
+      canvas_.textWidth("单击增加  双击减少") <= kSafeBounds.width &&
+      canvas_.textWidth("长按下一项  B切换") <= kSafeBounds.width &&
+      canvas_.textWidth("距退休 99年 364天") <=
+          kRetirementBounds.width - 12;
+  Serial.printf("UI_LAYOUT_CHECK static_labels=%s safe=240x135\n",
+                labelsFit ? "OK" : "OVERFLOW");
+  return labelsFit;
 }
 
 void FinishWorkView::render(const FinishViewModel& model) {

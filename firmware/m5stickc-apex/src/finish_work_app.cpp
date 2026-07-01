@@ -296,7 +296,7 @@ const char* FinishWorkApp::settingLabel() const {
 const char* FinishWorkApp::settingValue() {
   switch (settingField_) {
     case SettingField::Salary:
-      snprintf(settingValue_, sizeof(settingValue_), "¥%ld",
+      snprintf(settingValue_, sizeof(settingValue_), "%ld",
                static_cast<long>(settings_.monthlySalaryCents / 100));
       break;
     case SettingField::WorkStart:
