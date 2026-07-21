@@ -2,6 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as nodemailer from 'nodemailer';
+import { randomInt } from 'crypto';
 
 @Injectable()
 export class EmailAuthService {
@@ -25,12 +26,13 @@ export class EmailAuthService {
         auth: { user: smtpUser, pass: smtpPass },
       });
     } else {
-      console.warn('[EmailAuth] SMTP not configured. Verification codes will be logged to console.');
+      const mode = process.env.NODE_ENV === 'production' ? 'disabled' : 'console preview';
+      console.warn(`[EmailAuth] SMTP not configured. Email verification is ${mode}.`);
     }
   }
 
   private generateCode(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+    return randomInt(100000, 1_000_000).toString();
   }
 
   private validateEmail(email: string): boolean {
@@ -39,6 +41,10 @@ export class EmailAuthService {
 
   async sendVerificationCode(email: string): Promise<{ success: boolean; message: string }> {
     const normalizedEmail = email.trim().toLowerCase();
+
+    if (!this.transporter && process.env.NODE_ENV === 'production') {
+      throw new BadRequestException('邮箱验证服务暂未配置');
+    }
 
     if (!this.validateEmail(normalizedEmail)) {
       throw new BadRequestException('邮箱格式无效');
@@ -157,6 +163,7 @@ export class EmailAuthService {
       sub: user.id,
       username: user.username,
       role: user.role,
+      authKind: 'registered',
     });
 
     return {

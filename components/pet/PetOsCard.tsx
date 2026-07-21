@@ -81,6 +81,14 @@ const POSTURE_MAP: Record<string, { label: string, svg: React.ReactNode }> = {
   }
 };
 
+const POSTURE_ALIASES: Record<string, PetPosture> = {
+  '精神': 'energetic',
+  '平常': 'normal',
+  '疲惫': 'tired',
+  '担心': 'worried',
+  '睡着': 'sleepy',
+};
+
 export const PetOsCard: React.FC<PetOsCardProps> = ({
   isAdopted = true,
   onAdopt,
@@ -107,7 +115,8 @@ export const PetOsCard: React.FC<PetOsCardProps> = ({
     neutral: 'bg-[#fafafa] border-[#e5e5e5] text-[#404040]',
   }[normalizedMood];
 
-  const safePosture = (posture || 'normal').toLowerCase();
+  const rawPosture = posture || 'normal';
+  const safePosture = POSTURE_ALIASES[rawPosture] || rawPosture.toLowerCase();
   // Provide safe fallback mapping for non-standard posture strings to avoid breaking during integration
   const mappedPosture = (POSTURE_MAP[safePosture] !== undefined) 
     ? safePosture 

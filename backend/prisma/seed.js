@@ -1,4 +1,5 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
+const { PrismaPg } = require('@prisma/adapter-pg');
 const {
   BoardStatus,
   CatalogStatus,
@@ -19,7 +20,7 @@ if (!connectionString) {
 }
 
 const prisma = new PrismaClient({
-  datasourceUrl: connectionString,
+  adapter: new PrismaPg({ connectionString }),
 });
 
 function toJsonValue(value) {

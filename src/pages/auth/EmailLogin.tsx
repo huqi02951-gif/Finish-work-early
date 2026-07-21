@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, AlertCircle, Loader2 } from 'lucide-react';
 import { apiService } from '../../services/api';
 import { setAuthSession } from '../../services/authService';
-import { sendSupabaseEmailCode, syncSupabaseProfile, verifySupabaseEmailCode } from '../../services/supabaseAuth';
 
 const EmailLogin: React.FC = () => {
   const navigate = useNavigate();
@@ -31,8 +30,8 @@ const EmailLogin: React.FC = () => {
     setError(null);
     setSending(true);
     try {
-      await sendSupabaseEmailCode(email.trim().toLowerCase());
-      setSuccess('Supabase 验证码已发送，请查看邮箱');
+      await apiService.sendEmailCode(email.trim().toLowerCase());
+      setSuccess('验证码已发送，请查看邮箱');
       setCountdown(60);
       const timer = setInterval(() => {
         setCountdown((prev) => {
@@ -65,21 +64,7 @@ const EmailLogin: React.FC = () => {
     setVerifying(true);
     try {
       const normalizedEmail = email.trim().toLowerCase();
-      const supabaseSession = await verifySupabaseEmailCode(normalizedEmail, code.trim());
-      await syncSupabaseProfile({
-        id: supabaseSession.user.id,
-        email: normalizedEmail,
-        nickname: supabaseSession.user.user_metadata?.nickname || normalizedEmail.split('@')[0],
-      });
-
-      const result = await apiService.exchangeSupabaseSession(supabaseSession.session.access_token);
-      await syncSupabaseProfile({
-        id: supabaseSession.user.id,
-        email: result.user.email || normalizedEmail,
-        phone: result.user.phone || null,
-        nickname: result.user.nickname || result.user.username,
-        apexUserId: result.user.id,
-      });
+      const result = await apiService.verifyEmailCode(normalizedEmail, code.trim());
 
       setAuthSession({
         accessToken: result.access_token,
@@ -93,7 +78,6 @@ const EmailLogin: React.FC = () => {
         },
         loginMethod: 'email',
         loginTime: new Date().toISOString(),
-        supabaseUserId: result.user.supabaseAuthId || supabaseSession.user.id,
       });
 
       navigate(from, { replace: true });
@@ -178,7 +162,7 @@ const EmailLogin: React.FC = () => {
       </button>
 
       <p className="text-[11px] text-brand-gray text-center leading-relaxed">
-        首次使用将由 Supabase 自动注册账号。验证码 10 分钟内有效。
+        首次使用会自动创建 APEX 账号。验证码 10 分钟内有效。
       </p>
     </div>
   );

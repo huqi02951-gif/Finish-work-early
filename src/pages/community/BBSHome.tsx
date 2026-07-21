@@ -85,7 +85,7 @@ const BBSHomePage: React.FC = () => {
                 </p>
                 <div className="relative flex items-center gap-4 text-[10px] md:text-xs text-[#00ff41]/40 font-mono">
                   <span className="flex items-center gap-1"><Flame className="w-3 h-3" /> 限时焚毁</span>
-                  <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> 仅本地存储</span>
+                  <span className="flex items-center gap-1"><Shield className="w-3 h-3" /> 注册可发 · 后台留痕</span>
                 </div>
               </Link>
             </div>

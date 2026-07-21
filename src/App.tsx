@@ -1,5 +1,5 @@
-import React, { Suspense, lazy } from 'react';
-import { HashRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect } from 'react';
+import { HashRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
 import { ToastProvider } from './components/common/Toast';
 import AppLayout from './components/layout/AppLayout';
 import Feedback from '../components/Feedback';
@@ -44,6 +44,16 @@ import LoginPage from './pages/auth/LoginPage';
 const GrievanceGamePage = lazy(() => import('./pages/GrievanceGamePage'));
 const ApexGuaPage = lazy(() => import('./pages/ApexGuaPage'));
 
+const ScrollToTop = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname, location.search]);
+
+  return null;
+};
+
 /* ─── 404 Not Found ─── */
 const NotFoundPage = () => (
   <AppLayout title="页面未找到">
@@ -77,6 +87,7 @@ const App: React.FC = () => {
   return (
     <ToastProvider>
       <Router>
+        <ScrollToTop />
         <Routes>
           {/* ─── 登录页 ─── */}
           <Route path="/login" element={<LoginPage />} />

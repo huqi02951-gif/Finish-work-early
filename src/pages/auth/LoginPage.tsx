@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Smartphone, User } from 'lucide-react';
 import EmailLogin from './EmailLogin';
 import PhoneLogin from './PhoneLogin';
+import { isSupabaseConfigured } from '../../services/supabaseClient';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'email' | 'phone' | 'demo'>('email');
 
   const handleContinueDemo = () => {
-    // Keep current demo session, just navigate back
+    // Guest mode is intentionally read-only. It must not create a write-capable JWT.
     navigate('/', { replace: true });
   };
 
@@ -48,14 +49,16 @@ const LoginPage: React.FC = () => {
               <Mail size={14} /> 邮箱
             </button>
             <button
-              onClick={() => setActiveTab('phone')}
+              onClick={() => isSupabaseConfigured && setActiveTab('phone')}
+              disabled={!isSupabaseConfigured}
+              title={isSupabaseConfigured ? '手机验证码登录' : '短信服务商尚未配置'}
               className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                 activeTab === 'phone'
                   ? 'bg-white text-brand-dark shadow-sm'
-                  : 'text-brand-gray/60'
+                  : 'text-brand-gray/60 disabled:cursor-not-allowed disabled:opacity-45'
               }`}
             >
-              <Smartphone size={14} /> 手机
+              <Smartphone size={14} /> 手机 {!isSupabaseConfigured && <span className="text-[8px]">待接</span>}
             </button>
             <button
               onClick={() => setActiveTab('demo')}
@@ -79,14 +82,14 @@ const LoginPage: React.FC = () => {
               <div className="px-4 py-3 bg-amber-50 border border-amber-200/60 rounded-2xl">
                 <p className="text-xs text-amber-800 leading-relaxed">
                   <span className="font-bold">⚠️ 游客模式限制</span><br/>
-                  发帖身份绑定当前浏览器，换设备/换浏览器后无法查看历史数据。建议注册账号以获得完整体验。
+                  游客可以浏览公开内容和体验本地工具，但不能发帖、评论、私信或参与置换。注册后才能同步数据并使用社区完整能力。
                 </p>
               </div>
               <button
                 onClick={handleContinueDemo}
                 className="w-full py-3.5 bg-white border-2 border-brand-dark text-brand-dark rounded-2xl font-bold text-sm hover:bg-brand-dark hover:text-white transition-all"
               >
-                继续使用游客模式
+                以只读游客身份浏览
               </button>
             </div>
           )}

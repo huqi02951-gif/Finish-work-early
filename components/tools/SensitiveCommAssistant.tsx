@@ -79,7 +79,11 @@ const SensitiveCommAssistant: React.FC = () => {
     myPhone: '',
   });
 
-  const [scenarioParams, setScenarioParams] = useState<Record<string, any>>({});
+  const [scenarioParams, setScenarioParams] = useState<Record<string, any>>({
+    feeItem: '对公电子渠道转账手续费',
+    startTime: '2026年4月1日',
+    businessType: '协定存款',
+  });
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<GeneratedOutput | null>(null);
   const [activeTab, setActiveTab] = useState<'direct' | 'formal' | 'soft' | 'phone'>('direct');
@@ -131,10 +135,10 @@ const SensitiveCommAssistant: React.FC = () => {
           const item = scenarioParams.feeItem || '对公账户转账手续费';
           const time = scenarioParams.startTime || '近期';
           outputs = {
-            direct: `${greeting}，${isHard ? '正式通知您' : '提前同步一下'}：从${time}开始，我行${item}将按现行标准执行。主要根据账户日均存款情况对应不同档次（如30万以内、30-500万、500万以上标准不同），系统会自动对应。建议您后续尽量多通过我行做结算和留存，日均和活跃度上来后标准更优。${isHard ? '请知悉。' : `如需查询具体档次，${phoneStr}咨询。`}${channelSuffix}`,
-            formal: `尊敬的客户：\n自${time}起，我行${item}将恢复按现行收费标准执行。收费标准将根据账户日均存款情况划分为三个档次：30万元以内、30万元至500万元、500万元以上。系统将根据账户实际情况自动匹配对应费率。如需确认当前执行档次，${phoneStr}咨询。${channelSuffix}`,
-            soft: `${greetingSoft}，${isSoft ? '有件小事先和您说一声' : '和您说下手续费的事'}。从${time}起，对公转账手续费开始按现行标准走了，主要是看账户日均存款。像30万、500万这些节点对应的档次都不一样，系统会自动识别。所以建议您这边方便的话，尽量多把资金留在咱们行做结算，日均上来后收费会更划算。具体想查哪一档，${phoneStr}咨询就行。${channelSuffix}`,
-            phone: `1. 告知${time}起恢复现行收费标准\n2. 说明"档次化收费"逻辑（日均30万/500万为界限）\n3. 强调系统自动对应，无需人工干预\n4. 建议增加资金留存以获取更优费率\n5. ${rawPhone ? `告知柜台查询电话：${rawPhone}` : "引导客户到网点柜台查询"}\n6. 注意对象为${target}，沟通时${target === '老板' ? '注重大局和决策引导' : target === '财务' ? '注重数据细节和操作指引' : '注重流程说明和配合事项'}`
+            direct: `${greeting}，${isHard ? '正式通知您' : '提前和您同步一下'}：自${time}起，我行${item}将按照届时生效的收费标准执行。具体标准以系统查询和网点最终确认为准，我可以先协助您核对当前适用口径。${isHard ? '请您提前做好相关安排。' : '如果贵司结算安排有变化，我们也可以一起看看更合适的办理方式。'}如需确认，${phoneStr}咨询。${channelSuffix}`,
+            formal: `尊敬的客户：\n自${time}起，我行${item}将按届时生效的收费标准执行。具体收费项目、适用条件及执行金额以我行系统查询和网点最终确认为准。如需核对贵司当前适用口径，${phoneStr}咨询。感谢您的理解与配合。${channelSuffix}`,
+            soft: `${greetingSoft}，${isSoft ? '有件事想提前和您说一声' : '和您同步一下手续费安排'}。从${time}起，${item}会按届时生效的标准执行。为了避免信息差，我可以先帮您核一下目前适用的口径；如果结算安排需要调整，我们再一起看看怎么处理更顺。具体标准仍以系统和网点确认为准，${phoneStr}咨询就可以。${channelSuffix}`,
+            phone: `1. 先说明生效时间：${time}\n2. 清晰说明事项：${item}\n3. 不口头承诺具体费率、减免或固定档位\n4. 明确以系统查询和网点最终确认为准\n5. ${rawPhone ? `告知柜台查询电话：${rawPhone}` : '引导客户到网点柜台查询'}\n6. 记录客户异议与后续核对动作，避免只做单向通知`
           };
           break;
         }
@@ -182,9 +186,10 @@ const SensitiveCommAssistant: React.FC = () => {
         }
         case 'counter-appointment': {
           const time = scenarioParams.suggestTime || '近期';
+          const materials = scenarioParams.counterMaterials || '营业执照原件、公章/财务章/法人章、法人及经办人身份证件';
           outputs = {
-            direct: `${greeting}，关于开户的事，建议您预约在${time}。为了避免您白跑一趟，请务必带齐：1.营业执照原件 2.公章/财务章/法人章 3.法人及经办人身份证。到时找我即可。${channelSuffix}`,
-            formal: `【开户预约确认】\n尊敬的客户，已为您预约${time}办理开户业务。请携带以下材料原件：营业执照、三章、相关人员身份证件。如需变更时间，请提前告知。${channelSuffix}`,
+            direct: `${greeting}，关于开户的事，建议您预约在${time}。为了避免白跑一趟，请先带齐或提前确认这些材料：${materials}。实际材料仍以网点预审结果为准，到时找我即可。${channelSuffix}`,
+            formal: `【开户预约确认】\n尊敬的客户，建议于${time}办理开户业务。请提前准备：${materials}。具体材料要求以网点预审结果为准；如需变更时间，请提前告知。${channelSuffix}`,
             soft: `${greetingSoft}，开户的事我帮您排好了，建议${time}过来。材料清单我再发您核对一遍，咱们争取一次办好，节省您的时间。${channelSuffix}`,
             phone: `1. 确认预约时间\n2. 逐一核对必备材料（防止漏带）\n3. 告知行内具体位置及停车建议\n4. 确认联系人及电话`
           };
@@ -225,8 +230,10 @@ const SensitiveCommAssistant: React.FC = () => {
         }
         case 'credit-status': {
           const reason = scenarioParams.reason || '暂不符合准入条件';
+          const advice = scenarioParams.additionalAdvice?.trim();
+          const adviceText = advice ? `建议下一步补充或调整：${advice}。` : '我会把需要补充的条件整理后单独发您。';
           outputs = {
-            direct: `${greeting}，关于您申请的授信业务，这边先和您同步一下进度。目前处于暂缓阶段，原因是：${reason}。${isHard ? '需要您尽快补足相关条件后重新提交评估。' : '不过这并不是最终结论，待相关条件补足后可以重新评估。'}我这边会持续帮您跟进政策动态。${channelSuffix}`,
+            direct: `${greeting}，关于您申请的授信业务，这边先和您同步一下进度。目前处于暂缓阶段，原因是：${reason}。${isHard ? '需要补足相关条件后再重新提交评估。' : '这是阶段性反馈，待相关条件补足后可以重新评估。'}${adviceText}我这边会持续帮您跟进。${channelSuffix}`,
             formal: `【授信进度反馈】\n关于贵司申请的授信业务，经审慎评估，当前因${reason}暂缓推进。此为阶段性结论，待后续条件完善后可重新发起评估。我行将持续关注贵司经营发展，并及时同步最新政策。${channelSuffix}`,
             soft: `${greetingSoft}，关于授信的进度先和您通个气。目前因为${reason}，推进节奏会慢一些，但并不是走不通——只是需要再补足一些条件。${isSoft ? '您别着急，' : ''}我会一直帮您盯着，政策一有变化第一时间联系您。${channelSuffix}`,
             phone: `1. 缓冲开头（已积极协调多方资源）\n2. 说明暂缓原因：${reason}\n3. 强调"暂缓≠拒绝"，明确后续可重新评估\n4. 给出具体补件/改进建议\n5. 保留合作空间，约定下次沟通节点`
@@ -398,6 +405,7 @@ const SensitiveCommAssistant: React.FC = () => {
               <textarea 
                 placeholder="默认已包含：营业执照、三章、身份证件..."
                 className="w-full h-24 px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark resize-none"
+                onChange={(e) => handleScenarioChange('counterMaterials', e.target.value)}
               />
             </div>
           </div>
@@ -422,6 +430,7 @@ const SensitiveCommAssistant: React.FC = () => {
                 type="text" 
                 placeholder="例如：2024年4月25日"
                 className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark"
+                onChange={(e) => handleScenarioChange('effectDate', e.target.value)}
               />
             </div>
             <div>
@@ -430,6 +439,7 @@ const SensitiveCommAssistant: React.FC = () => {
                 type="text" 
                 placeholder="例如：1.00%"
                 className="w-full px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark"
+                onChange={(e) => handleScenarioChange('newRate', e.target.value)}
               />
             </div>
           </div>
@@ -454,6 +464,7 @@ const SensitiveCommAssistant: React.FC = () => {
               <textarea 
                 placeholder="例如：建议增加担保物、补充近半年流水..."
                 className="w-full h-32 px-6 py-4 bg-brand-light-gray/50 border border-brand-border/5 rounded-2xl focus:ring-2 focus:ring-brand-gold/20 outline-none transition-all font-medium text-brand-dark resize-none"
+                onChange={(e) => handleScenarioChange('additionalAdvice', e.target.value)}
               />
             </div>
           </div>

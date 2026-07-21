@@ -3,13 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, useSpring, useTransform } from 'framer-motion';
 import {
   Settings, LogOut, ChevronRight, Briefcase,
-  Coffee, Fish, Timer, Flame, Heart, Info,
-  Sparkles, X, Check, Users, Toilet, MoonStar, Sun, Mic,
+  Coffee, Fish, Timer, Flame, Info,
+  Sparkles, X, Check, Users, Toilet, MoonStar, Sun, Mic, MessageCircle,
 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import InitialBadge from '../components/common/InitialBadge';
 import { getAuthSession, clearAuthSession } from '../services/authService';
 import { apiService } from '../services/api';
+import { signOutSupabase } from '../services/supabaseAuth';
 import { cn } from '../../lib/utils';
 import { earnLossStore } from '../../lib/earnLossStore';
 import {
@@ -23,7 +24,7 @@ import {
   subscribeLocalString,
 } from '../../lib/localSignals';
 import { getDayMode, getHolidayToday } from '../../lib/holidays';
-import { getPetCompanionHidden, setPetCompanionHidden } from '../../components/pet/PetCompanion';
+import PetOsMountSlot from '../../components/pet/PetOsMountSlot';
 
 // ─── 数字滚动动画 ─────────────────────────────────────────────
 const AnimatedAmount: React.FC<{ value: number; prefix?: string; decimals?: number; className?: string }> = ({
@@ -74,7 +75,6 @@ const Profile: React.FC = () => {
 
   const [showWageEditor, setShowWageEditor] = useState(false);
   const [draft, setDraft] = useState({ salary: String(salary), start: workStart, end: workEnd });
-  const [petHidden, setPetHidden] = useState(() => getPetCompanionHidden());
   const [now, setNow] = useState<Date>(() => new Date());
 
   useEffect(() => earnLossStore.subscribe(setSummary), []);
@@ -107,6 +107,7 @@ const Profile: React.FC = () => {
 
   const handleLogout = async () => {
     try { await apiService.logout(); } catch { /* ignore */ }
+    try { await signOutSupabase(); } catch { /* ignore */ }
     clearAuthSession();
     navigate('/', { replace: true });
   };
@@ -125,12 +126,6 @@ const Profile: React.FC = () => {
     writeLocalString(LOCAL_STRING_KEYS.workStart, draft.start);
     writeLocalString(LOCAL_STRING_KEYS.workEnd, draft.end);
     setShowWageEditor(false);
-  };
-
-  const togglePetHidden = () => {
-    const next = !petHidden;
-    setPetCompanionHidden(next);
-    setPetHidden(next);
   };
 
   // ─── Aurora & 主题色根据情绪 ────────────────────────────────
@@ -322,7 +317,46 @@ const Profile: React.FC = () => {
             />
           </motion.section>
 
-          {/* ─── 入口列表 ────────────────────────────────── */}
+          {/* ─── 我的工作 Hub ───────────────────────────── */}
+          <motion.section
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.14, duration: 0.5 }}
+            className="space-y-3"
+          >
+            <div className="flex items-end justify-between px-1">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray/60">My Hub</p>
+                <h2 className="text-base font-black text-brand-dark">我的工作</h2>
+              </div>
+              <span className="text-[10px] font-bold text-brand-gray/50">从这里继续</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <QuickEntry icon={<Briefcase size={16} />} title="继续工作" meta="草稿、产物与客户案头" to="/workspace" />
+              <QuickEntry icon={<MessageCircle size={16} />} title="我的消息" meta="回复、通知与私信入口" to="/messages" />
+              <QuickEntry icon={<Users size={16} />} title="专业社区" meta="经验帖与业务讨论" to="/bbs/professional" />
+              <QuickEntry icon={<Coffee size={16} />} title="地下茶水间" meta="匿名雷达与合法置换" to="/bbs/pantry" />
+            </div>
+          </motion.section>
+
+          {/* ─── 宠物状态卡 ─────────────────────────────── */}
+          <motion.section
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.16, duration: 0.5 }}
+            className="rounded-[24px] border border-white/60 bg-white/80 p-4 shadow-sm backdrop-blur-xl"
+          >
+            <div className="mb-3 flex items-center justify-between px-1">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-gray/60">Pet OS</p>
+                <h2 className="text-base font-black text-brand-dark">我的小东西</h2>
+              </div>
+              <span className="text-[10px] font-bold text-brand-gray/50">状态随工作节奏变化</span>
+            </div>
+            <PetOsMountSlot />
+          </motion.section>
+
+          {/* ─── 补充入口（避免与上方 Hub / 首页仓库重复） ─── */}
           <motion.section
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -336,33 +370,11 @@ const Profile: React.FC = () => {
               to="/scenarios?tab=self"
             />
             <Divider />
-            <RowButton
-              icon={<Heart size={16} />}
-              title="我的小东西"
-              meta={petHidden ? '休眠中,点这里把它请回来' : '正在右下角陪着你'}
-              onClick={togglePetHidden}
-              actionLabel={petHidden ? '唤回' : '收起'}
-            />
-            <Divider />
             <RowLink
               icon={<Mic size={16} />}
               title="小海螺 · Echo"
               meta="业务和状态的声音入口"
               to="/about"
-            />
-            <Divider />
-            <RowLink
-              icon={<Flame size={16} />}
-              title="Skills 工具库"
-              meta="全量业务技能仓库"
-              to="/skills"
-            />
-            <Divider />
-            <RowLink
-              icon={<Users size={16} />}
-              title="社区"
-              meta="同行的声音都在这里"
-              to="/bbs"
             />
             <Divider />
             <RowLink
@@ -574,29 +586,24 @@ const RowLink: React.FC<{ icon: React.ReactNode; title: string; meta?: string; t
   </Link>
 );
 
-const RowButton: React.FC<{
+const Divider = () => <div className="mx-5 h-px bg-brand-border/20" />;
+
+const QuickEntry: React.FC<{
   icon: React.ReactNode;
   title: string;
-  meta?: string;
-  onClick: () => void;
-  actionLabel?: string;
-}> = ({ icon, title, meta, onClick, actionLabel }) => (
-  <button onClick={onClick} className="w-full flex items-center gap-3 px-5 py-4 hover:bg-brand-offwhite/70 transition-colors group text-left">
-    <div className="w-9 h-9 rounded-xl bg-brand-offwhite text-brand-dark flex items-center justify-center shrink-0 border border-brand-border/20">
+  meta: string;
+  to: string;
+}> = ({ icon, title, meta, to }) => (
+  <Link
+    to={to}
+    className="rounded-[20px] border border-white/70 bg-white/80 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white"
+  >
+    <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl border border-brand-border/20 bg-brand-offwhite text-brand-dark">
       {icon}
     </div>
-    <div className="flex-1 min-w-0">
-      <p className="text-sm font-bold text-brand-dark truncate">{title}</p>
-      {meta && <p className="text-[11px] text-brand-gray font-medium truncate mt-0.5">{meta}</p>}
-    </div>
-    {actionLabel && (
-      <span className="text-[11px] font-black uppercase tracking-wider text-brand-gray/60 group-hover:text-brand-dark transition-colors shrink-0">
-        {actionLabel}
-      </span>
-    )}
-  </button>
+    <p className="text-sm font-black text-brand-dark">{title}</p>
+    <p className="mt-1 text-[10.5px] font-medium leading-5 text-brand-gray">{meta}</p>
+  </Link>
 );
-
-const Divider = () => <div className="mx-5 h-px bg-brand-border/20" />;
 
 export default Profile;

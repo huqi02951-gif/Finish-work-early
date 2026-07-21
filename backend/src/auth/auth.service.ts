@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { randomBytes } from 'crypto';
 import { assertDemoAuthEnabled } from './auth.config';
@@ -12,11 +12,15 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  private async signToken(user: { id: number; username: string; role: string }) {
+  private async signToken(
+    user: { id: number; username: string; role: string },
+    authKind: 'registered' | 'guest' = 'registered',
+  ) {
     return this.jwtService.signAsync({
       sub: user.id,
       username: user.username,
       role: user.role,
+      authKind,
     });
   }
 
@@ -80,7 +84,7 @@ export class AuthService {
 
     if (existingUser) {
       return {
-        access_token: await this.signToken(existingUser),
+        access_token: await this.signToken(existingUser, 'guest'),
         user: {
           id: existingUser.id,
           username: existingUser.username,
@@ -110,7 +114,7 @@ export class AuthService {
     });
 
     return {
-      access_token: await this.signToken(user),
+      access_token: await this.signToken(user, 'guest'),
       user: {
         id: user.id,
         username: user.username,

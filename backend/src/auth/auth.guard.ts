@@ -15,8 +15,16 @@ export class AuthGuard implements CanActivate {
     }
     try {
       const payload = await this.jwtService.verifyAsync(token);
+      const isGuestToken = payload?.authKind === 'guest'
+        || String(payload?.username || '').startsWith('demo_');
+      if (isGuestToken) {
+        throw new UnauthorizedException('游客模式仅支持浏览，请先注册或登录');
+      }
       request['user'] = payload;
-    } catch {
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
       throw new UnauthorizedException();
     }
     return true;

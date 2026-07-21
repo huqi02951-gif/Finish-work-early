@@ -27,7 +27,19 @@ import { PantryGateway } from './pantry.gateway';
 const PANTRY_BOARD_SLUG = 'pantry';
 const ALIAS_COLORS = ['#00ff41', '#a855f7', '#f59e0b', '#ef4444', '#38bdf8', '#f472b6'];
 const ALIAS_PREFIXES = ['Null', 'Echo', 'Cipher', 'Shadow', 'Raven', 'Ghost', 'Signal', 'Patch'];
-const BANNED_MARKET_TERMS = ['代打卡', '账号买卖', '银行卡', '套现', '发票', '外挂'];
+const BANNED_MARKET_TERMS = [
+  '代打卡',
+  '账号买卖',
+  '银行卡',
+  '套现',
+  '发票',
+  '外挂',
+  '现金',
+  '人民币',
+  '微信转账',
+  '支付宝',
+  '付款链接',
+];
 const BANNED_COMMUNITY_TERMS = [...BANNED_MARKET_TERMS, '<script', 'javascript:', 'onerror=', 'onload='];
 
 type CreatePostInput = {
@@ -94,7 +106,7 @@ export class PantryService {
     const now = new Date();
     const board = await this.requirePantryBoard();
 
-    const [posts, listings, conversations, orders] = await this.prisma.$transaction([
+    const [posts, listings, conversations, orders, bookmarks] = await this.prisma.$transaction([
       this.prisma.post.findMany({
         where: {
           boardId: board.id,
@@ -122,9 +134,24 @@ export class PantryService {
         take: 20,
         include: orderInclude,
       }),
+      this.prisma.postBookmark.findMany({
+        where: {
+          userId,
+          post: {
+            boardId: board.id,
+            deletedAt: null,
+            status: PostStatus.PUBLISHED,
+          },
+        },
+        select: { postId: true },
+      }),
     ]);
 
-    const serializedPosts = posts.map((post) => this.serializePost(post));
+    const bookmarkedPostIds = new Set(bookmarks.map((bookmark) => bookmark.postId));
+    const serializedPosts = posts.map((post) => ({
+      ...this.serializePost(post),
+      isBookmarked: bookmarkedPostIds.has(post.id),
+    }));
     const serializedListings = listings.map((listing) => this.serializeListing(listing, userId));
     const grouped = this.groupRadarFeed(serializedPosts, serializedListings);
 
@@ -193,7 +220,11 @@ export class PantryService {
       include: postInclude,
     });
     if (!post) throw new NotFoundException('Post not found');
-    return this.serializePost(post);
+    const bookmark = await this.prisma.postBookmark.findUnique({
+      where: { postId_userId: { postId, userId } },
+      select: { id: true },
+    });
+    return { ...this.serializePost(post), isBookmarked: Boolean(bookmark) };
   }
 
   async createComment(userId: number, postId: number, content: string) {
@@ -333,7 +364,7 @@ export class PantryService {
     const identity = await this.ensureUsableIdentity(userId);
     const title = this.requireText(input.title, 'title', 160);
     const description = this.requireText(input.description, 'description', 4000);
-    this.assertLegalMarketText(`${title}\n${description}`);
+    this.assertLegalMarketText(`${title}\n${description}\n${input.priceText || ''}`);
     this.assertSafeCommunityText(`${title}\n${description}`);
 
     const listing = await this.prisma.marketListing.create({
@@ -1044,8 +1075,8 @@ export class PantryService {
     const statusText: Record<TradeOrderStatus, string> = {
       REQUESTED: '等待卖家确认',
       ACCEPTED: '卖家已接单',
-      PAID_OFF_PLATFORM: '买家已标记线下付款',
-      COMPLETED: '交易已完成',
+      PAID_OFF_PLATFORM: '双方已确认线下交付',
+      COMPLETED: '双方已完成置换',
       CANCELLED: '交易已取消，商品已恢复可见',
       DISPUTED: '交易进入纠纷状态',
     };
@@ -1098,20 +1129,20 @@ export class PantryService {
       throw new BadRequestException('Only requested orders can be accepted');
     }
     if (next === TradeOrderStatus.PAID_OFF_PLATFORM && userId !== order.buyerId) {
-      throw new ForbiddenException('Only buyer can mark off-platform payment');
+      throw new ForbiddenException('Only buyer can confirm the in-person handoff');
     }
     if (next === TradeOrderStatus.PAID_OFF_PLATFORM && order.status !== TradeOrderStatus.ACCEPTED) {
-      throw new BadRequestException('Only accepted orders can be marked paid');
+      throw new BadRequestException('Only accepted orders can confirm an in-person handoff');
     }
     if (next === TradeOrderStatus.COMPLETED && userId !== order.buyerId) {
       throw new ForbiddenException('Only buyer can complete');
     }
     if (next === TradeOrderStatus.COMPLETED && !([TradeOrderStatus.PAID_OFF_PLATFORM, TradeOrderStatus.DISPUTED] as TradeOrderStatus[]).includes(order.status)) {
-      throw new BadRequestException('Only paid or disputed orders can be completed');
+      throw new BadRequestException('Only handed-off or disputed orders can be completed');
     }
     if (next === TradeOrderStatus.CANCELLED) {
       if (order.status === TradeOrderStatus.PAID_OFF_PLATFORM) {
-        throw new BadRequestException('Paid orders cannot be cancelled; open a dispute instead');
+        throw new BadRequestException('Handed-off orders cannot be cancelled; open a dispute instead');
       }
       if (order.status === TradeOrderStatus.ACCEPTED && userId !== order.sellerId) {
         throw new ForbiddenException('Only seller can cancel accepted unpaid orders');

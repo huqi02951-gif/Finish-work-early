@@ -62,15 +62,14 @@ export function getCardPosture(
  * 与 v1.2 的三色原则对齐：暖米白 / 中性浅灰 / 冷青灰。
  * 未知 status 返回空字符串，此时 PetOsCard 回退到 posture 自身底色。
  */
-export function getCardMoodTint(status: string | null): string {
+export type PetCardMoodTint = 'warm' | 'neutral' | 'cool';
+
+export function getCardMoodTint(status: string | null): PetCardMoodTint {
   if (status === 'OFF_DUTY') {
-    return 'bg-[#fef9e7] border-[#fde68a]/40 text-[#78350f]';
+    return 'warm';
   }
   if (status === 'OVERTIME') {
-    return 'bg-[#eff6ff] border-[#bfdbfe]/40 text-[#1e3a8a]';
+    return 'cool';
   }
-  if (status === 'WORKING') {
-    return 'bg-[#fafaf9] border-[#e7e5e4]/50 text-brand-dark';
-  }
-  return '';
+  return 'neutral';
 }

@@ -51,6 +51,7 @@ export interface PantryPost {
   updatedAt: string;
   tags: string[];
   authorId: number;
+  isBookmarked?: boolean;
 }
 
 export interface MarketListing {
@@ -196,7 +197,7 @@ export const pantryApi = {
   react: (postId: number, type: ReactionType) =>
     requestJson(`/pantry/posts/${postId}/reactions`, { method: 'POST', body: JSON.stringify({ type }) }),
   bookmark: (postId: number) =>
-    requestJson(`/pantry/posts/${postId}/bookmarks`, { method: 'POST' }),
+    requestJson<{ ok: boolean; alreadyBookmarked: boolean }>(`/pantry/posts/${postId}/bookmarks`, { method: 'POST' }),
   updateCoffeeProfile: (input: { coffeeQrUrl?: string; coffeeNote?: string; coffeePublic?: boolean }) =>
     requestJson('/pantry/me/coffee', { method: 'PATCH', body: JSON.stringify(input) }),
   report: (input: { targetType: 'POST' | 'COMMENT' | 'LISTING' | 'MESSAGE'; targetId: number; reason: string; detail?: string }) =>

@@ -1,6 +1,8 @@
 # Supabase Prisma Setup
 
-APEX 现在采用 Supabase Auth + APEX 后端 JWT 的两段式登录：
+> 可选集成，当前 Hostuno 生产环境未启用。邮箱 OTP 已由 APEX 后端 SMTP 接管；本方案仅用于未来接入手机短信供应商或迁移认证平台。
+
+启用后，APEX 采用 Supabase Auth + APEX 后端 JWT 的两段式登录：
 
 1. 前端使用 Supabase 邮箱 OTP 或手机 OTP 完成注册/登录，用户会进入 Supabase `auth.users`
 2. 前端把 Supabase access token 交给 `POST /api/v1/auth/supabase/exchange`
@@ -11,14 +13,14 @@ APEX 现在采用 Supabase Auth + APEX 后端 JWT 的两段式登录：
 
 ## 1. 获取连接串
 
-在 Supabase Dashboard 打开项目 `oibwkknjgtkyxntyuybb`：
+在 Supabase Dashboard 打开你新建且可访问的项目：
 
 1. 点击顶部 `Connect`
 2. 选择 `Session pooler`
 3. 复制形如下面的连接串：
 
 ```bash
-postgresql://postgres.oibwkknjgtkyxntyuybb:[YOUR-DB-PASSWORD]@aws-[REGION].pooler.supabase.com:5432/postgres
+postgresql://postgres.[PROJECT_REF]:[YOUR-DB-PASSWORD]@aws-[REGION].pooler.supabase.com:5432/postgres
 ```
 
 APEX 后端是长驻 Nest 服务，优先用 Session pooler。不要用 publishable key 当作 `DATABASE_URL`，它只是前端公开 API key，不能给 Prisma 连接数据库。
@@ -29,7 +31,7 @@ APEX 后端是长驻 Nest 服务，优先用 Session pooler。不要用 publisha
 
 ```bash
 VITE_API_BASE_URL=http://localhost:3000
-VITE_SUPABASE_URL=https://oibwkknjgtkyxntyuybb.supabase.co
+VITE_SUPABASE_URL=https://[PROJECT_REF].supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=<你的 publishable key>
 ```
 
@@ -45,8 +47,8 @@ cp .env.supabase.example .env.supabase
 编辑 `backend/.env.supabase`：
 
 ```bash
-DATABASE_URL="postgresql://postgres.oibwkknjgtkyxntyuybb:<你的数据库密码>@aws-<region>.pooler.supabase.com:5432/postgres?schema=public"
-SUPABASE_URL="https://oibwkknjgtkyxntyuybb.supabase.co"
+DATABASE_URL="postgresql://postgres.[PROJECT_REF]:<你的数据库密码>@aws-<region>.pooler.supabase.com:5432/postgres?schema=public"
+SUPABASE_URL="https://[PROJECT_REF].supabase.co"
 SUPABASE_PUBLISHABLE_KEY="<你的 publishable key>"
 JWT_SECRET="<至少32位随机字符串>"
 ENABLE_DEMO_AUTH="true"

@@ -5,7 +5,12 @@ import type {
   SkillsLibraryPageConfig,
 } from '../../types';
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ||
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000'
+    : '')
+).replace(/\/$/, '');
 const API_ROOT = `${API_BASE_URL}/api/v1`;
 
 type PageKey = 'home_page' | 'skills_library_page';
@@ -104,6 +109,7 @@ function mapSkill(skill: BackendSkill): Skill {
     description: skill.summary,
     toolRoute: skill.toolRoute || skill.detailData.toolRoute,
     marketingGuide: skill.detailData.marketingGuide,
+    sceneTags: Array.isArray(skill.detailData.sceneTags) ? skill.detailData.sceneTags : [],
   };
 }
 

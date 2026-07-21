@@ -9,7 +9,6 @@ import {
   Sparkles,
   Wrench,
   Ghost,
-  Dices,
   Coffee,
   HeartHandshake,
   User,
@@ -110,7 +109,6 @@ const WORKSPACE_GUIDE_POSTS: WorkspaceGuidePost[] = [
 ];
 
 const DEFAULT_BOARD = 'experience-sharing';
-const MOCK_AVATARS = ['行内第一深情', '理性的终端机', '加班吃泡面', '打工人404'];
 const MAX_WORKSPACE_ARTIFACTS = 4;
 const MAX_WORKSPACE_DRAFTS = 5;
 const TOOL_DATA_API_ROOT = (
@@ -296,10 +294,12 @@ function combineToolDataSource(
   return 'mixed';
 }
 
-async function requestToolData<T>(path: string, token: string): Promise<T> {
+async function requestToolData<T>(path: string, token: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(`${TOOL_DATA_API_ROOT}${path}`, {
+    ...init,
     headers: {
       Authorization: `Bearer ${token}`,
+      ...(init.headers || {}),
     },
   });
 
@@ -389,8 +389,6 @@ const WorkspacePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [composing, setComposing] = useState(false);
   const [activeBoard, setActiveBoard] = useState<string>('all');
-  const [isAnonymous, setIsAnonymous] = useState(false);
-  const [anonName, setAnonName] = useState(MOCK_AVATARS[0]);
   const [selectedAuthor, setSelectedAuthor] = useState<{nickname: string, isAnon: boolean} | null>(null);
   const [showQr, setShowQr] = useState(false);
 
@@ -472,8 +470,10 @@ const WorkspacePage: React.FC = () => {
         const fallbackBoard = boardList.find((item) => !item.isOfficial)?.slug || DEFAULT_BOARD;
         setForm((current) => ({ ...current, boardSlug: fallbackBoard }));
       }
+      return true;
     } catch (error) {
       console.error('Failed to load workspace community', error);
+      return false;
     } finally {
       if (loadPage === 1) setPostsLoading(false);
     }
@@ -481,16 +481,22 @@ const WorkspacePage: React.FC = () => {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await Promise.all([
-      loadCommunity(1),
-      (async () => {
-        const localData = await loadLocalWorkspaceToolData();
-        const mergedData = await loadWorkspaceToolData(localData);
-        applyToolData(mergedData);
-      })(),
-    ]);
-    setIsRefreshing(false);
-    toast.success('已刷新');
+    try {
+      const [communityLoaded] = await Promise.all([
+        loadCommunity(1),
+        (async () => {
+          const localData = await loadLocalWorkspaceToolData();
+          const mergedData = await loadWorkspaceToolData(localData);
+          applyToolData(mergedData);
+        })(),
+      ]);
+      if (communityLoaded) toast.success('已刷新');
+      else toast.warning('本地工作数据已刷新，社区服务暂不可用');
+    } catch {
+      toast.error('刷新失败，请稍后重试');
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   useEffect(() => {
@@ -517,15 +523,16 @@ const WorkspacePage: React.FC = () => {
     };
   }, []);
 
-  const rollDice = () => {
-    const random = MOCK_AVATARS[Math.floor(Math.random() * MOCK_AVATARS.length)];
-    setAnonName(random);
-  }
-
   const handleDeleteArtifact = async (id: number) => {
     setDeletingArtifactId(id);
     try {
-      await db.artifacts.delete(id);
+      if (artifactSource === 'cloud') {
+        const token = getWorkspaceCloudToken();
+        if (!token) throw new Error('登录已失效');
+        await requestToolData(`/artifacts/${id}`, token, { method: 'DELETE' });
+      } else {
+        await db.artifacts.delete(id);
+      }
       setRecentArtifacts(prev => prev.filter(a => a.id !== id));
       toast.success('已删除');
     } catch {
@@ -538,7 +545,13 @@ const WorkspacePage: React.FC = () => {
   const handleDeleteDraft = async (id: number) => {
     setDeletingDraftId(id);
     try {
-      await db.drafts.delete(id);
+      if (draftSource === 'cloud') {
+        const token = getWorkspaceCloudToken();
+        if (!token) throw new Error('登录已失效');
+        await requestToolData(`/drafts/${id}`, token, { method: 'DELETE' });
+      } else {
+        await db.drafts.delete(id);
+      }
       setRecentDrafts(prev => prev.filter(d => d.id !== id));
       toast.success('已删除');
     } catch {
@@ -606,7 +619,7 @@ const WorkspacePage: React.FC = () => {
               <p className="text-[11px] font-black tracking-[0.18em] uppercase text-neutral-400">APEX Workspace</p>
               <h1 className="mt-2 text-3xl sm:text-5xl font-black text-[#111827] tracking-tight">工作台</h1>
               <p className="mt-2 max-w-2xl text-[13px] sm:text-sm leading-relaxed text-neutral-500 font-medium">
-                不放大段手册，只放能照着用的经验帖、最近做过的东西和马上能开的入口。
+                经验流负责沉淀真实打法，流程台负责把 Skills 编排成可执行任务；草稿、产物和客户案头都从这里续上。
               </p>
             </div>
             
@@ -624,7 +637,7 @@ const WorkspacePage: React.FC = () => {
                 className="flex-[2] sm:flex-none flex justify-center items-center gap-1.5 rounded-2xl bg-brand-dark px-5 py-3 min-h-[44px] text-[14px] font-bold text-white hover:bg-brand-dark/90 shadow-[0_10px_24px_rgba(15,23,42,0.16)] transition-all active:scale-95"
               >
                 <Plus size={16} />
-                写一条经验
+                沉淀一条经验
               </button>
             </div>
           </div>
@@ -634,11 +647,11 @@ const WorkspacePage: React.FC = () => {
         <div className="flex gap-1 mb-2 bg-white/80 border border-neutral-200 rounded-2xl p-1 sm:hidden shadow-sm">
           <button onClick={() => setMobileTab('posts')}
             className={`flex-1 py-2 rounded-xl text-[13px] font-bold transition-all ${mobileTab === 'posts' ? 'bg-brand-dark text-white shadow-sm' : 'text-neutral-500'}`}>
-            动态
+            经验流
           </button>
           <button onClick={() => setMobileTab('tools')}
             className={`flex-1 py-2 rounded-xl text-[13px] font-bold transition-all ${mobileTab === 'tools' ? 'bg-brand-dark text-white shadow-sm' : 'text-neutral-500'}`}>
-            面板
+            流程台
           </button>
         </div>
 
@@ -656,27 +669,13 @@ const WorkspacePage: React.FC = () => {
                 <form className="grid gap-2 relative z-10" onSubmit={handleCreatePost}>
                   <div className="flex items-center justify-between mb-1 pb-2 border-b border-neutral-100/60">
                      <h3 className="font-black text-neutral-900 flex items-center gap-1.5"><MessageSquare size={16}/> 写一条经验</h3>
-                     <button
-                       type="button" 
-                       onClick={() => setIsAnonymous(!isAnonymous)}
-                       className={cn(
-                          "px-3 py-1.5 rounded-full text-[11px] font-bold border transition-colors flex items-center gap-1",
-                          isAnonymous ? "bg-neutral-900 text-white border-neutral-900" : "bg-neutral-100 text-neutral-500 border-transparent"
-                       )}
+                     <Link
+                       to="/bbs/pantry"
+                       className="px-3 py-1.5 rounded-full text-[11px] font-bold border border-transparent bg-neutral-100 text-neutral-500 transition-colors flex items-center gap-1 hover:text-neutral-900"
                      >
-                       <Ghost size={12} /> {isAnonymous ? "匿名已开" : "实名模式"}
-                     </button>
+                       <Ghost size={12} /> 匿名去茶水间
+                     </Link>
                   </div>
-
-                  {isAnonymous && (
-                    <div className="flex items-center gap-2 mb-2 p-2.5 bg-neutral-100 rounded-xl text-neutral-600 text-[11px] font-medium">
-                      <span>当前马甲：</span>
-                      <span className="text-neutral-900 font-bold">{anonName}</span>
-                      <button type="button" onClick={rollDice} className="ml-auto flex items-center gap-1 hover:text-neutral-900 transition-colors bg-white px-2 py-1 rounded-md active:scale-95 text-[10px]">
-                        <Dices size={10} /> 摇骰子换名
-                      </button>
-                    </div>
-                  )}
 
                   <div className="grid gap-2 md:grid-cols-[140px_1fr] border-b border-neutral-100/60 pb-1">
                     <select
@@ -726,7 +725,7 @@ const WorkspacePage: React.FC = () => {
                       type="submit"
                       className="rounded-xl bg-brand-dark px-6 py-2.5 text-sm font-bold text-white hover:bg-brand-dark/90 transition-colors shadow-md"
                     >
-                      {isAnonymous ? '匿名开帖' : '发出去'}
+                      发出去
                     </button>
                   </div>
                 </form>
@@ -900,7 +899,7 @@ const WorkspacePage: React.FC = () => {
             <section className="rounded-[24px] border border-white bg-white/90 p-4 shadow-sm relative overflow-hidden">
               <div className="mb-3 flex items-center gap-1.5 text-[13px] font-extrabold text-neutral-900">
                 <Sparkles size={14} className="text-brand-gold" />
-                导航面板
+                工作流导航
               </div>
 
               {/* Guide Posts */}

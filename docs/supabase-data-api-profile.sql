@@ -1,7 +1,7 @@
 -- Optional Supabase Data API profile table for APEX.
--- Run this in the Supabase SQL Editor for project oibwkknjgtkyxntyuybb.
+-- Run this in the Supabase SQL Editor for your project.
 -- It lets the Vite frontend upsert the logged-in user's profile through
--- https://oibwkknjgtkyxntyuybb.supabase.co/rest/v1/apex_user_profiles
+-- https://[PROJECT_REF].supabase.co/rest/v1/apex_user_profiles
 
 create table if not exists public.apex_user_profiles (
   id uuid primary key references auth.users(id) on delete cascade,

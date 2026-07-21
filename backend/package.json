@@ -13,37 +13,38 @@
     "start:prod": "node dist/main",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "prisma db seed"
+    "prisma:seed": "prisma db seed",
+    "migrate:deploy:pg": "node scripts/apply-pg-migrations.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
   },
   "dependencies": {
-    "@nestjs/common": "^10.0.0",
-    "@nestjs/core": "^10.0.0",
-    "@nestjs/jwt": "^10.2.0",
-    "@nestjs/platform-express": "^10.0.0",
-    "@nestjs/platform-socket.io": "^10.4.22",
-    "@nestjs/websockets": "^10.4.22",
+    "@nestjs/common": "^11.1.28",
+    "@nestjs/core": "^11.1.28",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/platform-express": "^11.1.28",
+    "@nestjs/platform-socket.io": "^11.1.28",
+    "@nestjs/websockets": "^11.1.28",
     "@prisma/adapter-pg": "^6.17.1",
     "@prisma/client": "^6.17.1",
     "@supabase/supabase-js": "^2.108.1",
-    "bcrypt": "^5.1.1",
-    "nodemailer": "^8.0.5",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.4.2",
+    "nodemailer": "^9.0.3",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.3"
   },
   "devDependencies": {
-    "@nestjs/cli": "^10.0.0",
-    "@nestjs/schematics": "^10.0.0",
-    "@nestjs/testing": "^10.0.0",
-    "@types/bcrypt": "^5.0.2",
-    "@types/express": "^4.17.17",
+    "@nestjs/cli": "^11.0.24",
+    "@nestjs/schematics": "^11.1.0",
+    "@nestjs/testing": "^11.1.28",
+    "@types/express": "^5.0.5",
     "@types/jest": "^29.5.2",
     "@types/node": "^20.3.1",
-    "@types/nodemailer": "^8.0.0",
+    "@types/nodemailer": "^8.0.1",
     "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
@@ -54,11 +55,16 @@
     "prettier": "^3.0.0",
     "prisma": "^6.17.1",
     "source-map-support": "^0.5.21",
-    "supertest": "^6.3.3",
+    "supertest": "^7.1.4",
     "ts-jest": "^29.1.0",
     "ts-loader": "^9.4.3",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1.3"
+  },
+  "overrides": {
+    "engine.io": "6.6.9",
+    "socket.io-adapter": "2.5.8",
+    "ws": "8.21.1"
   }
 }

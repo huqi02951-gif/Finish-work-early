@@ -90,12 +90,15 @@ docker compose up -d postgres
 
 ## Supabase PostgreSQL
 
-如果要把注册用户落到 Supabase，当前推荐链路是：前端用 Supabase Auth 邮箱 OTP 注册/登录，后端用 `POST /api/v1/auth/supabase/exchange` 校验 Supabase token，并签发 APEX JWT。这样用户能进入 Supabase `auth.users`，同时仍能使用 APEX 原有后端功能。
+当前生产用户、论坛和茶水间数据统一落在 Hostuno PostgreSQL。邮箱 OTP 由 APEX Nest 后端与生产 SMTP 处理，不依赖 Supabase。
+
+Supabase bridge 仅保留为未来手机短信供应商或迁移方案；只有配置了一个真实可访问的 Supabase 项目和 SMS Provider 后，才可以在前端启用手机登录。后端可通过 `POST /api/v1/auth/supabase/exchange` 校验 Supabase token，并签发 APEX JWT。
 
 安全模板见 `.env.supabase.example`，完整步骤见 `../docs/supabase-prisma-setup.md`。
 
 关键点：
-- 前端邮箱注册由 Supabase Auth 处理
+- 前端邮箱注册由 APEX `auth/email/*` 接口处理
+- 手机注册仅在 Supabase/SMS Provider 完整配置后启用
 - 后端 exchange 会同步 `users.supabase_auth_id`
 - `sb_publishable_...` 是浏览器公开 key，不能作为 Prisma 的数据库连接串
 - 真实 database password、service role key、JWT secret 不要提交到 GitHub
@@ -111,20 +114,18 @@ npx prisma db execute --file prisma/manual/20260412_legacy_dev_upgrade.sql --sch
 这份脚本会优先重命名旧列并补充新字段，避免直接删表。
 
 ## Hostuno 环境部署步骤
-根据 Hostuno 的 Node 方案机制部署建议：
-1. 配置好服务器的 Node 安装（如使用 nvm 安装 Node 18+）。
-2. 将此项目的代码传至服务器。
-3. 配置环境变量：将外网真实的 `DB_URL` (`postgresql://p3397_finishwork:Ab123123%40@pgsql2.hostuno.com...`) 配置至服务器上的 `.env`。由于是在 Hostuno 体系内，使用 `pgsql2.hostuno.com` 直接互连网络质量最佳。
-4. 在服务器端执行安装及打包构建：
-   ```bash
-   npm install
-   npm run prisma:generate
-   npm run build
-   ```
-5. 使用 PM2 常驻进程运行（假设已经在服务端全局安装 PM2）：
-   ```bash
-   pm2 start dist/main.js --name "finishwork-api"
-   ```
+生产使用 Hostuno Node.js / Phusion Passenger，不再使用 PM2。完整发布、FreeBSD Prisma Client、备份与回滚步骤见根目录 `DEPLOY.md`。
+
+核心命令：
+
+```bash
+npm ci
+npm run build
+ALLOW_PRODUCTION_MIGRATION=1 npm run migrate:deploy:pg
+devil www restart api.coolkiy.useruno.com
+```
+
+`public_nodejs/.env` 必须为 `600` 权限；数据库、JWT 和 SMTP 密码不得进入 Git。
 
 ## ✅ 测试是否成功 Checklist
 

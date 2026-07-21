@@ -15,8 +15,10 @@ export function getJwtSecret(): string {
 }
 
 export function getJwtSignOptions(): JwtSignOptions {
+  const expiresIn = (process.env.JWT_EXPIRES_IN?.trim() || DEFAULT_JWT_EXPIRES_IN) as NonNullable<JwtSignOptions['expiresIn']>;
+
   return {
-    expiresIn: process.env.JWT_EXPIRES_IN?.trim() || DEFAULT_JWT_EXPIRES_IN,
+    expiresIn,
   };
 }
 
