@@ -92,7 +92,7 @@ for filename in files:
         value=plain(value) if '<' in value else value
         if not value or value in seen or not re.search(r'[a-zA-Z\u4e00-\u9fff]',value):continue
         seen.add(value);line=source.count('\n',0,match.start())+1
-        if filename.endswith('QARecorder.js') or (filename=='src/film.js' and source.find('function setupQA()') <= match.start() < source.find('function init()',source.find('function setupQA()'))):
+        if value=='L · 框R · 闩' or filename.endswith('QARecorder.js') or (filename=='src/film.js' and source.find('function setupQA()') <= match.start() < source.find('function init()',source.find('function setupQA()'))):
             scene='开发验收工具';status='仅 ?qa=1，普通访客不展示'
         elif 'holo-' in match.group(1) or value in ['APEX SYSTEM // LIVE STORY DEMO','ILLUSTRATIVE DATA · NOT A LIVE BANKING SYSTEM']:
             scene='保留的全息面板';status='当前隐藏'

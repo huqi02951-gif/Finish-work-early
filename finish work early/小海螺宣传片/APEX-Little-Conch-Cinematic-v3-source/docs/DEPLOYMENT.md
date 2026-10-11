@@ -22,7 +22,7 @@
 
 ## 更新与回滚
 
-初次发布采用直接上传，现已配置 GitHub Actions + Wrangler，保留原项目和域名。新的自动发布实测记录见下方。备份保存在 `backups/`；如需回退到原 V3，解压 `backups/V3-original-2026-10-11.zip` 到独立目录预览。前一阶段备份为 `backups/V3.1-before-director-review-2026-10-11.zip`。不覆盖当前工程。
+初次发布采用直接上传，已准备 GitHub Actions + Wrangler 配置，保留原项目和域名。新的自动发布实测记录见下方。备份保存在 `backups/`；如需回退到原 V3，解压 `backups/V3-original-2026-10-11.zip` 到独立目录预览。前一阶段备份为 `backups/V3.1-before-director-review-2026-10-11.zip`。不覆盖当前工程。
 
 后续 Pages 成功部署后，可在项目部署列表选择之前的成功生产部署回滚。当前为本项目首次成功部署。
 
@@ -42,8 +42,16 @@
 - 顺序：锁定依赖安装 → 21 项测试 → Vite 构建 → Wrangler 身份核验 → 发布既有 Pages 项目。源码分支未合并 main；Wrangler 的 `--branch=main` 只是既有 Pages 项目的生产部署标记。
 - 用户已授权创建 `little-conch-pages-ci` 凭据，仅当前账户 Cloudflare Pages 编辑权限。已保存 GitHub 加密 Secret `LITTLE_CONCH_CLOUDFLARE_API_TOKEN`。无 DNS、Workers 或计费权限；不记录凭据值。
 - 免费范围：公开仓库的标准 ubuntu-latest Actions 运行器；Pages 纯静态托管。没有 Functions、付费运行器、域名购买或套餐升级。仓库转私有时工作流停止。
-- 当前本机测试与构建通过；首次 CI/线上验收结果将在成功后补充，配置存在不等于部署成功。
+- 当前本机测试与构建通过。工作流仅存在本地，首次推送被 GitHub 拒绝：现有 OAuth 凭据缺少 workflow 权限。用户已授权补充权限，CLI refresh 等待浏览器登录 huqi02951-gif；未完成 CI 部署。手机修复与文案已通过独立提交 a07a526cc5530a4024ad51dd268e1c5001cb248d 推送。
 - 回滚：Pages 部署列表选择上一成功生产版本（初次固定版本为 https://499c0351.apex-little-conch.pages.dev/）。如需暂停自动发布，可在 GitHub Actions 禁用此工作流；撤销发布权限可撤销该 Cloudflare token 并删除同名 GitHub Secret。
 - 修改前配置备份：`backups/auto-deploy-before-configuration/`；手机输入备份：`backups/mobile-input-before-fix/`。不覆盖原 V3 备份。
 
 官方依据：[CI 直接上传](https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/)、[GitHub 免费运行器](https://docs.github.com/en/billing/concepts/product-billing/github-actions)、[Pages 静态请求免费](https://developers.cloudflare.com/pages/functions/pricing/)。
+
+### 手机修复已单独上线
+
+- 通过已授权的直接上传发布，13/13 文件完成，Cloudflare 显示成功。
+- 部署 ID：`d1d71324-debc-4b7e-b615-4df8cac6fed4`；固定版本：https://d1d71324.apex-little-conch.pages.dev/ 。
+- 修复源码提交：`a07a526cc5530a4024ad51dd268e1c5001cb248d`；包：`deliverables/APEX-Little-Conch-pages-mobile-fix.zip`，SHA-256 `d54c934926ee51c1c4433acbee364f6cdabb8e8e68a7b8f0de25a0f1cd7c01ac`。
+- 普通生产页面加载新脚本 `index-BqkyFVWf.js`；不点击 01–06，连续向上拖动由初识进入外部查询，再进入后续能力；手机提示为“手指向上滑动”。
+- 线上截图：`qa/growth-v1/mobile-fix/public-1440-skill3.jpg`、`public-390-skill1.jpg`、`public-320-skill2.jpg`；尺寸已校验，均无横向溢出，控制台警告/错误 0。读数见 `public-observations.json`。物理手机未测。

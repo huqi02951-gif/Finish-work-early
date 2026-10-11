@@ -2544,10 +2544,10 @@
     },
     {
       "id": "TXT-f2fdafc8",
-      "scene": "天空 / 水下 · 动态状态与操作",
+      "scene": "开发验收工具",
       "position": "运行时文字 / 状态标签",
       "current": "L · 框R · 闩",
-      "status": "按状态展示（含部分初始化值）",
+      "status": "仅 ?qa=1，普通访客不展示",
       "source": "src/first-stage/FirstStageDirector.js:122",
       "replacement": "",
       "notes": ""

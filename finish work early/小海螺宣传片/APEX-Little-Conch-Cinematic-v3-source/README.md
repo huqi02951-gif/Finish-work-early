@@ -27,7 +27,7 @@ npm run preview
 
 21 项自动化测试覆盖门交互、镜头连续性、入水速度、GLB 局部坐标、手部锚点、背景几何以及下潜技能顺序和真实深度。生产预览 http://127.0.0.1:4181/ 。Cloudflare Pages 上传 `dist/`，不得上传备份、研究资料或整个父仓库。
 
-GitHub 使用独立分支 `codex/little-conch-stage1-director-v1`，不修改父仓库原有暂存区，也不合并 main。GPT 完成 G4 美术验收后再决定合并。Pages 保留现有静态项目，通过仓库根目录 `.github/workflows/little-conch-pages.yml` 自动发布。推送当前开发分支的网站相关文件将触发测试、构建和部署；公开仓库使用标准免费运行器，仓库改为私有时工作流停止。详见 [部署记录](docs/DEPLOYMENT.md)。
+GitHub 使用独立分支 `codex/little-conch-stage1-director-v1`，不修改父仓库原有暂存区，也不合并 main。GPT 完成 G4 美术验收后再决定合并。Pages 手机修复已上线。免费自动部署工作流已准备在本地仓库根目录 `.github/workflows/little-conch-pages.yml`，发布 Secret 已配置；GitHub 登录还需要 workflow 权限，用户授权刷新正在等待网页登录。工作流未上传，自动部署尚未生效。接通后推送当前开发分支的网站相关文件将触发测试、构建和部署；公开仓库使用标准免费运行器，仓库改为私有时工作流停止。详见 [部署记录](docs/DEPLOYMENT.md)。
 
 ## 文案升级
 
