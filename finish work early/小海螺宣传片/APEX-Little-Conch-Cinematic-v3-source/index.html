@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#071721"/><meta name="description" content="THE LITTLE CONCH — an interactive APEX Studio cinematic journey from the sky into the deep sea."/>
+<title>THE LITTLE CONCH — APEX STUDIO</title><link rel="icon" href="assets/conch.svg"/><link rel="stylesheet" href="src/style.css"/><link rel="stylesheet" href="src/first-stage.css"/>
+</head><body>
+<div class="film" id="film" data-phase="waiting" role="main" aria-label="APEX 小海螺沉浸式电影体验">
+ <div class="scene" id="scene">
+  <div class="sky scene-layer" id="sky"></div>
+  <div class="underwater scene-layer" id="underwater"></div>
+  <div class="bluewash" id="bluewash"></div>
+  <div class="sunshafts" id="sunshafts"></div>
+  <div class="horizon-flash" id="impact-flash"></div>
+  <canvas id="particles" aria-hidden="true"></canvas>
+  <div class="motion-lines" id="motion-lines"></div>
+  <div class="cabin" id="cabin" aria-hidden="true"></div>
+  <div class="hatch-anchor" id="hatch-anchor">
+    <button disabled type="button" id="hatch" class="hatch" aria-label="拉开舱门，启动潜海旅程">
+      <span class="door-action">拉动把手，推开未知 <b>向右拖动 / 点击开门 →</b></span><span class="metal-light"></span>
+      <span class="hatch-inner">
+        <span class="hatch-overline">APEX EXPEDITION / 001</span>
+        <span class="hatch-logo">APEX<span>.</span></span>
+        <span class="hatch-rule"></span>
+        <span class="hatch-title">THE LITTLE<br>CONCH</span>
+        <span class="hatch-tagline">EVERY GREAT JOURNEY<br>BEGINS WITH A QUESTION.</span>
+        <span class="hatch-grip" id="hatch-grip"><span class="grip-ring"></span><b>RELEASE</b><small>拉动 / 点击</small><i>↗</i></span>
+        <span class="hatch-bottom">HATCH 01 <span>◈</span> PRESS / DRAG TO OPEN</span>
+      </span>
+    </button>
+  </div>
+  <div class="pov-hands" id="hands" aria-hidden="true"><img src="assets/pov-hands.webp" alt=""/></div>
+  <div class="splash" id="splash" aria-hidden="true"><div></div><div></div><div></div></div>
+  <div class="world-object" id="world-object" aria-hidden="true">
+    <div class="object-glow"></div><img id="shell" src="assets/conch.svg" alt=""/>
+    <div class="object-orbit ring-one"></div><div class="object-orbit ring-two"></div>
+  </div>
+  <div class="holo-cluster" id="holo" aria-hidden="true">
+    <div class="holo-glow"></div><div class="holo-border"></div><div id="holo-contents"></div>
+  </div>
+  <div class="floor-portal" id="portal" aria-hidden="true"><i></i><i></i><i></i><span>APEX</span></div>
+  <div class="vignette"></div><div class="grain"></div>
+ </div>
+ <header class="top"><div class="logo"><div class="logo-dot">✦</div><b>APEX<span>.</span></b><small>STUDIO</small></div><div class="top-chapter" id="top-chapter">THE LITTLE CONCH <i>—</i> AN ORIGIN STORY</div><div class="toolbar"><button id="sound" title="切换声音" aria-label="切换声音">◖)) <span id="sound-label">SOUND ON</span></button><button id="pause" title="暂停动画" aria-label="暂停或继续">Ⅱ <span id="pause-label">PAUSE</span></button></div></header>
+ <div class="title-screen" id="title-screen"><span class="title-overline">AN APEX STUDIO ORIGINAL</span><h1>THE LITTLE<br><em>CONCH.</em></h1><span class="title-cn">一只小海螺的诞生之旅</span><p>From a single question to a digital teammate.<br>跟随一次下潜，走进小海螺的成长历程。</p></div>
+ <div class="flight-caption" id="flight-caption"><span id="flight-index">01 / 04 — RELEASE</span><strong id="flight-line">THE FIRST STEP IS YOURS.</strong><span id="flight-sub">推开舱门，故事便会开始。</span></div>
+ <section class="chapter-copy" id="chapter-copy" aria-live="polite"><span id="chapter-kicker">CHAPTER 00</span><h2 id="chapter-title">A SMALL<br>BEGINNING.</h2><p id="chapter-cn">海底的第一声回响。</p><div class="chapter-line"></div><p id="chapter-desc">在更深的地方，寻找更清晰的答案。</p></section>
+ <div class="data-caption" id="data-caption"><span class="data-symbol">✧</span><div><span id="data-label">APEX ABILITY / 01</span><b id="data-name">EXTERNAL QUERY</b></div><span>◈</span></div>
+ <div class="credits" id="credits"><span>AT THE BOTTOM OF THE OCEAN</span><img src="assets/conch.svg" alt="小海螺标志"/><h2>THE LITTLE CONCH.</h2><p>从一项技能出发，继续生长。</p><div class="credits-line"></div><small>小海螺诞生于</small><h3>APEX STUDIO</h3><p class="credits-names">动画、3D 与网站制作：胡晓丹</p><button id="replay" type="button">↶ REPLAY THE JOURNEY</button></div>
+ <div class="hud hud-left"><span class="hud-eyebrow" id="readout-label">ALTITUDE</span><div class="readout"><strong id="readout">250</strong><small id="readout-unit">M</small></div><div class="hud-rule"></div><span class="hud-eyebrow">VERTICAL SPEED · M/S <b id="speed">— 0</b></span></div>
+ <div class="hud hud-right"><span>MISSION STATUS</span><b id="mission">AWAITING RELEASE</b><div class="mission-indicator"><span id="mission-dot"></span></div></div>
+ <footer class="footer"><div class="guide"><span class="mouse-symbol"><i></i></span><span id="guide-text">DRAG THE HATCH<br><small>点击或拖动舱门手柄</small></span></div><div class="footer-center" id="footer-center">APEX STUDIO / THE LITTLE CONCH / 2026</div><div class="progress"><div class="progress-head"><span id="progress-label">THE DESCENT</span><span id="progress-pct">00%</span></div><div class="track"><span id="track"></span></div></div></footer>
+ <button id="tap-continue" class="touch-continue" type="button" hidden>轻触或上滑 · 继续探索 ↓</button>
+ <div class="mobile-swipe" id="mobile-swipe" aria-hidden="true"></div>
+ <div id="scene-status" role="status">正在准备机舱与海面…</div><button id="skip-intro" type="button">跳过开场 ↓</button><pre id="render-stats" hidden></pre><div class="sr" id="announcer" role="status" aria-live="polite"></div>
+</div>
+<script type="module" src="src/film.js"></script>
+</body></html>

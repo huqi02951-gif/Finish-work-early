@@ -1,0 +1,47 @@
+/* First-stage presentation. The V3 deep-story layout remains in style.css. */
+#cinematic-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+.webgl-ready .sky,.webgl-ready .underwater,.webgl-ready .cabin,.webgl-ready .bluewash,.webgl-ready .sunshafts,.webgl-ready .motion-lines,.webgl-ready #particles,.webgl-ready .horizon-flash,.webgl-ready .splash{display:none}
+/* The existing 388px body cutout is not suitable for a first-person close-up. */
+.pov-hands,.world-object{display:none!important}
+.webgl-ready .hatch-anchor{inset:0;transform:none;width:100%;height:100%;perspective:none;z-index:12}
+.webgl-ready .hatch{position:absolute;inset:auto;transform:none;border:0;border-radius:2px;background:none;box-shadow:none;overflow:visible;touch-action:none}
+.webgl-ready .hatch::after,.webgl-ready .hatch-inner,.webgl-ready .metal-light{display:none}
+.door-action{display:none}
+.webgl-ready .door-action{display:block;position:absolute;left:50%;bottom:4%;transform:translateX(-50%);width:90%;font-size:11px;letter-spacing:.14em;color:#fff1d2;text-align:center;text-shadow:0 1px 8px #00121a}
+.door-action b{display:block;font-size:10px;font-weight:400;margin-top:9px;opacity:.75}
+.webgl-ready .hatch:hover .door-action{color:#fff}
+.webgl-ready .hatch:focus-visible{outline:2px solid #e5cbaa;outline-offset:-3px}
+.title-screen{display:none!important}
+.flight-caption{top:auto;bottom:17%;transform:translateX(-50%);width:80%;text-align:center}
+.flight-caption strong{font-family:inherit;font-size:clamp(18px,2vw,28px);font-weight:400;letter-spacing:.22em;margin:16px 0}
+.flight-caption span{font-family:monospace;font-size:10px;letter-spacing:.25em;color:#d8eeee}
+.vignette{z-index:2;background:radial-gradient(ellipse at 50% 48%,transparent 38%,#000c1540 100%)}
+.grain{z-index:2;opacity:.055}
+.hud{font-family:'SFMono-Regular',Consolas,monospace;top:15%}
+.readout strong{font-size:clamp(28px,3vw,42px);letter-spacing:-.04em}
+.hud-eyebrow{font-size:9px;letter-spacing:.12em}
+.top{padding-top:max(22px,env(safe-area-inset-top));z-index:22}
+.toolbar button{min-height:44px;min-width:44px}
+.footer{bottom:max(25px,env(safe-area-inset-bottom));z-index:20}
+#skip-intro{position:absolute;right:4.5vw;bottom:12%;z-index:24;font-size:10px;letter-spacing:.13em;padding:12px;border:0;background:transparent;color:#d1dfdd;opacity:.75;min-height:44px}
+#scene-status{position:absolute;z-index:30;left:50%;top:50%;transform:translate(-50%,-50%);padding:20px 26px;background:#0a1e2eee;font-size:13px;line-height:1.8;max-width:80vw;text-align:center}
+.film:not([data-phase='waiting']) .hatch-anchor{pointer-events:none}
+.film[data-phase='underwater'] .chapter-copy{transition:opacity .7s}
+#qa-panel{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:50;padding:10px;background:#081c27ed;border:1px solid #c5d7d755;width:min(760px,96vw);font:11px monospace;color:#daebe5}
+#qa-panel label{display:inline-flex;align-items:center;gap:12px;width:83%}#qa-panel input{width:80%}#qa-panel button{background:#243c43;border:1px solid #778e9155;margin:5px 3px 0 0;padding:6px 10px;font-size:10px;min-height:32px}#qa-panel output{font-size:10px}
+@media(max-width:620px){
+ .top{padding-left:16px;padding-right:12px}.logo small{display:none}.toolbar button span{font-size:7px}
+ .hud{top:96px!important}.hud-left{left:18px}.hud-right{right:18px;max-width:155px}.hud-right b{font-size:8px;line-height:1.5}
+ .film[data-phase='waiting'] .hud{opacity:1!important}.readout strong{font-size:27px}.hud-eyebrow{font-size:7px;letter-spacing:.07em}.hud-eyebrow b{font-size:9px}
+ .webgl-ready .door-action{font-size:10px;letter-spacing:.06em;bottom:5%}.door-action b{font-size:8px}
+ .footer{bottom:max(22px,env(safe-area-inset-bottom));left:18px;right:18px}.guide small{font-size:8px}.progress{width:87px;min-width:87px}
+ .flight-caption{bottom:22%;width:94%}.flight-caption strong{font-size:17px;letter-spacing:.1em}.flight-caption span{font-size:8px}
+ #skip-intro{right:12px;bottom:11%}.chapter-copy{bottom:14%}.chapter-copy h2{font-size:40px}
+ #qa-panel{bottom:6px;font-size:9px}#qa-panel button{padding:4px 7px}
+}
+@media(prefers-reduced-motion:reduce){.grain{animation:none}.film *{scroll-behavior:auto!important}}
+.film[data-paused='true'] *{animation-play-state:paused!important}
+.film:not([data-phase='underwater']) .chapter-copy,.film:not([data-phase='underwater']) .data-caption{visibility:hidden}
+.film:not([data-phase='credits']) .credits{visibility:hidden}
+.scene-unavailable #cinematic-canvas{display:none}
+.film[data-phase='credits'] .hud{visibility:hidden}
