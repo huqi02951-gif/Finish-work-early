@@ -23,11 +23,11 @@ export function addDiveInput(progress, target, delta) {
 }
 
 export const DIVE_PACING={wheelPixels:9000,swipeScreens:6,followRate:1.15,readingSeconds:5};
-// A newly encountered skill owns its reading interval. Momentum input cannot
-// immediately push it away; reverse input remains available to revisit it.
+// Wheel momentum pauses at each skill; an intentional swipe, tap or key remains
+// responsive so touch navigation never feels locked.
 export class DiveReadingGate {
   constructor(){this.reset();}
   reset(){this.index=0;this.until=0;}
   enter(index,time){if(index!==this.index){this.index=index;this.until=time+DIVE_PACING.readingSeconds;}}
-  allows(delta,time){return delta<=0||time>=this.until;}
+  allows(delta,time,input='wheel'){return input==='direct'||delta<=0||time>=this.until;}
 }

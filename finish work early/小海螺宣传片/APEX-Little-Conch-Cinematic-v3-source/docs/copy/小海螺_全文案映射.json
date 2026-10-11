@@ -1,0 +1,2706 @@
+{
+  "version": "V3.2 / 手机上滑修复版",
+  "source": "现有工程源码，不主动改写内容",
+  "items": [
+    {
+      "id": "SKILL-00-title",
+      "scene": "00 初识 · 小海螺醒来",
+      "position": "英文主标题",
+      "current": "A QUESTION.\nA BEGINNING.",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[0].title",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-00-cn",
+      "scene": "00 初识 · 小海螺醒来",
+      "position": "中文主句",
+      "current": "一枚微光，在深蓝里醒来。",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[0].cn",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-00-desc",
+      "scene": "00 初识 · 小海螺醒来",
+      "position": "中文说明",
+      "current": "APEX Studio 把一个问号放进海里。小海螺从这里，开始听见世界。",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[0].desc",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-00-label",
+      "scene": "00 初识 · 小海螺醒来",
+      "position": "能力英文标签",
+      "current": "FIRST SPARK",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[0].label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-00-id",
+      "scene": "00 初识 · 小海螺醒来",
+      "position": "右上角任务状态",
+      "current": "THE FIRST SPARK",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[0].id",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-00-kicker",
+      "scene": "00 初识 · 小海螺醒来",
+      "position": "标题上方章节标识",
+      "current": "ORIGIN / 00 — THE LITTLE CONCH",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[0].kicker / src/film.js changeChapter",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-01-title",
+      "scene": "01 外部查询 · 小丑鱼",
+      "position": "英文主标题",
+      "current": "CURIOSITY.\nIN MOTION.",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[1].title",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-01-cn",
+      "scene": "01 外部查询 · 小丑鱼",
+      "position": "中文主句",
+      "current": "循着好奇，向世界问一声。",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[1].cn",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-01-desc",
+      "scene": "01 外部查询 · 小丑鱼",
+      "position": "中文说明",
+      "current": "第一股信息的潮汐，来自外部查询。公开线索彼此相遇，让每个问题都有继续探索的方向。",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[1].desc",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-01-label",
+      "scene": "01 外部查询 · 小丑鱼",
+      "position": "能力英文标签",
+      "current": "EXTERNAL QUERY",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[1].label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-01-id",
+      "scene": "01 外部查询 · 小丑鱼",
+      "position": "右上角任务状态",
+      "current": "EXTERNAL QUERY",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[1].id",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-01-kicker",
+      "scene": "01 外部查询 · 小丑鱼",
+      "position": "标题上方章节标识",
+      "current": "01 / 06 · 外部查询",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[1].kicker / src/film.js changeChapter",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "OLD-01-kicker",
+      "scene": "01 外部查询 · 小丑鱼",
+      "position": "原章节英文标识",
+      "current": "MILESTONE / 01 — EXTERNAL INTELLIGENCE",
+      "status": "已被编号中文标识覆盖，当前不展示",
+      "source": "src/StoryChapters.js → CHAPTERS[1].kicker",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-01-01-1",
+      "scene": "01 外部查询 · 小丑鱼",
+      "position": "全息示例：字段名",
+      "current": "QUERY",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[1].holo[0][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-01-01-2",
+      "scene": "01 外部查询 · 小丑鱼",
+      "position": "全息示例：内容",
+      "current": "某科技企业基本情况",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[1].holo[0][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-01-02-1",
+      "scene": "01 外部查询 · 小丑鱼",
+      "position": "全息示例：字段名",
+      "current": "工商信息",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[1].holo[1][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-01-02-2",
+      "scene": "01 外部查询 · 小丑鱼",
+      "position": "全息示例：内容",
+      "current": "已整理 · 示例",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[1].holo[1][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-01-03-1",
+      "scene": "01 外部查询 · 小丑鱼",
+      "position": "全息示例：字段名",
+      "current": "经营线索",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[1].holo[2][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-01-03-2",
+      "scene": "01 外部查询 · 小丑鱼",
+      "position": "全息示例：内容",
+      "current": "已提取 · 示例",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[1].holo[2][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-01-04-1",
+      "scene": "01 外部查询 · 小丑鱼",
+      "position": "全息示例：字段名",
+      "current": "公开信息",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[1].holo[3][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-01-04-2",
+      "scene": "01 外部查询 · 小丑鱼",
+      "position": "全息示例：内容",
+      "current": "来源待核验",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[1].holo[3][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-02-title",
+      "scene": "02 受益所有人 · 水母",
+      "position": "英文主标题",
+      "current": "FOLLOW\nTHE ROOTS.",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[2].title",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-02-cn",
+      "scene": "02 受益所有人 · 水母",
+      "position": "中文主句",
+      "current": "沿着关系的根系，寻找源头。",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[2].cn",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-02-desc",
+      "scene": "02 受益所有人 · 水母",
+      "position": "中文说明",
+      "current": "受益所有人识别，沿持股与控制关系向深处生长，让层层连接里的关联线索渐渐显影。",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[2].desc",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-02-label",
+      "scene": "02 受益所有人 · 水母",
+      "position": "能力英文标签",
+      "current": "BENEFICIAL OWNERSHIP",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[2].label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-02-id",
+      "scene": "02 受益所有人 · 水母",
+      "position": "右上角任务状态",
+      "current": "BENEFICIAL OWNERSHIP",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[2].id",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-02-kicker",
+      "scene": "02 受益所有人 · 水母",
+      "position": "标题上方章节标识",
+      "current": "02 / 06 · 受益所有人识别",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[2].kicker / src/film.js changeChapter",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "OLD-02-kicker",
+      "scene": "02 受益所有人 · 水母",
+      "position": "原章节英文标识",
+      "current": "MILESTONE / 02 — BENEFICIAL OWNERSHIP",
+      "status": "已被编号中文标识覆盖，当前不展示",
+      "source": "src/StoryChapters.js → CHAPTERS[2].kicker",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-02-01-1",
+      "scene": "02 受益所有人 · 水母",
+      "position": "全息示例：字段名",
+      "current": "START",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[2].holo[0][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-02-01-2",
+      "scene": "02 受益所有人 · 水母",
+      "position": "全息示例：内容",
+      "current": "主体 A",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[2].holo[0][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-02-02-1",
+      "scene": "02 受益所有人 · 水母",
+      "position": "全息示例：字段名",
+      "current": "第一层",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[2].holo[1][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-02-02-2",
+      "scene": "02 受益所有人 · 水母",
+      "position": "全息示例：内容",
+      "current": "企业 B → 企业 C",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[2].holo[1][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-02-03-1",
+      "scene": "02 受益所有人 · 水母",
+      "position": "全息示例：字段名",
+      "current": "第二层",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[2].holo[2][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-02-03-2",
+      "scene": "02 受益所有人 · 水母",
+      "position": "全息示例：内容",
+      "current": "自然人 D",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[2].holo[2][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-02-04-1",
+      "scene": "02 受益所有人 · 水母",
+      "position": "全息示例：字段名",
+      "current": "输出",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[2].holo[3][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-02-04-2",
+      "scene": "02 受益所有人 · 水母",
+      "position": "全息示例：内容",
+      "current": "关联链条 · 待人工核验",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[2].holo[3][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-03-title",
+      "scene": "03 财报转换 · 海龟",
+      "position": "英文主标题",
+      "current": "NUMBERS.\nCOME ALIVE.",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[3].title",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-03-cn",
+      "scene": "03 财报转换 · 海龟",
+      "position": "中文主句",
+      "current": "让数字舒展，长成清晰的秩序。",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[3].cn",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-03-desc",
+      "scene": "03 财报转换 · 海龟",
+      "position": "中文说明",
+      "current": "财报转换，让不同格式的资料汇入同一条脉络。重复录入的时间，留给更深的理解。",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[3].desc",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-03-label",
+      "scene": "03 财报转换 · 海龟",
+      "position": "能力英文标签",
+      "current": "FINANCIAL CONVERSION",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[3].label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-03-id",
+      "scene": "03 财报转换 · 海龟",
+      "position": "右上角任务状态",
+      "current": "FINANCIAL TRANSFORMATION",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[3].id",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-03-kicker",
+      "scene": "03 财报转换 · 海龟",
+      "position": "标题上方章节标识",
+      "current": "03 / 06 · 财报转换",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[3].kicker / src/film.js changeChapter",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "OLD-03-kicker",
+      "scene": "03 财报转换 · 海龟",
+      "position": "原章节英文标识",
+      "current": "MILESTONE / 03 — FINANCIAL STATEMENTS",
+      "status": "已被编号中文标识覆盖，当前不展示",
+      "source": "src/StoryChapters.js → CHAPTERS[3].kicker",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-03-01-1",
+      "scene": "03 财报转换 · 海龟",
+      "position": "全息示例：字段名",
+      "current": "INPUT",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[3].holo[0][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-03-01-2",
+      "scene": "03 财报转换 · 海龟",
+      "position": "全息示例：内容",
+      "current": "PDF / XLSX / IMAGE",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[3].holo[0][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-03-02-1",
+      "scene": "03 财报转换 · 海龟",
+      "position": "全息示例：字段名",
+      "current": "EXTRACT",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[3].holo[1][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-03-02-2",
+      "scene": "03 财报转换 · 海龟",
+      "position": "全息示例：内容",
+      "current": "字段识别",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[3].holo[1][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-03-03-1",
+      "scene": "03 财报转换 · 海龟",
+      "position": "全息示例：字段名",
+      "current": "NORMALIZE",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[3].holo[2][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-03-03-2",
+      "scene": "03 财报转换 · 海龟",
+      "position": "全息示例：内容",
+      "current": "科目映射",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[3].holo[2][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-03-04-1",
+      "scene": "03 财报转换 · 海龟",
+      "position": "全息示例：字段名",
+      "current": "OUTPUT",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[3].holo[3][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-03-04-2",
+      "scene": "03 财报转换 · 海龟",
+      "position": "全息示例：内容",
+      "current": "标准报表 · 示例",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[3].holo[3][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-04-title",
+      "scene": "04 股权穿透 · 海马",
+      "position": "英文主标题",
+      "current": "BEYOND\nTHE VISIBLE.",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[4].title",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-04-cn",
+      "scene": "04 股权穿透 · 海马",
+      "position": "中文主句",
+      "current": "越过表层，看见连接的形状。",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[4].cn",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-04-desc",
+      "scene": "04 股权穿透 · 海马",
+      "position": "中文说明",
+      "current": "股权穿透，将分散的节点连成路径。从直接持股到多层关联，结构一步步展开，专业判断仍由人来完成。",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[4].desc",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-04-label",
+      "scene": "04 股权穿透 · 海马",
+      "position": "能力英文标签",
+      "current": "EQUITY NETWORK",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[4].label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-04-id",
+      "scene": "04 股权穿透 · 海马",
+      "position": "右上角任务状态",
+      "current": "EQUITY INTELLIGENCE",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[4].id",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-04-kicker",
+      "scene": "04 股权穿透 · 海马",
+      "position": "标题上方章节标识",
+      "current": "04 / 06 · 股权穿透",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[4].kicker / src/film.js changeChapter",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "OLD-04-kicker",
+      "scene": "04 股权穿透 · 海马",
+      "position": "原章节英文标识",
+      "current": "MILESTONE / 04 — EQUITY NETWORK",
+      "status": "已被编号中文标识覆盖，当前不展示",
+      "source": "src/StoryChapters.js → CHAPTERS[4].kicker",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-04-01-1",
+      "scene": "04 股权穿透 · 海马",
+      "position": "全息示例：字段名",
+      "current": "SOURCE",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[4].holo[0][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-04-01-2",
+      "scene": "04 股权穿透 · 海马",
+      "position": "全息示例：内容",
+      "current": "目标企业",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[4].holo[0][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-04-02-1",
+      "scene": "04 股权穿透 · 海马",
+      "position": "全息示例：字段名",
+      "current": "PATH / 01",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[4].holo[1][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-04-02-2",
+      "scene": "04 股权穿透 · 海马",
+      "position": "全息示例：内容",
+      "current": "直接持股",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[4].holo[1][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-04-03-1",
+      "scene": "04 股权穿透 · 海马",
+      "position": "全息示例：字段名",
+      "current": "PATH / 02",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[4].holo[2][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-04-03-2",
+      "scene": "04 股权穿透 · 海马",
+      "position": "全息示例：内容",
+      "current": "间接持股",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[4].holo[2][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-04-04-1",
+      "scene": "04 股权穿透 · 海马",
+      "position": "全息示例：字段名",
+      "current": "CHECK",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[4].holo[3][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-04-04-2",
+      "scene": "04 股权穿透 · 海马",
+      "position": "全息示例：内容",
+      "current": "控制关系需复核",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[4].holo[3][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-05-title",
+      "scene": "05 技能协作 · 珊瑚",
+      "position": "英文主标题",
+      "current": "TOGETHER,\nWE GROW.",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[5].title",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-05-cn",
+      "scene": "05 技能协作 · 珊瑚",
+      "position": "中文主句",
+      "current": "每一种能力，都能成为下一种可能。",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[5].cn",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-05-desc",
+      "scene": "05 技能协作 · 珊瑚",
+      "position": "中文说明",
+      "current": "查询、关系识别、财报处理与分析彼此协同。小海螺不只学会更多，也开始让技能一起工作。",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[5].desc",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-05-label",
+      "scene": "05 技能协作 · 珊瑚",
+      "position": "能力英文标签",
+      "current": "APEX WORKFLOW",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[5].label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-05-id",
+      "scene": "05 技能协作 · 珊瑚",
+      "position": "右上角任务状态",
+      "current": "THE APEX WORKFLOW",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[5].id",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-05-kicker",
+      "scene": "05 技能协作 · 珊瑚",
+      "position": "标题上方章节标识",
+      "current": "05 / 06 · 技能协作",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[5].kicker / src/film.js changeChapter",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "OLD-05-kicker",
+      "scene": "05 技能协作 · 珊瑚",
+      "position": "原章节英文标识",
+      "current": "MILESTONE / 05 — SKILL ORCHESTRATION",
+      "status": "已被编号中文标识覆盖，当前不展示",
+      "source": "src/StoryChapters.js → CHAPTERS[5].kicker",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-05-01-1",
+      "scene": "05 技能协作 · 珊瑚",
+      "position": "全息示例：字段名",
+      "current": "ROUTING",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[5].holo[0][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-05-01-2",
+      "scene": "05 技能协作 · 珊瑚",
+      "position": "全息示例：内容",
+      "current": "统一接收任务",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[5].holo[0][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-05-02-1",
+      "scene": "05 技能协作 · 珊瑚",
+      "position": "全息示例：字段名",
+      "current": "AGENT / 01",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[5].holo[1][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-05-02-2",
+      "scene": "05 技能协作 · 珊瑚",
+      "position": "全息示例：内容",
+      "current": "外部信息",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[5].holo[1][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-05-03-1",
+      "scene": "05 技能协作 · 珊瑚",
+      "position": "全息示例：字段名",
+      "current": "AGENT / 02",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[5].holo[2][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-05-03-2",
+      "scene": "05 技能协作 · 珊瑚",
+      "position": "全息示例：内容",
+      "current": "财务 · 股权",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[5].holo[2][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-05-04-1",
+      "scene": "05 技能协作 · 珊瑚",
+      "position": "全息示例：字段名",
+      "current": "REVIEW",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[5].holo[3][0]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "HOLO-05-04-2",
+      "scene": "05 技能协作 · 珊瑚",
+      "position": "全息示例：内容",
+      "current": "人工核验与交付",
+      "status": "保留在源码；当前全息面板隐藏",
+      "source": "src/StoryChapters.js → CHAPTERS[5].holo[3][1]",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-06-title",
+      "scene": "06 行内部署 · 海星",
+      "position": "英文主标题",
+      "current": "FIRST DAY.\nNEW HORIZONS.",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[6].title",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-06-cn",
+      "scene": "06 行内部署 · 海星",
+      "position": "中文主句",
+      "current": "从海里的微光，到行内的新同事。",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[6].cn",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-06-desc",
+      "scene": "06 行内部署 · 海星",
+      "position": "中文说明",
+      "current": "APEX Studio 正在推动行内部署与数字员工作业场景落地。第一天的到来，也是下一轮生长的起点。",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[6].desc",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-06-label",
+      "scene": "06 行内部署 · 海星",
+      "position": "能力英文标签",
+      "current": "DIGITAL EMPLOYEE",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[6].label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-06-id",
+      "scene": "06 行内部署 · 海星",
+      "position": "右上角任务状态",
+      "current": "THE FIRST DAY",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[6].id",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-06-kicker",
+      "scene": "06 行内部署 · 海星",
+      "position": "标题上方章节标识",
+      "current": "06 / 06 · 行内部署",
+      "status": "当前展示",
+      "source": "src/StoryChapters.js → CHAPTERS[6].kicker / src/film.js changeChapter",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "OLD-06-kicker",
+      "scene": "06 行内部署 · 海星",
+      "position": "原章节英文标识",
+      "current": "MILESTONE / 06 — DIGITAL EMPLOYEE",
+      "status": "已被编号中文标识覆盖，当前不展示",
+      "source": "src/StoryChapters.js → CHAPTERS[6].kicker",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-07-title",
+      "scene": "07 片尾前的短过渡",
+      "position": "英文主标题",
+      "current": "STILL\nBECOMING.",
+      "status": "极短过渡，最终片尾另见下方",
+      "source": "src/StoryChapters.js → CHAPTERS[7].title",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-07-cn",
+      "scene": "07 片尾前的短过渡",
+      "position": "中文主句",
+      "current": "小海螺仍在生长。",
+      "status": "极短过渡，最终片尾另见下方",
+      "source": "src/StoryChapters.js → CHAPTERS[7].cn",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-07-label",
+      "scene": "07 片尾前的短过渡",
+      "position": "能力英文标签",
+      "current": "CREDITS",
+      "status": "极短过渡，最终片尾另见下方",
+      "source": "src/StoryChapters.js → CHAPTERS[7].label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-07-id",
+      "scene": "07 片尾前的短过渡",
+      "position": "右上角任务状态",
+      "current": "THE PEOPLE",
+      "status": "极短过渡，最终片尾另见下方",
+      "source": "src/StoryChapters.js → CHAPTERS[7].id",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "SKILL-07-kicker",
+      "scene": "07 片尾前的短过渡",
+      "position": "标题上方章节标识",
+      "current": "FINALE / 07 — APEX STUDIO",
+      "status": "极短过渡",
+      "source": "src/StoryChapters.js → CHAPTERS[7].kicker / src/film.js changeChapter",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-001",
+      "scene": "浏览器标题与搜索信息",
+      "position": "页面标题 / 摘要",
+      "current": "THE LITTLE CONCH — APEX STUDIO",
+      "status": "标签页或搜索信息",
+      "source": "index.html:5 · html head title",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-002",
+      "scene": "机舱 · 手动开门",
+      "position": "门把操作提示",
+      "current": "拉动把手，推开未知",
+      "status": "当前展示",
+      "source": "index.html:19 · #hatch-anchor #hatch span.door-action",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-003",
+      "scene": "机舱 · 手动开门",
+      "position": "门把操作提示",
+      "current": "向右拖动 / 点击开门 →",
+      "status": "当前展示",
+      "source": "index.html:19 · #hatch span.door-action b",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-004",
+      "scene": "机舱 · 旧舱门 HTML",
+      "position": "旧门贴纸文字",
+      "current": "APEX EXPEDITION / 001",
+      "status": "WebGL 准备后隐藏；实际门贴纸见 CANVAS 项",
+      "source": "index.html:21 · #hatch span.hatch-inner span.hatch-overline",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-005",
+      "scene": "机舱 · 旧舱门 HTML",
+      "position": "旧门贴纸文字",
+      "current": "APEX",
+      "status": "WebGL 准备后隐藏；实际门贴纸见 CANVAS 项",
+      "source": "index.html:22 · #hatch span.hatch-inner span.hatch-logo",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-006",
+      "scene": "机舱 · 旧舱门 HTML",
+      "position": "旧门贴纸文字（数字 / 图形符号）",
+      "current": ".",
+      "status": "WebGL 准备后隐藏；实际门贴纸见 CANVAS 项",
+      "source": "index.html:22 · span.hatch-inner span.hatch-logo span",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-007",
+      "scene": "机舱 · 旧舱门 HTML",
+      "position": "旧门贴纸文字",
+      "current": "THE LITTLE",
+      "status": "WebGL 准备后隐藏；实际门贴纸见 CANVAS 项",
+      "source": "index.html:24 · #hatch span.hatch-inner span.hatch-title",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-008",
+      "scene": "机舱 · 旧舱门 HTML",
+      "position": "旧门贴纸文字",
+      "current": "CONCH",
+      "status": "WebGL 准备后隐藏；实际门贴纸见 CANVAS 项",
+      "source": "index.html:24 · #hatch span.hatch-inner span.hatch-title",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-009",
+      "scene": "机舱 · 旧舱门 HTML",
+      "position": "旧门贴纸文字",
+      "current": "EVERY GREAT JOURNEY",
+      "status": "WebGL 准备后隐藏；实际门贴纸见 CANVAS 项",
+      "source": "index.html:25 · #hatch span.hatch-inner span.hatch-tagline",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-010",
+      "scene": "机舱 · 旧舱门 HTML",
+      "position": "旧门贴纸文字",
+      "current": "BEGINS WITH A QUESTION.",
+      "status": "WebGL 准备后隐藏；实际门贴纸见 CANVAS 项",
+      "source": "index.html:25 · #hatch span.hatch-inner span.hatch-tagline",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-011",
+      "scene": "机舱 · 旧舱门 HTML",
+      "position": "旧门贴纸文字",
+      "current": "RELEASE",
+      "status": "WebGL 准备后隐藏；实际门贴纸见 CANVAS 项",
+      "source": "index.html:26 · span.hatch-inner #hatch-grip b",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-012",
+      "scene": "机舱 · 旧舱门 HTML",
+      "position": "旧门贴纸文字",
+      "current": "拉动 / 点击",
+      "status": "WebGL 准备后隐藏；实际门贴纸见 CANVAS 项",
+      "source": "index.html:26 · span.hatch-inner #hatch-grip small",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-013",
+      "scene": "机舱 · 旧舱门 HTML",
+      "position": "旧门贴纸文字（数字 / 图形符号）",
+      "current": "↗",
+      "status": "WebGL 准备后隐藏；实际门贴纸见 CANVAS 项",
+      "source": "index.html:26 · span.hatch-inner #hatch-grip i",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-014",
+      "scene": "机舱 · 旧舱门 HTML",
+      "position": "旧门贴纸文字",
+      "current": "HATCH 01",
+      "status": "WebGL 准备后隐藏；实际门贴纸见 CANVAS 项",
+      "source": "index.html:27 · #hatch span.hatch-inner span.hatch-bottom",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-015",
+      "scene": "机舱 · 旧舱门 HTML",
+      "position": "旧门贴纸文字（数字 / 图形符号）",
+      "current": "◈",
+      "status": "WebGL 准备后隐藏；实际门贴纸见 CANVAS 项",
+      "source": "index.html:27 · span.hatch-inner span.hatch-bottom span",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-016",
+      "scene": "机舱 · 旧舱门 HTML",
+      "position": "旧门贴纸文字",
+      "current": "PRESS / DRAG TO OPEN",
+      "status": "WebGL 准备后隐藏；实际门贴纸见 CANVAS 项",
+      "source": "index.html:27 · #hatch span.hatch-inner span.hatch-bottom",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-017",
+      "scene": "保留的初始/旧版文案",
+      "position": "初始化文字",
+      "current": "APEX",
+      "status": "隐藏或被运行时覆盖，当前通常不展示",
+      "source": "index.html:40 · #scene #portal span",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-018",
+      "scene": "全程 · 品牌与仪表",
+      "position": "界面文字（数字 / 图形符号）",
+      "current": "✦",
+      "status": "当前展示（部分标签在手机隐藏）",
+      "source": "index.html:43 · header.top div.logo div.logo-dot",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-019",
+      "scene": "全程 · 品牌与仪表",
+      "position": "界面文字",
+      "current": "APEX",
+      "status": "当前展示（部分标签在手机隐藏）",
+      "source": "index.html:43 · header.top div.logo b",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-020",
+      "scene": "全程 · 品牌与仪表",
+      "position": "界面文字（数字 / 图形符号）",
+      "current": ".",
+      "status": "当前展示（部分标签在手机隐藏）",
+      "source": "index.html:43 · div.logo b span",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-021",
+      "scene": "全程 · 品牌与仪表",
+      "position": "界面文字",
+      "current": "STUDIO",
+      "status": "当前展示（部分标签在手机隐藏）",
+      "source": "index.html:43 · header.top div.logo small",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-022",
+      "scene": "全程 · 品牌与仪表",
+      "position": "界面文字",
+      "current": "THE LITTLE CONCH",
+      "status": "当前展示（部分标签在手机隐藏）",
+      "source": "index.html:43 · #film header.top #top-chapter",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-023",
+      "scene": "全程 · 品牌与仪表",
+      "position": "界面文字（数字 / 图形符号）",
+      "current": "—",
+      "status": "当前展示（部分标签在手机隐藏）",
+      "source": "index.html:43 · header.top #top-chapter i",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-024",
+      "scene": "全程 · 品牌与仪表",
+      "position": "界面文字",
+      "current": "AN ORIGIN STORY",
+      "status": "当前展示（部分标签在手机隐藏）",
+      "source": "index.html:43 · #film header.top #top-chapter",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-025",
+      "scene": "全程 · 声音与暂停",
+      "position": "按钮标签 / 无障碍名称",
+      "current": "◖))",
+      "status": "当前展示",
+      "source": "index.html:43 · header.top div.toolbar #sound",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-026",
+      "scene": "全程 · 声音与暂停",
+      "position": "按钮标签 / 无障碍名称",
+      "current": "SOUND ON",
+      "status": "当前展示",
+      "source": "index.html:43 · div.toolbar #sound #sound-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-027",
+      "scene": "全程 · 声音与暂停",
+      "position": "按钮标签 / 无障碍名称（数字 / 图形符号）",
+      "current": "Ⅱ",
+      "status": "当前展示",
+      "source": "index.html:43 · header.top div.toolbar #pause",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-028",
+      "scene": "全程 · 声音与暂停",
+      "position": "按钮标签 / 无障碍名称",
+      "current": "PAUSE",
+      "status": "当前展示",
+      "source": "index.html:43 · div.toolbar #pause #pause-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-029",
+      "scene": "保留的初始/旧版文案",
+      "position": "初始化文字",
+      "current": "AN APEX STUDIO ORIGINAL",
+      "status": "隐藏或被运行时覆盖，当前通常不展示",
+      "source": "index.html:44 · #film #title-screen span.title-overline",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-030",
+      "scene": "保留的初始/旧版文案",
+      "position": "初始化文字",
+      "current": "THE LITTLE",
+      "status": "隐藏或被运行时覆盖，当前通常不展示",
+      "source": "index.html:44 · #film #title-screen h1",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-031",
+      "scene": "保留的初始/旧版文案",
+      "position": "初始化文字",
+      "current": "CONCH.",
+      "status": "隐藏或被运行时覆盖，当前通常不展示",
+      "source": "index.html:44 · #title-screen h1 em",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-032",
+      "scene": "保留的初始/旧版文案",
+      "position": "初始化文字",
+      "current": "一只小海螺的诞生之旅",
+      "status": "隐藏或被运行时覆盖，当前通常不展示",
+      "source": "index.html:44 · #film #title-screen span.title-cn",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-033",
+      "scene": "保留的初始/旧版文案",
+      "position": "初始化文字",
+      "current": "From a single question to a digital teammate.",
+      "status": "隐藏或被运行时覆盖，当前通常不展示",
+      "source": "index.html:44 · #film #title-screen p",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-034",
+      "scene": "保留的初始/旧版文案",
+      "position": "初始化文字",
+      "current": "跟随一次下潜，走进小海螺的成长历程。",
+      "status": "隐藏或被运行时覆盖，当前通常不展示",
+      "source": "index.html:44 · #film #title-screen p",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-035",
+      "scene": "保留的初始/旧版文案",
+      "position": "初始化文字",
+      "current": "01 / 04 — RELEASE",
+      "status": "隐藏或被运行时覆盖，当前通常不展示",
+      "source": "index.html:45 · #film #flight-caption #flight-index",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-036",
+      "scene": "保留的初始/旧版文案",
+      "position": "初始化文字",
+      "current": "THE FIRST STEP IS YOURS.",
+      "status": "隐藏或被运行时覆盖，当前通常不展示",
+      "source": "index.html:45 · #film #flight-caption #flight-line",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-037",
+      "scene": "保留的初始/旧版文案",
+      "position": "初始化文字",
+      "current": "推开舱门，故事便会开始。",
+      "status": "隐藏或被运行时覆盖，当前通常不展示",
+      "source": "index.html:45 · #film #flight-caption #flight-sub",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-038",
+      "scene": "保留的初始/旧版文案",
+      "position": "初始化文字",
+      "current": "CHAPTER 00",
+      "status": "隐藏或被运行时覆盖，当前通常不展示",
+      "source": "index.html:46 · #film #chapter-copy #chapter-kicker",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-039",
+      "scene": "保留的初始/旧版文案",
+      "position": "初始化文字",
+      "current": "A SMALL",
+      "status": "隐藏或被运行时覆盖，当前通常不展示",
+      "source": "index.html:46 · #film #chapter-copy #chapter-title",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-040",
+      "scene": "保留的初始/旧版文案",
+      "position": "初始化文字",
+      "current": "BEGINNING.",
+      "status": "隐藏或被运行时覆盖，当前通常不展示",
+      "source": "index.html:46 · #film #chapter-copy #chapter-title",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-041",
+      "scene": "保留的初始/旧版文案",
+      "position": "初始化文字",
+      "current": "海底的第一声回响。",
+      "status": "隐藏或被运行时覆盖，当前通常不展示",
+      "source": "index.html:46 · #film #chapter-copy #chapter-cn",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-042",
+      "scene": "保留的初始/旧版文案",
+      "position": "初始化文字",
+      "current": "在更深的地方，寻找更清晰的答案。",
+      "status": "隐藏或被运行时覆盖，当前通常不展示",
+      "source": "index.html:46 · #film #chapter-copy #chapter-desc",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-043",
+      "scene": "全程 · 品牌与仪表",
+      "position": "界面文字（数字 / 图形符号）",
+      "current": "✧",
+      "status": "当前展示（部分标签在手机隐藏）",
+      "source": "index.html:47 · #film #data-caption span.data-symbol",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-044",
+      "scene": "仪表与操作提示",
+      "position": "初始化标签 / 数字",
+      "current": "APEX ABILITY / 01",
+      "status": "由运行时状态覆盖；实际状态另见 TXT 项",
+      "source": "index.html:47 · #data-caption div #data-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-045",
+      "scene": "仪表与操作提示",
+      "position": "初始化标签 / 数字",
+      "current": "EXTERNAL QUERY",
+      "status": "由运行时状态覆盖；实际状态另见 TXT 项",
+      "source": "index.html:47 · #data-caption div #data-name",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-046",
+      "scene": "全程 · 品牌与仪表",
+      "position": "界面文字（数字 / 图形符号）",
+      "current": "◈",
+      "status": "当前展示（部分标签在手机隐藏）",
+      "source": "index.html:47 · #film #data-caption span",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-047",
+      "scene": "片尾 · 创作团队与继续生长",
+      "position": "片尾文字",
+      "current": "STILL GROWING · ALWAYS BECOMING",
+      "status": "当前展示",
+      "source": "index.html:48 · #film #credits span",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-048",
+      "scene": "片尾 · 创作团队与继续生长",
+      "position": "片尾文字",
+      "current": "THE LITTLE CONCH.",
+      "status": "当前展示",
+      "source": "index.html:48 · #film #credits h2",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-049",
+      "scene": "片尾 · 创作团队与继续生长",
+      "position": "片尾文字",
+      "current": "从一个问题，长出万千可能。",
+      "status": "当前展示",
+      "source": "index.html:48 · #film #credits p",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-050",
+      "scene": "片尾 · 创作团队与继续生长",
+      "position": "片尾文字",
+      "current": "这不是终点。",
+      "status": "当前展示",
+      "source": "index.html:48 · #film #credits p.credits-growth",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-051",
+      "scene": "片尾 · 创作团队与继续生长",
+      "position": "片尾文字",
+      "current": "下一次好奇，会把我们带向更远的地方。",
+      "status": "当前展示",
+      "source": "index.html:48 · #film #credits p.credits-growth",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-052",
+      "scene": "片尾 · 创作团队与继续生长",
+      "position": "片尾文字",
+      "current": "小海螺诞生于 · 创建团队",
+      "status": "当前展示",
+      "source": "index.html:48 · #film #credits small",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-053",
+      "scene": "片尾 · 创作团队与继续生长",
+      "position": "片尾文字",
+      "current": "APEX STUDIO",
+      "status": "当前展示",
+      "source": "index.html:48 · #film #credits h3",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-054",
+      "scene": "片尾 · 创作团队与继续生长",
+      "position": "片尾文字",
+      "current": "动画、3D 与网站制作：胡晓丹",
+      "status": "当前展示",
+      "source": "index.html:48 · #film #credits p.credits-names",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-055",
+      "scene": "片尾 · 创作团队与继续生长",
+      "position": "片尾文字",
+      "current": "↶ REPLAY THE JOURNEY",
+      "status": "当前展示",
+      "source": "index.html:48 · #film #credits #replay",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-056",
+      "scene": "仪表与操作提示",
+      "position": "初始化标签 / 数字",
+      "current": "ALTITUDE",
+      "status": "由运行时状态覆盖；实际状态另见 TXT 项",
+      "source": "index.html:49 · #film div.hud #readout-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-057",
+      "scene": "仪表与操作提示",
+      "position": "初始化标签 / 数字（数字 / 图形符号）",
+      "current": "250",
+      "status": "由运行时状态覆盖；实际状态另见 TXT 项",
+      "source": "index.html:49 · div.hud div.readout #readout",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-058",
+      "scene": "仪表与操作提示",
+      "position": "初始化标签 / 数字",
+      "current": "M",
+      "status": "由运行时状态覆盖；实际状态另见 TXT 项",
+      "source": "index.html:49 · div.hud div.readout #readout-unit",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-059",
+      "scene": "全程 · 品牌与仪表",
+      "position": "界面文字",
+      "current": "VERTICAL SPEED · M/S",
+      "status": "当前展示（部分标签在手机隐藏）",
+      "source": "index.html:49 · #film div.hud span.hud-eyebrow",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-060",
+      "scene": "仪表与操作提示",
+      "position": "初始化标签 / 数字",
+      "current": "— 0",
+      "status": "由运行时状态覆盖；实际状态另见 TXT 项",
+      "source": "index.html:49 · div.hud span.hud-eyebrow #speed",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-061",
+      "scene": "全程 · 品牌与仪表",
+      "position": "界面文字",
+      "current": "MISSION STATUS",
+      "status": "当前展示（部分标签在手机隐藏）",
+      "source": "index.html:50 · #film div.hud span",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-062",
+      "scene": "仪表与操作提示",
+      "position": "初始化标签 / 数字",
+      "current": "AWAITING RELEASE",
+      "status": "由运行时状态覆盖；实际状态另见 TXT 项",
+      "source": "index.html:50 · #film div.hud #mission",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-063",
+      "scene": "仪表与操作提示",
+      "position": "初始化标签 / 数字",
+      "current": "DRAG THE HATCH",
+      "status": "由运行时状态覆盖；实际状态另见 TXT 项",
+      "source": "index.html:51 · footer.footer div.guide #guide-text",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-064",
+      "scene": "仪表与操作提示",
+      "position": "初始化标签 / 数字",
+      "current": "点击或拖动舱门手柄",
+      "status": "由运行时状态覆盖；实际状态另见 TXT 项",
+      "source": "index.html:51 · div.guide #guide-text small",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-065",
+      "scene": "全程 · 品牌与仪表",
+      "position": "界面文字",
+      "current": "APEX STUDIO / THE LITTLE CONCH / 2026",
+      "status": "当前展示（部分标签在手机隐藏）",
+      "source": "index.html:51 · #film footer.footer #footer-center",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-066",
+      "scene": "仪表与操作提示",
+      "position": "初始化标签 / 数字",
+      "current": "THE DESCENT",
+      "status": "由运行时状态覆盖；实际状态另见 TXT 项",
+      "source": "index.html:51 · div.progress div.progress-head #progress-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-067",
+      "scene": "仪表与操作提示",
+      "position": "初始化标签 / 数字（数字 / 图形符号）",
+      "current": "00%",
+      "status": "由运行时状态覆盖；实际状态另见 TXT 项",
+      "source": "index.html:51 · div.progress div.progress-head #progress-pct",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-068",
+      "scene": "水下 · 01–06 导航",
+      "position": "导航按钮 / 无障碍名称（数字 / 图形符号）",
+      "current": "01",
+      "status": "当前展示",
+      "source": "index.html:52 · #film nav.skill-nav button",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-069",
+      "scene": "水下 · 01–06 导航",
+      "position": "导航按钮 / 无障碍名称（数字 / 图形符号）",
+      "current": "02",
+      "status": "当前展示",
+      "source": "index.html:52 · #film nav.skill-nav button",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-070",
+      "scene": "水下 · 01–06 导航",
+      "position": "导航按钮 / 无障碍名称（数字 / 图形符号）",
+      "current": "03",
+      "status": "当前展示",
+      "source": "index.html:52 · #film nav.skill-nav button",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-071",
+      "scene": "水下 · 01–06 导航",
+      "position": "导航按钮 / 无障碍名称（数字 / 图形符号）",
+      "current": "04",
+      "status": "当前展示",
+      "source": "index.html:52 · #film nav.skill-nav button",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-072",
+      "scene": "水下 · 01–06 导航",
+      "position": "导航按钮 / 无障碍名称（数字 / 图形符号）",
+      "current": "05",
+      "status": "当前展示",
+      "source": "index.html:52 · #film nav.skill-nav button",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-073",
+      "scene": "水下 · 01–06 导航",
+      "position": "导航按钮 / 无障碍名称（数字 / 图形符号）",
+      "current": "06",
+      "status": "当前展示",
+      "source": "index.html:52 · #film nav.skill-nav button",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-074",
+      "scene": "水下 · 保留的继续按钮",
+      "position": "按钮文案",
+      "current": "向上滑动 · 继续下潜 ↑",
+      "status": "手机布局当前隐藏，仅保留在源码",
+      "source": "index.html:53 · body #film #tap-continue",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-075",
+      "scene": "载入与故障",
+      "position": "载入提示",
+      "current": "正在准备机舱与海面…",
+      "status": "仅载入期间或故障时展示",
+      "source": "index.html:55 · body #film #scene-status",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "DOM-076",
+      "scene": "天空开场",
+      "position": "跳过按钮",
+      "current": "跳过开场 ↓",
+      "status": "入水前展示",
+      "source": "index.html:55 · body #film #skip-intro",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "A11Y-001",
+      "scene": "全程 · 品牌与仪表",
+      "position": "搜索引擎描述",
+      "current": "THE LITTLE CONCH — an interactive APEX Studio cinematic journey from the sky into the deep sea.",
+      "status": "无障碍 / 元信息",
+      "source": "index.html:4 · 搜索引擎描述",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "A11Y-002",
+      "scene": "全程 · 品牌与仪表",
+      "position": "aria-label",
+      "current": "APEX 小海螺沉浸式电影体验",
+      "status": "无障碍 / 元信息",
+      "source": "index.html:7 · aria-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "A11Y-003",
+      "scene": "机舱 · 手动开门",
+      "position": "aria-label",
+      "current": "拉开舱门，启动潜海旅程",
+      "status": "无障碍 / 元信息",
+      "source": "index.html:18 · aria-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "A11Y-004",
+      "scene": "全程 · 声音与暂停",
+      "position": "aria-label",
+      "current": "切换声音",
+      "status": "无障碍 / 元信息",
+      "source": "index.html:43 · aria-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "A11Y-005",
+      "scene": "全程 · 声音与暂停",
+      "position": "title",
+      "current": "切换声音",
+      "status": "无障碍 / 元信息",
+      "source": "index.html:43 · title",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "A11Y-006",
+      "scene": "全程 · 声音与暂停",
+      "position": "aria-label",
+      "current": "暂停或继续",
+      "status": "无障碍 / 元信息",
+      "source": "index.html:43 · aria-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "A11Y-007",
+      "scene": "全程 · 声音与暂停",
+      "position": "title",
+      "current": "暂停动画",
+      "status": "无障碍 / 元信息",
+      "source": "index.html:43 · title",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "A11Y-008",
+      "scene": "片尾 · 创作团队与继续生长",
+      "position": "alt",
+      "current": "小海螺标志",
+      "status": "无障碍 / 元信息",
+      "source": "index.html:48 · alt",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "A11Y-009",
+      "scene": "水下 · 01–06 导航",
+      "position": "aria-label",
+      "current": "成长技能",
+      "status": "无障碍 / 元信息",
+      "source": "index.html:52 · aria-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "A11Y-010",
+      "scene": "水下 · 01–06 导航",
+      "position": "aria-label",
+      "current": "01 外部查询",
+      "status": "无障碍 / 元信息",
+      "source": "index.html:52 · aria-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "A11Y-011",
+      "scene": "水下 · 01–06 导航",
+      "position": "aria-label",
+      "current": "02 受益所有人",
+      "status": "无障碍 / 元信息",
+      "source": "index.html:52 · aria-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "A11Y-012",
+      "scene": "水下 · 01–06 导航",
+      "position": "aria-label",
+      "current": "03 财报转换",
+      "status": "无障碍 / 元信息",
+      "source": "index.html:52 · aria-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "A11Y-013",
+      "scene": "水下 · 01–06 导航",
+      "position": "aria-label",
+      "current": "04 股权穿透",
+      "status": "无障碍 / 元信息",
+      "source": "index.html:52 · aria-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "A11Y-014",
+      "scene": "水下 · 01–06 导航",
+      "position": "aria-label",
+      "current": "05 技能协作",
+      "status": "无障碍 / 元信息",
+      "source": "index.html:52 · aria-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "A11Y-015",
+      "scene": "水下 · 01–06 导航",
+      "position": "aria-label",
+      "current": "06 行内部署",
+      "status": "无障碍 / 元信息",
+      "source": "index.html:52 · aria-label",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-ee7e9504",
+      "scene": "载入与故障",
+      "position": "运行时文字 / 状态标签",
+      "current": "此浏览器无法启动 WebGL。可直接继续水下故事。",
+      "status": "异常或载入期间展示",
+      "source": "src/film.js:16",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-6df98830",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "已抵达海底。向下滚动滚轮或在屏幕上向上滑动，探索 APEX 技能。",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:17",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-2a0af7b3",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "旅程结束，欢迎重看。",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:17",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-2824fb41",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "PAUSE",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:19",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-a9d5af96",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "THE JUMP HAS BEGUN\n镜头即将自动下潜",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:19",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-d5b5ea27",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "SOUND ON",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:19",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-5ed84a42",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "SOUND OFF",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:19",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-5d14f194",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "YOUR FIRST MOVE\n点击把手 / 向右拖动开门",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:28",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-761629ed",
+      "scene": "保留的全息面板",
+      "position": "运行时文字 / 状态标签",
+      "current": "APEX SYSTEM // LIVE STORY DEMO",
+      "status": "当前隐藏",
+      "source": "src/film.js:33",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-bde5588a",
+      "scene": "保留的全息面板",
+      "position": "运行时文字 / 状态标签",
+      "current": "ILLUSTRATIVE DATA · NOT A LIVE BANKING SYSTEM",
+      "status": "当前隐藏",
+      "source": "src/film.js:33",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-1586c08e",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "外部查询",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:34",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-eaa86343",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "受益所有人识别",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:34",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-d2c03bea",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "财报转换",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:34",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-5e6b41f4",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "股权穿透",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:34",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-df74a558",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "技能协作",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:34",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-0c3672e4",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "行内部署",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:34",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-70a473de",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "APEX MILESTONE / ",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:34",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-6a1bbb2b",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "DEPTH",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:38",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-c2267774",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "ALTITUDE",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:38",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-85bb4c24",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "THE DESCENT",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:42",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-79897532",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "AWAITING RELEASE",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:43",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-f7b85e66",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "点击把手 / 向右拖动开门",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:43",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-a320f0d7",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "HATCH RELEASED",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:44",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-2cad42e5",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "舱门正在打开",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:44",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-cb8e0d08",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "FREEFALL",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:45",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-7a2ab72b",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "把好奇，交给辽阔。",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:45",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-395d3469",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "TAKE THE LEAP",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:45",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-39b2b558",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "自动坠落中 · 轻移鼠标环顾",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:45",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-f23a2cbe",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "SURFACE APPROACH",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:46",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-0a5210be",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "OCEAN ENTRY",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:46",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-010376c3",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "即将穿越水面",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:46",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-e3da05f3",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "正在穿越水面",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:46",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-905bd19a",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "SIGNAL AWAKENING",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:47",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-d1358708",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "沉入深蓝，听见生长。",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:47",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-5ec1c79d",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "A DIFFERENT KIND OF SENSE",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:47",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-66fdec8d",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "你已成为小海螺",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:47",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-7cf90188",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "YOUR FIRST MOVE",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:49",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-8ad1f8a8",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "CONTINUOUS DESCENT",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:49",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-44ed355f",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "THE PEOPLE",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:57",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-05c57a0b",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "JOURNEY COMPLETE",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:57",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-1a46f036",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "THE STORY CONTINUES\n小海螺，继续生长",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:57",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-ea7ed8e1",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "STORY PROGRESS",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:63",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-5fd637d4",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "END OF THE JOURNEY\n抵达终章",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:64",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-8a63830c",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "SCROLL TO SENSE",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:64",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-1d76d7fd",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "手指向上滑动",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:64",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-1512008e",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "滚轮向下滚动",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:64",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-aebb4324",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "· 遇见下一项技能",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:64",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-f25db22c",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "TAKE A MOMENT\n停留片刻 · 听见这一项能力",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:64",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-12ad6a71",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "RESUME",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/film.js:79",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-3398ddf5",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "镜头验收工具",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:119",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-92160808",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "镜头时间 0.00 s",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:120",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-3dabc37e",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "机舱",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:120",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-bbd3882e",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "开门 25%",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:120",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-a2fc8374",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "开门 50%",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:120",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-8043e449",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "开门 100%",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:120",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-5fcb98f8",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "跃出",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:120",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-4259f229",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "自由落体",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:120",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-2c4f9b5e",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "近海",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:120",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-f958a95c",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "水前",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:120",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-3b06e4ea",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "水线",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:120",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-4b3dace2",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "水后",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:120",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-8ccd26ea",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "穿水",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:120",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-d3e470a5",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "水下",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:120",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-066d60b5",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "抵达",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:120",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-6071e6b6",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "重置并播放片尾验收手部对齐图",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:120",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-78896320",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "\">技能 ",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:121",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-b874dd42",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "隐藏工具 (H)",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/film.js:129",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-1f8b7023",
+      "scene": "载入与故障",
+      "position": "运行时文字 / 状态标签",
+      "current": "图形设备连接中断。请重新载入，或直接继续水下故事。",
+      "status": "异常或载入期间展示",
+      "source": "src/first-stage/FirstStageDirector.js:31",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-cee460d6",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "点击门把或向右拖动，打开舱门",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/first-stage/FirstStageDirector.js:70",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-4b3baaf5",
+      "scene": "载入与故障",
+      "position": "运行时文字 / 状态标签",
+      "current": "场景素材未能载入。请重试，或直接继续水下故事。",
+      "status": "异常或载入期间展示",
+      "source": "src/first-stage/FirstStageDirector.js:71",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-f2fdafc8",
+      "scene": "天空 / 水下 · 动态状态与操作",
+      "position": "运行时文字 / 状态标签",
+      "current": "L · 框R · 闩",
+      "status": "按状态展示（含部分初始化值）",
+      "source": "src/first-stage/FirstStageDirector.js:122",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-880727d2",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "录制完整镜头",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/first-stage/QARecorder.js:3",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-10843b48",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "当前浏览器不支持录制",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/first-stage/QARecorder.js:9",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-257bed80",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "当前浏览器无可用的 WebM 编码器",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/first-stage/QARecorder.js:11",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-5b789fa2",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "录制不可用，请用关键帧验收",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/first-stage/QARecorder.js:14",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-12e25eec",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "下载实录 WebM",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/first-stage/QARecorder.js:19",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-4a4b4a88",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "结束录制",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/first-stage/QARecorder.js:22",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "TXT-ddac4f84",
+      "scene": "开发验收工具",
+      "position": "运行时文字 / 状态标签",
+      "current": "录制中（仅场景，不含 HTML 仪表与音轨）",
+      "status": "仅 ?qa=1，普通访客不展示",
+      "source": "src/first-stage/QARecorder.js:22",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "CANVAS-01",
+      "scene": "机舱 · 3D 舱门贴纸",
+      "position": "贴纸 / 铭牌",
+      "current": "APEX EXPEDITION / 001",
+      "status": "当前展示在门板，修改后需重新绘制贴图",
+      "source": "src/first-stage/AircraftDoor.js:27",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "CANVAS-02",
+      "scene": "机舱 · 3D 舱门贴纸",
+      "position": "贴纸 / 铭牌",
+      "current": "APEX.",
+      "status": "当前展示在门板，修改后需重新绘制贴图",
+      "source": "src/first-stage/AircraftDoor.js:29",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "CANVAS-03",
+      "scene": "机舱 · 3D 舱门贴纸",
+      "position": "贴纸 / 铭牌",
+      "current": "STUDIO",
+      "status": "当前展示在门板，修改后需重新绘制贴图",
+      "source": "src/first-stage/AircraftDoor.js:30",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "CANVAS-04",
+      "scene": "机舱 · 3D 舱门贴纸",
+      "position": "贴纸 / 铭牌",
+      "current": "DIVE DEEPER.",
+      "status": "当前展示在门板，修改后需重新绘制贴图",
+      "source": "src/first-stage/AircraftDoor.js:32",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "CANVAS-05",
+      "scene": "机舱 · 3D 舱门贴纸",
+      "position": "贴纸 / 铭牌",
+      "current": "THE LITTLE CONCH / FIRST SIGNAL",
+      "status": "当前展示在门板，修改后需重新绘制贴图",
+      "source": "src/first-stage/AircraftDoor.js:33",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "CANVAS-06",
+      "scene": "机舱 · 3D 舱门贴纸",
+      "position": "贴纸 / 铭牌",
+      "current": "BORN TO",
+      "status": "当前展示在门板，修改后需重新绘制贴图",
+      "source": "src/first-stage/AircraftDoor.js:35",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "CANVAS-07",
+      "scene": "机舱 · 3D 舱门贴纸",
+      "position": "贴纸 / 铭牌",
+      "current": "EXPLORE",
+      "status": "当前展示在门板，修改后需重新绘制贴图",
+      "source": "src/first-stage/AircraftDoor.js:35",
+      "replacement": "",
+      "notes": ""
+    },
+    {
+      "id": "CANVAS-08",
+      "scene": "机舱 · 3D 舱门贴纸",
+      "position": "贴纸 / 铭牌",
+      "current": "HATCH 01   /   PULL TO RELEASE",
+      "status": "当前展示在门板，修改后需重新绘制贴图",
+      "source": "src/first-stage/AircraftDoor.js:36",
+      "replacement": "",
+      "notes": ""
+    }
+  ]
+}

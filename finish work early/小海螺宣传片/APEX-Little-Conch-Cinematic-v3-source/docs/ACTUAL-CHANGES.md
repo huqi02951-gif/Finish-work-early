@@ -36,3 +36,9 @@
 - `tests/first-stage.test.js`
 
 原六张 V3 素材与 `src/style.css` SHA-256 未变。父仓库暂存区 SHA-256 未变。
+
+## 免费自动部署、手机手势和全文案交接
+
+本轮修改：`src/film.js`、`src/first-stage/DiveNavigation.js`、`src/first-stage/FirstStageDirector.js`、`index.html`。新增：`src/first-stage/PixelDensity.js`、`tests/mobile-input.test.js`、`scripts/export-copy.py`、`docs/copy/` 三份全文案导出、`docs/MOBILE-INPUT-FIX.md`，以及父仓库 `.github/workflows/little-conch-pages.yml`。更新 README、部署记录，增加本轮实测截图/读数。主叙事 `StoryChapters.js`、正式素材占位和故事顺序未改变。
+
+执行技能：engineering-change-discipline、diagnosing-bugs、cloudflare-deploy。

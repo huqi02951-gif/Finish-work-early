@@ -1,0 +1,40 @@
+{
+  "before": {
+    "canvas": [
+      390,
+      844
+    ],
+    "depth": "062",
+    "film": {
+      "audioState": "running",
+      "diveProgress": "0.1800",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "1",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  "after": {
+    "depth": "055",
+    "film": {
+      "audioState": "running",
+      "diveProgress": "0.1645",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "1",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    }
+  }
+}

@@ -12,6 +12,7 @@ import { assetManifest } from './assetManifest.js';
 import { CABIN, SUN } from './SceneLayout.js';
 import { SeaLifeEncounters } from './SeaLifeEncounters.js';
 import { HumanForeground } from './HumanForeground.js';
+import { renderPixelRatio } from './PixelDensity.js';
 export class FirstStageDirector {
   constructor({ host, hatch, onFailure }) {
     this.host = host; this.hatch = hatch; this.onFailure = onFailure;
@@ -70,8 +71,7 @@ export class FirstStageDirector {
     } catch (error) { console.error('First stage initialization failed', error); this.onFailure('场景素材未能载入。请重试，或直接继续水下故事。'); }
   }
   resize() {
-    this.dpr = Math.min(devicePixelRatio || 1, innerWidth < 640 ? 1.35 : 1.5);
-    if (this.qualityReduced) this.dpr = Math.min(this.dpr, 1);
+    this.dpr = renderPixelRatio(innerWidth, innerHeight, devicePixelRatio, this.qualityReduced);
     this.renderer.setPixelRatio(this.dpr); this.renderer.setSize(innerWidth, innerHeight);
     this.rig.resize(innerWidth, innerHeight); this.transition.resize(innerWidth, innerHeight, this.dpr);
   }

@@ -14,7 +14,7 @@ const clock = new SequenceClock(), gesture = new DoorGesture(), readingGate=new 
 let director=null, deepTime=0, sceneFailed=false;
 function sceneFailure(message){sceneFailed=true;el.film.classList.add('scene-unavailable');el.film.classList.remove('webgl-ready');$('scene-status').textContent=message;$('scene-status').hidden=false;el.hatch.disabled=true;}
 try {if(new URLSearchParams(location.search).get('renderer')==='disabled'&&new URLSearchParams(location.search).has('qa'))throw new Error('QA: renderer deliberately disabled');director=new FirstStageDirector({host:$('scene'),hatch:el.hatch,onFailure:sceneFailure});} catch(error){console.error(error);sceneFailure('此浏览器无法启动 WebGL。可直接继续水下故事。');}
-function css(name,value){root.style.setProperty('--'+name,String(value))}function phaseSet(x){if(phase!==x){phase=x;el.film.dataset.phase=x;el.announcer.textContent=x==='underwater'?'已抵达海底。向下滚动滚轮或在屏幕上向下滑动，探索 APEX 技能。':x==='credits'?'旅程结束，欢迎重看。':''}}
+function css(name,value){root.style.setProperty('--'+name,String(value))}function phaseSet(x){if(phase!==x){phase=x;el.film.dataset.phase=x;el.announcer.textContent=x==='underwater'?'已抵达海底。向下滚动滚轮或在屏幕上向上滑动，探索 APEX 技能。':x==='credits'?'旅程结束，欢迎重看。':''}}
 function resize(){curWidth=innerWidth;curHeight=innerHeight;}
 function begin(){if(phase!=='waiting'||!director?.ready)return;director.commitManual();clock.start();running=true;clock.paused=false;el.pauseLabel.textContent='PAUSE';el.pause.firstChild.textContent='Ⅱ ';phaseSet('opening');elapsed=0;el.hatch.setAttribute('aria-disabled','true');el.guide.innerHTML='THE JUMP HAS BEGUN<br><small>镜头即将自动下潜</small>';el.soundLabel.textContent=soundEnabled?'SOUND ON':'SOUND OFF';if(soundEnabled){startAudio();audio?.ctx.resume().catch(()=>{});}playClack()}
 function skipToUnderwater(){readingGate.reset();clock.seek(CURVE.settle);elapsed=CURVE.settle;underProgress=0;underTarget=0;running=true;clock.paused=false;el.pauseLabel.textContent='PAUSE';el.pause.firstChild.textContent='Ⅱ ';phaseSet('underwater');changeChapter(0);$('scene-status').hidden=true;if(soundEnabled){startAudio();audio?.ctx.resume().catch(()=>{});}}
@@ -61,18 +61,18 @@ function underwater(dt){underProgress=lerp(underProgress,underTarget,1-Math.exp(
  css('holo-opacity',n(ch.holo.length?fade*.93:0));css('holo-scale',n(.88+.08*fade));css('portal-opacity',n(ch.visual==='portal'?fade*.8:0));css('portal-scale',n(.65+.6*fade));
  css('sea-opacity','1');css('sky-opacity','0');css('cabin-opacity','0');css('hands-opacity','0');css('veil',n(.13+.48*p));css('light',n(.44-.27*p));css('sea-scale',n(1.12+.45*p));css('sea-y',n(-5-130*p)+'px');css('sea-tilt',n(Math.sin(p*7)*.38)+'deg');el.anchor.style.opacity='0';el.caption.style.opacity='0';
  const depth=Math.round(diveDepth(p));el.readout.textContent=String(depth).padStart(3,'0');el.readoutLabel.textContent='DEPTH';el.readoutUnit.textContent='M';el.speed.textContent='↓ '+n(Math.abs(underTarget-underProgress)*8+.4,1);el.progressPct.textContent=String(Math.round(p*100)).padStart(2,'0')+'%';el.track.style.width=n(p*100,1)+'%';el.progressLabel.textContent='STORY PROGRESS';el.mission.textContent=ch.id;
- el.guide.innerHTML=p>.96?'END OF THE JOURNEY<br><small>抵达终章</small>':(readingGate.allows(1,deepTime)?'SCROLL TO SENSE<br><small>缓缓向下滑动 · 遇见下一项技能</small>':'TAKE A MOMENT<br><small>停留片刻 · 听见这一项能力</small>');
+ el.guide.innerHTML=p>.96?'END OF THE JOURNEY<br><small>抵达终章</small>':(readingGate.allows(1,deepTime)?'SCROLL TO SENSE<br><small>'+(curWidth<640?'手指向上滑动':'滚轮向下滚动')+' · 遇见下一项技能</small>':'TAKE A MOMENT<br><small>停留片刻 · 听见这一项能力</small>');
  }
 function followPointer(e){const nx=clamp(e.clientX/curWidth),ny=clamp(e.clientY/curHeight);targetX=(nx-.5)*55;targetY=(ny-.5)*32;if(director)director.pointer.set((nx-.5)*2,(.5-ny)*2);}
 function onWheel(e){if(phase==='underwater'){e.preventDefault();if(!readingGate.allows(e.deltaY,deepTime))return;underTarget=addDiveInput(underProgress,underTarget,e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?curHeight:1)/DIVE_PACING.wheelPixels);}}
 let touchY=null;
 function onExploreStart(e){if(phase!=='underwater'||e.target.closest('button,input')||!e.isPrimary)return;touchY=e.clientY;el.film.setPointerCapture(e.pointerId);}
-function onExploreMove(e){if(phase!=='underwater'||touchY===null)return;const y=e.clientY,dy=y-touchY;touchY=y;if(!readingGate.allows(dy,deepTime))return;underTarget=addDiveInput(underProgress,underTarget,dy/(curHeight*DIVE_PACING.swipeScreens));}
+function onExploreMove(e){if(phase!=='underwater'||touchY===null)return;const y=e.clientY,dy=touchY-y;touchY=y;if(!readingGate.allows(dy,deepTime,'direct'))return;underTarget=addDiveInput(underProgress,underTarget,dy/(curHeight*DIVE_PACING.swipeScreens));}
 function keys(e){
  if(e.key==='Escape'&&phase!=='waiting'&&phase!=='credits'){togglePause();return;}
  if(e.target.closest('button,input'))return;
  if(['ArrowDown','ArrowUp',' ','PageDown','PageUp'].includes(e.key)){
-   e.preventDefault();if(phase==='underwater'){const dir=['ArrowUp','PageUp'].includes(e.key)?-1:1;if(readingGate.allows(dir,deepTime))underTarget=addDiveInput(underProgress,underTarget,dir*.045);}
+   e.preventDefault();if(phase==='underwater'){const dir=['ArrowUp','PageUp'].includes(e.key)?-1:1;if(readingGate.allows(dir,deepTime,'direct'))underTarget=addDiveInput(underProgress,underTarget,dir*.045);}
  }
 }
 function togglePause(){
@@ -140,7 +140,7 @@ function init(){
  document.querySelectorAll('[data-skill]').forEach(button=>button.addEventListener('click',()=>{if(phase!=='underwater')return;underTarget=CHAPTERS[Number(button.dataset.skill)].start+.045;}));
  el.replay.addEventListener('click',restart);el.pause.addEventListener('click',togglePause);el.sound.addEventListener('click',toggleSound);
  $('skip-intro').addEventListener('click',skipToUnderwater);
- el.touch.addEventListener('click',()=>{if(phase==='underwater')if(readingGate.allows(1,deepTime))underTarget=addDiveInput(underProgress,underTarget,.045)});
+ el.touch.addEventListener('click',()=>{if(phase==='underwater')if(readingGate.allows(1,deepTime,'direct'))underTarget=addDiveInput(underProgress,underTarget,.045)});
  addEventListener('pointermove',followPointer,{passive:true});addEventListener('wheel',onWheel,{passive:false});
  addEventListener('pointerdown',onExploreStart);addEventListener('pointermove',onExploreMove);addEventListener('pointerup',()=>{touchY=null});addEventListener('pointercancel',()=>{touchY=null});
  addEventListener('keydown',keys);
