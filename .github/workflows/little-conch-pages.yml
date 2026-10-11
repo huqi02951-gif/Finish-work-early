@@ -55,7 +55,18 @@ jobs:
             echo "::error::Missing LITTLE_CONCH_CLOUDFLARE_API_TOKEN repository secret"
             exit 1
           fi
-          npm exec --registry=https://registry.npmjs.org --yes --package=wrangler@4.149.0 -- wrangler whoami
+          node --input-type=module <<'NODE'
+          const account = process.env.CLOUDFLARE_ACCOUNT_ID;
+          const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/pages/projects/apex-little-conch`, {
+            headers: { Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}` }
+          });
+          const result = await response.json();
+          if (!response.ok || !result.success || result.result?.name !== 'apex-little-conch') {
+            console.error(`Pages authentication failed (HTTP ${response.status})`);
+            process.exit(1);
+          }
+          console.log('Authenticated for apex-little-conch Pages project');
+          NODE
           npm exec --registry=https://registry.npmjs.org --yes --package=wrangler@4.149.0 -- wrangler pages deploy dist --project-name=apex-little-conch --branch=main --commit-hash="$GITHUB_SHA"
       - name: Record published preview
         run: |
