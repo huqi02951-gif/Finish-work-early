@@ -1,0 +1,1 @@
+{"round":"director-v1","tests":["30px door drag cancels","100px drag opens","Escape pauses clock","mute remains suspended after resume","Enter opens and automatically arrives at 19s"],"source":"prior live browser validation","deviceLimit":"Chrome desktop viewports, not physical mobile devices"}

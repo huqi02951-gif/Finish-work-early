@@ -18,11 +18,18 @@ export class WaterTransition {
         void main(){
           vec2 uv=vUv, q=(uv-.5)*vec2(aspect,1.);float r=length(q);
           float phase=time-10.8;
+          // A slanted, turbulent sheet crosses the lens, instead of exposing the
+          // sea/reef change in a single unoccluded frame at Y=0. No scene crossfade.
+          float entryWindow=smoothstep(-.18,-.07,phase)*(1.-smoothstep(.18,.48,phase));
+          float front=mix(1.32,-.35,smoothstep(-.15,.36,phase));
+          float sheetNoise=noise(vec2(uv.x*12.,uv.y*5.-phase*11.));
+          float sheet=exp(-pow((uv.y-front+(uv.x-.5)*.22+sheetNoise*.14)*2.3,2.))*entryWindow;
           vec2 refract=vec2(sin(uv.y*36.+time*3.8),cos(uv.x*41.-time*3.))*submerged*.0014;
           refract+=normalize(q+.0001)*sin(r*36.-phase*20.)*impact*.021;
+          refract+=vec2(sin(uv.y*28.+sheetNoise*5.),cos(uv.x*23.-phase*19.))*sheet*.055;
           refract*=1.-reduced*.8;
           uv=clamp(uv+refract,vec2(.003),vec2(.997));
-          vec3 col=vec3(0.);float spread=blur+impact*.012;
+          vec3 col=vec3(0.);float spread=blur+impact*.012+sheet*.095*(1.-reduced*.75);
           for(int i=0;i<7;i++){float k=float(i)/6.-.5;col+=texture2D(tDiffuse,clamp(uv+(uv-.5)*k*spread,vec2(.002),vec2(.998))).rgb/7.;}
           // Irregular foam advects outward around a clear centre; no full-frame white flash.
           float wave=phase*1.75;
@@ -30,6 +37,9 @@ export class WaterTransition {
           float rim=exp(-pow((r-wave+turbulent)*13.,2.))*step(0.,phase);
           float foam=clamp(impact*.055+rim*.55,0.,.77)*(.4+noise(q*68.+time)*.6);
           col=mix(col,vec3(.68,.87,.88),foam);
+          float filaments=pow(.5+.5*sin(uv.x*64.+sheetNoise*16.),8.);
+          col=mix(col,col*vec3(.47,.76,.85)+vec3(.035,.11,.14),sheet*.74);
+          col+=sheet*filaments*vec3(.16,.27,.28);
           // Small refractive bubbles at the lens following actual surface entry.
           float bubbles=0.;
           for(int i=0;i<14;i++){

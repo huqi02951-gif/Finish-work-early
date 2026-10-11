@@ -1,0 +1,16 @@
+{
+  "phase": {
+    "audioState": "running",
+    "diveProgress": "0.0000",
+    "doorProgress": "1.0000",
+    "humanForeground": "hidden",
+    "milestone": "0",
+    "paused": "false",
+    "phase": "underwater",
+    "shot": "underwater",
+    "side": "left",
+    "soundEnabled": "true"
+  },
+  "stats": "{\"frames\":20100,\"medianMs\":8.3,\"p95Ms\":9.2,\"dpr\":1,\"calls\":5,\"geometries\":61,\"textures\":10}",
+  "time": "19.00 s"
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "file": "index.html",
+    "added": 7,
+    "removed": 7
+  },
+  {
+    "file": "README.md",
+    "added": 41,
+    "removed": 15
+  },
+  {
+    "file": "src/film.js",
+    "added": 128,
+    "removed": 53
+  }
+]

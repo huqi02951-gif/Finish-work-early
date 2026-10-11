@@ -1,20 +1,28 @@
 import * as THREE from 'three';
+import { diveDepth } from './DiveNavigation.js';
+export function createBackdropGeometry() {
+  const positions=[], uvs=[], indices=[], nx=64, ny=40;
+  for(let j=0;j<=ny;j++) for(let i=0;i<=nx;i++) {
+    const u=i/nx,v=j/ny,yaw=(u-.5)*Math.PI*1.35,pitch=(v-.5)*2.7,r=220;
+    positions.push(Math.sin(yaw)*Math.cos(pitch)*r, Math.sin(pitch)*r, -Math.cos(yaw)*Math.cos(pitch)*r);
+    uvs.push(u,v);
+    if(i<nx&&j<ny){const a=j*(nx+1)+i,b=a+1,c=a+nx+1,d=c+1;indices.push(a,b,c,b,d,c);}
+  }
+  const geometry=new THREE.BufferGeometry();
+  geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));geometry.setIndex(indices);
+  // Rotate the whole patch. Offsetting latitude past -PI/2 folds the last rows
+  // back over themselves, producing a pinched reef and a visible triangular gap.
+  geometry.rotateX(-.48); geometry.translate(0,-18,-12);
+  return geometry;
+}
 export class UnderwaterPOV {
   constructor(texture, mobile) {
     this.root = new THREE.Group();
     const material = new THREE.MeshBasicMaterial({ map: texture, color: 0x91c8d1 });
     // A world-space curved cyclorama covers the entire camera arc. The original
     // photographic V3 seabed is a distant plate, not falsely labelled a 3D reef.
-    const positionsDome=[], uvs=[], indices=[], nx=64, ny=40;
-    for(let j=0;j<=ny;j++) for(let i=0;i<=nx;i++) {
-      const u=i/nx,v=j/ny,yaw=(u-.5)*Math.PI*1.35,pitch=(v-.5)*2.7-.48,r=220;
-      positionsDome.push(Math.sin(yaw)*Math.cos(pitch)*r, -18+Math.sin(pitch)*r, -12-Math.cos(yaw)*Math.cos(pitch)*r);
-      uvs.push(u,v);
-      if(i<nx&&j<ny){const a=j*(nx+1)+i,b=a+1,c=a+nx+1,d=c+1;indices.push(a,b,c,b,d,c);}
-    }
-    const domeGeometry=new THREE.BufferGeometry();
-    domeGeometry.setAttribute('position',new THREE.Float32BufferAttribute(positionsDome,3));
-    domeGeometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));domeGeometry.setIndex(indices);
+    const domeGeometry=createBackdropGeometry();
     material.side=THREE.DoubleSide;
     this.root.add(new THREE.Mesh(domeGeometry,material));
     const count = mobile ? 110 : 210, positions = new Float32Array(count * 3);
@@ -33,5 +41,5 @@ export class UnderwaterPOV {
     });
     this.particles = new THREE.Points(geometry, pointMat); this.root.add(this.particles);
   }
-  update(s) { this.root.visible = s.y < 3; this.particles.material.uniforms.time.value = s.t; }
+  update(s, progress = 0) { this.root.position.y = -(diveDepth(progress) - 18); this.root.visible = s.y < 3; this.particles.material.uniforms.time.value = s.t; }
 }

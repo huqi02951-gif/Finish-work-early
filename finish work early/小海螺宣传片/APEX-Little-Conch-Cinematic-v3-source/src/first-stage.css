@@ -45,3 +45,61 @@
 .film:not([data-phase='credits']) .credits{visibility:hidden}
 .scene-unavailable #cinematic-canvas{display:none}
 .film[data-phase='credits'] .hud{visibility:hidden}
+/* Developer-only alignment overlay, never part of the public experience. */
+#qa-coordinates{position:absolute;inset:0;z-index:40;pointer-events:none}
+#qa-coordinates i{position:absolute;border:1px solid #ffd39d;border-radius:50%;width:16px;height:16px;transform:translate(-50%,-50%);font:10px monospace;color:#fff4cc;white-space:nowrap;text-indent:23px;font-style:normal}
+#qa-coordinates output{position:absolute;top:26%;left:12px;max-width:45vw;font:9px/1.4 monospace;white-space:pre-wrap;background:#07131bd9;color:#dbe5e7;padding:10px}
+@media(max-width:600px){#qa-coordinates output{top:160px;font-size:7px;max-width:55vw}}
+@media(orientation:landscape) and (max-height:500px){
+ .hud{top:96px}.readout strong{font-size:25px}.hud-eyebrow{font-size:8px}
+}
+.top{padding-left:max(4.5vw,calc(env(safe-area-inset-left) + 12px));padding-right:max(4.5vw,calc(env(safe-area-inset-right) + 12px))}
+@media(max-width:620px){
+ .top{padding-left:max(16px,calc(env(safe-area-inset-left) + 12px));padding-right:max(12px,calc(env(safe-area-inset-right) + 12px))}
+ .hud-left,.footer{left:max(18px,calc(env(safe-area-inset-left) + 12px))}
+ .hud-right,.footer{right:max(18px,calc(env(safe-area-inset-right) + 12px))}
+}
+/* Preserve instrument legibility against the open, bright sky. */
+.film[data-shot='falling'] .top,.film[data-shot='falling'] .hud{ text-shadow:0 1px 3px #041521,0 0 9px #04152180 }
+.film[data-shot='falling'] .vignette{background:linear-gradient(#03121e55,transparent 32%),radial-gradient(ellipse at 50% 48%,transparent 38%,#000c1540 100%)}
+
+/* Deterministic QA sampling shows the completed panel, even while its clock is paused. */
+.qa-mode .film[data-paused='true'] #holo-contents{animation:none}
+.chapter-copy h2{font-size:clamp(42px,4.4vw,64px)}
+.credits-growth{line-height:1.8;margin:8px 20px;color:#aad7dc!important}
+@media(max-width:620px){.chapter-copy h2{font-size:clamp(32px,9.2vw,40px)}}
+@media(max-width:620px) and (max-height:660px){
+ .film[data-phase='underwater'] .holo-cluster{top:40%;height:24vh;left:50%;width:94vw}
+ #holo-contents{inset:12% 10%;gap:5px}.holo-title{font-size:15px}.holo-head{font-size:6px;letter-spacing:.08em}.holo-row{font-size:8px;padding:2px 0}.holo-foot{font-size:6px;letter-spacing:.03em}.holo-graph{height:20px}
+ .chapter-copy{bottom:16%;left:20px;width:88vw}.chapter-copy #chapter-kicker{font-size:7px;letter-spacing:.13em;margin-bottom:9px}.chapter-copy h2{font-size:28px;line-height:1.02;margin-bottom:9px}.chapter-copy #chapter-cn{font-size:12px}.chapter-copy #chapter-desc{font-size:10px;line-height:1.6}.chapter-line{margin:9px 0}
+ .credits{padding-top:42px;padding-bottom:42px}.credits>span{font-size:7px;letter-spacing:.17em}.credits img{height:8vh}.credits h2{font-size:28px}.credits p{font-size:10px}.credits-line{margin:8px}.credits h3{font-size:16px}.credits p.credits-names{font-size:10px}.credits button{padding:9px 14px;margin-top:8px}
+}
+
+.qa-mode .film[data-phase='credits'][data-paused='true'] .credits{transition:none}
+
+/* One large encounter per skill; supporting data no longer competes with its silhouette. */
+.film[data-phase='underwater'] .holo-cluster{display:none}
+.film[data-phase='underwater'][data-side='right'] .chapter-copy{left:55%;width:37vw}
+.film[data-phase='underwater'][data-side='right'] .data-caption{left:16%;right:auto}
+.film[data-phase='underwater'][data-side='left'] .data-caption{right:16%}
+.film[data-phase='underwater'] .data-caption{bottom:22%}
+.film[data-phase='underwater'] .footer-center{display:none}
+.skill-nav{position:absolute;z-index:21;left:50%;bottom:28px;transform:translateX(-50%);display:flex;gap:8px}
+.skill-nav button{background:transparent;border:0;border-bottom:1px solid #aacbd84d;color:#a1bfce;font:10px monospace;min-width:32px;min-height:32px;cursor:pointer}
+.skill-nav button[aria-current='step']{color:#ffe7c2;border-color:#e6c8a2}
+.film:not([data-phase='underwater']) .skill-nav{display:none}
+.film[data-phase='underwater'][data-milestone='0'] .world-object{display:block!important;opacity:1;left:70%;top:45%;width:min(29vw,420px)}
+.film[data-phase='underwater'][data-milestone='0'] .world-object .object-glow,.film[data-phase='underwater'][data-milestone='0'] .world-object .object-orbit{display:none}
+@media(max-width:620px){
+ .film[data-phase='underwater'][data-side='right'] .chapter-copy{left:24px;width:85vw}
+ .skill-nav{bottom:82px;gap:8px}.skill-nav button{font-size:9px;min-width:30px;min-height:28px}
+ .film[data-phase='underwater'][data-milestone='0'] .world-object{left:50%;top:38%;width:55vw}
+}
+@media(max-width:620px) and (max-height:660px){
+ .chapter-copy,.film[data-phase='underwater'][data-side='right'] .chapter-copy{left:20px;width:88vw;bottom:20%}
+ .skill-nav{bottom:64px;gap:6px}.skill-nav button{min-height:24px}
+}
+
+.film:not([data-phase='underwater']) .holo-cluster,.film:not([data-phase='underwater']) .floor-portal{visibility:hidden}
+
+.film[data-phase='underwater'] .floor-portal{display:none}

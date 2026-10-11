@@ -1,26 +1,23 @@
-# THE LITTLE CONCH · V3.1 第一阶段工程版
+# THE LITTLE CONCH · V3.2
 
-在现有 V3 上接入 Three.js，重构机舱 → 手动开门 → 连续自由落体 → 海面穿越 → 小海螺第一视角。深海原章节顺序保留，片尾署名为「小海螺诞生于 APEX Studio」「动画、3D 与网站制作：胡晓丹」。
+在现有 V3 工程上完善第一人称机舱、手动开门、连续坠落、穿越水面与海螺视角。水下按用户最新要求加入主动下潜、逐项技能叙事、原创海洋生物贴图和持续生长的片尾。
 
-**当前是经过浏览器测试的镜头联调版本，尚未达到最终写实美术标准。** 原机舱/门板暂用 V3 图片；旧手部图因分辨率与裁切不合格而默认禁用。等待 GPT 交付正式素材，要求详见 [素材清单](docs/ASSET-REQUESTS.md)。
+当前为可运行的工程预览；写实机舱、手部和壳口的正式美术尚未交付。G0 概念板未进入运行时。原 V3 图片和 `src/style.css` 保留。
 
-## 本机预览
+## 运行
 
 ```sh
 npm ci
 npm run dev
 ```
 
-打开 http://127.0.0.1:4180/ 。仅当前电脑可访问；这不是公网部署链接。
+打开 http://127.0.0.1:4180/ 。点击门把或向右拖动开门，之后自动演出约 19 秒。进入水下后，滚轮向下、鼠标向下拖动、手指向下滑动或方向键推进技能；反向输入可回到上一技能。一次大幅输入最多进入下一技能，继续输入才会推进更多技能。输入行程已放慢约 5–7 倍；每遇见新技能保留 5 秒阅读时间，正向惯性在此期间不推进，反向可回看。01–06 导航可主动选择技能。
 
-- 点击门板或向右拖动把手开始。短拖动或取消会回弹。
-- 门开后自动演出约 19 秒；鼠标只轻微转动视线，不自动推进故事。
-- 抵达水下后，滚轮、上拖/触屏上滑或方向键继续原章节。
-- 声音、暂停、跳过开场、片尾重播均保留。系统减少动态效果时减弱镜头旋转、震动和速度模糊。
-- QA：http://127.0.0.1:4180/?qa=1 。时间轴/八个关键帧/片尾按钮、Canvas WebM 录制；H 隐藏或显示工具。
-- 截图与实录：http://127.0.0.1:4180/qa/first-stage/gallery.html 。
+QA：http://127.0.0.1:4180/?qa=1 。时间轴、开门比例、穿水前后、技能和片尾可独立验收；H 显示/隐藏工具。QA 采样暂停时显示全息面板的完成状态。生产页面不显示验收工具。
 
-## 构建与验证
+截图画廊：http://127.0.0.1:4180/qa/growth-v1/gallery.html 。前半段连续关键帧：http://127.0.0.1:4180/qa/director-v1/gallery.html 。这些是本地验收资料，默认不随生产 `dist/` 发布。
+
+## 构建与发布
 
 ```sh
 npm test
@@ -28,21 +25,24 @@ npm run build
 npm run preview
 ```
 
-生产预览 http://127.0.0.1:4181/ 。发布时仅部署 `dist/`，`base: './'` 支持目录部署。不要把 research、备份或 node_modules 一起发布。依赖已锁定；生产运行不请求 CDN。
+17 项自动化测试覆盖门交互、镜头连续性、入水速度、GLB 局部坐标、手部锚点、背景几何以及下潜技能顺序和真实深度。生产预览 http://127.0.0.1:4181/ 。Cloudflare Pages 上传 `dist/`，不得上传备份、研究资料或整个父仓库。
 
-测试范围、实测截图与局限见 [验收记录](docs/FIRST-STAGE-QA.md)。模块和镜头坐标见 [架构说明](docs/FIRST-STAGE-ARCHITECTURE.md)。
+GitHub 使用独立分支 `codex/little-conch-stage1-director-v1`，不修改父仓库原有暂存区，也不合并 main。GPT 完成 G4 美术验收后再决定合并。Pages 使用静态直接上传，GitHub 推送不会自动触发部署。
 
-## 保留与回滚
+## 交接与局限
 
-原 V3 的 index、src、assets、README 共 10 个文件已在改动前备份：`backups/V3-original-2026-10-11.zip`；同目录 SHA-256 清单已校验。原 assets 和 `src/style.css` 保持逐字节不变。`dive-preview/` 是此前的独立试作，本轮未以它替换 V3。
+- [本轮交接](docs/GROWTH-V1-HANDOFF.md)：修改、实测、剩余资产与生成贴图来源。
+- [第一阶段实现](docs/DIRECTOR-V1-IMPLEMENTATION.md)：构图、光照、门比例、坐标及镜头。
+- [正式资产需求](docs/ASSET-REQUESTS.md) / [坐标契约](docs/SCENE-COORDINATES.md)。
 
-安全恢复为独立目录：
+当前水下使用照片曲面远景、三维水面、粒子与世界空间贴图生物；生物作为大图标呈现，桌面左右交替、手机上图下文。天空使用原创写实透明云片，尚非完整三维海底。实时模糊为近似效果；音效为合成音。手机截图来自桌面 Chrome 的指定视口，不能替代真实 iOS/Android 验收。
+
+## 备份与回滚
+
+改动前完整备份 `backups/V3-original-2026-10-11.zip` 与 `backups/V3.1-before-director-review-2026-10-11.zip`，附 SHA-256 清单。需要回滚时解压到新目录，避免覆盖当前工程：
 
 ```sh
-unzip backups/V3-original-2026-10-11.zip -d ../APEX-V3-restored
-python3 -m http.server 4182 --directory ../APEX-V3-restored
+unzip backups/V3.1-before-director-review-2026-10-11.zip -d ../APEX-V3.1-restored
 ```
 
-当前渲染包含三维框架、水面和粒子，以及照片曲面远景；不是完整三维海底世界。径向模糊为实时近似。声音是原版合成音的连贯调整，未完成专业拟音混音。手部/壳边的最终艺术验收和真实 iOS/Android 设备验收仍待完成。
-
-使用技能：engineering-change-discipline（改动/证据/回归与范围），hyperframes:gsap（手动回弹与动画控制参考）。参考站技术研究见 `research/freefall-2026-10-10/`；未采用其专有图片、模型、字体或贴纸。
+技能：engineering-change-discipline、hyperframes:gsap、imagegen、cloudflare-deploy。未复制参考站专有图片、模型、字体或贴纸。

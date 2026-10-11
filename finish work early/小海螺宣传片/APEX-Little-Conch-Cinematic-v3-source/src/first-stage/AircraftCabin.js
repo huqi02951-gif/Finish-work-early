@@ -1,36 +1,52 @@
 import * as THREE from 'three';
 import { AircraftDoor } from './AircraftDoor.js';
 import { START_ALTITUDE } from './FreefallSequence.js';
+import { CABIN } from './SceneLayout.js';
+
 export class AircraftCabin {
   constructor(textures) {
-    this.root = new THREE.Group(); this.root.position.y = START_ALTITUDE;
-    const structure = new THREE.MeshStandardMaterial({ color: 0x36484a, roughness: 0.68, metalness: 0.48 });
-    const edge = new THREE.MeshStandardMaterial({ color: 0x7b8680, roughness: 0.4, metalness: 0.78 });
-    const rubber = new THREE.MeshStandardMaterial({ color: 0x111d21, roughness: 0.95 });
-    const box = (size, pos, mat) => { const m = new THREE.Mesh(new THREE.BoxGeometry(...size), mat); m.position.set(...pos); this.root.add(m); return m; };
-    // Real jamb depth and floor are separate from the retained V3 artwork.
-    box([4.5, 7, 0.28], [-3.63, 0, -1.15], structure);
-    box([4.5, 7, 0.28], [3.63, 0, -1.15], structure);
-    box([2.8, 1.2, 0.3], [0, 2.65, -1.15], structure);
-    box([2.8, 1.2, 0.3], [0, -2.65, -1.15], structure);
-    for (const x of [-1.36, 1.36]) {
-      box([0.12, 4.35, 0.52], [x, 0, -0.92], edge);
-      box([0.055, 4.1, 0.09], [x * 0.96, 0, -0.68], rubber);
-    }
-    for (const y of [-2.14, 2.14]) box([2.85, 0.12, 0.52], [0, y, -0.92], edge);
-    box([8, 0.12, 7.5], [0, -2.18, 2.65], structure);
-    for (let z = -0.4; z < 6; z += 0.38) box([6, 0.025, 0.035], [0, -2.105, z], edge);
-    // Temporary V3 sidewall image. Replaced by approved art, never by reference assets.
-    const plate = new THREE.Mesh(new THREE.PlaneGeometry(10, 5.625), new THREE.MeshStandardMaterial({ map: textures.cabin, transparent: true, alphaTest: 0.12, roughness: 0.8, metalness: 0.25, color: 0x8c9b9f }));
-    plate.position.set(0, 0, -0.65); this.root.add(plate);
-    for (const x of [-2.55, 2.55]) {
-      for (const z of [0.6, 2.5, 4.5]) {
-        box([0.1, 4.7, 0.1], [x, 0, z], edge);
-        box([0.16, 0.03, 0.85], [x * 0.97, 1.5, z], new THREE.MeshStandardMaterial({ color: 0xb7d8ce, emissive: 0xadcabf, emissiveIntensity: 0.9 }));
+    this.root = new THREE.Group(); this.root.name = 'AircraftCabin';
+    this.root.position.y = START_ALTITUDE;
+    const structure = new THREE.MeshStandardMaterial({ color: 0x242a30, roughness: .78, metalness: .36 });
+    const edge = new THREE.MeshStandardMaterial({ color: 0x66727c, roughness: .48, metalness: .72 });
+    const rubber = new THREE.MeshStandardMaterial({ color: 0x13191f, roughness: .95 });
+    const box = (size, pos, mat) => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(...size), mat);
+      m.position.set(...pos); m.castShadow = m.receiveShadow = true; this.root.add(m); return m;
+    };
+    const { doorWidth: w, doorHeight: h, doorCenterY: cy, floorY: floor } = CABIN;
+    // Structural pieces share a perspective camera and an eye level 1.65m above floor.
+    for (const sign of [-1, 1]) {
+      box([2.8, 4.5, .20], [sign * (w / 2 + 1.4), cy, -1.18], structure);
+      box([.14, h + .20, .38], [sign * (w / 2 + .085), cy, -.95], edge);
+      box([.035, h + .025, .06], [sign * (w / 2 + .012), cy, -.755], rubber);
+      box([.14, 3.0, 6.5], [sign * 1.95, -.2, 2.1], structure);
+      for (const z of [.15, 1.55, 3.15, 4.75]) {
+        box([.13, 2.8, .085], [sign * 1.82, -.22, z], edge);
+        box([.18, .04, 1.0], [sign * 1.79, .94, z], edge);
       }
     }
-    this.door = new AircraftDoor(textures.hatch); this.root.add(this.door.root);
-    const cabinLight = new THREE.PointLight(0xb6d4d9, 30, 12, 2); cabinLight.position.set(0, 1.6, 2); this.root.add(cabinLight);
+    for (const y of [floor - .08, cy + h / 2 + .08]) {
+      box([w + .31, .16, .38], [0, y, -.95], edge);
+      box([w + .04, 1.1, .20], [0, y + (y < 0 ? -.62 : .62), -1.18], structure);
+    }
+    box([3.9, .12, 7], [0, floor - .06, 2.4], structure);
+    box([3.9, .12, 7], [0, 1.27, 2.4], structure);
+    // Tread strips and recessed floor rails, with real depth and limited repetition.
+    for (let z = -.66; z < 5; z += .45) box([1.7, .012, .025], [0, floor + .008, z], edge);
+    for (const x of [-1.08, 1.08]) box([.065, .025, 6.5], [x, floor + .012, 2.1], rubber);
+    box([w, .055, .25], [0, floor + .027, -.96], edge);
+    // Keep the original placeholder, at its native aspect and behind the real jamb.
+    // G0 concept boards are not used as textures. These scratches await A1 replacement.
+    const plate = new THREE.Mesh(new THREE.PlaneGeometry(6.2, 3.4875), new THREE.MeshStandardMaterial({
+      map: textures.cabin, transparent: true, alphaTest: .12, roughness: .88, metalness: .18, color: 0x66727c,
+    }));
+    plate.position.set(0, cy, -1.065); plate.receiveShadow = true; this.root.add(plate);
+    this.door = new AircraftDoor(textures.hatch, { normalMap: textures.doorNormal, roughnessMap: textures.doorRoughness, metalnessMap: textures.doorMetalness }); this.root.add(this.door.root);
+    this.leftGrip = new THREE.Object3D(); this.leftGrip.name = 'Grip_Frame_Left';
+    this.leftGrip.position.set(...CABIN.leftGrip); this.root.add(this.leftGrip);
+    const fill = new THREE.PointLight(0x91abc4, 3.2, 7, 2);
+    fill.position.set(.8, .75, 1.6); this.root.add(fill);
   }
   update(s) { this.root.visible = s.t < 6; this.door.update(s.door); }
 }

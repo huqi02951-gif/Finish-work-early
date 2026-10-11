@@ -1,0 +1,124 @@
+[
+  {
+    "path": "assets/sky.webp",
+    "size": [
+      1672,
+      941
+    ],
+    "bytes": 314396,
+    "alphaExtrema": null,
+    "fullyTransparentPixels": 0,
+    "sha256": "c1312f2ac6b1502213730d72fff301dac5647bb0d879aa1415fbf03d3bfb9579",
+    "runtime": true,
+    "status": "V3 placeholder retained"
+  },
+  {
+    "path": "assets/hatch.webp",
+    "size": [
+      980,
+      1280
+    ],
+    "bytes": 617634,
+    "alphaExtrema": [
+      5,
+      255
+    ],
+    "fullyTransparentPixels": 0,
+    "sha256": "af194789f7a311cff4363408ab8228b4af1e77a086d496a0234ef31577b5c440",
+    "runtime": true,
+    "status": "V3 placeholder retained"
+  },
+  {
+    "path": "assets/seabed.webp",
+    "size": [
+      1672,
+      941
+    ],
+    "bytes": 342316,
+    "alphaExtrema": null,
+    "fullyTransparentPixels": 0,
+    "sha256": "c556060d6decab2253cbdfc5354f53783772f086efd460a6f6f1d33a29d929ce",
+    "runtime": true,
+    "status": "V3 placeholder retained"
+  },
+  {
+    "path": "assets/cabin.webp",
+    "size": [
+      1600,
+      900
+    ],
+    "bytes": 197094,
+    "alphaExtrema": [
+      0,
+      255
+    ],
+    "fullyTransparentPixels": 770353,
+    "sha256": "ba11e792a7cc4fcebe4f3d587689c2f7bf2b9f388067e8d6da9f34c2a80958e7",
+    "runtime": true,
+    "status": "V3 placeholder retained"
+  },
+  {
+    "path": "assets/pov-hands.webp",
+    "size": [
+      388,
+      350
+    ],
+    "bytes": 30328,
+    "alphaExtrema": [
+      0,
+      255
+    ],
+    "fullyTransparentPixels": 118734,
+    "sha256": "11c447915a9f69bcd2e715cf29ff207de1ad32669b06c8f5d42192070702693e",
+    "runtime": true,
+    "status": "V3 placeholder retained"
+  },
+  {
+    "path": "docs/disign/a_high_resolution_concept_asset_board_collage_on_a (1).png",
+    "size": [
+      1672,
+      941
+    ],
+    "bytes": 3006883,
+    "alphaExtrema": [
+      116,
+      252
+    ],
+    "fullyTransparentPixels": 0,
+    "sha256": "f878cd4e4cf7b457e2dc65525f79c578c00a35362415e5584dea8a12b7e829ea",
+    "runtime": false,
+    "status": "G0 reference only; not approved"
+  },
+  {
+    "path": "docs/disign/a_high_resolution_concept_asset_board_collage_on_a.png",
+    "size": [
+      1672,
+      941
+    ],
+    "bytes": 3006883,
+    "alphaExtrema": [
+      116,
+      252
+    ],
+    "fullyTransparentPixels": 0,
+    "sha256": "f878cd4e4cf7b457e2dc65525f79c578c00a35362415e5584dea8a12b7e829ea",
+    "runtime": false,
+    "status": "G0 reference only; not approved"
+  },
+  {
+    "path": "docs/disign/a_wide_high_resolution_concept_asset_sheet_collag.png",
+    "size": [
+      1672,
+      941
+    ],
+    "bytes": 2807334,
+    "alphaExtrema": [
+      0,
+      255
+    ],
+    "fullyTransparentPixels": 6068,
+    "sha256": "4c913abf3029a37f093634e509c32bbb264c85de2ba2141bd64e1c899bb24df6",
+    "runtime": false,
+    "status": "G0 reference only; not approved"
+  }
+]

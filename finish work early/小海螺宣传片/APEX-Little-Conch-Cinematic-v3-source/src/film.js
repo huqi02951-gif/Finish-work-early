@@ -1,33 +1,25 @@
+import { CHAPTERS } from './StoryChapters.js';
+import { addDiveInput, diveDepth, DIVE_PACING, DiveReadingGate } from './first-stage/DiveNavigation.js';
 import { setupRecorder } from './first-stage/QARecorder.js';
 import { FirstStageDirector } from './first-stage/FirstStageDirector.js';
 import { DoorGesture } from './first-stage/AircraftDoor.js';
 import { SequenceClock, TIMING, sampleSequence } from './first-stage/FreefallSequence.js';
 (()=>{
 'use strict';
-const $=id=>document.getElementById(id), clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,sm=(a,b,v)=>{let u=clamp((v-a)/(b-a));return u*u*(3-2*u)},n=(v,d=0)=>Number(v).toFixed(d), root=document.documentElement;
+const $=id=>document.getElementById(id), clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,sm=(a,b,v)=>{let u=clamp((v-a)/(b-a));return u*u*(3-2*u)},n=(v,d=3)=>Number(v).toFixed(d), root=document.documentElement;
 const el={film:$('film'),hatch:$('hatch'),anchor:$('hatch-anchor'),sky:$('sky'),sea:$('underwater'),frame:$('cabin'),hands:$('hands'),flash:$('impact-flash'),splash:$('splash'),streaks:$('motion-lines'),object:$('world-object'),shell:$('shell'),holo:$('holo'),holoContents:$('holo-contents'),portal:$('portal'),caption:$('flight-caption'),flightIndex:$('flight-index'),flightLine:$('flight-line'),flightSub:$('flight-sub'),title:$('title-screen'),copy:$('chapter-copy'),kicker:$('chapter-kicker'),chapterTitle:$('chapter-title'),chapterCn:$('chapter-cn'),chapterDesc:$('chapter-desc'),data:$('data-caption'),dataLabel:$('data-label'),dataName:$('data-name'),credits:$('credits'),sound:$('sound'),soundLabel:$('sound-label'),pause:$('pause'),pauseLabel:$('pause-label'),readout:$('readout'),readoutLabel:$('readout-label'),readoutUnit:$('readout-unit'),speed:$('speed'),mission:$('mission'),missionDot:$('mission-dot'),guide:$('guide-text'),progressLabel:$('progress-label'),progressPct:$('progress-pct'),track:$('track'),replay:$('replay'),touch:$('tap-continue'),announcer:$('announcer'),particles:$('particles')};
-const CHAPTERS=[
-{start:0,id:'THE FIRST SPARK',kicker:'ORIGIN / 00 — THE LITTLE CONCH',title:'A SMALL\nBEGINNING.',cn:'海底，出现了一颗微小的光。',desc:'每一种新能力，都从一次好奇开始。',label:'FIRST SPARK',visual:'conch',holo:[],depth:18},
-{start:.135,id:'EXTERNAL QUERY',kicker:'MILESTONE / 01 — EXTERNAL INTELLIGENCE',title:'IT BEGAN\nWITH A QUESTION.',cn:'第一项能力 · 外部查询',desc:'小海螺学会寻找公开信息，也学会让一条线索成为下一次判断的起点。',label:'EXTERNAL QUERY',visual:'query',depth:52,holo:[['QUERY','某科技企业基本情况'],['工商信息','已整理 · 示例'],['经营线索','已提取 · 示例'],['公开信息','来源待核验']]},
-{start:.275,id:'BENEFICIAL OWNERSHIP',kicker:'MILESTONE / 02 — BENEFICIAL OWNERSHIP',title:'FOLLOW\nTHE THREADS.',cn:'第二项能力 · 受益所有人识别',desc:'穿过多层持股与控制关系，辅助发现企业背后更深层的关联线索。',label:'BENEFICIAL OWNERSHIP',visual:'ownership',depth:103,holo:[['START','主体 A'],['第一层','企业 B → 企业 C'],['第二层','自然人 D'],['输出','关联链条 · 待人工核验']]},
-{start:.415,id:'FINANCIAL TRANSFORMATION',kicker:'MILESTONE / 03 — FINANCIAL STATEMENTS',title:'LET NUMBERS\nFIND ORDER.',cn:'第三项能力 · 财报转换',desc:'将不同格式的财务资料转化为结构化内容，让分析从重复录入转向信息理解。',label:'FINANCIAL CONVERSION',visual:'finance',depth:156,holo:[['INPUT','PDF / XLSX / IMAGE'],['EXTRACT','字段识别'],['NORMALIZE','科目映射'],['OUTPUT','标准报表 · 示例']]},
-{start:.56,id:'EQUITY INTELLIGENCE',kicker:'MILESTONE / 04 — EQUITY NETWORK',title:'BEYOND\nTHE SURFACE.',cn:'第四项能力 · 股权穿透',desc:'借助多层网络看清股东、间接持股路径与重要关联节点，为专业判断补全结构线索。',label:'EQUITY NETWORK',visual:'equity',depth:207,holo:[['SOURCE','目标企业'],['PATH / 01','直接持股'],['PATH / 02','间接持股'],['CHECK','控制关系需复核']]},
-{start:.695,id:'THE APEX WORKFLOW',kicker:'MILESTONE / 05 — SKILL ORCHESTRATION',title:'ONE TASK.\nMANY SKILLS.',cn:'从工具，到协同工作的能力。',desc:'查询、关系识别、财报处理与专业分析渐渐连接起来，一条完整的业务作业链开始成形。',label:'APEX WORKFLOW',visual:'skills',depth:259,holo:[['ROUTING','统一接收任务'],['AGENT / 01','外部信息'],['AGENT / 02','财务 · 股权'],['REVIEW','人工核验与交付']]},
-{start:.825,id:'THE FIRST DAY',kicker:'MILESTONE / 06 — DIGITAL EMPLOYEE',title:'READY FOR\nDAY ONE.',cn:'抵达行内，继续成长。',desc:'APEX Studio 正在推动行内部署与数字员工作业场景落地。新旅程，从这里开始。',label:'DIGITAL EMPLOYEE',visual:'portal',depth:306,holo:[]},
-{start:.958,id:'THE PEOPLE',kicker:'FINALE / 07 — APEX STUDIO',title:'MADE BY\nPEOPLE.',cn:'故事仍在继续。',desc:'',label:'CREDITS',visual:'credits',depth:320,holo:[]}
-];
 let phase='waiting',running=true,soundEnabled=true,elapsed=0,underProgress=0,underTarget=0,lookX=0,lookY=0,targetX=0,targetY=0,chapterIndex=-1,lastFrame=0,elapsedImpact=false,curWidth=innerWidth,curHeight=innerHeight,audio=null;
 const CURVE={...TIMING, settle:TIMING.settle};
-const clock = new SequenceClock(), gesture = new DoorGesture();
+const clock = new SequenceClock(), gesture = new DoorGesture(), readingGate=new DiveReadingGate();
 let director=null, deepTime=0, sceneFailed=false;
 function sceneFailure(message){sceneFailed=true;el.film.classList.add('scene-unavailable');el.film.classList.remove('webgl-ready');$('scene-status').textContent=message;$('scene-status').hidden=false;el.hatch.disabled=true;}
 try {if(new URLSearchParams(location.search).get('renderer')==='disabled'&&new URLSearchParams(location.search).has('qa'))throw new Error('QA: renderer deliberately disabled');director=new FirstStageDirector({host:$('scene'),hatch:el.hatch,onFailure:sceneFailure});} catch(error){console.error(error);sceneFailure('此浏览器无法启动 WebGL。可直接继续水下故事。');}
-function css(name,value){root.style.setProperty('--'+name,String(value))}function phaseSet(x){if(phase!==x){phase=x;el.film.dataset.phase=x;el.announcer.textContent=x==='underwater'?'已抵达海底。滚动滚轮或在屏幕上上滑，探索 APEX 技能。':x==='credits'?'旅程结束，欢迎重看。':''}}
+function css(name,value){root.style.setProperty('--'+name,String(value))}function phaseSet(x){if(phase!==x){phase=x;el.film.dataset.phase=x;el.announcer.textContent=x==='underwater'?'已抵达海底。向下滚动滚轮或在屏幕上向下滑动，探索 APEX 技能。':x==='credits'?'旅程结束，欢迎重看。':''}}
 function resize(){curWidth=innerWidth;curHeight=innerHeight;}
-function begin(){if(phase!=='waiting'||!director?.ready)return;clock.start();running=true;clock.paused=false;el.pauseLabel.textContent='PAUSE';el.pause.firstChild.textContent='Ⅱ ';phaseSet('opening');elapsed=0;el.hatch.setAttribute('aria-disabled','true');el.guide.innerHTML='THE JUMP HAS BEGUN<br><small>镜头即将自动下潜</small>';el.soundLabel.textContent=soundEnabled?'SOUND ON':'SOUND OFF';if(soundEnabled){startAudio();audio?.ctx.resume().catch(()=>{});}playClack()}
-function skipToUnderwater(){clock.seek(CURVE.settle);elapsed=CURVE.settle;underProgress=0;underTarget=0;running=true;clock.paused=false;el.pauseLabel.textContent='PAUSE';el.pause.firstChild.textContent='Ⅱ ';phaseSet('underwater');changeChapter(0);$('scene-status').hidden=true;if(soundEnabled){startAudio();audio?.ctx.resume().catch(()=>{});}}
+function begin(){if(phase!=='waiting'||!director?.ready)return;director.commitManual();clock.start();running=true;clock.paused=false;el.pauseLabel.textContent='PAUSE';el.pause.firstChild.textContent='Ⅱ ';phaseSet('opening');elapsed=0;el.hatch.setAttribute('aria-disabled','true');el.guide.innerHTML='THE JUMP HAS BEGUN<br><small>镜头即将自动下潜</small>';el.soundLabel.textContent=soundEnabled?'SOUND ON':'SOUND OFF';if(soundEnabled){startAudio();audio?.ctx.resume().catch(()=>{});}playClack()}
+function skipToUnderwater(){readingGate.reset();clock.seek(CURVE.settle);elapsed=CURVE.settle;underProgress=0;underTarget=0;running=true;clock.paused=false;el.pauseLabel.textContent='PAUSE';el.pause.firstChild.textContent='Ⅱ ';phaseSet('underwater');changeChapter(0);$('scene-status').hidden=true;if(soundEnabled){startAudio();audio?.ctx.resume().catch(()=>{});}}
 function restart(){
- clock.reset();director?.reset();gesture.cancel();running=true;deepTime=0;lookX=lookY=targetX=targetY=0;
+ clock.reset();readingGate.reset();director?.reset();gesture.cancel();running=true;deepTime=0;lookX=lookY=targetX=targetY=0;
  phaseSet('waiting');elapsed=underProgress=underTarget=0;chapterIndex=-1;elapsedImpact=false;
  el.hatch.removeAttribute('aria-disabled');el.hatch.disabled=!director?.ready;el.anchor.style.opacity='1';
  el.pauseLabel.textContent='PAUSE';el.pause.firstChild.textContent='Ⅱ ';el.touch.hidden=true;
@@ -39,7 +31,7 @@ function restart(){
 }
 function stageOf(p){let idx=0;for(let i=1;i<CHAPTERS.length;i++)if(p>=CHAPTERS[i].start)idx=i;return idx}
 function renderHolo(ch){el.holoContents.classList.remove('holo-pulse');void el.holoContents.offsetWidth;el.holoContents.classList.add('holo-pulse');const bars=(ch.visual==='finance'||ch.visual==='skills')?'<div class="holo-graph">'+[26,58,45,90,62,76,39,71,94,48,66].map(h=>'<i style="--h:'+h+'%"></i>').join('')+'</div>':'';el.holoContents.innerHTML='<div class="holo-head">APEX SYSTEM // LIVE STORY DEMO</div><div class="holo-title">'+ch.label+'</div>'+ch.holo.map(x=>'<div class="holo-row"><span>'+x[0]+'</span><span>'+x[1]+'</span></div>').join('')+bars+'<div class="holo-foot">ILLUSTRATIVE DATA · NOT A LIVE BANKING SYSTEM</div>'}
-function changeChapter(idx){if(idx===chapterIndex)return;chapterIndex=idx;const ch=CHAPTERS[idx];el.kicker.textContent=ch.kicker;el.chapterTitle.textContent=ch.title;el.chapterCn.textContent=ch.cn;el.chapterDesc.textContent=ch.desc;el.dataName.textContent=ch.label;el.dataLabel.textContent='APEX MILESTONE / '+String(idx).padStart(2,'0');el.mission.textContent=ch.id;director?.pulse(TIMING.settle+deepTime);if(ch.holo.length)renderHolo(ch);el.chapterTitle.style.transform='translateY(16px)';requestAnimationFrame(()=>{el.chapterTitle.style.transition='transform .9s cubic-bezier(.16,1,.3,1)';el.chapterTitle.style.transform='translateY(0)'})}
+function changeChapter(idx){if(idx===chapterIndex)return;chapterIndex=idx;const ch=CHAPTERS[idx];el.kicker.textContent=idx>0&&idx<7?String(idx).padStart(2,'0')+' / 06 · '+['','外部查询','受益所有人识别','财报转换','股权穿透','技能协作','行内部署'][idx]:ch.kicker;el.film.dataset.side=idx%2?'right':'left';document.querySelectorAll('[data-skill]').forEach(button=>button.setAttribute('aria-current',Number(button.dataset.skill)===idx?'step':'false'));readingGate.enter(idx,deepTime);el.chapterTitle.textContent=ch.title;el.chapterCn.textContent=ch.cn;el.chapterDesc.textContent=ch.desc;el.dataName.textContent=ch.label;el.dataLabel.textContent='APEX MILESTONE / '+String(idx).padStart(2,'0');el.mission.textContent=ch.id;director?.pulse(TIMING.settle+deepTime);if(ch.holo.length)renderHolo(ch);el.chapterTitle.style.transform='translateY(16px)';requestAnimationFrame(()=>{el.chapterTitle.style.transition='transform .9s cubic-bezier(.16,1,.3,1)';el.chapterTitle.style.transform='translateY(0)'})}
 function camera(t){
  const state=sampleSequence(t);
  const underwaterView=t>=TIMING.impact;
@@ -50,9 +42,9 @@ function camera(t){
  el.track.style.width=(t/TIMING.settle*100)+'%';el.progressLabel.textContent='THE DESCENT';
  let line='',sub='',status='AWAITING RELEASE',guide='点击把手 / 向右拖动开门';
  if(t>0&&t<2.35){status='HATCH RELEASED';guide='舱门正在打开';}
- else if(t>=2.35&&t<9.4){status='FREEFALL';line='向未知，纵身一跃。';sub='TAKE THE LEAP';guide='自动坠落中 · 轻移鼠标环顾';}
+ else if(t>=2.35&&t<9.4){status='FREEFALL';line='把好奇，交给辽阔。';sub='TAKE THE LEAP';guide='自动坠落中 · 轻移鼠标环顾';}
  else if(t>=9.4&&t<11.8){status=t<TIMING.impact?'SURFACE APPROACH':'OCEAN ENTRY';guide=t<TIMING.impact?'即将穿越水面':'正在穿越水面';}
- else if(t>=11.8){status='SIGNAL AWAKENING';line='现在，以另一种方式感知。';sub='A DIFFERENT KIND OF SENSE';guide='你已成为小海螺';}
+ else if(t>=11.8){status='SIGNAL AWAKENING';line='沉入深蓝，听见生长。';sub='A DIFFERENT KIND OF SENSE';guide='你已成为小海螺';}
  el.mission.textContent=status;
  el.guide.innerHTML=(t===0?'YOUR FIRST MOVE':'CONTINUOUS DESCENT')+'<br><small>'+guide+'</small>';
  el.flightIndex.textContent=sub;el.flightLine.textContent=line;el.flightSub.textContent='';
@@ -60,27 +52,27 @@ function camera(t){
  if(t>=TIMING.impact&&!elapsedImpact){elapsedImpact=true;playSplash()}
  if(t>=TIMING.settle){phaseSet('underwater');el.caption.style.opacity=0;el.touch.hidden=false;changeChapter(0);}
 }
-function underwater(dt){underProgress=lerp(underProgress,underTarget,1-Math.exp(-dt*2.0));
+function underwater(dt){underProgress=lerp(underProgress,underTarget,1-Math.exp(-dt*DIVE_PACING.followRate));
  const p=underProgress, idx=stageOf(p),ch=CHAPTERS[idx],next=CHAPTERS[idx+1],midpoint=next?next.start:1;
- if(idx===7&&p>.96){phaseSet('credits');el.touch.hidden=true;el.readoutLabel.textContent='DEPTH';el.readout.textContent='320';el.mission.textContent='THE PEOPLE';el.progressPct.textContent='100%';el.track.style.width='100%';el.progressLabel.textContent='JOURNEY COMPLETE';el.guide.innerHTML='THE STORY CONTINUES<br><small>小海螺，继续生长</small>';return}
+ if(idx===7&&p>.96){el.film.dataset.milestone='7';el.film.dataset.diveProgress=p.toFixed(4);phaseSet('credits');el.touch.hidden=true;el.readoutLabel.textContent='DEPTH';el.readout.textContent='320';el.mission.textContent='THE PEOPLE';el.progressPct.textContent='100%';el.track.style.width='100%';el.progressLabel.textContent='JOURNEY COMPLETE';el.guide.innerHTML='THE STORY CONTINUES<br><small>小海螺，继续生长</small>';return}
  changeChapter(idx);
- const fadeIn=idx===0?1:sm(ch.start,ch.start+.025,p),fadeOut=next?1-sm(midpoint-.03,midpoint+.008,p):1;const fade=fadeIn*fadeOut;
+ const fadeIn=idx===0?1:sm(ch.start,ch.start+.025,p),fadeOut=next?1-sm(midpoint-.03,midpoint+.008,p):1;const fade=fadeIn*fadeOut;el.film.dataset.milestone=String(idx);el.film.dataset.diveProgress=p.toFixed(4);
  el.copy.style.opacity=n(fade*.97);el.data.style.opacity=n(ch.visual==='conch'||ch.visual==='portal'?0:fade*.88);el.data.style.transform='translateY('+n((1-fade)*12)+'px)';
  css('holo-opacity',n(ch.holo.length?fade*.93:0));css('holo-scale',n(.88+.08*fade));css('portal-opacity',n(ch.visual==='portal'?fade*.8:0));css('portal-scale',n(.65+.6*fade));
  css('sea-opacity','1');css('sky-opacity','0');css('cabin-opacity','0');css('hands-opacity','0');css('veil',n(.13+.48*p));css('light',n(.44-.27*p));css('sea-scale',n(1.12+.45*p));css('sea-y',n(-5-130*p)+'px');css('sea-tilt',n(Math.sin(p*7)*.38)+'deg');el.anchor.style.opacity='0';el.caption.style.opacity='0';
- const depth=Math.round(18+(320-18)*p);el.readout.textContent=String(depth).padStart(3,'0');el.readoutLabel.textContent='DEPTH';el.readoutUnit.textContent='M';el.speed.textContent='↓ '+n(Math.abs(underTarget-underProgress)*8+.4,1);el.progressPct.textContent=String(Math.round(p*100)).padStart(2,'0')+'%';el.track.style.width=n(p*100,1)+'%';el.progressLabel.textContent='STORY PROGRESS';el.mission.textContent=ch.id;
- el.guide.innerHTML=p>.96?'END OF THE JOURNEY<br><small>抵达终章</small>':'SCROLL TO SENSE<br><small>滚动滚轮 / 上滑 · 感知更深处</small>';
+ const depth=Math.round(diveDepth(p));el.readout.textContent=String(depth).padStart(3,'0');el.readoutLabel.textContent='DEPTH';el.readoutUnit.textContent='M';el.speed.textContent='↓ '+n(Math.abs(underTarget-underProgress)*8+.4,1);el.progressPct.textContent=String(Math.round(p*100)).padStart(2,'0')+'%';el.track.style.width=n(p*100,1)+'%';el.progressLabel.textContent='STORY PROGRESS';el.mission.textContent=ch.id;
+ el.guide.innerHTML=p>.96?'END OF THE JOURNEY<br><small>抵达终章</small>':(readingGate.allows(1,deepTime)?'SCROLL TO SENSE<br><small>缓缓向下滑动 · 遇见下一项技能</small>':'TAKE A MOMENT<br><small>停留片刻 · 听见这一项能力</small>');
  }
 function followPointer(e){const nx=clamp(e.clientX/curWidth),ny=clamp(e.clientY/curHeight);targetX=(nx-.5)*55;targetY=(ny-.5)*32;if(director)director.pointer.set((nx-.5)*2,(.5-ny)*2);}
-function onWheel(e){if(phase==='underwater'){e.preventDefault();underTarget=clamp(underTarget+e.deltaY/(e.deltaMode===1?95:1650));}}
+function onWheel(e){if(phase==='underwater'){e.preventDefault();if(!readingGate.allows(e.deltaY,deepTime))return;underTarget=addDiveInput(underProgress,underTarget,e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?curHeight:1)/DIVE_PACING.wheelPixels);}}
 let touchY=null;
 function onExploreStart(e){if(phase!=='underwater'||e.target.closest('button,input')||!e.isPrimary)return;touchY=e.clientY;el.film.setPointerCapture(e.pointerId);}
-function onExploreMove(e){if(phase!=='underwater'||touchY===null)return;const y=e.clientY,dy=touchY-y;touchY=y;underTarget=clamp(underTarget+dy/Math.max(curHeight*.85,280));}
+function onExploreMove(e){if(phase!=='underwater'||touchY===null)return;const y=e.clientY,dy=y-touchY;touchY=y;if(!readingGate.allows(dy,deepTime))return;underTarget=addDiveInput(underProgress,underTarget,dy/(curHeight*DIVE_PACING.swipeScreens));}
 function keys(e){
  if(e.key==='Escape'&&phase!=='waiting'&&phase!=='credits'){togglePause();return;}
  if(e.target.closest('button,input'))return;
  if(['ArrowDown','ArrowUp',' ','PageDown','PageUp'].includes(e.key)){
-   e.preventDefault();if(phase==='underwater'){const dir=['ArrowUp','PageUp'].includes(e.key)?-1:1;underTarget=clamp(underTarget+dir*.09);}
+   e.preventDefault();if(phase==='underwater'){const dir=['ArrowUp','PageUp'].includes(e.key)?-1:1;if(readingGate.allows(dir,deepTime))underTarget=addDiveInput(underProgress,underTarget,dir*.045);}
  }
 }
 function togglePause(){
@@ -120,17 +112,22 @@ function animate(ts){
  updateAudio();requestAnimationFrame(animate);
 }
 let qaSlider=null;
+function doorTime(progress){let lo=0,hi=TIMING.doorOpen;for(let i=0;i<30;i++){const mid=(lo+hi)/2;if(sampleSequence(mid).door<progress)lo=mid;else hi=mid;}return (lo+hi)/2;}
 function setupQA(){
  if(!new URLSearchParams(location.search).has('qa'))return;
+ root.classList.add('qa-mode');
  const panel=document.createElement('aside');panel.id='qa-panel';panel.setAttribute('aria-label','镜头验收工具');
- panel.innerHTML='<label>镜头时间 <input aria-label="镜头时间" type="range" min="0" max="19" step="0.01" value="0"></label><output id="qa-time">0.00 s</output><div>'+[['机舱',0],['开门',1.9],['跃出',3.5],['自由落体',6.6],['近海',10.55],['穿水',10.94],['水下',13.6],['抵达',19]].map(([label,t])=>'<button type="button" data-seek="'+t+'">'+label+'</button>').join('')+'</div><button type="button" id="qa-reset">重置并播放</button><button type="button" id="qa-credits">片尾验收</button>';
+ panel.innerHTML='<label>镜头时间 <input aria-label="镜头时间" type="range" min="0" max="19" step="0.01" value="0"></label><output id="qa-time">0.00 s</output><div>'+[['机舱',0],['开门 25%',doorTime(.25)],['开门 50%',doorTime(.5)],['开门 100%',TIMING.doorOpen],['跃出',3.5],['自由落体',6.6],['近海',10.55],['水前',10.78],['水线',10.8],['水后',10.82],['穿水',10.94],['水下',13.6],['抵达',19]].map(([label,t])=>'<button type="button" data-seek="'+t+'">'+label+'</button>').join('')+'</div><button type="button" id="qa-reset">重置并播放</button><button type="button" id="qa-credits">片尾验收</button><button type="button" id="qa-alignment" aria-pressed="false">手部对齐图</button>';
+ const milestones=document.createElement('div');milestones.innerHTML=CHAPTERS.slice(0,7).map((ch,i)=>'<button type="button" data-milestone="'+i+'">技能 '+i+'</button>').join('');panel.append(milestones);
  document.body.append(panel);qaSlider=panel.querySelector('input');setupRecorder(panel,()=>director?.ready?director.renderer.domElement:null,()=>{restart();begin();});
- function seek(t){clock.seek(t);clock.paused=true;running=false;elapsed=t;underProgress=underTarget=deepTime=0;phaseSet(sampleSequence(t).phase);camera(t);if(t===19)underwater(0);el.pauseLabel.textContent='RESUME';el.pause.firstChild.textContent='▶ ';$('qa-time').textContent=t.toFixed(2)+' s';}
+ function seek(t){readingGate.reset();director?.reset();el.anchor.style.opacity='1';clock.seek(t);clock.paused=true;running=false;elapsed=t;underProgress=underTarget=deepTime=0;phaseSet(sampleSequence(t).phase);camera(t);if(t===19)underwater(0);el.pauseLabel.textContent='RESUME';el.pause.firstChild.textContent='▶ ';$('qa-time').textContent=t.toFixed(2)+' s';}
  qaSlider.addEventListener('input',()=>seek(Number(qaSlider.value)));
  panel.querySelectorAll('[data-seek]').forEach(button=>button.addEventListener('click',()=>seek(Number(button.dataset.seek))));
+ panel.querySelectorAll('[data-milestone]').forEach(button=>button.addEventListener('click',()=>{seek(19);underProgress=underTarget=CHAPTERS[Number(button.dataset.milestone)].start+.045;underwater(0);}));
  $('qa-reset').addEventListener('click',restart);
+ $('qa-alignment').addEventListener('click',e=>{const enabled=e.currentTarget.getAttribute('aria-pressed')!=='true';e.currentTarget.setAttribute('aria-pressed',String(enabled));director?.setCoordinateGuide(enabled);});
  const hide=document.createElement('button');hide.textContent='隐藏工具 (H)';hide.type='button';panel.append(hide);hide.onclick=()=>panel.hidden=true;addEventListener('keydown',e=>{if(e.code==='KeyH')panel.hidden=!panel.hidden});
- $('qa-credits').addEventListener('click',()=>{skipToUnderwater();underProgress=underTarget=.99;underwater(.02)});
+ $('qa-credits').addEventListener('click',()=>{skipToUnderwater();underProgress=underTarget=.99;underwater(.02);running=false;clock.paused=true;el.pauseLabel.textContent='RESUME';el.pause.firstChild.textContent='▶ '});
 }
 function init(){
  resize();addEventListener('resize',resize);
@@ -140,9 +137,10 @@ function init(){
  el.hatch.addEventListener('pointercancel',()=>{gesture.cancel();director?.cancelManual();});
  el.hatch.addEventListener('lostpointercapture',()=>{if(gesture.origin){gesture.cancel();director?.cancelManual();}});
  el.hatch.addEventListener('click',e=>{if(e.detail===0&&phase==='waiting')begin();});
+ document.querySelectorAll('[data-skill]').forEach(button=>button.addEventListener('click',()=>{if(phase!=='underwater')return;underTarget=CHAPTERS[Number(button.dataset.skill)].start+.045;}));
  el.replay.addEventListener('click',restart);el.pause.addEventListener('click',togglePause);el.sound.addEventListener('click',toggleSound);
  $('skip-intro').addEventListener('click',skipToUnderwater);
- el.touch.addEventListener('click',()=>{if(phase==='underwater')underTarget=clamp(underTarget+.12)});
+ el.touch.addEventListener('click',()=>{if(phase==='underwater')if(readingGate.allows(1,deepTime))underTarget=addDiveInput(underProgress,underTarget,.045)});
  addEventListener('pointermove',followPointer,{passive:true});addEventListener('wheel',onWheel,{passive:false});
  addEventListener('pointerdown',onExploreStart);addEventListener('pointermove',onExploreMove);addEventListener('pointerup',()=>{touchY=null});addEventListener('pointercancel',()=>{touchY=null});
  addEventListener('keydown',keys);

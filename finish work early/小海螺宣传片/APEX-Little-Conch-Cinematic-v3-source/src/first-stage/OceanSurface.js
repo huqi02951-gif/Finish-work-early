@@ -1,11 +1,12 @@
 import * as THREE from 'three';
+import { SUN } from './SceneLayout.js';
 // Multi-scale geometric swells + derivative normals. Both sides of this same mesh
 // are rendered: entering water is a camera crossing, never a background swap.
 export class OceanSurface {
   constructor() {
     this.material = new THREE.ShaderMaterial({
       side: THREE.DoubleSide,
-      uniforms: { time: { value: 0 }, eye: { value: new THREE.Vector3() } },
+      uniforms: { sunDirection: { value: new THREE.Vector3(...SUN.direction).normalize() }, time: { value: 0 }, eye: { value: new THREE.Vector3() } },
       vertexShader: `
         uniform float time;
         varying vec3 world;
@@ -19,7 +20,7 @@ export class OceanSurface {
       `,
       fragmentShader: `
         precision highp float;
-        uniform float time; uniform vec3 eye; varying vec3 world;
+        uniform float time; uniform vec3 eye; uniform vec3 sunDirection; varying vec3 world;
         float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
         float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.),f.x),f.y);}
         float surface(vec2 p){return sin(p.x*.21+p.y*.13+time)*.15+sin(p.x*.57-p.y*.32-time*1.3)*.07+noise(p*1.7+time*.17)*.015;}
@@ -30,7 +31,7 @@ export class OceanSurface {
           float detail=1./(1.+footprint*3.);
           vec3 n=normalize(vec3((h-surface(p+vec2(eps,0.)))/eps*detail,1.,(h-surface(p+vec2(0.,eps)))/eps*detail));
           vec3 view=normalize(eye-world); if(eye.y<0.) n=-n;
-          vec3 sun=normalize(vec3(-.6,.62,-.5));
+          vec3 sun=normalize(sunDirection);
           float fres=pow(1.-abs(dot(n,view)),4.);
           float spec=pow(max(dot(reflect(-sun,n),view),0.),32.);
           float broad=pow(max(dot(reflect(-sun,n),view),0.),8.);

@@ -7,8 +7,10 @@ import { Atmosphere } from './Atmosphere.js';
 import { OceanSurface } from './OceanSurface.js';
 import { UnderwaterPOV } from './UnderwaterPOV.js';
 import { WaterTransition } from './WaterTransition.js';
-import { sampleSequence, smooth, TIMING } from './FreefallSequence.js';
+import { sampleSequence, START_ALTITUDE } from './FreefallSequence.js';
 import { assetManifest } from './assetManifest.js';
+import { CABIN, SUN } from './SceneLayout.js';
+import { SeaLifeEncounters } from './SeaLifeEncounters.js';
 import { HumanForeground } from './HumanForeground.js';
 export class FirstStageDirector {
   constructor({ host, hatch, onFailure }) {
@@ -27,10 +29,17 @@ export class FirstStageDirector {
     host.prepend(this.renderer.domElement);
     this.lost = event => { event.preventDefault(); this.ready = false; onFailure('图形设备连接中断。请重新载入，或直接继续水下故事。'); };
     this.renderer.domElement.addEventListener('webglcontextlost', this.lost);
-    this.scene.add(new THREE.HemisphereLight(0xb9d8e3, 0x111b21, 0.8));
-    const sun = new THREE.DirectionalLight(0xffe0b2, 2.1); sun.position.set(-300, 400, -260); this.scene.add(sun);
+    this.scene.add(new THREE.HemisphereLight(0xa8bed6, 0x111820, .5));
+    this.renderer.shadowMap.enabled = true; this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    const sun = new THREE.DirectionalLight(SUN.color, 2.6);
+    sun.target.position.set(0, START_ALTITUDE, 0);
+    sun.position.copy(sun.target.position).add(new THREE.Vector3(...SUN.direction).normalize().multiplyScalar(12));
+    sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024);
+    Object.assign(sun.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5, near: .5, far: 28 });
+    sun.shadow.bias = -.0003; sun.shadow.normalBias = .012;
+    this.scene.add(sun, sun.target); this.sun = sun;
     const pmrem = new THREE.PMREMGenerator(this.renderer), room = new RoomEnvironment();
-    this.environment = pmrem.fromScene(room, 0.02); this.scene.environment = this.environment.texture;
+    this.environment = pmrem.fromScene(room, 0.02); this.scene.environment = this.environment.texture; this.scene.environmentIntensity = .30;
     room.dispose(); pmrem.dispose();
     this.atmosphere = new Atmosphere(innerWidth < 640); this.scene.add(this.atmosphere.root);
     this.ocean = new OceanSurface(); this.scene.add(this.ocean.mesh);
@@ -43,15 +52,19 @@ export class FirstStageDirector {
     try {
       const loader = new THREE.TextureLoader();
       const entries = await Promise.all(Object.entries(assetManifest).filter(([,url])=>url).map(async ([key, url]) => {
-        const texture = await loader.loadAsync(url); texture.colorSpace = THREE.SRGBColorSpace;
+        const texture = await loader.loadAsync(url);
+        texture.colorSpace = ['doorNormal', 'doorRoughness', 'doorMetalness'].includes(key) ? THREE.NoColorSpace : THREE.SRGBColorSpace;
         texture.anisotropy = Math.min(4, this.renderer.capabilities.getMaxAnisotropy()); return [key, texture];
       }));
       if(this.disposed){entries.forEach(([,texture])=>texture.dispose());return;}
       this.textures = Object.fromEntries(entries);
+      this.atmosphere.setCloudTexture(this.textures.cloudBank);
       this.cabin = new AircraftCabin(this.textures); this.scene.add(this.cabin.root);
-      this.scene.add(this.rig.camera);this.human=new HumanForeground(this.rig.camera,this.textures);
+      this.scene.add(this.rig.camera);this.human=new HumanForeground(this.rig.camera,this.textures,this.cabin);
       this.underwater = new UnderwaterPOV(this.textures.seabed, innerWidth < 640); this.scene.add(this.underwater.root);
+      this.seaLife=new SeaLifeEncounters(this.textures.oceanLifeAtlas);this.scene.add(this.seaLife.root);
       await this.renderer.compileAsync(this.scene, this.rig.camera);
+      if (this.disposed) return;
       this.ready = true; this.host.parentElement.classList.add('webgl-ready');
       this.hatch.disabled = false; this.hatch.setAttribute('aria-label', '点击门把或向右拖动，打开舱门');
     } catch (error) { console.error('First stage initialization failed', error); this.onFailure('场景素材未能载入。请重试，或直接继续水下故事。'); }
@@ -63,6 +76,7 @@ export class FirstStageDirector {
     this.rig.resize(innerWidth, innerHeight); this.transition.resize(innerWidth, innerHeight, this.dpr);
   }
   setManual(value) { gsap.killTweensOf(this.manual); this.manual.value = value * 0.2; }
+  commitManual() { gsap.killTweensOf(this.manual); }
   cancelManual() { gsap.to(this.manual, { value: 0, duration: 0.35, ease: 'power2.out', overwrite: true }); }
   reset() { gsap.killTweensOf(this.manual); this.manual.value = 0; this.rig.look.set(0, 0); this.pointer.set(0, 0); }
   pulse(time) { this.transition.pass.uniforms.pulse.value = time; }
@@ -73,11 +87,15 @@ export class FirstStageDirector {
     this.cabin.update(s); this.human.update(s); this.atmosphere.update(s, this.rig.camera); this.ocean.update({ ...s, t: s.t + deepTime }, this.rig.camera);
     // Extended water clock animates life after arrival without altering the camera trajectory.
     const waterState = { ...s, t: s.t + deepTime };
-    this.underwater.update(waterState); this.transition.update(waterState, this.reducedMotion);
+    this.underwater.update(waterState,progress);this.seaLife.update(s,progress,this.rig.camera,s.t+deepTime,this.reducedMotion); this.transition.update(waterState, this.reducedMotion);
     this.host.parentElement.dataset.shot = s.phase;
-    this.host.parentElement.dataset.humanForeground = !this.human.freefall && s.hands > 0 ? 'asset-pending' : 'hidden';
+    this.host.parentElement.dataset.humanForeground = s.t >= 10.8 ? 'hidden' : this.human.hasAssets ? 'integrated-pending-review' : 'asset-pending';
+    this.host.parentElement.dataset.doorProgress = s.door.toFixed(4);
     if (time === 0) this.projectDoor();
     this.hatch.style.visibility = time > 0 ? 'hidden' : 'visible';
+    // Shadow maps are needed only while the cabin can be seen.
+    this.sun.castShadow = s.t < 6;
+    if (this.qaCoordinates) this.updateCoordinateGuide(s);
     this.renderer.info.autoReset=false;this.renderer.info.reset();this.transition.render();
     this.frameCount++;
     if (active && dt > 0 && dt < 0.3) { this.samples.push(dt * 1000); if (this.samples.length > 240) this.samples.shift(); }
@@ -93,12 +111,34 @@ export class FirstStageDirector {
   }
   projectDoor() {
     this.cabin.root.updateMatrixWorld(true);
-    const points = [[0, -2.025], [2.6, -2.025], [2.6, 2.025], [0, 2.025]].map(([x,y]) => this.cabin.door.root.localToWorld(new THREE.Vector3(x,y,.15)).project(this.rig.camera));
+    const points = [[0, -CABIN.doorHeight/2], [CABIN.doorWidth, -CABIN.doorHeight/2], [CABIN.doorWidth, CABIN.doorHeight/2], [0, CABIN.doorHeight/2]].map(([x,y]) => this.cabin.door.root.localToWorld(new THREE.Vector3(x,y,.15)).project(this.rig.camera));
     const xs = points.map(p => (p.x + 1) * innerWidth / 2), ys = points.map(p => (1-p.y) * innerHeight / 2);
     Object.assign(this.hatch.style, { left: `${Math.min(...xs)}px`, top: `${Math.min(...ys)}px`, width: `${Math.max(...xs)-Math.min(...xs)}px`, height: `${Math.max(...ys)-Math.min(...ys)}px` });
   }
+  setCoordinateGuide(enabled) {
+    this.qaCoordinates = enabled;
+    if (!this.coordinateGuide) {
+      this.coordinateGuide = document.createElement('div'); this.coordinateGuide.id = 'qa-coordinates';
+      this.coordinateGuide.innerHTML = '<i data-anchor="left">L · 框</i><i data-anchor="right">R · 闩</i><output></output>';
+      this.host.parentElement.append(this.coordinateGuide);
+    }
+    this.coordinateGuide.hidden = !enabled;
+  }
+  updateCoordinateGuide(s) {
+    this.scene.updateMatrixWorld(true);
+    const anchors = { left: this.cabin.leftGrip, right: this.cabin.door.rightGrip };
+    const report = { worldAltitude: START_ALTITUDE, eyeHeight: CABIN.eyeHeight, camera: this.rig.camera.position.toArray(), door: s.door, grips: {} };
+    for (const [key, anchor] of Object.entries(anchors)) {
+      const point = anchor.getWorldPosition(new THREE.Vector3()); report.grips[key] = point.toArray();
+      point.project(this.rig.camera);
+      const marker = this.coordinateGuide.querySelector(`[data-anchor="${key}"]`);
+      marker.style.left = `${(point.x + 1) * innerWidth / 2}px`; marker.style.top = `${(1-point.y) * innerHeight / 2}px`;
+      marker.hidden = s.t > 2.35;
+    }
+    this.coordinateGuide.querySelector('output').textContent = JSON.stringify(report, null, 2);
+  }
   dispose() {
-    this.disposed=true;
+    this.disposed=true; this.coordinateGuide?.remove();
     gsap.killTweensOf(this.manual); removeEventListener('resize', this.resize); this.media.removeEventListener('change', this.onMotion);
     this.renderer.domElement.removeEventListener('webglcontextlost', this.lost);
     const geometries = new Set(), materials = new Set(), textures = new Set(Object.values(this.textures || {}));

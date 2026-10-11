@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { clamp } from './FreefallSequence.js';
+import { CABIN } from './SceneLayout.js';
 
 export class DoorGesture {
   start(x, y) { this.origin = { x, y }; this.progress = 0; }
@@ -37,20 +38,33 @@ function decals() {
   return texture;
 }
 export class AircraftDoor {
-  constructor(texture) {
-    this.root = new THREE.Group(); this.root.position.set(-1.3, 0, -1);
-    const metal = new THREE.MeshStandardMaterial({ color: 0x838c88, metalness: 0.68, roughness: 0.54, map: texture });
-    this.panel = new THREE.Mesh(new RoundedBoxGeometry(2.6, 4.05, 0.13, 3, 0.055), metal);
-    this.panel.position.x = 1.3; this.root.add(this.panel);
-    const markings = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 3.95), new THREE.MeshBasicMaterial({ map: decals(), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1 }));
-    markings.position.set(1.3, 0, 0.077); this.root.add(markings);
-    const hardware = new THREE.MeshStandardMaterial({ color: 0xc4bbb0, metalness: 0.87, roughness: 0.26 });
-    const handle = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.027, 8, 28), hardware);
-    handle.position.set(2.12, -1.1, 0.16); this.root.add(handle); this.handle = handle;
-    for (const y of [-1.45, 1.45]) {
-      const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.058, 0.058, 0.34, 10), hardware);
-      hinge.position.set(0, y, 0.05); this.root.add(hinge);
+  constructor(texture, { decalTexture = decals(), normalMap = null, roughnessMap = null, metalnessMap = null } = {}) {
+    const { doorWidth: w, doorHeight: h, doorThickness: d } = CABIN;
+    this.root = new THREE.Group(); this.root.name = 'Door_Hinge';
+    this.root.position.set(CABIN.hingeX, CABIN.doorCenterY, CABIN.doorZ);
+    const metal = new THREE.MeshStandardMaterial({ color: 0x66727c, metalness: metalnessMap ? 1 : .62, roughness: roughnessMap ? 1 : .64, map: texture, normalMap, roughnessMap, metalnessMap });
+    this.panel = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 3, .035), metal);
+    this.panel.name = 'Door_Panel'; this.panel.position.x = w / 2;
+    this.panel.castShadow = this.panel.receiveShadow = true; this.root.add(this.panel);
+    if (decalTexture) {
+      const markings = new THREE.Mesh(new THREE.PlaneGeometry(w - .08, h - .10), new THREE.MeshBasicMaterial({ map: decalTexture, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1 }));
+      markings.position.set(w / 2, 0, d / 2 + .008); this.root.add(markings);
+    }
+    const hardware = new THREE.MeshStandardMaterial({ color: 0x87929a, metalness: .84, roughness: .33 });
+    const mount = new THREE.Mesh(new THREE.BoxGeometry(.13, .30, .035), hardware);
+    mount.position.set(CABIN.handle[0], CABIN.handle[1], d / 2 + .025); mount.castShadow = true; this.root.add(mount);
+    this.handle = new THREE.Group(); this.handle.name = 'Latch'; this.handle.position.set(...CABIN.handle); this.root.add(this.handle);
+    const lever = new THREE.Mesh(new THREE.BoxGeometry(.045, .19, .045), new THREE.MeshStandardMaterial({ color: 0xd68c45, roughness: .52, metalness: .45 }));
+    lever.position.y = -.055; lever.castShadow = true; this.handle.add(lever);
+    this.rightGrip = new THREE.Object3D(); this.rightGrip.name = 'Grip_Handle_Right'; this.handle.add(this.rightGrip);
+    for (const y of [-.95, 0, .95]) {
+      const hinge = new THREE.Mesh(new THREE.CylinderGeometry(.036, .036, .22, 10), hardware);
+      hinge.position.set(0, y, .015); hinge.castShadow = true; this.root.add(hinge);
     }
   }
-  update(progress) { this.root.rotation.y = -progress * Math.PI * 0.59; this.handle.rotation.z = -Math.min(progress * 6, 1) * 0.6; }
+  update(progress) {
+    // Swing out of the aircraft. An inward 106 degree swing intersected the left jamb.
+    this.root.rotation.y = progress * CABIN.openingAngle;
+    this.handle.rotation.z = -Math.min(progress * 6, 1) * .6;
+  }
 }

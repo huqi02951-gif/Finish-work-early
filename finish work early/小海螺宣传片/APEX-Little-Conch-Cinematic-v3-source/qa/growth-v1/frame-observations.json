@@ -1,0 +1,1226 @@
+[
+  {
+    "file": "desktop-00-cabin.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "doorProgress": "0.0000",
+      "humanForeground": "asset-pending",
+      "paused": "true",
+      "phase": "waiting",
+      "shot": "waiting",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 1440
+  },
+  {
+    "file": "desktop-door-25.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "doorProgress": "0.2500",
+      "humanForeground": "asset-pending",
+      "paused": "true",
+      "phase": "opening",
+      "shot": "opening",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 1440
+  },
+  {
+    "file": "desktop-door-50.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "doorProgress": "0.5000",
+      "humanForeground": "asset-pending",
+      "paused": "true",
+      "phase": "opening",
+      "shot": "opening",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 1440
+  },
+  {
+    "file": "desktop-01-door-open.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "doorProgress": "1.0000",
+      "humanForeground": "asset-pending",
+      "paused": "true",
+      "phase": "falling",
+      "shot": "falling",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 1440
+  },
+  {
+    "file": "desktop-exit.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "doorProgress": "1.0000",
+      "humanForeground": "asset-pending",
+      "paused": "true",
+      "phase": "falling",
+      "shot": "falling",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 1440
+  },
+  {
+    "file": "desktop-02-freefall.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "doorProgress": "1.0000",
+      "humanForeground": "asset-pending",
+      "paused": "true",
+      "phase": "falling",
+      "shot": "falling",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 1440
+  },
+  {
+    "file": "desktop-approach.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "doorProgress": "1.0000",
+      "humanForeground": "asset-pending",
+      "paused": "true",
+      "phase": "falling",
+      "shot": "falling",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 1440
+  },
+  {
+    "file": "desktop-surface-before.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "doorProgress": "1.0000",
+      "humanForeground": "asset-pending",
+      "paused": "true",
+      "phase": "falling",
+      "shot": "falling",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 1440
+  },
+  {
+    "file": "desktop-surface.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "paused": "true",
+      "phase": "impact",
+      "shot": "impact",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 1440
+  },
+  {
+    "file": "desktop-surface-after.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "paused": "true",
+      "phase": "impact",
+      "shot": "impact",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 1440
+  },
+  {
+    "file": "desktop-03-entry.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "paused": "true",
+      "phase": "impact",
+      "shot": "impact",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 1440
+  },
+  {
+    "file": "desktop-underwater.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "paused": "true",
+      "phase": "descending",
+      "shot": "descending",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 1440
+  },
+  {
+    "file": "desktop-arrival.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "diveProgress": "0.0000",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "0",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "A QUESTION.\nA BEGINNING.",
+    "width": 1440
+  },
+  {
+    "file": "desktop-skill-0.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "diveProgress": "0.0450",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "0",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "A QUESTION.\nA BEGINNING.",
+    "width": 1440
+  },
+  {
+    "file": "desktop-skill-1.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "diveProgress": "0.1800",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "1",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "CURIOSITY.\nIN MOTION.",
+    "width": 1440
+  },
+  {
+    "file": "desktop-skill-2.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "diveProgress": "0.3200",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "2",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "FOLLOW\nTHE ROOTS.",
+    "width": 1440
+  },
+  {
+    "file": "desktop-skill-3.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "diveProgress": "0.4600",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "3",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "NUMBERS.\nCOME ALIVE.",
+    "width": 1440
+  },
+  {
+    "file": "desktop-skill-4.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "diveProgress": "0.6050",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "4",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "BEYOND\nTHE VISIBLE.",
+    "width": 1440
+  },
+  {
+    "file": "desktop-skill-5.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "diveProgress": "0.7400",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "5",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "TOGETHER,\nWE GROW.",
+    "width": 1440
+  },
+  {
+    "file": "desktop-skill-6.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "not-started",
+      "diveProgress": "0.8700",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "6",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "FIRST DAY.\nNEW HORIZONS.",
+    "width": 1440
+  },
+  {
+    "file": "desktop-credits.jpg",
+    "height": 900,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "credits",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 1440
+  },
+  {
+    "file": "mobile-00-cabin.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "0.0000",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "waiting",
+      "shot": "waiting",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 390
+  },
+  {
+    "file": "mobile-door-25.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "0.2500",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "opening",
+      "shot": "opening",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 390
+  },
+  {
+    "file": "mobile-door-50.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "0.5000",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "opening",
+      "shot": "opening",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 390
+  },
+  {
+    "file": "mobile-01-door-open.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "falling",
+      "shot": "falling",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 390
+  },
+  {
+    "file": "mobile-exit.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "falling",
+      "shot": "falling",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 390
+  },
+  {
+    "file": "mobile-02-freefall.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "falling",
+      "shot": "falling",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 390
+  },
+  {
+    "file": "mobile-approach.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "falling",
+      "shot": "falling",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 390
+  },
+  {
+    "file": "mobile-surface-before.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "falling",
+      "shot": "falling",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 390
+  },
+  {
+    "file": "mobile-surface.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "impact",
+      "shot": "impact",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 390
+  },
+  {
+    "file": "mobile-surface-after.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "impact",
+      "shot": "impact",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 390
+  },
+  {
+    "file": "mobile-03-entry.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "impact",
+      "shot": "impact",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 390
+  },
+  {
+    "file": "mobile-underwater.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "descending",
+      "shot": "descending",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 390
+  },
+  {
+    "file": "mobile-arrival.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.0000",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "0",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "A QUESTION.\nA BEGINNING.",
+    "width": 390
+  },
+  {
+    "file": "mobile-skill-0.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.0450",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "0",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "A QUESTION.\nA BEGINNING.",
+    "width": 390
+  },
+  {
+    "file": "mobile-skill-1.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.1800",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "1",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "CURIOSITY.\nIN MOTION.",
+    "width": 390
+  },
+  {
+    "file": "mobile-skill-2.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.3200",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "2",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "FOLLOW\nTHE ROOTS.",
+    "width": 390
+  },
+  {
+    "file": "mobile-skill-3.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.4600",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "3",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "NUMBERS.\nCOME ALIVE.",
+    "width": 390
+  },
+  {
+    "file": "mobile-skill-4.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.6050",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "4",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "BEYOND\nTHE VISIBLE.",
+    "width": 390
+  },
+  {
+    "file": "mobile-skill-5.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.7400",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "5",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "TOGETHER,\nWE GROW.",
+    "width": 390
+  },
+  {
+    "file": "mobile-skill-6.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.8700",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "6",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "FIRST DAY.\nNEW HORIZONS.",
+    "width": 390
+  },
+  {
+    "file": "mobile-credits.jpg",
+    "height": 844,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "credits",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 390
+  },
+  {
+    "file": "narrow-00-cabin.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "0.0000",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "waiting",
+      "shot": "waiting",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 320
+  },
+  {
+    "file": "narrow-door-25.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "0.2500",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "opening",
+      "shot": "opening",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 320
+  },
+  {
+    "file": "narrow-door-50.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "0.5000",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "opening",
+      "shot": "opening",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 320
+  },
+  {
+    "file": "narrow-01-door-open.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "falling",
+      "shot": "falling",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 320
+  },
+  {
+    "file": "narrow-exit.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "falling",
+      "shot": "falling",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 320
+  },
+  {
+    "file": "narrow-02-freefall.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "falling",
+      "shot": "falling",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 320
+  },
+  {
+    "file": "narrow-approach.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "falling",
+      "shot": "falling",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 320
+  },
+  {
+    "file": "narrow-surface-before.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "asset-pending",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "falling",
+      "shot": "falling",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 320
+  },
+  {
+    "file": "narrow-surface.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "impact",
+      "shot": "impact",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 320
+  },
+  {
+    "file": "narrow-surface-after.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "impact",
+      "shot": "impact",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 320
+  },
+  {
+    "file": "narrow-03-entry.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "impact",
+      "shot": "impact",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 320
+  },
+  {
+    "file": "narrow-underwater.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "descending",
+      "shot": "descending",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 320
+  },
+  {
+    "file": "narrow-arrival.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.0000",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "0",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "A QUESTION.\nA BEGINNING.",
+    "width": 320
+  },
+  {
+    "file": "narrow-skill-0.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.0450",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "0",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "A QUESTION.\nA BEGINNING.",
+    "width": 320
+  },
+  {
+    "file": "narrow-skill-1.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.1800",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "1",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "CURIOSITY.\nIN MOTION.",
+    "width": 320
+  },
+  {
+    "file": "narrow-skill-2.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.3200",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "2",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "FOLLOW\nTHE ROOTS.",
+    "width": 320
+  },
+  {
+    "file": "narrow-skill-3.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.4600",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "3",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "NUMBERS.\nCOME ALIVE.",
+    "width": 320
+  },
+  {
+    "file": "narrow-skill-4.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.6050",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "4",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "BEYOND\nTHE VISIBLE.",
+    "width": 320
+  },
+  {
+    "file": "narrow-skill-5.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.7400",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "5",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "TOGETHER,\nWE GROW.",
+    "width": 320
+  },
+  {
+    "file": "narrow-skill-6.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.8700",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "6",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "FIRST DAY.\nNEW HORIZONS.",
+    "width": 320
+  },
+  {
+    "file": "narrow-credits.jpg",
+    "height": 568,
+    "overflow": false,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.9900",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "7",
+      "paused": "true",
+      "phase": "credits",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "qaHidden": true,
+    "title": "",
+    "width": 320
+  }
+]
