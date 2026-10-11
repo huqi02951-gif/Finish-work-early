@@ -1,0 +1,166 @@
+{
+  "url": "https://apex-little-conch.pages.dev/",
+  "arrival": {
+    "depth": "018",
+    "film": {
+      "audioState": "running",
+      "diveProgress": "0.0000",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "0",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "overflow": false,
+    "qaPanel": false,
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  "desktop": {
+    "depth": "062",
+    "film": {
+      "audioState": "running",
+      "diveProgress": "0.1800",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "1",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "overflow": false,
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  "mobile": {
+    "depth": "062",
+    "film": {
+      "audioState": "running",
+      "diveProgress": "0.1800",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "1",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "overflow": false,
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  "narrow": {
+    "copy": [
+      {
+        "height": 169.609375,
+        "width": 281.59375,
+        "x": 20,
+        "y": 284.796875
+      }
+    ],
+    "film": {
+      "audioState": "running",
+      "diveProgress": "0.1800",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "1",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "overflow": false,
+    "viewport": [
+      320,
+      568
+    ]
+  },
+  "downwardDrag": {
+    "depth": "068",
+    "film": {
+      "audioState": "running",
+      "diveProgress": "0.1902",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "1",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    }
+  },
+  "secondSkill": {
+    "depth": "113",
+    "film": {
+      "audioState": "running",
+      "diveProgress": "0.3200",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "2",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "viewport": [
+      320,
+      568
+    ]
+  },
+  "downwardWheel": {
+    "depth": "131",
+    "film": {
+      "audioState": "running",
+      "diveProgress": "0.3465",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "2",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    }
+  },
+  "consoleWarningsAndErrors": [],
+  "limitations": [
+    "浏览器视口模拟，不等同物理手机触摸测试",
+    "独立 Python HTTP 核验被服务端以 403 拒绝，未能核验线上文件 SHA；实际 Chrome 页面正常加载"
+  ],
+  "credits": {
+    "credits": "STILL GROWING · ALWAYS BECOMINGTHE LITTLE CONCH.从一个问题，长出万千可能。这不是终点。下一次好奇，会把我们带向更远的地方。小海螺诞生于 · 创建团队APEX STUDIO动画、3D 与网站制作：胡晓丹↶ REPLAY THE JOURNEY",
+    "film": {
+      "audioState": "running",
+      "diveProgress": "0.9600",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "7",
+      "paused": "false",
+      "phase": "credits",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  "replayAndSkipVerified": true,
+  "deploymentId": "499c0351-e5e5-43af-b0d5-e32aeb7562c2"
+}
