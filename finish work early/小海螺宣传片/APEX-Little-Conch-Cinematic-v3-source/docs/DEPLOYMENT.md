@@ -1,6 +1,15 @@
 # GitHub 与 Cloudflare Pages 发布记录
 
-## 已发布的预览
+## 当前自动部署
+
+- 网站：https://apex-little-conch.pages.dev/
+- 当前固定版本：https://ac79b5a6.apex-little-conch.pages.dev/
+- 源码提交：`8ce780cea40b8552cd6b3c3c8085834b63e6c215`
+- 成功 CI：https://github.com/huqi02951-gif/Finish-work-early/actions/runs/38151068229
+- 21 项测试、构建、当前 Pages 项目权限核验和自动发布全部成功，耗时 31 秒。13 个静态文件与已实测手机修复包相同（13 already uploaded）。
+- 自动部署已生效，免费方案没有升级套餐或增加付费服务。
+
+## 初次上传记录
 
 - 公网网站：https://apex-little-conch.pages.dev/
 - 发布日期：2026-10-11（Asia/Shanghai）
@@ -22,7 +31,7 @@
 
 ## 更新与回滚
 
-初次发布采用直接上传，已准备 GitHub Actions + Wrangler 配置，保留原项目和域名。新的自动发布实测记录见下方。备份保存在 `backups/`；如需回退到原 V3，解压 `backups/V3-original-2026-10-11.zip` 到独立目录预览。前一阶段备份为 `backups/V3.1-before-director-review-2026-10-11.zip`。不覆盖当前工程。
+初次发布采用直接上传，现已接通 GitHub Actions + Wrangler，保留原项目和域名。当前成功 CI 记录见上方。备份保存在 `backups/`；如需回退到原 V3，解压 `backups/V3-original-2026-10-11.zip` 到独立目录预览。前一阶段备份为 `backups/V3.1-before-director-review-2026-10-11.zip`。不覆盖当前工程。
 
 后续 Pages 成功部署后，可在项目部署列表选择之前的成功生产部署回滚。当前为本项目首次成功部署。
 
@@ -39,10 +48,10 @@
 ## 免费自动部署与手机上滑修复（2026-10-11）
 
 - 工作流位于父仓库根目录 `.github/workflows/little-conch-pages.yml`。触发分支为 `codex/little-conch-stage1-director-v1`，仅网站源码、素材、依赖、测试及工作流变化触发。文档修改不触发。
-- 顺序：锁定依赖安装 → 21 项测试 → Vite 构建 → Wrangler 身份核验 → 发布既有 Pages 项目。源码分支未合并 main；Wrangler 的 `--branch=main` 只是既有 Pages 项目的生产部署标记。
+- 顺序：锁定依赖安装 → 21 项测试 → Vite 构建 → 当前 Pages 项目权限核验 → 发布既有 Pages 项目。源码分支未合并 main；Wrangler 的 `--branch=main` 只是既有 Pages 项目的生产部署标记。
 - 用户已授权创建 `little-conch-pages-ci` 凭据，仅当前账户 Cloudflare Pages 编辑权限。已保存 GitHub 加密 Secret `LITTLE_CONCH_CLOUDFLARE_API_TOKEN`。无 DNS、Workers 或计费权限；不记录凭据值。
 - 免费范围：公开仓库的标准 ubuntu-latest Actions 运行器；Pages 纯静态托管。没有 Functions、付费运行器、域名购买或套餐升级。仓库转私有时工作流停止。
-- 当前本机测试与构建通过。工作流仅存在本地，首次推送被 GitHub 拒绝：现有 OAuth 凭据缺少 workflow 权限。用户已授权补充权限，CLI refresh 等待浏览器登录 huqi02951-gif；未完成 CI 部署。手机修复与文案已通过独立提交 a07a526cc5530a4024ad51dd268e1c5001cb248d 推送。
+- 当前本机及 CI 的 21 项测试与构建均通过。用户已完成 GitHub workflow 权限授权；工作流已推送并自动发布成功。手机修复与文案源码提交为 a07a526cc5530a4024ad51dd268e1c5001cb248d，自动部署配置提交为 8ce780cea40b8552cd6b3c3c8085834b63e6c215。
 - 回滚：Pages 部署列表选择上一成功生产版本（初次固定版本为 https://499c0351.apex-little-conch.pages.dev/）。如需暂停自动发布，可在 GitHub Actions 禁用此工作流；撤销发布权限可撤销该 Cloudflare token 并删除同名 GitHub Secret。
 - 修改前配置备份：`backups/auto-deploy-before-configuration/`；手机输入备份：`backups/mobile-input-before-fix/`。不覆盖原 V3 备份。
 
@@ -55,3 +64,9 @@
 - 修复源码提交：`a07a526cc5530a4024ad51dd268e1c5001cb248d`；包：`deliverables/APEX-Little-Conch-pages-mobile-fix.zip`，SHA-256 `d54c934926ee51c1c4433acbee364f6cdabb8e8e68a7b8f0de25a0f1cd7c01ac`。
 - 普通生产页面加载新脚本 `index-BqkyFVWf.js`；不点击 01–06，连续向上拖动由初识进入外部查询，再进入后续能力；手机提示为“手指向上滑动”。
 - 线上截图：`qa/growth-v1/mobile-fix/public-1440-skill3.jpg`、`public-390-skill1.jpg`、`public-320-skill2.jpg`；尺寸已校验，均无横向溢出，控制台警告/错误 0。读数见 `public-observations.json`。物理手机未测。
+
+### 自动部署故障修正与验收
+
+首次 CI 38150864765 在 `wrangler whoami` 失败，它尝试读取通用账户列表，而专用 token 只含 Pages 编辑权限。未增加任何 token 权限；改为访问当前账户的 `pages/projects/apex-little-conch` 核验，确认响应成功且项目名匹配，再运行 Wrangler Pages deploy。第二次 CI 38151068229 全部成功；固定版本 ac79b5a6。只输出项目认证结果，不输出凭据或完整账户资料。
+
+成功记录与截图：`qa/growth-v1/mobile-fix/ci-success.json`、`automatic-deploy-success.jpg`。自动部署后重新打开生产网页：WebGL ready、没有 QA 工具，脚本仍为经三种尺寸验证的 index-BqkyFVWf.js；控制台警告/错误 0，读数见 after-ci-observations.json。
