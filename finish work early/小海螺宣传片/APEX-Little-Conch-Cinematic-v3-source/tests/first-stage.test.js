@@ -132,19 +132,8 @@ test('underwater backdrop triangles never reverse winding across a spherical pol
 });
 
 import { CHAPTERS } from '../src/StoryChapters.js';
-import { addDiveInput, diveChapter, diveDepth } from '../src/first-stage/DiveNavigation.js';
+import { diveDepth } from '../src/first-stage/DiveNavigation.js';
 import { FirstPersonCamera } from '../src/first-stage/FirstPersonCamera.js';
-test('a large wheel gesture cannot skip skills; reversing stops at the preceding skill',()=>{
-  for(let i=0;i<CHAPTERS.length-1;i++) {
-    const p=CHAPTERS[i].start+.045;
-    const next=addDiveInput(p,p,100);
-    assert.equal(diveChapter(next),i+1);
-    const back=addDiveInput(p,p,-100);
-    assert.equal(diveChapter(back),Math.max(0,i-1));
-  }
-  assert.equal(addDiveInput(0,0,-1),0);
-  assert.equal(addDiveInput(1,1,1),1);
-});
 test('manual descent is monotonic and each skill has a continuous physical depth',()=>{
   let previous=18;
   for(let p=0;p<=1;p+=.0005) {const depth=diveDepth(p);assert.ok(depth>=previous-1e-8);previous=depth;}
@@ -159,18 +148,6 @@ test('manual descent is monotonic and each skill has a continuous physical depth
   }
 });
 
-import { DiveReadingGate, DIVE_PACING } from '../src/first-stage/DiveNavigation.js';
-test('a skill gets reading time; momentum cannot leave it, but reverse input remains available',()=>{
-  const gate=new DiveReadingGate();
-  assert.equal(gate.allows(1,0),true);
-  gate.enter(1,10);
-  assert.equal(gate.allows(1,10.1),false);
-  assert.equal(gate.allows(-1,10.1),true);
-  gate.enter(1,12); // repeated frames must not restart the timer
-  assert.equal(gate.allows(1,10+DIVE_PACING.readingSeconds),true);
-  gate.enter(2,16);assert.equal(gate.allows(1,17),false);
-  gate.reset();assert.equal(gate.allows(1,0),true);
-});
 import { SeaLifeEncounters } from '../src/first-stage/SeaLifeEncounters.js';
 test('every numbered skill has one hero encounter and the image remains within desktop and mobile frames',()=>{
   for(const aspect of [1440/900,390/844,320/568]) {
@@ -188,11 +165,5 @@ test('every numbered skill has one hero encounter and the image remains within d
         assert.ok(Math.abs(corner.x)<.99&&Math.abs(corner.y)<.99,`clipped icon ${i}/${aspect}`);
       }
     }
-  }
-});
-test('releasing input near the next encounter completes its readable focus instead of a blank gap',()=>{
-  for(let i=0;i<6;i++){
-    const p=CHAPTERS[i].start+.045,threshold=CHAPTERS[i+1].start-.02;
-    assert.equal(addDiveInput(p,threshold,0.0001),CHAPTERS[i+1].start+.045);
   }
 });

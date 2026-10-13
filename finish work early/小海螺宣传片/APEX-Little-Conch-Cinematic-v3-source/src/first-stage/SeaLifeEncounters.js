@@ -27,12 +27,12 @@ export class SeaLifeEncounters {
       sprite.material.opacity=opacity*.96; sprite.visible=opacity>.01;
       const distance=Math.max(3,Math.abs(sprite.position.z-camera.position.z));
       const halfHeight=distance*Math.tan(camera.fov*Math.PI/360),halfWidth=halfHeight*camera.aspect;
-      const portrait=camera.aspect<1,side=index%2?-1:1;
+      const portrait=camera.aspect<1,compact=portrait&&camera.aspect>.52,side=index%2?-1:1;
       sprite.position.x=camera.position.x+(portrait?0:halfWidth*.45*side);
       const swim=smooth(start,start+.025,progress);
-      sprite.position.y=baseY+(-diveDepth(progress)-baseY)*swim+Math.sin(camera.rotation.x)*distance+halfHeight*(portrait?.22:.04)+(reducedMotion?0:Math.sin(time*.7+index)*.10);
+      sprite.position.y=baseY+(-diveDepth(progress)-baseY)*swim+Math.sin(camera.rotation.x)*distance+halfHeight*(compact?.30:portrait?.22:.04)+(reducedMotion?0:Math.sin(time*.7+index)*.10);
       // Encounters are hero-sized: picture beside the skill on desktop, above it on phones.
-      const size=halfHeight*(portrait?.56:.86);
+      const size=halfHeight*(compact?.36:portrait?.56:.86);
       sprite.scale.set(size,size,1);sprite.material.rotation=reducedMotion?0:Math.sin(time*.45+index)*.045;
     }
   }

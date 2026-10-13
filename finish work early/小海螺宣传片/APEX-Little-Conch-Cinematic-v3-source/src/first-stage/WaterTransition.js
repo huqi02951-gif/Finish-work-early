@@ -8,11 +8,11 @@ export class WaterTransition {
     this.composer = new EffectComposer(renderer);
     this.composer.addPass(new RenderPass(scene, camera));
     this.pass = new ShaderPass({
-      uniforms: { tDiffuse: { value: null }, time: { value: 0 }, impact: { value: 0 }, submerged: { value: 0 }, blur: { value: 0 }, shell: { value: 0 }, aspect: { value: 1 }, pulse: { value: -10 }, reduced: { value: 0 } },
+      uniforms: { tDiffuse: { value: null }, time: { value: 0 }, impact: { value: 0 }, submerged: { value: 0 }, depth: { value: 0 }, blur: { value: 0 }, shell: { value: 0 }, aspect: { value: 1 }, pulse: { value: -10 }, reduced: { value: 0 } },
       vertexShader: `varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
       fragmentShader: `
         precision highp float;
-        uniform sampler2D tDiffuse;uniform float time,impact,submerged,blur,shell,aspect,pulse,reduced;varying vec2 vUv;
+        uniform sampler2D tDiffuse;uniform float time,impact,submerged,depth,blur,shell,aspect,pulse,reduced;varying vec2 vUv;
         float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
         float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+1.),f.x),f.y);}
         void main(){
@@ -49,7 +49,10 @@ export class WaterTransition {
             bubbles+=exp(-pow((d-br)*440.,2.))*.16;
           }
           col+=bubbles*submerged*exp(-max(phase-1.,0.)*.52)*vec3(.45,.66,.7);
-          col=mix(col,col*vec3(.59,.88,.95)+vec3(.004,.025,.033),submerged*.5);
+          // Clear turquoise shallows gradually absorb warm light with real dive depth.
+          vec3 absorption=mix(vec3(.89,1.04,1.01),vec3(.53,.76,.86),depth);
+          vec3 waterLight=mix(vec3(.004,.027,.021),vec3(.002,.008,.018),depth);
+          col=mix(col,col*absorption+waterLight,submerged);
           // A small nacre lip, never a full helmet or cartoon character.
           vec2 edge=vec2((vUv.x-1.13)*aspect,vUv.y+.24);
           float er=length(edge);
@@ -65,10 +68,10 @@ export class WaterTransition {
     });
     this.composer.addPass(this.pass); this.composer.addPass(new OutputPass());
   }
-  update(s, reducedMotion) {
+  update(s, reducedMotion, progress = 0) {
     const u = this.pass.uniforms;
     u.time.value = s.t; u.impact.value = s.impact; u.submerged.value = s.water;
-    u.blur.value = s.blur; u.shell.value = s.shell; u.reduced.value = Number(reducedMotion);
+    u.depth.value = Math.max(0,Math.min(1,progress));u.blur.value = s.blur; u.shell.value = s.shell; u.reduced.value = Number(reducedMotion);
   }
   resize(w, h, dpr) { this.composer.setPixelRatio(dpr); this.composer.setSize(w, h); this.pass.uniforms.aspect.value = w / h; }
   render() { this.composer.render(); }

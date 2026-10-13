@@ -1,0 +1,212 @@
+[
+  {
+    "frame": "1440-cabin",
+    "human": "asset-pending",
+    "overflow": false,
+    "phase": "waiting",
+    "shot": "waiting"
+  },
+  {
+    "frame": "1440-door-open",
+    "human": "asset-pending",
+    "overflow": false,
+    "phase": "falling",
+    "shot": "falling"
+  },
+  {
+    "frame": "1440-freefall",
+    "human": "asset-pending",
+    "overflow": false,
+    "phase": "falling",
+    "shot": "falling"
+  },
+  {
+    "frame": "1440-approach",
+    "human": "asset-pending",
+    "overflow": false,
+    "phase": "falling",
+    "shot": "falling"
+  },
+  {
+    "frame": "1440-before-water",
+    "human": "asset-pending",
+    "overflow": false,
+    "phase": "falling",
+    "shot": "falling"
+  },
+  {
+    "frame": "1440-waterline",
+    "human": "hidden",
+    "overflow": false,
+    "phase": "impact",
+    "shot": "impact"
+  },
+  {
+    "frame": "1440-after-water",
+    "human": "hidden",
+    "overflow": false,
+    "phase": "impact",
+    "shot": "impact"
+  },
+  {
+    "frame": "1440-entry",
+    "human": "hidden",
+    "overflow": false,
+    "phase": "impact",
+    "shot": "impact"
+  },
+  {
+    "frame": "1440-submerged",
+    "human": "hidden",
+    "overflow": false,
+    "phase": "descending",
+    "shot": "descending"
+  },
+  {
+    "frame": "1440-arrival",
+    "human": "hidden",
+    "overflow": false,
+    "phase": "underwater",
+    "shot": "underwater"
+  },
+  {
+    "frame": "390-cabin",
+    "human": "asset-pending",
+    "overflow": false,
+    "phase": "waiting",
+    "shot": "waiting"
+  },
+  {
+    "frame": "390-door-open",
+    "human": "asset-pending",
+    "overflow": false,
+    "phase": "falling",
+    "shot": "falling"
+  },
+  {
+    "frame": "390-freefall",
+    "human": "asset-pending",
+    "overflow": false,
+    "phase": "falling",
+    "shot": "falling"
+  },
+  {
+    "frame": "390-approach",
+    "human": "asset-pending",
+    "overflow": false,
+    "phase": "falling",
+    "shot": "falling"
+  },
+  {
+    "frame": "390-before-water",
+    "human": "asset-pending",
+    "overflow": false,
+    "phase": "falling",
+    "shot": "falling"
+  },
+  {
+    "frame": "390-waterline",
+    "human": "hidden",
+    "overflow": false,
+    "phase": "impact",
+    "shot": "impact"
+  },
+  {
+    "frame": "390-after-water",
+    "human": "hidden",
+    "overflow": false,
+    "phase": "impact",
+    "shot": "impact"
+  },
+  {
+    "frame": "390-entry",
+    "human": "hidden",
+    "overflow": false,
+    "phase": "impact",
+    "shot": "impact"
+  },
+  {
+    "frame": "390-submerged",
+    "human": "hidden",
+    "overflow": false,
+    "phase": "descending",
+    "shot": "descending"
+  },
+  {
+    "frame": "390-arrival",
+    "human": "hidden",
+    "overflow": false,
+    "phase": "underwater",
+    "shot": "underwater"
+  },
+  {
+    "frame": "320-cabin",
+    "human": "asset-pending",
+    "overflow": false,
+    "phase": "waiting",
+    "shot": "waiting"
+  },
+  {
+    "frame": "320-door-open",
+    "human": "asset-pending",
+    "overflow": false,
+    "phase": "falling",
+    "shot": "falling"
+  },
+  {
+    "frame": "320-freefall",
+    "human": "asset-pending",
+    "overflow": false,
+    "phase": "falling",
+    "shot": "falling"
+  },
+  {
+    "frame": "320-approach",
+    "human": "asset-pending",
+    "overflow": false,
+    "phase": "falling",
+    "shot": "falling"
+  },
+  {
+    "frame": "320-before-water",
+    "human": "asset-pending",
+    "overflow": false,
+    "phase": "falling",
+    "shot": "falling"
+  },
+  {
+    "frame": "320-waterline",
+    "human": "hidden",
+    "overflow": false,
+    "phase": "impact",
+    "shot": "impact"
+  },
+  {
+    "frame": "320-after-water",
+    "human": "hidden",
+    "overflow": false,
+    "phase": "impact",
+    "shot": "impact"
+  },
+  {
+    "frame": "320-entry",
+    "human": "hidden",
+    "overflow": false,
+    "phase": "impact",
+    "shot": "impact"
+  },
+  {
+    "frame": "320-submerged",
+    "human": "hidden",
+    "overflow": false,
+    "phase": "descending",
+    "shot": "descending"
+  },
+  {
+    "frame": "320-arrival",
+    "human": "hidden",
+    "overflow": false,
+    "phase": "underwater",
+    "shot": "underwater"
+  }
+]

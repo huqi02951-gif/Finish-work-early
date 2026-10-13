@@ -109,13 +109,13 @@ for i,m in enumerate(re.finditer(r"fillText\('([^']+)'",source),1):
 
 # Ensure identifiers are unique; runtime copy comes from the listed literal sources.
 ids=[x['id'] for x in rows];assert len(ids)==len(set(ids))
-(OUT/'小海螺_全文案映射.json').write_text(json.dumps({'version':'V3.2 / 手机上滑修复版','source':'现有工程源码，不主动改写内容','items':rows},ensure_ascii=False,indent=2))
+(OUT/'小海螺_全文案映射.json').write_text(json.dumps({'version':'V3.3 / 原生滚动海岛版','source':'现有工程源码，不主动改写内容','items':rows},ensure_ascii=False,indent=2))
 with (OUT/'小海螺_文字修改表.csv').open('w',encoding='utf-8-sig',newline='') as f:
     writer=csv.writer(f,lineterminator='\n');writer.writerow(['编号','场景','位置','当前原文','展示状态','源码位置','新文案（留空保留；删除写【删除】）','修改说明'])
     for x in rows:writer.writerow([x[k] for k in ['id','scene','position','current','status','source','replacement','notes']])
 intro='''# 小海螺 · 全站文案与修改对照
 
-版本：V3.2 手机上滑修复版。由当前源码导出；不会修改网站内容。
+版本：V3.3 原生滚动海岛版。由当前源码导出；不会修改网站内容。
 
 你可以编辑同目录的 **小海螺_文字修改表.csv**：每行都有编号、场景、位置、原文、展示状态和源码位置。只填写“新文案”和“修改说明”，保留编号。新文案留空表示保留，删除请写【删除】。英文标题原有换行也已保留。
 

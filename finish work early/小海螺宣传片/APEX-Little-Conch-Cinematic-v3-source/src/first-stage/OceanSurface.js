@@ -5,7 +5,7 @@ import { SUN } from './SceneLayout.js';
 export class OceanSurface {
   constructor() {
     this.material = new THREE.ShaderMaterial({
-      side: THREE.DoubleSide,
+      side: THREE.DoubleSide, transparent: true, depthWrite: false,
       uniforms: { sunDirection: { value: new THREE.Vector3(...SUN.direction).normalize() }, time: { value: 0 }, eye: { value: new THREE.Vector3() } },
       vertexShader: `
         uniform float time;
@@ -36,7 +36,7 @@ export class OceanSurface {
           float spec=pow(max(dot(reflect(-sun,n),view),0.),32.);
           float broad=pow(max(dot(reflect(-sun,n),view),0.),8.);
           float swell=noise(p*.022)+noise(p*.08)*.36;
-          vec3 col=mix(vec3(.008,.095,.145),vec3(.032,.22,.27),clamp(swell*.62,0.,1.));
+          vec3 col=mix(vec3(.012,.14,.17),vec3(.045,.32,.31),clamp(swell*.62,0.,1.));
           col=mix(col,vec3(.25,.43,.5),fres*.42);
           col+=vec3(1.,.86,.65)*(spec*.28+broad*.055);
           float foam=smoothstep(.89,.98,noise(p*.9+time*.14))*smoothstep(.65,.92,noise(p*.04));
@@ -44,7 +44,9 @@ export class OceanSurface {
           float haze=1.-exp(-length(p-eye.xz)*.00085);
           col=mix(col,vec3(.53,.66,.68),haze*.55);
           if(eye.y<0.) col=mix(vec3(.028,.19,.24),vec3(.3,.72,.72),fres*.8+spec*.2);
-          gl_FragColor=vec4(col,1.);
+          // Below water, the distant ceiling loses contrast through the water column.
+          float visibility=eye.y<0. ? exp(-max(-eye.y-2.,0.)*.20) : 1.;
+          gl_FragColor=vec4(col,visibility);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
         }

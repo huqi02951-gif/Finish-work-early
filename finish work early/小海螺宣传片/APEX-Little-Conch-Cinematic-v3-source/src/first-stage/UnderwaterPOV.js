@@ -19,7 +19,7 @@ export function createBackdropGeometry() {
 export class UnderwaterPOV {
   constructor(texture, mobile) {
     this.root = new THREE.Group();
-    const material = new THREE.MeshBasicMaterial({ map: texture, color: 0x91c8d1 });
+    const material = new THREE.MeshBasicMaterial({ map: texture, color: 0xbce1d9 });
     // A world-space curved cyclorama covers the entire camera arc. The original
     // photographic V3 seabed is a distant plate, not falsely labelled a 3D reef.
     const domeGeometry=createBackdropGeometry();

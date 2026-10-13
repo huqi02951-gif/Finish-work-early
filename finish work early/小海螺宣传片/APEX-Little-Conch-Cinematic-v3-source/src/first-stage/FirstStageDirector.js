@@ -87,7 +87,7 @@ export class FirstStageDirector {
     this.cabin.update(s); this.human.update(s); this.atmosphere.update(s, this.rig.camera); this.ocean.update({ ...s, t: s.t + deepTime }, this.rig.camera);
     // Extended water clock animates life after arrival without altering the camera trajectory.
     const waterState = { ...s, t: s.t + deepTime };
-    this.underwater.update(waterState,progress);this.seaLife.update(s,progress,this.rig.camera,s.t+deepTime,this.reducedMotion); this.transition.update(waterState, this.reducedMotion);
+    this.underwater.update(waterState,progress);this.seaLife.update(s,progress,this.rig.camera,s.t+deepTime,this.reducedMotion); this.transition.update(waterState, this.reducedMotion, progress);
     this.host.parentElement.dataset.shot = s.phase;
     this.host.parentElement.dataset.humanForeground = s.t >= 10.8 ? 'hidden' : this.human.hasAssets ? 'integrated-pending-review' : 'asset-pending';
     this.host.parentElement.dataset.doorProgress = s.door.toFixed(4);
