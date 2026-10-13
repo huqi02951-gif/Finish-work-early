@@ -1,5 +1,16 @@
 # GitHub 与 Cloudflare Pages 发布记录
 
+## 最新自动部署（2026-10-14 · V3.4 四场景海岛版）
+
+- 网站：https://apex-little-conch.pages.dev/?v=20261014
+- 固定版本：https://528dd7af.apex-little-conch.pages.dev/
+- 源码提交：`d0fd2b7ececca9338bb06ef554d8c374f63eab55`
+- 成功CI：https://github.com/huqi02951-gif/Finish-work-early/actions/runs/38439487006
+- 25项测试、构建、既有Pages项目权限核验和发布均成功。沿用免费公开仓库标准Actions与Pages静态托管，无套餐升级、Functions或凭据权限扩大。
+- 公网1440×900、390×844、320×568已实际复测：岛屿可见、WebGL就绪、无QA工具、四项导航、无横向溢出。加载`index-squK_fGi.js`与CI构建一致。三种尺寸均以原生滚动进入风险查询72m，再反向回到52m；截图与读数在`qa/island-iphone-2026-10-14/public-observations.json`。
+- iPhone Safari、微信、Chrome尚未真机验收，镜像已配对，等待Mac本人解锁与登录验证；不能用以上桌面视口截图替代。最新进度见[V3.4交接](ISLAND-IPHONE-V3.4.md)。
+- 上一成功生产版本2bd3b6a2保留，可用于Pages回滚。以下为历史发布记录。
+
 ## 当前自动部署（2026-10-13 · V3.3）
 
 - 网站：https://apex-little-conch.pages.dev/
