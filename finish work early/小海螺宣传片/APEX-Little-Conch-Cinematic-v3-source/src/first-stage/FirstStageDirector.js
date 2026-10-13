@@ -1,3 +1,4 @@
+import { ConchIsland, islandView, ISLAND } from './ConchIsland.js';
 import * as THREE from 'three';
 import { gsap } from 'gsap';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -43,6 +44,7 @@ export class FirstStageDirector {
     this.environment = pmrem.fromScene(room, 0.02); this.scene.environment = this.environment.texture; this.scene.environmentIntensity = .30;
     room.dispose(); pmrem.dispose();
     this.atmosphere = new Atmosphere(innerWidth < 640); this.scene.add(this.atmosphere.root);
+    this.island=new ConchIsland();this.scene.add(this.island.root);
     this.ocean = new OceanSurface(); this.scene.add(this.ocean.mesh);
     this.transition = new WaterTransition(this.renderer, this.scene, this.rig.camera);
     this.resize = this.resize.bind(this); addEventListener('resize', this.resize); this.resize();
@@ -80,21 +82,33 @@ export class FirstStageDirector {
   cancelManual() { gsap.to(this.manual, { value: 0, duration: 0.35, ease: 'power2.out', overwrite: true }); }
   reset() { gsap.killTweensOf(this.manual); this.manual.value = 0; this.rig.look.set(0, 0); this.pointer.set(0, 0); }
   pulse(time) { this.transition.pass.uniforms.pulse.value = time; }
-  update({ time, dt, progress = 0, active = true, deepTime = 0 }) {
+  update({ time, dt, progress = 0, active = true, deepTime = 0, view = 'journey' }) {
     if (!this.ready) return sampleSequence(time);
     const s = sampleSequence(time, { aspect: innerWidth / innerHeight, manualDoor: this.manual.value, reducedMotion: this.reducedMotion });
-    this.rig.update(s, this.pointer, active ? dt : 0, this.reducedMotion, progress);
-    this.cabin.update(s); this.human.update(s); this.atmosphere.update(s, this.rig.camera); this.ocean.update({ ...s, t: s.t + deepTime }, this.rig.camera);
+    const overview=view==='island';
+    if(overview)islandView(this.rig.camera,deepTime,this.reducedMotion);else this.rig.update(s, this.pointer, active ? dt : 0, this.reducedMotion, progress);
+    this.island.update(s);
+    this.cabin.update(s); this.human.update(s); this.atmosphere.update(s, this.rig.camera);
+    for(const cloud of this.atmosphere.clouds)cloud.visible=!overview||(cloud.userData.bank===0&&cloud.position.y>140); this.ocean.update({ ...s, t: s.t + deepTime }, this.rig.camera);
     // Extended water clock animates life after arrival without altering the camera trajectory.
     const waterState = { ...s, t: s.t + deepTime };
     this.underwater.update(waterState,progress);this.seaLife.update(s,progress,this.rig.camera,s.t+deepTime,this.reducedMotion); this.transition.update(waterState, this.reducedMotion, progress);
     this.host.parentElement.dataset.shot = s.phase;
     this.host.parentElement.dataset.humanForeground = s.t >= 10.8 ? 'hidden' : this.human.hasAssets ? 'integrated-pending-review' : 'asset-pending';
     this.host.parentElement.dataset.doorProgress = s.door.toFixed(4);
-    if (time === 0) this.projectDoor();
-    this.hatch.style.visibility = time > 0 ? 'hidden' : 'visible';
+    if (time === 0&&!overview) this.projectDoor();
+    this.hatch.style.visibility = time > 0||overview ? 'hidden' : 'visible';
     // Shadow maps are needed only while the cabin can be seen.
-    this.sun.castShadow = s.t < 6;
+    this.sun.castShadow = overview||s.t < 6;
+    if(this.overview!==overview){
+      this.overview=overview;this.renderer.toneMappingExposure=overview?1.08:.94;
+      this.sun.target.position.set(0,overview?0:START_ALTITUDE,overview?ISLAND.z:0);
+      this.sun.position.copy(this.sun.target.position).add(new THREE.Vector3(...SUN.direction).normalize().multiplyScalar(overview?900:12));
+      const span=overview?190:5;
+      Object.assign(this.sun.shadow.camera,{left:-span,right:span,top:span,bottom:-span,far:overview?1800:28});
+      this.sun.shadow.camera.updateProjectionMatrix();
+    }
+    if(overview){this.cabin.root.visible=false;this.human.root.visible=false;this.underwater.root.visible=false;this.seaLife.root.visible=false;}
     if (this.qaCoordinates) this.updateCoordinateGuide(s);
     this.renderer.info.autoReset=false;this.renderer.info.reset();this.transition.render();
     this.frameCount++;

@@ -88,12 +88,12 @@
 .skill-nav button{background:transparent;border:0;border-bottom:1px solid #aacbd84d;color:#a1bfce;font:10px monospace;min-width:32px;min-height:32px;cursor:pointer}
 .skill-nav button[aria-current='step']{color:#ffe7c2;border-color:#e6c8a2}
 .film:not([data-phase='underwater']) .skill-nav{display:none}
-.film[data-phase='underwater'][data-milestone='0'] .world-object{display:block!important;opacity:1;left:70%;top:45%;width:min(29vw,420px)}
-.film[data-phase='underwater'][data-milestone='0'] .world-object .object-glow,.film[data-phase='underwater'][data-milestone='0'] .world-object .object-orbit{display:none}
+.film[data-phase='underwater'][data-visual='conch'] .world-object{display:block!important;opacity:1;left:70%;top:45%;width:min(29vw,420px);transform:translate(-50%,-50%)}
+.film[data-phase='underwater'][data-visual='conch'] .world-object .object-glow,.film[data-phase='underwater'][data-visual='conch'] .world-object .object-orbit{display:none}
 @media(max-width:620px){
  .film[data-phase='underwater'][data-side='right'] .chapter-copy{left:24px;width:85vw}
  .skill-nav{bottom:82px;gap:8px}.skill-nav button{font-size:9px;min-width:30px;min-height:28px}
- .film[data-phase='underwater'][data-milestone='0'] .world-object{left:50%;top:38%;width:55vw}
+ .film[data-phase='underwater'][data-visual='conch'] .world-object{left:50%;top:38%;width:55vw}
 }
 @media(max-width:620px) and (max-height:660px){
  .chapter-copy,.film[data-phase='underwater'][data-side='right'] .chapter-copy{left:20px;width:88vw;bottom:20%}
@@ -150,3 +150,63 @@ html{scrollbar-width:none}html::-webkit-scrollbar{display:none}
  .credits-growth{font-size:10px}
 }
 @media(max-width:620px) and (max-height:660px){.hud{top:80px!important}}
+
+/* The first island is a visible 3D destination with a clear entrance and return. */
+.island-screen{position:absolute;z-index:18;left:7vw;top:40%;width:min(430px,38vw);color:#f7f1df;text-shadow:0 2px 25px #052b3866}
+.island-eyebrow{font:10px/1.6 monospace;letter-spacing:.2em;color:#efdbb7}
+.island-screen h1{font:400 clamp(40px,4.2vw,64px)/1.15 'Songti SC','STSong',serif;margin:18px 0 24px;letter-spacing:.08em}
+.island-lead{font-size:20px;line-height:1.6;letter-spacing:.04em;text-wrap:balance}
+.island-intro{font-size:13px;line-height:2;color:#e2ede2}
+.island-screen button{display:block;margin-top:30px;padding:15px 22px;border:1px solid #e6d9b99c;background:#12393b99;backdrop-filter:blur(8px);color:#fff0d1;min-height:48px;font-size:13px;letter-spacing:.06em;transition:background .25s,transform .25s}
+.island-screen button:hover{background:#174b49cc}.island-screen button:active{transform:translateY(2px)}
+.island-screen small{display:block;margin-top:16px;font-size:10px;letter-spacing:.04em;color:#d1e5da}
+.film:not([data-phase='island']) .island-screen{display:none}
+.film[data-phase='island'] .hud,.film[data-phase='island'] .footer,.film[data-phase='island'] .hatch-anchor,.film[data-phase='island'] #island-home{display:none}
+.film[data-phase='island'] .vignette{background:linear-gradient(90deg,#04282c77,transparent 55%),linear-gradient(0deg,#052d3544,transparent 40%)}
+@media(max-width:620px){
+ .toolbar{gap:0}.toolbar button{padding:7px}.toolbar button span{font-size:7px;letter-spacing:0}
+ .top{padding-left:14px;padding-right:8px}.logo-dot{width:22px;height:22px}.logo{gap:6px}.logo b{font-size:17px}
+ .island-screen{left:24px;right:24px;top:auto;bottom:max(38px,env(safe-area-inset-bottom));width:auto}
+ .island-screen h1{font-size:36px;margin:9px 0 16px}.island-eyebrow{font-size:9px}
+ .island-lead{font-size:16px;margin:0 0 12px}.island-intro{font-size:12px;margin:0;line-height:1.85}
+ .island-screen button{margin-top:21px}.island-screen small{font-size:9px;margin-top:13px}
+ .film[data-phase='island'] .vignette{background:linear-gradient(0deg,#052733d9,transparent 67%)}
+ .guide small{font-size:11px;line-height:1.6}.film[data-phase='underwater'] .guide{max-width:68%;font-size:8px}
+}
+@media(max-width:620px) and (max-height:660px){
+ .island-screen{bottom:25px;left:20px;right:20px}.island-screen h1{font-size:30px;margin:7px 0 9px}.island-lead{font-size:14px}.island-intro{font-size:10px}.island-screen button{margin-top:14px;padding:12px 16px}.island-screen small{font-size:8px}
+ .toolbar button span{display:none}
+ .guide small{font-size:9px}
+}
+.chapter-copy h2{font-family:'Songti SC','STSong','Noto Serif CJK SC',serif;font-size:clamp(38px,3.8vw,56px);line-height:1.2;letter-spacing:.03em}
+.chapter-copy #chapter-cn{font-size:clamp(15px,1.3vw,20px);line-height:1.75}
+@media(max-width:620px){.chapter-copy h2{font-size:32px;margin-bottom:13px}.chapter-copy #chapter-cn{font-size:14px}.guide small{max-width:200px}.progress{min-width:72px;width:72px}}
+@media(max-width:620px) and (max-height:660px){.chapter-copy h2{font-size:25px;margin-bottom:9px}.chapter-copy #chapter-cn{font-size:12px}.chapter-copy #chapter-desc{font-size:11px}}
+
+/* A task, its execution, and the usable result: the four real credit scenarios. */
+.chapter-workflow{margin:18px 0 0;max-width:410px;font-size:13px;line-height:1.9;color:#deece6}
+.chapter-workflow[hidden]{display:none}
+.chapter-workflow>div{display:flex;gap:14px;margin-top:10px}
+.chapter-workflow dt{flex:0 0 2em;color:#b7ede0;font-size:11px;padding-top:2px;letter-spacing:.08em}
+.chapter-workflow dd{margin:0;text-wrap:pretty}
+.chapter-copy #chapter-desc{margin-bottom:0}
+@media(max-width:620px){
+ .chapter-workflow{font-size:12px;line-height:1.7;margin-top:12px;max-width:100%}
+ .chapter-workflow>div{gap:12px;margin-top:7px}.chapter-workflow dt{font-size:10px}
+ .chapter-copy,.film[data-phase='underwater'][data-side='right'] .chapter-copy{bottom:18%;}
+ .chapter-copy h2{font-size:30px;line-height:1.15;margin-bottom:8px}
+ .chapter-copy #chapter-cn{margin:8px 0;font-size:14px}
+ .chapter-copy #chapter-kicker{margin-bottom:12px;letter-spacing:.08em}
+ .chapter-line{margin:10px 0}
+}
+@media(max-width:620px) and (max-height:660px){
+ .chapter-copy,.film[data-phase='underwater'][data-side='right'] .chapter-copy{bottom:20%;}
+ .chapter-copy h2{font-size:23px;margin-bottom:6px;line-height:1.12}
+ .chapter-copy #chapter-cn{font-size:12px;margin:6px 0}
+ .chapter-copy #chapter-desc,.chapter-workflow{font-size:10px;line-height:1.6}
+ .chapter-workflow{margin-top:7px}.chapter-workflow>div{gap:8px;margin-top:4px}.chapter-workflow dt{font-size:9px}
+ .chapter-copy #chapter-kicker{font-size:8px;margin-bottom:8px}
+ .chapter-line{margin:7px 0}
+}
+.chapter-workflow dt{white-space:nowrap;flex-basis:28px}
+.film[data-phase='island'] .top{text-shadow:0 1px 6px #073040b3}

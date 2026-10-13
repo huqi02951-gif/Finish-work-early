@@ -20,10 +20,10 @@ export class WaterTransition {
           float phase=time-10.8;
           // A slanted, turbulent sheet crosses the lens, instead of exposing the
           // sea/reef change in a single unoccluded frame at Y=0. No scene crossfade.
-          float entryWindow=smoothstep(-.18,-.07,phase)*(1.-smoothstep(.18,.48,phase));
-          float front=mix(1.32,-.35,smoothstep(-.15,.36,phase));
+          float entryWindow=smoothstep(-.18,-.07,phase)*(1.-smoothstep(.24,.58,phase));
+          float front=mix(1.32,-.35,smoothstep(-.22,.22,phase));
           float sheetNoise=noise(vec2(uv.x*12.,uv.y*5.-phase*11.));
-          float sheet=exp(-pow((uv.y-front+(uv.x-.5)*.22+sheetNoise*.14)*2.3,2.))*entryWindow;
+          float sheet=exp(-pow((uv.y-front+(uv.x-.5)*.22+sheetNoise*.14)*1.5,2.))*entryWindow;
           vec2 refract=vec2(sin(uv.y*36.+time*3.8),cos(uv.x*41.-time*3.))*submerged*.0014;
           refract+=normalize(q+.0001)*sin(r*36.-phase*20.)*impact*.021;
           refract+=vec2(sin(uv.y*28.+sheetNoise*5.),cos(uv.x*23.-phase*19.))*sheet*.055;
@@ -38,7 +38,7 @@ export class WaterTransition {
           float foam=clamp(impact*.055+rim*.55,0.,.77)*(.4+noise(q*68.+time)*.6);
           col=mix(col,vec3(.68,.87,.88),foam);
           float filaments=pow(.5+.5*sin(uv.x*64.+sheetNoise*16.),8.);
-          col=mix(col,col*vec3(.47,.76,.85)+vec3(.035,.11,.14),sheet*.74);
+          col=mix(col,col*vec3(.16,.28,.36)+vec3(.025,.11,.16),sheet*.96);
           col+=sheet*filaments*vec3(.16,.27,.28);
           // Small refractive bubbles at the lens following actual surface entry.
           float bubbles=0.;
@@ -50,9 +50,10 @@ export class WaterTransition {
           }
           col+=bubbles*submerged*exp(-max(phase-1.,0.)*.52)*vec3(.45,.66,.7);
           // Clear turquoise shallows gradually absorb warm light with real dive depth.
-          vec3 absorption=mix(vec3(.89,1.04,1.01),vec3(.53,.76,.86),depth);
+          vec3 absorption=mix(vec3(.89,1.04,1.01),vec3(.46,.66,.84),depth);
           vec3 waterLight=mix(vec3(.004,.027,.021),vec3(.002,.008,.018),depth);
           col=mix(col,col*absorption+waterLight,submerged);
+          col=mix(col,vec3(.003,.021,.055),depth*.18*submerged);
           // A small nacre lip, never a full helmet or cartoon character.
           vec2 edge=vec2((vUv.x-1.13)*aspect,vUv.y+.24);
           float er=length(edge);

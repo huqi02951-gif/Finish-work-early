@@ -16,15 +16,20 @@ def add(ident, scene, position, current, status, source):
 chapters = json.loads(subprocess.run(
     ['node', '--input-type=module', '-e', "import {CHAPTERS} from './src/StoryChapters.js'; console.log(JSON.stringify(CHAPTERS));"],
     cwd=ROOT, capture_output=True, text=True, check=True).stdout)
-names = ['00 初识 · 小海螺醒来', '01 外部查询 · 小丑鱼', '02 受益所有人 · 水母',
-         '03 财报转换 · 海龟', '04 股权穿透 · 海马', '05 技能协作 · 珊瑚', '06 行内部署 · 海星', '07 片尾前的短过渡']
+names = ['00 初识 · Personal Agent', '01 外部风险信息查询 · 小丑鱼',
+         '02 财报转换 · 海龟', '03 企业股权分析 · 海马', '04 受益所有人识别 · 水母',
+         '05 正在研究 · 继续生长', '06 片尾前的过渡']
+count = sum(ch['kind']=='scenario' for ch in chapters)
 for i, ch in enumerate(chapters):
     source = f'src/StoryChapters.js → CHAPTERS[{i}]'
-    for key, position in [('title','英文主标题'), ('cn','中文主句'), ('desc','中文说明'), ('label','能力英文标签'), ('id','右上角任务状态')]:
-        if ch[key]: add(f'SKILL-{i:02d}-{key}', names[i], position, ch[key], '当前展示' if i<7 else '极短过渡，最终片尾另见下方', f'{source}.{key}')
-    kicker = ch['kicker'] if i in [0,7] else f"{i:02d} / 06 · {['','外部查询','受益所有人识别','财报转换','股权穿透','技能协作','行内部署'][i]}"
-    add(f'SKILL-{i:02d}-kicker',names[i],'标题上方章节标识',kicker,'当前展示' if i<7 else '极短过渡',source+'.kicker / src/film.js changeChapter')
-    if i not in [0,7]: add(f'OLD-{i:02d}-kicker',names[i],'原章节英文标识',ch['kicker'],'已被编号中文标识覆盖，当前不展示',source+'.kicker')
+    status = '极短过渡，最终片尾另见下方' if ch['kind']=='credits' else '当前展示' if ch['kind']!='research' else '当前展示，明确为研发方向'
+    for key, position in [('title','艺术主标题'), ('cn','具体能力 / 主句'), ('desc','交给小海螺的任务 / 说明'),
+                          ('steps','实际执行'), ('deliverable','实际交付物'), ('label','能力英文标签'), ('id','右上角任务状态')]:
+        if ch.get(key): add(f'SKILL-{i:02d}-{key}', names[i], position, ch[key], status, f'{source}.{key}')
+    kicker = f"{i:02d} / {count:02d} · {ch['cn']}" if ch['kind']=='scenario' else ch['kicker']
+    add(f'SKILL-{i:02d}-kicker',names[i],'标题上方章节标识',kicker,status,source+'.kicker / src/film.js chapterKicker')
+    if ch['kind']=='scenario':
+        add(f'NAV-{i:02d}',names[i],'编号导航无障碍名称',f"{i:02d} {ch['cn']}",'当前展示',source+'.cn / src/film.js init')
     for j, pair in enumerate(ch['holo']):
         for k, value in enumerate(pair):
             add(f'HOLO-{i:02d}-{j+1:02d}-{k+1}',names[i],'全息示例：'+('字段名' if k==0 else '内容'),value,'保留在源码；当前全息面板隐藏',f'{source}.holo[{j}][{k}]')
@@ -47,17 +52,19 @@ class TextNodes(HTMLParser):
         if value and not any(x['tag'] in ['script','style'] for x in self.stack): self.items.append((value,list(self.stack),self.getpos()[0]))
 
 parser=TextNodes();parser.feed((ROOT/'index.html').read_text())
-reserved={'title-screen','flight-caption','flight-index','flight-line','flight-sub','chapter-copy','chapter-kicker','chapter-title','chapter-cn','chapter-desc','portal','holo'}
+reserved={'title-screen','flight-caption','flight-index','flight-line','flight-sub','chapter-copy','chapter-kicker','chapter-title','chapter-cn','chapter-desc','chapter-workflow','portal','holo'}
 overwritten={'readout','readout-label','readout-unit','mission','guide-text','progress-label','progress-pct','speed','data-label','data-name'}
 def location(stack):
     ids=[x['id'] for x in stack if x.get('id')]
     classes=[x['class'] for x in stack]
+    if 'island-screen' in ids: return '入口 · 小海螺岛', '岛屿入口文案', '当前展示'
     if 'credits' in ids: return '片尾 · 创作团队与继续生长', '片尾文字', '当前展示'
+    if 'chapter-workflow' in ids: return '水下 · 任务执行与交付', '执行 / 交付标签', '四项业务场景展示'
     if any(x in ids for x in reserved): return '保留的初始/旧版文案', '初始化文字', '隐藏或被运行时覆盖，当前通常不展示'
     if any('hatch-inner' in x for x in classes): return '机舱 · 旧舱门 HTML', '旧门贴纸文字', 'WebGL 准备后隐藏；实际门贴纸见 CANVAS 项'
     if 'hatch' in ids: return '机舱 · 手动开门', '门把操作提示', '当前展示'
     if any(x in ids for x in overwritten): return '仪表与操作提示', '初始化标签 / 数字', '由运行时状态覆盖；实际状态另见 TXT 项'
-    if any('skill-nav' in x for x in classes): return '水下 · 01–06 导航', '导航按钮 / 无障碍名称', '当前展示'
+    if any('skill-nav' in x for x in classes): return '水下 · 01–04 导航', '导航按钮 / 无障碍名称', '当前展示'
     if 'scene-status' in ids: return '载入与故障', '载入提示', '仅载入期间或故障时展示'
     if 'tap-continue' in ids: return '水下 · 保留的继续按钮', '按钮文案', '手机布局当前隐藏，仅保留在源码'
     if 'skip-intro' in ids: return '天空开场', '跳过按钮', '入水前展示'
@@ -109,21 +116,23 @@ for i,m in enumerate(re.finditer(r"fillText\('([^']+)'",source),1):
 
 # Ensure identifiers are unique; runtime copy comes from the listed literal sources.
 ids=[x['id'] for x in rows];assert len(ids)==len(set(ids))
-(OUT/'小海螺_全文案映射.json').write_text(json.dumps({'version':'V3.3 / 原生滚动海岛版','source':'现有工程源码，不主动改写内容','items':rows},ensure_ascii=False,indent=2))
+(OUT/'小海螺_全文案映射.json').write_text(json.dumps({'version':'V3.4 / Personal Agent 四场景海岛版','source':'现有工程源码，不主动改写内容','items':rows},ensure_ascii=False,indent=2))
 with (OUT/'小海螺_文字修改表.csv').open('w',encoding='utf-8-sig',newline='') as f:
     writer=csv.writer(f,lineterminator='\n');writer.writerow(['编号','场景','位置','当前原文','展示状态','源码位置','新文案（留空保留；删除写【删除】）','修改说明'])
     for x in rows:writer.writerow([x[k] for k in ['id','scene','position','current','status','source','replacement','notes']])
 intro='''# 小海螺 · 全站文案与修改对照
 
-版本：V3.3 原生滚动海岛版。由当前源码导出；不会修改网站内容。
+版本：V3.4 Personal Agent 四场景海岛版。由当前源码导出；不会修改网站内容。
 
-你可以编辑同目录的 **小海螺_文字修改表.csv**：每行都有编号、场景、位置、原文、展示状态和源码位置。只填写“新文案”和“修改说明”，保留编号。新文案留空表示保留，删除请写【删除】。英文标题原有换行也已保留。
+你可以编辑同目录的 **小海螺_文字修改表.csv**：每行都有编号、场景、位置、原文、展示状态和源码位置。只填写“新文案”和“修改说明”，保留编号。新文案留空表示保留，删除请写【删除】。标题原有换行也已保留。新旧版本章节编号有变化，请使用本版修改表。
 
 也可以直接发：`SKILL-01-cn：新文案……`，或 `SKILL-03-desc：新说明……`。同一句出现于多个位置时，可注明“全部同步替换”。
 
-故事顺序：机舱手动开门 → 自动坠落 → 海面接近 → 穿水 / 身份切换 → 初识 → 外部查询（小丑鱼）→ 受益所有人（水母）→ 财报转换（海龟）→ 股权穿透（海马）→ 技能协作（珊瑚）→ 行内部署（海星）→ 片尾。
+故事顺序：小海螺岛入口 → 机舱手动开门 → 自动坠落 → 海面接近 → 穿水 / 身份切换 → 初识 → 外部风险信息查询（小丑鱼）→ 财报转换（海龟）→ 企业股权分析（海马）→ 受益所有人识别（水母）→ 正在研究 / 继续生长 → 片尾 → 返回岛屿。
 
 当前手机操作：手指从下向上滑动会下潜；反向滑动回看。鼠标滚轮仍向下推进。这里同时收录了隐藏旧稿、全息示例、无障碍标签和开发验收工具，它们的状态已经标明。开发工具不属于宣传文案，可跳过；数字深度、速度和百分比由程序计算，不建议当作固定文案修改。图片中无法辨识的纹理不作为文字臆写；门上的实际文字由 Canvas 绘制，已逐项收录。
+
+旧版编号迁移：外部查询仍为 01；财报转换 03 → 02；股权分析 04 → 03；受益所有人 02 → 04。旧版技能协作与行内部署不再作为独立现有能力编号；本版 05 为研发方向、06 为片尾过渡。不要套用旧 CSV 的章节编号。
 
 ## 优先修改：主叙事
 '''

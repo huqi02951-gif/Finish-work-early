@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CHAPTERS } from '../StoryChapters.js';
+import { CHAPTERS, SCENARIOS } from '../StoryChapters.js';
 import { diveDepth } from './DiveNavigation.js';
 import { smooth } from './FreefallSequence.js';
 
@@ -8,12 +8,13 @@ import { smooth } from './FreefallSequence.js';
 export class SeaLifeEncounters {
   constructor(texture) {
     this.root=new THREE.Group(); this.root.name='OceanLife'; this.creatures=[];
-    for(let i=0;i<6;i++) {
-      const map=texture.clone();map.repeat.set(1/3,1/2);map.offset.set((i%3)/3,i<3?.5:0);map.needsUpdate=true;
+    for(let i=0;i<SCENARIOS.length;i++) {
+      const cell=SCENARIOS[i].atlasCell;
+      const map=texture.clone();map.repeat.set(1/3,1/2);map.offset.set((cell%3)/3,cell<3?.5:0);map.needsUpdate=true;
       const material=new THREE.SpriteMaterial({map,transparent:true,depthWrite:false,opacity:0,alphaTest:.015});
       const sprite=new THREE.Sprite(material);
       const at=CHAPTERS[i+1].start+.045;
-      sprite.position.set(0,-diveDepth(at),-36-i*.8);sprite.scale.setScalar(i===1?2.0:2.4);
+      sprite.position.set(0,-diveDepth(at),-36-i*.8);sprite.scale.setScalar(cell===1?2.0:2.4);
       sprite.userData={at,baseY:sprite.position.y,index:i+1};this.root.add(sprite);this.creatures.push(sprite);
     }
   }

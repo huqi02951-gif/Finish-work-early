@@ -131,7 +131,7 @@ test('underwater backdrop triangles never reverse winding across a spherical pol
   geometry.dispose();
 });
 
-import { CHAPTERS } from '../src/StoryChapters.js';
+import { CHAPTERS, SCENARIO_COUNT } from '../src/StoryChapters.js';
 import { diveDepth } from '../src/first-stage/DiveNavigation.js';
 import { FirstPersonCamera } from '../src/first-stage/FirstPersonCamera.js';
 test('manual descent is monotonic and each skill has a continuous physical depth',()=>{
@@ -153,7 +153,7 @@ test('every numbered skill has one hero encounter and the image remains within d
   for(const aspect of [1440/900,390/844,320/568]) {
     const texture=new THREE.Texture({width:1536,height:1024});
     const encounters=new SeaLifeEncounters(texture),rig=new FirstPersonCamera(aspect);
-    for(let i=1;i<=6;i++) {
+    for(let i=1;i<=SCENARIO_COUNT;i++) {
       const p=CHAPTERS[i].start+.045;
       const state=sampleSequence(19,{aspect});rig.update(state,new THREE.Vector2(),.016,false,p);
       encounters.update(state,p,rig.camera,19,true);

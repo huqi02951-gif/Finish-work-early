@@ -41,5 +41,5 @@ export class UnderwaterPOV {
     });
     this.particles = new THREE.Points(geometry, pointMat); this.root.add(this.particles);
   }
-  update(s, progress = 0) { this.root.position.y = -(diveDepth(progress) - 18); this.root.visible = s.y < 3; this.particles.material.uniforms.time.value = s.t; }
+  update(s, progress = 0) { this.root.position.y = -(diveDepth(progress) - 18)*.68; this.root.visible = s.y < 3; this.particles.material.uniforms.time.value = s.t; }
 }

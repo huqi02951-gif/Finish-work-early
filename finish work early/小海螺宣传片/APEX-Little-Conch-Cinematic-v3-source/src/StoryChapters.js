@@ -1,11 +1,15 @@
-// Story order and business capabilities retained; poetic copy updated by the user's growth brief.
+// Business scope confirmed by the project owner on 2026-10-14.
+// Keep shipped tasks separate from research. See docs/LITTLE-CONCH-BUSINESS-TRUTH.md.
 export const CHAPTERS=[
-{start:0,id:'THE FIRST SPARK',kicker:'ORIGIN / 00 — THE LITTLE CONCH',title:'A QUESTION.\nA BEGINNING.',cn:'一枚微光，在深蓝里醒来。',desc:'在 APEX Studio 的海洋里，第一座岛因好奇而浮现。潜入它的深处，听见小海螺生长的回响。',label:'FIRST SPARK',visual:'conch',holo:[],depth:18},
-{start:.135,id:'EXTERNAL QUERY',kicker:'MILESTONE / 01 — EXTERNAL INTELLIGENCE',title:'CURIOSITY.\nIN MOTION.',cn:'好奇，是通向世界的第一道潮汐。',desc:'小海螺学会的第一项技能，是外部查询。它拾起散落的公开线索，让一个问题，找到继续探寻的方向。',label:'EXTERNAL QUERY',visual:'query',depth:52,holo:[['QUERY','某科技企业基本情况'],['工商信息','已整理 · 示例'],['经营线索','已提取 · 示例'],['公开信息','来源待核验']]},
-{start:.275,id:'BENEFICIAL OWNERSHIP',kicker:'MILESTONE / 02 — BENEFICIAL OWNERSHIP',title:'FOLLOW\nTHE ROOTS.',cn:'循着连接，听见源头的回声。',desc:'受益所有人识别，沿持股与控制关系继续下潜。层层连接逐渐显影，让源头的线索浮出深蓝。',label:'BENEFICIAL OWNERSHIP',visual:'ownership',depth:103,holo:[['START','主体 A'],['第一层','企业 B → 企业 C'],['第二层','自然人 D'],['输出','关联链条 · 待人工核验']]},
-{start:.415,id:'FINANCIAL TRANSFORMATION',kicker:'MILESTONE / 03 — FINANCIAL STATEMENTS',title:'NUMBERS.\nCOME ALIVE.',cn:'让散落的数字，汇成清晰的潮流。',desc:'财报转换，将不同格式的资料整理为标准报表。把时间从重复录入中归还，留给更深一层的理解。',label:'FINANCIAL CONVERSION',visual:'finance',depth:156,holo:[['INPUT','PDF / XLSX / IMAGE'],['EXTRACT','字段识别'],['NORMALIZE','科目映射'],['OUTPUT','标准报表 · 示例']]},
-{start:.56,id:'EQUITY INTELLIGENCE',kicker:'MILESTONE / 04 — EQUITY NETWORK',title:'BEYOND\nTHE VISIBLE.',cn:'穿过层层水色，看见关系的全貌。',desc:'股权穿透，把直接持股与多层关联连成可追寻的路径。结构逐步展开，专业判断仍由人来完成。',label:'EQUITY NETWORK',visual:'equity',depth:207,holo:[['SOURCE','目标企业'],['PATH / 01','直接持股'],['PATH / 02','间接持股'],['CHECK','控制关系需复核']]},
-{start:.695,id:'THE APEX WORKFLOW',kicker:'MILESTONE / 05 — SKILL ORCHESTRATION',title:'TOGETHER,\nWE GROW.',cn:'能力相遇，新的可能开始生长。',desc:'查询、关系识别、财报处理与分析开始协同。曾经独立的技能，汇成一股共同向前的力量。',label:'APEX WORKFLOW',visual:'skills',depth:259,holo:[['ROUTING','统一接收任务'],['AGENT / 01','外部信息'],['AGENT / 02','财务 · 股权'],['REVIEW','人工核验与交付']]},
-{start:.825,id:'THE FIRST DAY',kicker:'MILESTONE / 06 — DIGITAL EMPLOYEE',title:'FIRST DAY.\nNEW HORIZONS.',cn:'一枚海里的微光，走向真实的工作。',desc:'APEX Studio 正在推动行内部署与数字员工作业场景落地。小海螺的第一天，也是一段新生长的开始。',label:'DIGITAL EMPLOYEE',visual:'portal',depth:306,holo:[]},
-{start:.958,id:'THE PEOPLE',kicker:'FINALE / 07 — APEX STUDIO',title:'STILL\nBECOMING.',cn:'小海螺仍在生长。',desc:'',label:'CREDITS',visual:'credits',depth:320,holo:[]}
+{start:0,kind:'origin',id:'YOUR PERSONAL AGENT',kicker:'ORIGIN / 00 — THE LITTLE CONCH',title:'把一件事，\n交给小海螺。',cn:'厦门银行对公客户经理的 Personal Agent。',desc:'从授信工作里的具体任务出发，查询、转换、梳理、生成材料。让重复的工作轻一点，让你的判断有更多时间。',label:'THE LITTLE CONCH',visual:'conch',holo:[],depth:18},
+{start:.14,kind:'scenario',id:'EXTERNAL RISK QUERY',kicker:'SCENE / 01 — EXTERNAL RISK',title:'风险的线索，\n先一步看见。',cn:'外部风险信息查询',desc:'交给小海螺：批量查询贷后企业的外部风险信息。',steps:'查询工商异常、行政处罚、司法涉诉等信息。',deliverable:'企业外部风险查询结果，辅佐贷后批量查询。',label:'EXTERNAL RISK',visual:'query',atlasCell:0,depth:52,holo:[]},
+{start:.33,kind:'scenario',id:'FINANCIAL CONVERSION',kicker:'SCENE / 02 — FINANCIAL CONVERSION',title:'每月的重复，\n少一道。',cn:'财报转换',desc:'交给小海螺：把财报转成信贷系统能识别的格式。',steps:'提取财报字段，匹配科目，生成适配信贷系统 OCR 的财报。',deliverable:'可供 OCR 一键识别、导入信贷系统的财报。',label:'FINANCIAL CONVERSION',visual:'finance',atlasCell:2,depth:118,holo:[]},
+{start:.52,kind:'scenario',id:'ENTERPRISE EQUITY',kicker:'SCENE / 03 — ENTERPRISE EQUITY',title:'把股权，\n理成脉络。',cn:'企业股权分析',desc:'交给小海螺：梳理企业背后的股东与持股结构。',steps:'整理股东结构、持股比例等关键信息。',deliverable:'用于授信报告企业分析的股权信息。',label:'ENTERPRISE EQUITY',visual:'equity',atlasCell:3,depth:183,holo:[]},
+{start:.71,kind:'scenario',id:'BENEFICIAL OWNER',kicker:'SCENE / 04 — BENEFICIAL OWNER',title:'穿过层层持股，\n找到那个人。',cn:'受益所有人一键识别',desc:'交给小海螺：识别受益所有人，准备所需材料。',steps:'穿透股权，自动带入持股比例，一键生成材料。',deliverable:'受益所有人识别材料。',label:'BENEFICIAL OWNER',visual:'ownership',atlasCell:1,depth:249,holo:[]},
+{start:.9,kind:'research',id:'MORE IS GROWING',kicker:'NEXT / 正在研究 · 尚未作为已上线能力展示',title:'下一种可能，\n正在生长。',cn:'每一个真实任务，都可能长出新的能力。',desc:'经营模式、行业与上下游产业链分析，财报与流动资金分析、工商分析、授信报告底稿生成……我们继续研究，让小海螺走进更多授信场景。',label:'STILL GROWING',visual:'conch',holo:[],depth:310},
+{start:.975,kind:'credits',id:'THE PEOPLE',kicker:'FINALE — APEX STUDIO',title:'海洋，\n还在展开。',cn:'小海螺继续生长。',desc:'',label:'CREDITS',visual:'credits',depth:320,holo:[]}
 ];
+export const SCENARIOS=CHAPTERS.filter(ch=>ch.kind==='scenario');
+export const SCENARIO_COUNT=SCENARIOS.length;
+export const FINALE_INDEX=CHAPTERS.findIndex(ch=>ch.kind==='credits');
+export function chapterKicker(ch,index){return ch.kind==='scenario'?`${String(index).padStart(2,'0')} / ${String(SCENARIO_COUNT).padStart(2,'0')} · ${ch.cn}`:ch.kicker;}
