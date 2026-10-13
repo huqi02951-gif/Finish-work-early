@@ -1,13 +1,16 @@
 # GitHub 与 Cloudflare Pages 发布记录
 
-## 当前自动部署
+## 当前自动部署（2026-10-13 · V3.3）
 
 - 网站：https://apex-little-conch.pages.dev/
-- 当前固定版本：https://ac79b5a6.apex-little-conch.pages.dev/
-- 源码提交：`8ce780cea40b8552cd6b3c3c8085834b63e6c215`
-- 成功 CI：https://github.com/huqi02951-gif/Finish-work-early/actions/runs/38151068229
-- 21 项测试、构建、当前 Pages 项目权限核验和自动发布全部成功，耗时 31 秒。13 个静态文件与已实测手机修复包相同（13 already uploaded）。
-- 自动部署已生效，免费方案没有升级套餐或增加付费服务。
+- 当前固定版本：https://2bd3b6a2.apex-little-conch.pages.dev/
+- 源码提交：`eceb5d7aea68377dea06df009f300ecd5e89a209`
+- 成功 CI：https://github.com/huqi02951-gif/Finish-work-early/actions/runs/38409865202
+- 20 项测试、构建、当前 Pages 项目权限核验与自动发布全部成功。上传3个新静态文件，10个复用；无 Functions、无付费升级、没有扩大凭据权限。
+- 正式网站等待WebGL资源就绪后，在1440×900、390×844、320×568实际滚动复测：页面高度分别13500、12660、8520px；进度分别.4600、.1800、.3200，WebGL ready、没有QA工具、没有横向溢出。加载脚本 `index-DJ5f3UnH.js` 与本轮构建及CI一致。
+- 公网键盘PageDown推进，End抵达片尾，返航回到waiting且scrollY=0；控制台警告/错误0。三张公网截图与 `public-observations.json`、`ci-success.json` 位于 `qa/native-scroll-2026-10-13/`。物理iOS/Android未测。
+- 原2026-10-11手机手势修复仍是历史版本，固定地址ac79b5a6可用于回滚。当前使用真实原生滚动，移除捕获手势推进与五秒阅读锁，见 [V3.3交接](NATIVE-SCROLL-ISLAND-V3.3.md)。
+
 
 ## 初次上传记录
 
@@ -33,9 +36,9 @@
 
 初次发布采用直接上传，现已接通 GitHub Actions + Wrangler，保留原项目和域名。当前成功 CI 记录见上方。备份保存在 `backups/`；如需回退到原 V3，解压 `backups/V3-original-2026-10-11.zip` 到独立目录预览。前一阶段备份为 `backups/V3.1-before-director-review-2026-10-11.zip`。不覆盖当前工程。
 
-后续 Pages 成功部署后，可在项目部署列表选择之前的成功生产部署回滚。当前为本项目首次成功部署。
+后续 Pages 成功部署后，可在项目部署列表选择之前的成功生产部署回滚。保留先前成功生产版本以便回滚。
 
-本机预览：http://127.0.0.1:4180/ 。63 张本地实测截图画廊：http://127.0.0.1:4180/qa/growth-v1/gallery.html 。
+本机预览：http://127.0.0.1:4180/ 。本轮47张实测截图（44张本地与3张公网）画廊：http://127.0.0.1:4180/qa/native-scroll-2026-10-13/gallery.html 。旧版63张画廊：http://127.0.0.1:4180/qa/growth-v1/gallery.html 。
 
 ## 公网浏览器验收
 

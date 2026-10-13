@@ -33,7 +33,7 @@
 
 390 视口实际滚动读数：技能1 p=.18/62m → 技能2 .32/113m → 技能3 .46/165m → 技能4 .605/218m → 技能5 .74/270m → 技能6 .87/309m → 片尾 1/320m。镜头与仪表共享 `diveDepth`，这些是场景深度而非查询实时数据。
 
-44 张原尺寸截图，含三种尺寸各10张连续开场关键帧。`qa/native-scroll-2026-10-13/` 保存截图、关键帧/滚动读数和实际录屏。浏览器本轮控制台警告/错误为0。1440×900 的场景实录为 VP9/30fps、约24秒，只含 WebGL 画面，不含 HTML 仪表和音轨。
+44 张本地原尺寸截图，加3张公网复测截图，含三种尺寸各10张连续开场关键帧。`qa/native-scroll-2026-10-13/` 保存截图、关键帧/滚动读数和实际录屏。浏览器本轮控制台警告/错误为0。1440×900 的场景实录为 VP9/30fps、约24秒，只含 WebGL 画面，不含 HTML 仪表和音轨。
 
 这些验证来自桌面 Chrome 的视口与原生页面滚动，不等同物理手机触摸或 iOS Safari。触摸方向与不干扰环顾由浏览器原生滚动机制及真实处理器回归测试验证；真机惯性与移动浏览器地址栏仍需补测。当前高密度手机2x预算策略保留，本机测试DPR=1，不能把它说成真机帧率。
 
@@ -41,7 +41,7 @@
 
 ## 预览与发布
 
-网站：https://apex-little-conch.pages.dev/ 。GitHub：`huqi02951-gif/Finish-work-early` 的 `codex/little-conch-stage1-director-v1` 分支。发布结果以 `DEPLOYMENT.md` 最新记录为准，不合并尚待美术验收的草稿PR。
+网站：https://apex-little-conch.pages.dev/ 。GitHub：`huqi02951-gif/Finish-work-early` 的 `codex/little-conch-stage1-director-v1` 分支。源码 eceb5d7a 已自动发布，CI 38409865202 成功；固定版本 https://2bd3b6a2.apex-little-conch.pages.dev/ 。发布结果见 `DEPLOYMENT.md` 最新记录，不合并尚待美术验收的草稿PR。
 
 本机：http://127.0.0.1:4180/ 。本轮画廊：http://127.0.0.1:4180/qa/native-scroll-2026-10-13/gallery.html 。QA资料、录屏、备份和调研不进入生产dist。部署沿用公开仓库标准免费Actions和Pages静态托管，无新增付费服务。
 

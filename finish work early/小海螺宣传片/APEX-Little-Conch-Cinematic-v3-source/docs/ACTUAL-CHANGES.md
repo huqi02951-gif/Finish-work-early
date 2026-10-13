@@ -42,3 +42,8 @@
 本轮修改：`src/film.js`、`src/first-stage/DiveNavigation.js`、`src/first-stage/FirstStageDirector.js`、`index.html`。新增：`src/first-stage/PixelDensity.js`、`tests/mobile-input.test.js`、`scripts/export-copy.py`、`docs/copy/` 三份全文案导出、`docs/MOBILE-INPUT-FIX.md`，以及父仓库 `.github/workflows/little-conch-pages.yml`（已推送，成功 CI 38151068229）。更新 README、部署记录，增加本轮实测截图/读数。主叙事 `StoryChapters.js`、正式素材占位和故事顺序未改变。
 
 执行技能：engineering-change-discipline、diagnosing-bugs、cloudflare-deploy。
+
+
+## 2026-10-13 当前版本
+
+V3.3真实文档滚动与小海螺第一座岛润色已上线。完整修改清单、20项测试、三尺寸滚动/镜头实测、正式素材需求与回滚路径见 [NATIVE-SCROLL-ISLAND-V3.3.md](NATIVE-SCROLL-ISLAND-V3.3.md)；公网当前版本2bd3b6a2，CI38409865202成功。既有结果与备份保留。
