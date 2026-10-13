@@ -1,0 +1,34 @@
+[
+  {
+    "file": "assets/original/cloud-bank-v1.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "bytes": 2068834,
+    "mode": "RGBA",
+    "alphaRange": [
+      0,
+      254
+    ],
+    "zeroAlphaPixels": 629657,
+    "sha256": "be44d9e008ae03d937f58ec38425159af538b8c03090fe4d963d8caae31bf051",
+    "approval": "generated candidate, technical integration checked, GPT visual review pending"
+  },
+  {
+    "file": "assets/original/ocean-life-atlas-v1.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "bytes": 2471880,
+    "mode": "RGBA",
+    "alphaRange": [
+      0,
+      254
+    ],
+    "zeroAlphaPixels": 868452,
+    "sha256": "fc75074d41d687073d6181bc13b23524a7aa522c7af37f2a8c3637a3a5ebd662",
+    "approval": "generated candidate, technical integration checked, GPT visual review pending"
+  }
+]

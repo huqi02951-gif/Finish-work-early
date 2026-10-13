@@ -1,0 +1,9 @@
+/node_modules/
+/dist/
+/backups/
+/deliverables/
+/research/
+/dive-preview/
+/docs/disign/*.png
+/qa/**/*.webm
+.DS_Store

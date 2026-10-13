@@ -1,0 +1,73 @@
+name: Little Conch · Cloudflare Pages
+
+on:
+  push:
+    branches: [codex/little-conch-stage1-director-v1]
+    paths:
+      - '.github/workflows/little-conch-pages.yml'
+      - 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source/src/**'
+      - 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source/assets/**'
+      - 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source/public/**'
+      - 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source/tests/**'
+      - 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source/index.html'
+      - 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source/package*.json'
+      - 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source/vite.config.*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: little-conch-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Test, build and publish Little Conch
+    if: github.event.repository.private == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source'
+    steps:
+      - name: Checkout published source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Use Node.js 22
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source/package-lock.json'
+      - name: Install locked dependencies
+        run: npm ci --registry=https://registry.npmjs.org
+      - name: Test camera and navigation behavior
+        run: npm test
+      - name: Build production site
+        run: npm run build
+      - name: Authenticate and publish to existing Pages project
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.LITTLE_CONCH_CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: '2a9ac3e8a020d8e4d0b77fb2ee17bb86'
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::Missing LITTLE_CONCH_CLOUDFLARE_API_TOKEN repository secret"
+            exit 1
+          fi
+          node --input-type=module <<'NODE'
+          const account = process.env.CLOUDFLARE_ACCOUNT_ID;
+          const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${account}/pages/projects/apex-little-conch`, {
+            headers: { Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}` }
+          });
+          const result = await response.json();
+          if (!response.ok || !result.success || result.result?.name !== 'apex-little-conch') {
+            console.error(`Pages authentication failed (HTTP ${response.status})`);
+            process.exit(1);
+          }
+          console.log('Authenticated for apex-little-conch Pages project');
+          NODE
+          npm exec --registry=https://registry.npmjs.org --yes --package=wrangler@4.149.0 -- wrangler pages deploy dist --project-name=apex-little-conch --branch=main --commit-hash="$GITHUB_SHA"
+      - name: Record published preview
+        run: |
+          echo "Published https://apex-little-conch.pages.dev/ from commit $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"

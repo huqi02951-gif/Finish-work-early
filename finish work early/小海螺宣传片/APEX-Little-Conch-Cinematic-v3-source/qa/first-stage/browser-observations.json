@@ -1,0 +1,38 @@
+{
+  "productionUrl": "http://127.0.0.1:4181/",
+  "desktopViewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "underwaterRafSample": {
+    "frames": 4530,
+    "medianMs": 8.3,
+    "p95Ms": 9,
+    "dpr": 1,
+    "calls": 5,
+    "geometries": 45,
+    "textures": 7
+  },
+  "consoleLogs": [
+    {
+      "level": "error",
+      "message": "Error: QA: renderer deliberately disabled\n    at http://127.0.0.1:4181/assets/index-BD7l5qrU.js:363:481\n    at http://127.0.0.1:4181/assets/index-BD7l5qrU.js:363:12290",
+      "timestamp": "2026-10-10T23:23:19.052Z",
+      "url": "http://127.0.0.1:4181/assets/index-BD7l5qrU.js"
+    }
+  ],
+  "manualChecks": {
+    "shortDrag": "waiting",
+    "committedDrag": "opening",
+    "enterKey": "opening",
+    "pauseClockSeconds": 0.12,
+    "muteAfterPauseResume": "suspended",
+    "unmute": "running",
+    "underwaterDrag": "progress increased",
+    "wheel": "chapter changed",
+    "replay": "waiting; chapter hidden; hatch enabled; anchor opacity 1",
+    "fallback": "underwater",
+    "narrowScrollWidth": 320
+  },
+  "physicalMobileDeviceTested": false
+}

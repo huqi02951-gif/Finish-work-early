@@ -1,0 +1,19 @@
+{
+  "finalPublicRead": {
+    "data": {
+      "audioState": "not-started",
+      "doorProgress": "0.0000",
+      "humanForeground": "asset-pending",
+      "paused": "false",
+      "phase": "waiting",
+      "shot": "waiting",
+      "soundEnabled": "true"
+    },
+    "qa": false,
+    "ready": true,
+    "scripts": [
+      "https://apex-little-conch.pages.dev/assets/index-BqkyFVWf.js"
+    ]
+  },
+  "logs": []
+}
