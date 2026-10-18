@@ -44,7 +44,7 @@
 - 经用户明确确认账号、美国收款地区和协议后，已创建 AdSense 账户。
 - 真实 publisher：`ca-pub-8307042634047981`；已创建响应式展示广告单元 `9227677736`（Little Conch · About · Responsive）。这些是公开的站点配置，不是 API 密钥。
 - Google 的 European regulations 消息 `Little Conch · Visitor choices` 已发布：Consent / Do not consent / Manage options，拒绝适用于所有配置地区，自动优化关闭，隐私链接指向本站 privacy.html，不强制 Logo。
-- 网站所有权 Meta 和 ads.txt 会跟随本次部署；不能用此替代账户/site 的 Ready 状态。
+- 网站所有权 Meta 与 ads.txt 已上线（HTTP 200，三个页面均包含同一真实发布商，线上构建与本地产物 SHA256 一致）。Google 已确认 Your site is verified，并已提交 Request review，当前 Getting ready / Review requested；仍不是 Ready。
 - 收款资料由 Google 带入现有资料，需要用户本人核实账户类型、姓名和地址并提交。不得从 Google 默认值推定其真实有效；本站源码不保存该类资料。
 - 当前广告开关关闭；只有确认审核 Ready 和必要配置后才允许开启。浏览测试没有访问或点击实际广告；不承诺收益或审核结果。
 - Google 账户画面仅保留本机，不上传到 GitHub；公开版本仅包含网站截图及不敏感测试结果。
@@ -62,3 +62,13 @@
 3. 正式海螺模型与珍珠壳口：GLB/独立透明前景，材质/UV/灯光按原交接；当前是移植 M2 的程序化实体，不能替代最终角色定装。
 4. 更高清、无前景生物烘焙的深海远景：建议 4096×2304 起，水平视域约 160°、入水俯视到平视，青绿光束/金色珊瑚；仅不透明远景，不混入字幕或 HUD。当前 M2 景片 1376×768，不会因为渲染提高清晰度而增加原始细节。
 5. 如需让螺旋岛自由绕行：正式岛屿 GLB 与分层云、岸线和波面；当前首页是带轻微视差的景片，不能称其为完整实时三维岛屿。原工程三维岛屿几何保留用于天空镜头。
+
+## 已发布证据
+
+- 运行源码提交：711021cf811d86a890df7d7fc85db8a4f8808c45。
+- 自动部署全部成功：https://github.com/huqi02951-gif/Finish-work-early/actions/runs/39139306121 。
+- 固定版本：https://a096d2f7.apex-little-conch.pages.dev/ 。
+- 生产：https://apex-little-conch.pages.dev/?v=20261018-m2 。线上实际打开 WebGL ready、没有 QA 工具。
+- 介绍页生产构建实测：四任务、真实所有权 Meta、广告隐藏、广告 SDK 请求为 0、390×844 无横向溢出；隐私链接正常。
+- 所有权和广告审核画面保存在本机；Getting ready 与 Review requested 是 Google 当前状态。由于收款表单带入现有个人资料，已交由本人核实提交，未代为提交。
+- 当前只验证同意消息发布和代码准备，不等同于广告供应商/地区配置及实际广告展示验收；广告保持关闭至 Ready 并完成最后核验。
