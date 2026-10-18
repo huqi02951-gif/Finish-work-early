@@ -1,10 +1,11 @@
 <!doctype html>
 <html lang="zh-CN"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<meta name="apex-build" content="island-iphone-v3.4"/><meta name="theme-color" content="#073d48"/><meta name="description" content="厦门银行对公客户经理的 Personal Agent。走进 APEX Studio 的小海螺岛，探索外部风险查询、财报转换、企业股权分析与受益所有人识别。"/>
-<title>THE LITTLE CONCH — APEX STUDIO</title><link rel="icon" href="assets/conch.svg"/><link rel="stylesheet" href="src/style.css"/><link rel="stylesheet" href="src/first-stage.css"/>
+<meta name="apex-build" content="gemini-m2-integrated-v4"/><meta name="theme-color" content="#073d48"/><meta name="description" content="厦门银行对公客户经理的 Personal Agent。走进 APEX Studio 的小海螺岛，探索外部风险查询、财报转换、企业股权分析与受益所有人识别。"/>
+<title>THE LITTLE CONCH — APEX STUDIO</title><link rel="icon" href="assets/conch.svg"/><link rel="stylesheet" href="src/style.css"/><link rel="stylesheet" href="src/first-stage.css"/><link rel="stylesheet" href="src/m2.css"/>
 </head><body>
 <div class="film" id="film" data-phase="island" role="main" aria-label="APEX 小海螺沉浸式电影体验">
+ <div class="island-art" aria-hidden="true"><img src="assets/gemini-m2/opt_island1.webp" alt=""/><div class="island-sparkles"></div></div>
  <div class="scene" id="scene">
   <div class="sky scene-layer" id="sky"></div>
   <div class="underwater scene-layer" id="underwater"></div>
@@ -40,20 +41,33 @@
   <div class="floor-portal" id="portal" aria-hidden="true"><i></i><i></i><i></i><span>APEX</span></div>
   <div class="vignette"></div><div class="grain"></div>
  </div>
- <section id="island-screen" class="island-screen" aria-labelledby="island-title"><span class="island-eyebrow">APEX OCEAN · 第一座岛</span><h1 id="island-title">小海螺岛</h1><p class="island-lead">让重复的工作，轻一点。</p><p class="island-intro">厦门银行对公客户经理的 Personal Agent。<br>从授信工作出发，把具体任务交给小海螺。</p><button id="enter-island" type="button">进入机舱 · 开始旅程 ↗</button><small>手动开门 → 自动入海 → 上滑下潜 · 反向回看</small></section>
- <header class="top"><div class="logo"><div class="logo-dot">✦</div><b>APEX<span>.</span></b><small>STUDIO</small></div><div class="top-chapter" id="top-chapter">APEX OCEAN <i>/</i> ISLAND 01 · LITTLE CONCH</div><div class="toolbar"><button id="island-home" type="button" aria-label="返回小海螺岛">↗ <span>回到岛屿</span></button><button id="sound" title="切换声音" aria-label="切换声音">◖)) <span id="sound-label">SOUND ON</span></button><button id="pause" title="暂停动画" aria-label="暂停或继续">Ⅱ <span id="pause-label">PAUSE</span></button></div></header>
+ <section id="island-screen" class="island-screen" aria-labelledby="island-title"><span class="island-eyebrow">APEX OCEAN · 第一座岛</span><h1 id="island-title">小海螺岛</h1><p class="island-lead">把重复交给回响，把时间还给你。</p><p class="island-intro">厦门银行对公客户经理的 Personal Agent。<br>从一项真实任务，长出一座会生长的岛。</p><button id="enter-island" type="button">进入机舱 · 开始旅程 ↗</button><small>手动开门 → 自动入海 → 上滑下潜 · 反向回看</small></section>
+ <header class="top"><div class="logo"><div class="logo-dot">✦</div><b>APEX<span>.</span></b><small>STUDIO</small></div><div class="top-chapter" id="top-chapter">APEX OCEAN <i>/</i> ISLAND 01 · LITTLE CONCH</div><div class="toolbar"><button id="auto-explore" type="button" aria-pressed="false" aria-label="自动探索四项技能">▷ <span>自动探索</span></button><button id="open-map" type="button" aria-haspopup="dialog" aria-label="打开 APEX 海洋地图">◈ <span>海洋地图</span></button><button id="island-home" type="button" aria-label="返回小海螺岛">↗ <span>回到岛屿</span></button><button id="sound" title="切换声音" aria-label="切换声音">◖)) <span id="sound-label">SOUND ON</span></button><button id="pause" title="暂停动画" aria-label="暂停或继续">Ⅱ <span id="pause-label">PAUSE</span></button></div></header>
  <div class="title-screen" id="title-screen"><span class="title-overline">AN APEX STUDIO ORIGINAL</span><h1>THE LITTLE<br><em>CONCH.</em></h1><span class="title-cn">一只小海螺的诞生之旅</span><p>From a single question to a digital teammate.<br>跟随一次下潜，走进小海螺的成长历程。</p></div>
  <div class="flight-caption" id="flight-caption"><span id="flight-index">01 / 04 — RELEASE</span><strong id="flight-line">THE FIRST STEP IS YOURS.</strong><span id="flight-sub">推开舱门，故事便会开始。</span></div>
- <section class="chapter-copy" id="chapter-copy" aria-live="polite"><span id="chapter-kicker">CHAPTER 00</span><h2 id="chapter-title">A SMALL<br>BEGINNING.</h2><p id="chapter-cn">海底的第一声回响。</p><div class="chapter-line"></div><p id="chapter-desc">把一件事，交给小海螺。</p><dl id="chapter-workflow" class="chapter-workflow" hidden><div><dt>执行</dt><dd id="chapter-steps"></dd></div><div><dt>交付</dt><dd id="chapter-output"></dd></div></dl></section>
+ <section class="chapter-copy" id="chapter-copy" aria-live="polite"><span id="chapter-kicker">CHAPTER 00</span><h2 id="chapter-title">A SMALL<br>BEGINNING.</h2><p id="chapter-cn">海底的第一声回响。</p><div class="chapter-line"></div><p id="chapter-desc">把一件事，交给小海螺。</p><dl id="chapter-workflow" class="chapter-workflow" hidden><div><dt>执行</dt><dd id="chapter-steps"></dd></div><div><dt>交付</dt><dd id="chapter-output"></dd></div></dl><button id="open-task-demo" type="button" aria-haspopup="dialog">查看执行演示 ↗</button><button id="conch-pulse" type="button">唤起第一声回响 ◌</button></section>
  <div class="data-caption" id="data-caption"><span class="data-symbol">✧</span><div><span id="data-label">APEX ABILITY / 01</span><b id="data-name">EXTERNAL QUERY</b></div><span>◈</span></div>
- <div class="credits" id="credits"><span>STILL GROWING · ALWAYS BECOMING</span><img src="assets/conch.svg" alt="小海螺标志"/><h2>THE LITTLE CONCH.</h2><p>从一个真实任务，长出下一种可能。</p><p class="credits-growth">小海螺继续生长，陪你走进更多授信场景。<br>当数字工具走向更多人，APEX 的海洋将解锁新的岛屿。</p><div class="credits-line"></div><small>谁让小海螺诞生 · 创建团队</small><h3>APEX STUDIO</h3><p class="credits-names">动画、3D 与网站制作：胡晓丹</p><button id="replay" type="button">↑ 返回小海螺岛</button></div>
+ <div class="credits" id="credits"><span>STILL GROWING · ALWAYS BECOMING</span><img src="assets/conch.svg" alt="小海螺标志"/><h2>THE LITTLE CONCH.</h2><p>从一个真实任务，长出下一种可能。</p><p class="credits-growth">小海螺继续生长，陪你走进更多授信场景。<br>当数字工具走向更多人，APEX 的海洋将解锁新的岛屿。</p><div class="credits-line"></div><small>谁让小海螺诞生 · 创建团队</small><h3>APEX STUDIO</h3><p class="credits-names">动画、3D 与网站制作：胡晓丹</p><button id="replay" type="button">↑ 返回小海螺岛</button><a class="credits-about" href="about.html">了解小海螺 · 四项任务与成长方向 ↗</a></div>
  <div class="hud hud-left"><span class="hud-eyebrow" id="readout-label">ALTITUDE</span><div class="readout"><strong id="readout">250</strong><small id="readout-unit">M</small></div><div class="hud-rule"></div><span class="hud-eyebrow">VERTICAL SPEED · M/S <b id="speed">— 0</b></span></div>
  <div class="hud hud-right"><span>MISSION STATUS</span><b id="mission">AWAITING RELEASE</b><div class="mission-indicator"><span id="mission-dot"></span></div></div>
  <footer class="footer"><div class="guide"><span class="mouse-symbol"><i></i></span><span id="guide-text">DRAG THE HATCH<br><small>点击或拖动舱门手柄</small></span></div><div class="footer-center" id="footer-center">APEX STUDIO / THE LITTLE CONCH / 2026</div><div class="progress"><div class="progress-head"><span id="progress-label">THE DESCENT</span><span id="progress-pct">00%</span></div><div class="track"><span id="track"></span></div></div></footer>
+ <label class="journey-scrubber"><span>潜航进度</span><input id="journey-scrubber" type="range" min="0" max="1000" step="1" value="0" aria-label="连续下潜与回看"/></label>
  <nav class="skill-nav" aria-label="四项授信场景"></nav>
  <button id="tap-continue" class="touch-continue" type="button" hidden>向上滑动 · 继续下潜 ↑</button>
  <div class="mobile-swipe" id="mobile-swipe" aria-hidden="true"></div>
  <div id="scene-status" role="status">正在准备机舱与海面…</div><button id="skip-intro" type="button">跳过开场 ↓</button><pre id="render-stats" hidden></pre><div class="sr" id="announcer" role="status" aria-live="polite"></div>
 </div>
+<dialog id="ocean-map" class="ocean-dialog" aria-labelledby="map-title">
+ <button class="panel-close" type="button" data-close aria-label="关闭海洋地图">×</button>
+ <span class="panel-eyebrow">APEX OCEAN / A WORLD IN THE MAKING</span><h2 id="map-title">每一座岛，<br>都回应一种需要。</h2><p class="panel-intro">先把一件事做好，再让海洋慢慢展开。</p>
+ <div class="island-map-grid"><article><img src="assets/gemini-m2/opt_island1.webp" alt="海螺形岛屿，金色云光与发光海岸" loading="lazy"/><div><span class="map-status">01 / 当前探索</span><h3>小海螺岛</h3><p>厦门银行对公客户经理的 Personal Agent。<br>四项具体任务，从这里开始。</p><button id="map-enter" type="button">回到第一座岛 ↗</button></div></article>
+ <article><img src="assets/gemini-m2/opt_island2.webp" alt="下一座岛的概念：绿色高塔与相连的光脉" loading="lazy"/><div><span class="map-status future">02 / 概念预告 · 尚未开放</span><h3>授信报告编排岛</h3><p>当单项能力逐渐连成工作流，<br>新的岸线，正在远方生长。</p><small>视觉概念预览，不代表相关能力已经上线。</small></div></article></div>
+ <div class="map-footer"><span>从第一声回响，到更多真实可能。</span><a href="about.html">关于小海螺 ↗</a><a href="privacy.html">隐私与广告说明 ↗</a></div>
+</dialog>
+<dialog id="task-demo" class="ocean-dialog task-dialog" aria-labelledby="demo-title">
+ <button class="panel-close" type="button" data-close aria-label="关闭执行演示">×</button>
+ <span class="panel-eyebrow">LITTLE CONCH / INTERACTIVE WORKBENCH</span><h2 id="demo-title">从一句交代，<br>到一份可用的结果。</h2><p class="demo-disclaimer">交互示意 · 使用虚构样例，不连接银行生产系统，不构成真实查询、认定或签章。</p>
+ <div class="demo-tabs" aria-label="切换任务演示"></div><div class="demo-body" aria-live="polite"></div><button class="primary-action" type="button" data-run>▶ 演示执行过程</button>
+</dialog>
 <script type="module" src="src/film.js"></script>
 </body></html>

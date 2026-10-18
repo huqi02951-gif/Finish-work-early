@@ -8,7 +8,8 @@ export const assetManifest = {
   doorNormal: null, // assets/approved/aircraft-door-normal.png (linear)
   doorRoughness: null, // assets/approved/aircraft-door-roughness.png (linear)
   doorMetalness: null, // assets/approved/aircraft-door-metalness.png (linear)
-  seabed: new URL('../../assets/seabed.webp', import.meta.url).href,
+  // M2 opaque distant scene plate; the V3 photograph remains in assets for rollback.
+  seabed: new URL('../../assets/gemini-m2/opt_abyss.webp', import.meta.url).href,
   handBraceLeft: null,   // assets/approved/hand-brace-left.png
   handBraceRight: null,  // assets/approved/hand-brace-right.png
   handFreefallLeft: null, // assets/approved/hand-freefall-left.png

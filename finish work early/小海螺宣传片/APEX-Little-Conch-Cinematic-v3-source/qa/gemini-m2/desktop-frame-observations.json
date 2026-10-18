@@ -1,0 +1,107 @@
+[
+  {
+    "h": 900,
+    "horizontalOverflow": false,
+    "phase": "waiting",
+    "stats": "{\"frames\":150,\"medianMs\":8.3,\"p95Ms\":9.2,\"dpr\":1,\"calls\":135,\"geometries\":62,\"textures\":8}",
+    "w": 1440
+  },
+  {
+    "h": 900,
+    "horizontalOverflow": false,
+    "phase": "opening",
+    "stats": "{\"frames\":240,\"medianMs\":8.3,\"p95Ms\":9.2,\"dpr\":1,\"calls\":135,\"geometries\":62,\"textures\":8}",
+    "w": 1440
+  },
+  {
+    "h": 900,
+    "horizontalOverflow": false,
+    "phase": "falling",
+    "stats": "{\"frames\":330,\"medianMs\":8.3,\"p95Ms\":9.2,\"dpr\":1,\"calls\":56,\"geometries\":62,\"textures\":8}",
+    "w": 1440
+  },
+  {
+    "h": 900,
+    "horizontalOverflow": false,
+    "phase": "falling",
+    "stats": "{\"frames\":420,\"medianMs\":8.3,\"p95Ms\":9.2,\"dpr\":1,\"calls\":7,\"geometries\":64,\"textures\":9}",
+    "w": 1440
+  },
+  {
+    "h": 900,
+    "horizontalOverflow": false,
+    "phase": "impact",
+    "stats": "{\"frames\":510,\"medianMs\":8.3,\"p95Ms\":9.2,\"dpr\":1,\"calls\":7,\"geometries\":64,\"textures\":9}",
+    "w": 1440
+  },
+  {
+    "h": 900,
+    "horizontalOverflow": false,
+    "phase": "impact",
+    "stats": "{\"frames\":630,\"medianMs\":8.3,\"p95Ms\":9.2,\"dpr\":1,\"calls\":5,\"geometries\":64,\"textures\":9}",
+    "w": 1440
+  },
+  {
+    "h": 900,
+    "horizontalOverflow": false,
+    "phase": "descending",
+    "stats": "{\"frames\":720,\"medianMs\":8.3,\"p95Ms\":9.2,\"dpr\":1,\"calls\":5,\"geometries\":64,\"textures\":9}",
+    "w": 1440
+  },
+  {
+    "h": 900,
+    "horizontalOverflow": false,
+    "phase": "underwater",
+    "progress": "0.0450",
+    "stats": "{\"frames\":810,\"medianMs\":8.3,\"p95Ms\":9.2,\"dpr\":1,\"calls\":12,\"geometries\":70,\"textures\":9}",
+    "w": 1440
+  },
+  {
+    "h": 900,
+    "horizontalOverflow": false,
+    "phase": "underwater",
+    "progress": "0.1850",
+    "stats": "{\"frames\":900,\"medianMs\":8.3,\"p95Ms\":9.2,\"dpr\":1,\"calls\":6,\"geometries\":71,\"textures\":10}",
+    "w": 1440
+  },
+  {
+    "h": 900,
+    "horizontalOverflow": false,
+    "phase": "underwater",
+    "progress": "0.3750",
+    "stats": "{\"frames\":1020,\"medianMs\":8.3,\"p95Ms\":9.2,\"dpr\":1,\"calls\":6,\"geometries\":71,\"textures\":10}",
+    "w": 1440
+  },
+  {
+    "h": 900,
+    "horizontalOverflow": false,
+    "phase": "underwater",
+    "progress": "0.5650",
+    "stats": "{\"frames\":1110,\"medianMs\":8.3,\"p95Ms\":9.2,\"dpr\":1,\"calls\":6,\"geometries\":71,\"textures\":10}",
+    "w": 1440
+  },
+  {
+    "h": 900,
+    "horizontalOverflow": false,
+    "phase": "underwater",
+    "progress": "0.7550",
+    "stats": "{\"frames\":1200,\"medianMs\":8.3,\"p95Ms\":9.2,\"dpr\":1,\"calls\":6,\"geometries\":71,\"textures\":10}",
+    "w": 1440
+  },
+  {
+    "h": 900,
+    "horizontalOverflow": false,
+    "phase": "underwater",
+    "progress": "0.9450",
+    "stats": "{\"frames\":1290,\"medianMs\":8.3,\"p95Ms\":9.2,\"dpr\":1,\"calls\":12,\"geometries\":71,\"textures\":10}",
+    "w": 1440
+  },
+  {
+    "h": 900,
+    "horizontalOverflow": false,
+    "phase": "credits",
+    "progress": "0.9900",
+    "stats": "{\"frames\":1410,\"medianMs\":8.3,\"p95Ms\":9.2,\"dpr\":1,\"calls\":5,\"geometries\":71,\"textures\":10}",
+    "w": 1440
+  }
+]

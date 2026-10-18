@@ -1,4 +1,6 @@
 import { NativeDiveScroll } from './first-stage/NativeDiveScroll.js';
+import { AutoExplore } from './first-stage/AutoExplore.js';
+import { setupExperiencePanels } from './ExperiencePanels.js';
 import { CHAPTERS, SCENARIOS, FINALE_INDEX, chapterKicker } from './StoryChapters.js';
 import { diveDepth } from './first-stage/DiveNavigation.js';
 import { setupRecorder } from './first-stage/QARecorder.js';
@@ -12,11 +14,12 @@ const el={film:$('film'),hatch:$('hatch'),anchor:$('hatch-anchor'),sky:$('sky'),
 let phase='island',running=true,soundEnabled=true,elapsed=0,underProgress=0,lookX=0,lookY=0,targetX=0,targetY=0,chapterIndex=-1,lastFrame=0,elapsedImpact=false,curWidth=innerWidth,curHeight=innerHeight,audio=null;
 const CURVE={...TIMING, settle:TIMING.settle};
 const clock = new SequenceClock(), gesture = new DoorGesture(), diveScroll=new NativeDiveScroll();
+const autoExplore=new AutoExplore(diveScroll,active=>{$('auto-explore').setAttribute('aria-pressed',String(active));$('auto-explore').firstChild.textContent=active?'Ⅱ ':'▷ ';});
 let director=null, deepTime=0, sceneFailed=false;
 function sceneFailure(message){sceneFailed=true;el.film.classList.add('scene-unavailable');el.film.classList.remove('webgl-ready');$('scene-status').textContent=message;$('scene-status').hidden=false;el.hatch.disabled=true;}
 try {if(new URLSearchParams(location.search).get('renderer')==='disabled'&&new URLSearchParams(location.search).has('qa'))throw new Error('QA: renderer deliberately disabled');director=new FirstStageDirector({host:$('scene'),hatch:el.hatch,onFailure:sceneFailure});} catch(error){console.error(error);sceneFailure('此浏览器无法启动 WebGL。可直接继续水下故事。');}
 function css(name,value){root.style.setProperty('--'+name,String(value))}function phaseSet(x){if(phase!==x){phase=x;el.film.dataset.phase=x;if(x==='underwater'||x==='credits'){diveScroll.enable();diveScroll.pause(!running);}else diveScroll.disable();el.announcer.textContent=x==='underwater'?'已抵达海底。向下滚动滚轮或在屏幕上向上滑动，探索小海螺的四项授信场景。':x==='credits'?'旅程结束，欢迎重看。':''}}
-function showIsland(){el.film.dataset.diveProgress='0.0000';delete el.film.dataset.milestone;delete el.film.dataset.visual;clock.reset();diveScroll.disable();director?.reset();running=true;deepTime=0;elapsed=underProgress=0;chapterIndex=-1;phaseSet('island');el.pauseLabel.textContent='PAUSE';el.pause.firstChild.textContent='Ⅱ ';}
+function showIsland(){autoExplore.set(false);el.film.dataset.diveProgress='0.0000';delete el.film.dataset.milestone;delete el.film.dataset.visual;clock.reset();diveScroll.disable();director?.reset();running=true;deepTime=0;elapsed=underProgress=0;chapterIndex=-1;phaseSet('island');el.pauseLabel.textContent='PAUSE';el.pause.firstChild.textContent='Ⅱ ';}
 function resize(){curWidth=innerWidth;curHeight=innerHeight;diveScroll.resize();}
 function begin(){if(phase!=='waiting'||!director?.ready)return;director.commitManual();clock.start();running=true;clock.paused=false;el.pauseLabel.textContent='PAUSE';el.pause.firstChild.textContent='Ⅱ ';phaseSet('opening');elapsed=0;el.hatch.setAttribute('aria-disabled','true');el.guide.innerHTML='THE JUMP HAS BEGUN<br><small>镜头即将自动下潜</small>';el.soundLabel.textContent=soundEnabled?'SOUND ON':'SOUND OFF';if(soundEnabled){startAudio();audio?.ctx.resume().catch(()=>{});}playClack()}
 function skipToUnderwater(){diveScroll.disable();clock.seek(CURVE.settle);elapsed=CURVE.settle;underProgress=0;running=true;clock.paused=false;el.pauseLabel.textContent='PAUSE';el.pause.firstChild.textContent='Ⅱ ';phaseSet('underwater');diveScroll.enable();diveScroll.pause(false);changeChapter(0);$('scene-status').hidden=true;if(soundEnabled){startAudio();audio?.ctx.resume().catch(()=>{});}}
@@ -67,6 +70,7 @@ function underwater(dt){const previousDepth=diveDepth(underProgress);underProgre
  }
 function followPointer(e){if(e.pointerType!=='mouse')return;const nx=clamp(e.clientX/curWidth),ny=clamp(e.clientY/curHeight);targetX=(nx-.5)*55;targetY=(ny-.5)*32;if(director)director.pointer.set((nx-.5)*2,(.5-ny)*2);}
 function keys(e){
+ if(document.querySelector('dialog[open]'))return;
  if(e.key==='Escape'&&phase!=='waiting'){togglePause();return;}
  // Arrows, space and page keys keep their native document scrolling behavior.
 }
@@ -97,13 +101,14 @@ function animate(ts){
    if(clock.started&&elapsed<TIMING.settle){elapsed=clock.tick(rawDt,true);phaseSet(sampleSequence(elapsed).phase);camera(elapsed);}
    else if(phase==='waiting')camera(0);
    if(phase==='island')deepTime+=dt;
-   if(phase==='underwater'||phase==='credits'){deepTime+=dt;underwater(dt);}
+   if(phase==='underwater'||phase==='credits'){autoExplore.tick(dt);deepTime+=dt;underwater(dt);}
  }
  director?.update({time:elapsed,dt:rawDt,progress:underProgress,active,deepTime,view:phase==='island'?'island':'journey'});
  el.film.dataset.audioState=audio?.ctx.state||'not-started';el.film.dataset.soundEnabled=String(soundEnabled);el.caption.setAttribute('aria-hidden',String(Number(el.caption.style.opacity)<.01));el.film.dataset.paused=String(!running);const under=phase==='underwater';el.data.setAttribute('aria-hidden',String(!under));el.copy.inert=!under;el.copy.setAttribute('aria-hidden',String(!under));
  el.credits.inert=phase!=='credits';el.credits.setAttribute('aria-hidden',String(phase!=='credits'));
  $('skip-intro').hidden=phase==='underwater'||phase==='credits'||phase==='island';
  $('island-screen').inert=phase!=='island';$('island-screen').setAttribute('aria-hidden',String(phase!=='island'));
+ if(!$('journey-scrubber').matches(':active'))$('journey-scrubber').value=Math.round(underProgress*1000);
  if(qaSlider&&!qaSlider.matches(':active'))qaSlider.value=elapsed;if(qaSlider)$('qa-time').textContent=elapsed.toFixed(2)+' s';
  updateAudio();requestAnimationFrame(animate);
 }
@@ -134,9 +139,15 @@ function init(){
  el.hatch.addEventListener('pointercancel',()=>{gesture.cancel();director?.cancelManual();});
  el.hatch.addEventListener('lostpointercapture',()=>{if(gesture.origin){gesture.cancel();director?.cancelManual();}});
  el.hatch.addEventListener('click',e=>{if(e.detail===0&&phase==='waiting')begin();});
- document.querySelectorAll('[data-skill]').forEach(button=>button.addEventListener('click',()=>{if(!diveScroll.enabled||!running)return;diveScroll.goTo(CHAPTERS[Number(button.dataset.skill)].start+.045);}));
+ document.querySelectorAll('[data-skill]').forEach(button=>button.addEventListener('click',()=>{autoExplore.set(false);if(!diveScroll.enabled||!running)return;diveScroll.goTo(CHAPTERS[Number(button.dataset.skill)].start+.045);}));
  el.replay.addEventListener('click',showIsland);$('enter-island').addEventListener('click',restart);$('island-home').addEventListener('click',showIsland);el.pause.addEventListener('click',togglePause);el.sound.addEventListener('click',toggleSound);
  $('skip-intro').addEventListener('click',skipToUnderwater);
+ $('auto-explore').addEventListener('click',()=>{if(running)autoExplore.set(!autoExplore.active);});
+ addEventListener('wheel',()=>autoExplore.set(false),{passive:true});
+ addEventListener('touchstart',()=>autoExplore.set(false),{passive:true});
+ $('journey-scrubber').addEventListener('input',event=>{autoExplore.set(false);if(diveScroll.enabled&&running)diveScroll.goTo(Number(event.target.value)/1000,false);});
+ let resumeAfterPanel=false;
+ setupExperiencePanels({onOpen:()=>{autoExplore.set(false);resumeAfterPanel=running;if(running)togglePause();},onClose:()=>{if(resumeAfterPanel&&!running)togglePause();},onIsland:showIsland,onPulse:()=>director?.pulse(TIMING.settle+deepTime)});
  el.touch.addEventListener('click',()=>{if(diveScroll.enabled&&running)diveScroll.goTo(Math.min(1,underProgress+.045));});
  addEventListener('pointermove',followPointer,{passive:true});
  addEventListener('keydown',keys);

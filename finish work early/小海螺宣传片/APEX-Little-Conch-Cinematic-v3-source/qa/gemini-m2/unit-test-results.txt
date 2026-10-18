@@ -1,0 +1,206 @@
+
+> apex-little-conch-cinematic@3.2.0 test
+> node --test tests/*.test.js
+
+TAP version 13
+# Subtest: unconfigured and placeholder publisher IDs never emit ownership claims or activate ads
+ok 1 - unconfigured and placeholder publisher IDs never emit ownership claims or activate ads
+  ---
+  duration_ms: 1.262709
+  type: 'test'
+  ...
+# Subtest: the same validated owner ID generates metadata and ads.txt
+ok 2 - the same validated owner ID generates metadata and ads.txt
+  ---
+  duration_ms: 0.203208
+  type: 'test'
+  ...
+# Subtest: real publisher IDs allow review verification before ads are enabled
+ok 3 - real publisher IDs allow review verification before ads are enabled
+  ---
+  duration_ms: 1.029333
+  type: 'test'
+  ...
+# Subtest: the shipped story contains the four confirmed credit tasks and separates research from current abilities
+ok 4 - the shipped story contains the four confirmed credit tasks and separates research from current abilities
+  ---
+  duration_ms: 1.476625
+  type: 'test'
+  ...
+# Subtest: diving moves the distant scenery past the eye instead of carrying it with the camera
+ok 5 - diving moves the distant scenery past the eye instead of carrying it with the camera
+  ---
+  duration_ms: 1.860417
+  type: 'test'
+  ...
+# Subtest: the hatch requires an intentional tap or rightward drag; cancellation never commits
+ok 6 - the hatch requires an intentional tap or rightward drag; cancellation never commits
+  ---
+  duration_ms: 1.533417
+  type: 'test'
+  ...
+# Subtest: no automatic departure; pause and backgrounding do not advance time
+ok 7 - no automatic departure; pause and backgrounding do not advance time
+  ---
+  duration_ms: 0.315166
+  type: 'test'
+  ...
+# Subtest: camera position, orientation, and field of view have no discontinuity at shot boundaries
+ok 8 - camera position, orientation, and field of view have no discontinuity at shot boundaries
+  ---
+  duration_ms: 1.628792
+  type: 'test'
+  ...
+# Subtest: vertical velocity joins continuously at impact and equals the HUD speed
+ok 9 - vertical velocity joins continuously at impact and equals the HUD speed
+  ---
+  duration_ms: 2.119167
+  type: 'test'
+  ...
+# Subtest: altitude falls monotonically; water visibility and hands respect the water plane
+ok 10 - altitude falls monotonically; water visibility and hands respect the water plane
+  ---
+  duration_ms: 6.605292
+  type: 'test'
+  ...
+# Subtest: reduced motion removes roll, FOV pulse and speed blur without changing the story
+ok 11 - reduced motion removes roll, FOV pulse and speed blur without changing the story
+  ---
+  duration_ms: 0.189208
+  type: 'test'
+  ...
+# Subtest: portrait framing retains the same exit and arrival coordinates
+ok 12 - portrait framing retains the same exit and arrival coordinates
+  ---
+  duration_ms: 0.08975
+  type: 'test'
+  ...
+# Subtest: GLB local coordinates receive altitude once; the right hand follows the moving latch
+ok 13 - GLB local coordinates receive altitude once; the right hand follows the moving latch
+  ---
+  duration_ms: 8.850417
+  type: 'test'
+  ...
+# Subtest: the eye clears the threshold before dropping below the cabin floor at every viewport
+ok 14 - the eye clears the threshold before dropping below the cabin floor at every viewport
+  ---
+  duration_ms: 3.973666
+  type: 'test'
+  ...
+# Subtest: split hand layers preserve grip UV, depth occlusion and aspect; all human layers vanish at water
+ok 15 - split hand layers preserve grip UV, depth occlusion and aspect; all human layers vanish at water
+  ---
+  duration_ms: 3.709
+  type: 'test'
+  ...
+# Subtest: forward velocity does not stop or jump at the threshold seam
+ok 16 - forward velocity does not stop or jump at the threshold seam
+  ---
+  duration_ms: 0.224667
+  type: 'test'
+  ...
+# Subtest: underwater backdrop triangles never reverse winding across a spherical pole
+ok 17 - underwater backdrop triangles never reverse winding across a spherical pole
+  ---
+  duration_ms: 5.753833
+  type: 'test'
+  ...
+# Subtest: manual descent is monotonic and each skill has a continuous physical depth
+ok 18 - manual descent is monotonic and each skill has a continuous physical depth
+  ---
+  duration_ms: 1.543083
+  type: 'test'
+  ...
+# Subtest: every numbered skill has one hero encounter and the image remains within desktop and mobile frames
+ok 19 - every numbered skill has one hero encounter and the image remains within desktop and mobile frames
+  ---
+  duration_ms: 2.410541
+  type: 'test'
+  ...
+# Subtest: the island has real land above water, submerged shores and visible 3D geometry
+ok 20 - the island has real land above water, submerged shores and visible 3D geometry
+  ---
+  duration_ms: 78.114708
+  type: 'test'
+  ...
+# Subtest: the opening trajectory stays in open water and cannot collide with the island
+ok 21 - the opening trajectory stays in open water and cannot collide with the island
+  ---
+  duration_ms: 1.526209
+  type: 'test'
+  ...
+# Subtest: the overview keeps the island centre within desktop and phone viewports
+ok 22 - the overview keeps the island centre within desktop and phone viewports
+  ---
+  duration_ms: 1.794208
+  type: 'test'
+  ...
+# Subtest: M2 shell geometry is finite and framed at desktop and phone aspects
+ok 23 - M2 shell geometry is finite and framed at desktop and phone aspects
+  ---
+  duration_ms: 30.147791
+  type: 'test'
+  ...
+# Subtest: optional cruise never starts a flight and advances the same reversible native scroll
+ok 24 - optional cruise never starts a flight and advances the same reversible native scroll
+  ---
+  duration_ms: 0.143709
+  type: 'test'
+  ...
+# Subtest: M2 task demos cover the four tasks without making a real execution or signature claim
+ok 25 - M2 task demos cover the four tasks without making a real execution or signature claim
+  ---
+  duration_ms: 0.137166
+  type: 'test'
+  ...
+# Subtest: the M2 distant plate covers the complete entry and reverse dive camera arc
+ok 26 - the M2 distant plate covers the complete entry and reverse dive camera arc
+  ---
+  duration_ms: 77.250084
+  type: 'test'
+  ...
+# Subtest: high-density phones get 2x detail; large viewports and slow devices stay within the pixel budget
+ok 27 - high-density phones get 2x detail; large viewports and slow devices stay within the pixel budget
+  ---
+  duration_ms: 0.486583
+  type: 'test'
+  ...
+# Subtest: touch scroll cannot change first-person look through the real pointer handler
+ok 28 - touch scroll cannot change first-person look through the real pointer handler
+  ---
+  duration_ms: 0.839125
+  type: 'test'
+  ...
+# Subtest: native document position is the sole timeline: exact, reversible and clamped
+ok 29 - native document position is the sole timeline: exact, reversible and clamped
+  ---
+  duration_ms: 0.363416
+  type: 'test'
+  ...
+# Subtest: numbered navigation moves the same page; reduced motion avoids animated navigation
+ok 30 - numbered navigation moves the same page; reduced motion avoids animated navigation
+  ---
+  duration_ms: 0.079834
+  type: 'test'
+  ...
+# Subtest: address-bar changes preserve the runway; rotation preserves the current scene
+ok 31 - address-bar changes preserve the runway; rotation preserves the current scene
+  ---
+  duration_ms: 0.145875
+  type: 'test'
+  ...
+# Subtest: pause locks native input without changing scroll progress; replay unlocks and resets
+ok 32 - pause locks native input without changing scroll progress; replay unlocks and resets
+  ---
+  duration_ms: 0.090166
+  type: 'test'
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 246.690416

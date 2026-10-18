@@ -3,7 +3,9 @@ import { diveDepth } from './DiveNavigation.js';
 export function createBackdropGeometry() {
   const positions=[], uvs=[], indices=[], nx=64, ny=40;
   for(let j=0;j<=ny;j++) for(let i=0;i<=nx;i++) {
-    const u=i/nx,v=j/ny,yaw=(u-.5)*Math.PI*1.35,pitch=(v-.5)*2.7,r=220;
+    // Keep the 1376px M2 plate concentrated inside the shot instead of
+    // spreading its detail across 243 degrees. Still covers entry pitch.
+    const u=i/nx,v=j/ny,yaw=(u-.5)*Math.PI*.9,pitch=(v-.5)*2.7,r=220;
     positions.push(Math.sin(yaw)*Math.cos(pitch)*r, Math.sin(pitch)*r, -Math.cos(yaw)*Math.cos(pitch)*r);
     uvs.push(u,v);
     if(i<nx&&j<ny){const a=j*(nx+1)+i,b=a+1,c=a+nx+1,d=c+1;indices.push(a,b,c,b,d,c);}

@@ -1,0 +1,22 @@
+{
+  "source": "User-supplied APEX_Little_Conch_Cinematic_v4_M2_独立分支源码包/apex-little-conch-v4-m2/public/assets",
+  "usage": "Opaque scene plates and concept previews only; not alpha cutouts, PBR textures or real 3D terrain. Rights provenance supplied by project owner; no Anna Cheng assets used.",
+  "files": {
+    "opt_abyss.webp": {
+      "sha256": "d614b27124cb68d3af1da453acaaeb8fa44e259347268deb3f68b9a245ec9ae3",
+      "bytes": 97332
+    },
+    "opt_cabin.webp": {
+      "sha256": "c23e64400cfce46640de6a9214e6f99be6459b4e3cd5fa212380397e9cee9c63",
+      "bytes": 104902
+    },
+    "opt_island1.webp": {
+      "sha256": "5a94d0d9855f20529fbf82609ff228f7ab74507c0cdac3573c25fc429ead2946",
+      "bytes": 71890
+    },
+    "opt_island2.webp": {
+      "sha256": "aea32216eebda2ac56b697684675dabaae75a92093f0f89bb1ed275b67a34ab4",
+      "bytes": 81178
+    }
+  }
+}

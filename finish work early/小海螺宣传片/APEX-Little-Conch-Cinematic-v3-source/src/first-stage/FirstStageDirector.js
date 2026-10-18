@@ -14,6 +14,7 @@ import { CABIN, SUN } from './SceneLayout.js';
 import { SeaLifeEncounters } from './SeaLifeEncounters.js';
 import { HumanForeground } from './HumanForeground.js';
 import { renderPixelRatio } from './PixelDensity.js';
+import { ConchBeacon } from './ConchBeacon.js';
 export class FirstStageDirector {
   constructor({ host, hatch, onFailure }) {
     this.host = host; this.hatch = hatch; this.onFailure = onFailure;
@@ -66,6 +67,7 @@ export class FirstStageDirector {
       this.scene.add(this.rig.camera);this.human=new HumanForeground(this.rig.camera,this.textures,this.cabin);
       this.underwater = new UnderwaterPOV(this.textures.seabed, innerWidth < 640); this.scene.add(this.underwater.root);
       this.seaLife=new SeaLifeEncounters(this.textures.oceanLifeAtlas);this.scene.add(this.seaLife.root);
+      this.conch=new ConchBeacon();this.scene.add(this.conch.root);
       await this.renderer.compileAsync(this.scene, this.rig.camera);
       if (this.disposed) return;
       this.ready = true; this.host.parentElement.classList.add('webgl-ready');
@@ -93,6 +95,7 @@ export class FirstStageDirector {
     // Extended water clock animates life after arrival without altering the camera trajectory.
     const waterState = { ...s, t: s.t + deepTime };
     this.underwater.update(waterState,progress);this.seaLife.update(s,progress,this.rig.camera,s.t+deepTime,this.reducedMotion); this.transition.update(waterState, this.reducedMotion, progress);
+    this.conch.update(s,progress,this.rig.camera,s.t+deepTime,this.reducedMotion);
     this.host.parentElement.dataset.shot = s.phase;
     this.host.parentElement.dataset.humanForeground = s.t >= 10.8 ? 'hidden' : this.human.hasAssets ? 'integrated-pending-review' : 'asset-pending';
     this.host.parentElement.dataset.doorProgress = s.door.toFixed(4);
@@ -108,7 +111,7 @@ export class FirstStageDirector {
       Object.assign(this.sun.shadow.camera,{left:-span,right:span,top:span,bottom:-span,far:overview?1800:28});
       this.sun.shadow.camera.updateProjectionMatrix();
     }
-    if(overview){this.cabin.root.visible=false;this.human.root.visible=false;this.underwater.root.visible=false;this.seaLife.root.visible=false;}
+    if(overview){this.cabin.root.visible=false;this.human.root.visible=false;this.underwater.root.visible=false;this.seaLife.root.visible=false;this.conch.root.visible=false;}
     if (this.qaCoordinates) this.updateCoordinateGuide(s);
     this.renderer.info.autoReset=false;this.renderer.info.reset();this.transition.render();
     this.frameCount++;

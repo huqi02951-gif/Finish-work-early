@@ -1,0 +1,93 @@
+[
+  {
+    "h": 568,
+    "overflow": false,
+    "phase": "waiting",
+    "w": 320
+  },
+  {
+    "h": 568,
+    "overflow": false,
+    "phase": "opening",
+    "w": 320
+  },
+  {
+    "h": 568,
+    "overflow": false,
+    "phase": "falling",
+    "w": 320
+  },
+  {
+    "h": 568,
+    "overflow": false,
+    "phase": "falling",
+    "w": 320
+  },
+  {
+    "h": 568,
+    "overflow": false,
+    "phase": "impact",
+    "w": 320
+  },
+  {
+    "h": 568,
+    "overflow": false,
+    "phase": "impact",
+    "w": 320
+  },
+  {
+    "h": 568,
+    "overflow": false,
+    "phase": "descending",
+    "w": 320
+  },
+  {
+    "chapter": "0",
+    "h": 568,
+    "overflow": false,
+    "phase": "underwater",
+    "w": 320
+  },
+  {
+    "chapter": "1",
+    "h": 568,
+    "overflow": false,
+    "phase": "underwater",
+    "w": 320
+  },
+  {
+    "chapter": "2",
+    "h": 568,
+    "overflow": false,
+    "phase": "underwater",
+    "w": 320
+  },
+  {
+    "chapter": "3",
+    "h": 568,
+    "overflow": false,
+    "phase": "underwater",
+    "w": 320
+  },
+  {
+    "chapter": "4",
+    "h": 568,
+    "overflow": false,
+    "phase": "underwater",
+    "w": 320
+  },
+  {
+    "chapter": "5",
+    "h": 568,
+    "overflow": false,
+    "phase": "underwater",
+    "w": 320
+  },
+  {
+    "chapter": "6",
+    "h": 568,
+    "overflow": false,
+    "phase": "credits",
+    "w": 320
+  }
+]

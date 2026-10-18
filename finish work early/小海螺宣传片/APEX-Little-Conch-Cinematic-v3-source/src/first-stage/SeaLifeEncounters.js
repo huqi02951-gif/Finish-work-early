@@ -31,9 +31,9 @@ export class SeaLifeEncounters {
       const portrait=camera.aspect<1,compact=portrait&&camera.aspect>.52,side=index%2?-1:1;
       sprite.position.x=camera.position.x+(portrait?0:halfWidth*.45*side);
       const swim=smooth(start,start+.025,progress);
-      sprite.position.y=baseY+(-diveDepth(progress)-baseY)*swim+Math.sin(camera.rotation.x)*distance+halfHeight*(compact?.30:portrait?.22:.04)+(reducedMotion?0:Math.sin(time*.7+index)*.10);
+      sprite.position.y=baseY+(-diveDepth(progress)-baseY)*swim+Math.sin(camera.rotation.x)*distance+halfHeight*(compact?.26:portrait?.44:.04)+(reducedMotion?0:Math.sin(time*.7+index)*.10);
       // Encounters are hero-sized: picture beside the skill on desktop, above it on phones.
-      const size=halfHeight*(compact?.36:portrait?.56:.86);
+      const size=halfHeight*(compact?.30:portrait?.44:.86);
       sprite.scale.set(size,size,1);sprite.material.rotation=reducedMotion?0:Math.sin(time*.45+index)*.045;
     }
   }
