@@ -114,7 +114,7 @@ npx prisma db execute --file prisma/manual/20260412_legacy_dev_upgrade.sql --sch
 根据 Hostuno 的 Node 方案机制部署建议：
 1. 配置好服务器的 Node 安装（如使用 nvm 安装 Node 18+）。
 2. 将此项目的代码传至服务器。
-3. 配置环境变量：将外网真实的 `DB_URL` (`postgresql://p3397_finishwork:Ab123123%40@pgsql2.hostuno.com...`) 配置至服务器上的 `.env`。由于是在 Hostuno 体系内，使用 `pgsql2.hostuno.com` 直接互连网络质量最佳。
+3. 配置环境变量：从数据库控制台取得实际连接串，在服务器环境变量或未提交到 Git 的 `.env` 中设置 `DATABASE_URL`。不要在源码、文档或前端变量中写入真实数据库账号、密码或连接串。
 4. 在服务器端执行安装及打包构建：
    ```bash
    npm install
