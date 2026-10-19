@@ -29,12 +29,12 @@ cd Finish-work-early/backend
 
 ## Step 3: 配置环境变量
 
-在 `backend/` 目录下创建 `.env` 文件：
+在服务器的 `backend/` 目录下创建不提交到 Git 的 `.env` 文件，或使用托管平台的环境变量设置。数据库连接串从数据库控制台取得；以下均为占位示例，不包含真实凭据：
 
 ```env
 PORT=3000
 JWT_SECRET=换一个更复杂的随机字符串_2024
-DATABASE_URL="postgresql://p3397_finishwork:Ab123123%40@pgsql2.hostuno.com:5432/p3397_finishwork?schema=public"
+DATABASE_URL="postgresql://<DB_USER>:<DB_PASSWORD>@<DB_HOST>:5432/<DB_NAME>?schema=public"
 
 # SMTP (可选，配了才能发邮件验证码)
 SMTP_HOST=mail2.hostuno.com
