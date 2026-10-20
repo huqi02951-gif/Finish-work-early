@@ -57,7 +57,7 @@ const Home: React.FC = () => {
 
   return (
     <AppLayout title="finish work early" theme="default">
-      <div className="relative flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden bg-[#f7f6f2] font-sans text-[#171717]">
+      <div className="relative flex min-h-[calc(100dvh-7.5rem)] flex-col overflow-x-clip bg-[#f7f6f2] font-sans text-[#171717]">
         <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col px-5 py-6 sm:px-8 sm:py-10">
 
           {/* ─── Top meta row ─────────────────────────────────────── */}
@@ -161,8 +161,13 @@ const Home: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.6 }}
-            className="mt-8 flex items-center justify-end border-t border-neutral-200/80 pt-5 text-[10px] font-medium tracking-[0.12em] text-neutral-400 sm:mt-10"
+            className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-neutral-200/80 pt-5 text-[10px] font-medium tracking-[0.12em] text-neutral-500 sm:mt-10"
           >
+            <nav aria-label="公开指南与网站说明" className="flex flex-wrap gap-x-4 gap-y-2 text-[12px] tracking-normal">
+              <a href="./guides/" className="underline-offset-4 hover:underline">使用指南</a>
+              <a href="./guides/about.html" className="underline-offset-4 hover:underline">关于与联系</a>
+              <a href="./guides/privacy.html" className="underline-offset-4 hover:underline">隐私与使用边界</a>
+            </nav>
             <span className="inline">{pageConfig.footer.creditText}</span>
           </motion.div>
         </div>

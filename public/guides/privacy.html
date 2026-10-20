@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="了解公开指南、业务工具、本地存储、第三方服务和未来广告展示的数据边界。">
+  <meta name="google-adsense-account" content="ca-pub-6732464360142866">
+  <link rel="canonical" href="https://subtle-conkies-e4e722.netlify.app/guides/privacy.html">
+  <link rel="stylesheet" href="./guide.css">
+  <title>隐私、数据与使用边界 · APEX 工作手记</title>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<header class="masthead">
+<a class="brand" href="./">APEX<span>工作手记 / finish work early</span>
+</a>
+<nav aria-label="网站导航">
+<a href="./">使用指南</a>
+<a href="../#/skills">打开工具 ↗</a>
+<a href="./about.html">关于</a>
+</nav>
+</header>
+<main id="main">
+<article>
+<a class="back" href="./">← 全部指南</a>
+<p class="eyebrow">PRIVACY / 更新于 2026.10.20</p>
+<h1>知道数据去哪里，<br>再决定交给工具什么。</h1>
+<p class="lead">本说明适用于 APEX · finish work early 的公开指南及当前静态前端。不同工具的数据处理方式可能不同，不能把一个工具的行为理解成全站承诺。</p>
+<section>
+<h2>阅读公开指南</h2>
+<p>本目录的指南无需登录，不设置资料上传或评论表单，不主动将阅读内容发送给业务后台。网站托管服务仍可能处理 IP 地址、访问时间、请求路径、浏览器信息等访问与安全日志，以交付页面和维护服务。</p>
+<p>同一份静态源码可能由 Cloudflare Pages、GitHub Pages 或 Netlify 托管，实际托管服务以访问的网址为准。通过链接进入其他网站后，其数据处理规则由相应服务说明。</p>
+</section>
+<section>
+<h2>使用工具、本地记录与导出</h2>
+<p>部分工具在浏览器内整理输入、生成预览或下载文件；部分模块使用 localStorage、IndexedDB 等浏览器存储保存历史、偏好、工作台或会话状态。关闭页面不一定会清除这些记录。下载的文档和本地截图也会留在设备或你选择的保存位置。</p>
+<p>如需清理，可以在浏览器中删除本站的站点数据，并自行删除下载文件。此操作可能清除本地草稿和偏好，且不等于删除已提交给服务器或第三方服务的记录。使用公用设备时，请注意退出登录，并确认本地记录的保留范围。</p>
+</section>
+<section>
+<h2>登录、社区与联网功能</h2>
+<p>源码包含 Supabase 登录及会话管理；启用并使用登录时，所填写的邮箱、手机号、验证码和相关会话信息会交由认证服务处理。社区、反馈、内容读取或其他后台功能在可用时，可能向所配置的业务服务提交请求。部分入口在当前静态部署中可能不可用。</p>
+<p>不要假定所有工具均离线，也不要把“匿名昵称”理解成无法关联身份。提交前先查看具体页面说明，只提供完成任务所必需的信息。阅读本目录不需要调用这些业务接口。</p>
+</section>
+<section>
+<h2>广告与第三方数据</h2>
+<p>目前仅部署 AdSense 网站归属验证标记和 ads.txt 授权记录，用于申请网站审核；本站尚未启用广告脚本或广告位，也没有广告收益保证。这些验证文件与启用广告展示是不同步骤。</p>
+<p>如果后续启用 Google 广告，Google 及广告合作方可能使用 Cookie、网页信标、IP 地址或其他标识提供广告、衡量效果和防范无效活动。启用前将补齐适用的同意管理与选择机制，并更新说明；计划只在适合的公开指南展示，不在客户资料表单、工作台或业务操作界面植入广告。</p>
+<p>
+<a href="https://policies.google.com/technologies/partner-sites?hl=zh-CN">了解 Google 如何使用合作伙伴网站或应用中的信息 ↗</a>
+</p>
+</section>
+<section>
+<h2>真实业务资料与问题反馈</h2>
+<p>不要在公开评论、反馈、测试截图或练习中提交客户证件、账户、完整联系方式、未公开授信材料或访问凭据。真实资料的使用与提交需要符合所在机构的授权和现行要求。</p>
+<p>如需反馈本说明或申请协助处理与本站相关的数据问题，可先通过项目问题区提供不含敏感信息的情况说明。不要在公开帖子中直接上传需要删除的敏感资料。具体的数据处理请求仍需核实所用功能、接收方和身份后再办理。</p>
+<a href="https://github.com/huqi02951-gif/Finish-work-early/issues">项目问题区 ↗</a>
+</section>
+</article>
+</main>
+<footer>
+<nav aria-label="页尾导航">
+<a href="./">全部指南</a>
+<a href="./about.html">关于与联系</a>
+<a href="./privacy.html">隐私与使用边界</a>
+<a href="https://github.com/huqi02951-gif/Finish-work-early">公开源码 ↗</a>
+</nav>
+<p>APEX 项目维护者整理 · 更新于 2026 年 10 月 20 日</p>
+<p>独立工具与经验项目，不代表银行官方渠道。实际业务请以当前有效制度及授权系统为准。</p>
+</footer>
+</body>
+</html>

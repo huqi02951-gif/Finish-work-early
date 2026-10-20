@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://subtle-conkies-e4e722.netlify.app/sitemap.xml
