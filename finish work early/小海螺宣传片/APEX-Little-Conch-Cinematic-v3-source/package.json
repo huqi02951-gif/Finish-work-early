@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 4180 --strictPort",
-    "build": "vite build",
+    "build": "vite build && node scripts/verify-crawl.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 4181 --strictPort",
     "test": "node --test tests/*.test.js"
   },

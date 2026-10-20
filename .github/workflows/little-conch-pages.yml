@@ -8,6 +8,7 @@ on:
       - 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source/src/**'
       - 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source/assets/**'
       - 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source/public/**'
+      - 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source/scripts/**'
       - 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source/tests/**'
       - 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source/index.html'
       - 'finish work early/小海螺宣传片/APEX-Little-Conch-Cinematic-v3-source/about.html'
