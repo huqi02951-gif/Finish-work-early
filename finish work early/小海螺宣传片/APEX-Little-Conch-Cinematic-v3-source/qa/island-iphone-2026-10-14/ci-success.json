@@ -1,0 +1,110 @@
+{
+  "conclusion": "success",
+  "headSha": "d0fd2b7ececca9338bb06ef554d8c374f63eab55",
+  "jobs": [
+    {
+      "completedAt": "2026-10-13T17:33:00Z",
+      "conclusion": "success",
+      "databaseId": 115442023239,
+      "name": "Test, build and publish Little Conch",
+      "startedAt": "2026-10-13T17:32:34Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-13T17:32:35Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-13T17:32:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-13T17:32:38Z",
+          "conclusion": "success",
+          "name": "Checkout published source",
+          "number": 2,
+          "startedAt": "2026-10-13T17:32:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-13T17:32:42Z",
+          "conclusion": "success",
+          "name": "Use Node.js 22",
+          "number": 3,
+          "startedAt": "2026-10-13T17:32:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-13T17:32:44Z",
+          "conclusion": "success",
+          "name": "Install locked dependencies",
+          "number": 4,
+          "startedAt": "2026-10-13T17:32:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-13T17:32:45Z",
+          "conclusion": "success",
+          "name": "Test camera and navigation behavior",
+          "number": 5,
+          "startedAt": "2026-10-13T17:32:44Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-13T17:32:47Z",
+          "conclusion": "success",
+          "name": "Build production site",
+          "number": 6,
+          "startedAt": "2026-10-13T17:32:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-13T17:32:57Z",
+          "conclusion": "success",
+          "name": "Authenticate and publish to existing Pages project",
+          "number": 7,
+          "startedAt": "2026-10-13T17:32:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-13T17:32:57Z",
+          "conclusion": "success",
+          "name": "Record published preview",
+          "number": 8,
+          "startedAt": "2026-10-13T17:32:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-13T17:32:57Z",
+          "conclusion": "success",
+          "name": "Post Use Node.js 22",
+          "number": 15,
+          "startedAt": "2026-10-13T17:32:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-13T17:32:57Z",
+          "conclusion": "success",
+          "name": "Post Checkout published source",
+          "number": 16,
+          "startedAt": "2026-10-13T17:32:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-13T17:32:57Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-10-13T17:32:57Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/huqi02951-gif/Finish-work-early/actions/runs/38439487006/job/115442023239"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/huqi02951-gif/Finish-work-early/actions/runs/38439487006",
+  "deployments": [
+    "https://528dd7af.apex-little-conch.pages.dev"
+  ]
+}

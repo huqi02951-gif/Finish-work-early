@@ -1,0 +1,75 @@
+{
+  "publicUpBefore": {
+    "depth": "018",
+    "progress": "0.0000",
+    "scripts": [
+      "https://apex-little-conch.pages.dev/assets/index-BqkyFVWf.js"
+    ]
+  },
+  "publicUpAfter": {
+    "depth": "019",
+    "phase": "underwater",
+    "progress": "0.0173"
+  },
+  "publicFirstSkill": {
+    "data": {
+      "audioState": "running",
+      "diveProgress": "0.2125",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "1",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "depth": "083",
+    "overflow": false,
+    "title": "CURIOSITY.\nIN MOTION.",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  "publicNarrowFinal": {
+    "data": {
+      "audioState": "running",
+      "diveProgress": "0.3200",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "2",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "overflow": false,
+    "size": [
+      320,
+      568
+    ]
+  },
+  "publicDesktop": {
+    "data": {
+      "audioState": "running",
+      "diveProgress": "0.4600",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "3",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "overflow": false,
+    "size": [
+      1440,
+      900
+    ]
+  },
+  "logs": [],
+  "limit": "Desktop Chrome viewport and mouse pointer drag, not physical phone touch."
+}

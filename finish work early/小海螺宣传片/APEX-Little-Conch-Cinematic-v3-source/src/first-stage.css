@@ -1,0 +1,212 @@
+/* First-stage presentation. The V3 deep-story layout remains in style.css. */
+#cinematic-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+.webgl-ready .sky,.webgl-ready .underwater,.webgl-ready .cabin,.webgl-ready .bluewash,.webgl-ready .sunshafts,.webgl-ready .motion-lines,.webgl-ready #particles,.webgl-ready .horizon-flash,.webgl-ready .splash{display:none}
+/* The existing 388px body cutout is not suitable for a first-person close-up. */
+.pov-hands,.world-object{display:none!important}
+.webgl-ready .hatch-anchor{inset:0;transform:none;width:100%;height:100%;perspective:none;z-index:12}
+.webgl-ready .hatch{position:absolute;inset:auto;transform:none;border:0;border-radius:2px;background:none;box-shadow:none;overflow:visible;touch-action:none}
+.webgl-ready .hatch::after,.webgl-ready .hatch-inner,.webgl-ready .metal-light{display:none}
+.door-action{display:none}
+.webgl-ready .door-action{display:block;position:absolute;left:50%;bottom:4%;transform:translateX(-50%);width:90%;font-size:11px;letter-spacing:.14em;color:#fff1d2;text-align:center;text-shadow:0 1px 8px #00121a}
+.door-action b{display:block;font-size:10px;font-weight:400;margin-top:9px;opacity:.75}
+.webgl-ready .hatch:hover .door-action{color:#fff}
+.webgl-ready .hatch:focus-visible{outline:2px solid #e5cbaa;outline-offset:-3px}
+.title-screen{display:none!important}
+.flight-caption{top:auto;bottom:17%;transform:translateX(-50%);width:80%;text-align:center}
+.flight-caption strong{font-family:inherit;font-size:clamp(18px,2vw,28px);font-weight:400;letter-spacing:.22em;margin:16px 0}
+.flight-caption span{font-family:monospace;font-size:10px;letter-spacing:.25em;color:#d8eeee}
+.vignette{z-index:2;background:radial-gradient(ellipse at 50% 48%,transparent 38%,#000c1540 100%)}
+.grain{z-index:2;opacity:.055}
+.hud{font-family:'SFMono-Regular',Consolas,monospace;top:15%}
+.readout strong{font-size:clamp(28px,3vw,42px);letter-spacing:-.04em}
+.hud-eyebrow{font-size:9px;letter-spacing:.12em}
+.top{padding-top:max(22px,env(safe-area-inset-top));z-index:22}
+.toolbar button{min-height:44px;min-width:44px}
+.footer{bottom:max(25px,env(safe-area-inset-bottom));z-index:20}
+#skip-intro{position:absolute;right:4.5vw;bottom:12%;z-index:24;font-size:10px;letter-spacing:.13em;padding:12px;border:0;background:transparent;color:#d1dfdd;opacity:.75;min-height:44px}
+#scene-status{position:absolute;z-index:30;left:50%;top:50%;transform:translate(-50%,-50%);padding:20px 26px;background:#0a1e2eee;font-size:13px;line-height:1.8;max-width:80vw;text-align:center}
+.film:not([data-phase='waiting']) .hatch-anchor{pointer-events:none}
+.film[data-phase='underwater'] .chapter-copy{transition:opacity .7s}
+#qa-panel{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:50;padding:10px;background:#081c27ed;border:1px solid #c5d7d755;width:min(760px,96vw);font:11px monospace;color:#daebe5}
+#qa-panel label{display:inline-flex;align-items:center;gap:12px;width:83%}#qa-panel input{width:80%}#qa-panel button{background:#243c43;border:1px solid #778e9155;margin:5px 3px 0 0;padding:6px 10px;font-size:10px;min-height:32px}#qa-panel output{font-size:10px}
+@media(max-width:620px){
+ .top{padding-left:16px;padding-right:12px}.logo small{display:none}.toolbar button span{font-size:7px}
+ .hud{top:96px!important}.hud-left{left:18px}.hud-right{right:18px;max-width:155px}.hud-right b{font-size:8px;line-height:1.5}
+ .film[data-phase='waiting'] .hud{opacity:1!important}.readout strong{font-size:27px}.hud-eyebrow{font-size:7px;letter-spacing:.07em}.hud-eyebrow b{font-size:9px}
+ .webgl-ready .door-action{font-size:10px;letter-spacing:.06em;bottom:5%}.door-action b{font-size:8px}
+ .footer{bottom:max(22px,env(safe-area-inset-bottom));left:18px;right:18px}.guide small{font-size:8px}.progress{width:87px;min-width:87px}
+ .flight-caption{bottom:22%;width:94%}.flight-caption strong{font-size:17px;letter-spacing:.1em}.flight-caption span{font-size:8px}
+ #skip-intro{right:12px;bottom:11%}.chapter-copy{bottom:14%}.chapter-copy h2{font-size:40px}
+ #qa-panel{bottom:6px;font-size:9px}#qa-panel button{padding:4px 7px}
+}
+@media(prefers-reduced-motion:reduce){.grain{animation:none}.film *{scroll-behavior:auto!important}}
+.film[data-paused='true'] *{animation-play-state:paused!important}
+.film:not([data-phase='underwater']) .chapter-copy,.film:not([data-phase='underwater']) .data-caption{visibility:hidden}
+.film:not([data-phase='credits']) .credits{visibility:hidden}
+.scene-unavailable #cinematic-canvas{display:none}
+.film[data-phase='credits'] .hud{visibility:hidden}
+/* Developer-only alignment overlay, never part of the public experience. */
+#qa-coordinates{position:absolute;inset:0;z-index:40;pointer-events:none}
+#qa-coordinates i{position:absolute;border:1px solid #ffd39d;border-radius:50%;width:16px;height:16px;transform:translate(-50%,-50%);font:10px monospace;color:#fff4cc;white-space:nowrap;text-indent:23px;font-style:normal}
+#qa-coordinates output{position:absolute;top:26%;left:12px;max-width:45vw;font:9px/1.4 monospace;white-space:pre-wrap;background:#07131bd9;color:#dbe5e7;padding:10px}
+@media(max-width:600px){#qa-coordinates output{top:160px;font-size:7px;max-width:55vw}}
+@media(orientation:landscape) and (max-height:500px){
+ .hud{top:96px}.readout strong{font-size:25px}.hud-eyebrow{font-size:8px}
+}
+.top{padding-left:max(4.5vw,calc(env(safe-area-inset-left) + 12px));padding-right:max(4.5vw,calc(env(safe-area-inset-right) + 12px))}
+@media(max-width:620px){
+ .top{padding-left:max(16px,calc(env(safe-area-inset-left) + 12px));padding-right:max(12px,calc(env(safe-area-inset-right) + 12px))}
+ .hud-left,.footer{left:max(18px,calc(env(safe-area-inset-left) + 12px))}
+ .hud-right,.footer{right:max(18px,calc(env(safe-area-inset-right) + 12px))}
+}
+/* Preserve instrument legibility against the open, bright sky. */
+.film[data-shot='falling'] .top,.film[data-shot='falling'] .hud{ text-shadow:0 1px 3px #041521,0 0 9px #04152180 }
+.film[data-shot='falling'] .vignette{background:linear-gradient(#03121e55,transparent 32%),radial-gradient(ellipse at 50% 48%,transparent 38%,#000c1540 100%)}
+
+/* Deterministic QA sampling shows the completed panel, even while its clock is paused. */
+.qa-mode .film[data-paused='true'] #holo-contents{animation:none}
+.chapter-copy h2{font-size:clamp(42px,4.4vw,64px)}
+.credits-growth{line-height:1.8;margin:8px 20px;color:#aad7dc!important}
+@media(max-width:620px){.chapter-copy h2{font-size:clamp(32px,9.2vw,40px)}}
+@media(max-width:620px) and (max-height:660px){
+ .film[data-phase='underwater'] .holo-cluster{top:40%;height:24vh;left:50%;width:94vw}
+ #holo-contents{inset:12% 10%;gap:5px}.holo-title{font-size:15px}.holo-head{font-size:6px;letter-spacing:.08em}.holo-row{font-size:8px;padding:2px 0}.holo-foot{font-size:6px;letter-spacing:.03em}.holo-graph{height:20px}
+ .chapter-copy{bottom:16%;left:20px;width:88vw}.chapter-copy #chapter-kicker{font-size:7px;letter-spacing:.13em;margin-bottom:9px}.chapter-copy h2{font-size:28px;line-height:1.02;margin-bottom:9px}.chapter-copy #chapter-cn{font-size:12px}.chapter-copy #chapter-desc{font-size:10px;line-height:1.6}.chapter-line{margin:9px 0}
+ .credits{padding-top:42px;padding-bottom:42px}.credits>span{font-size:7px;letter-spacing:.17em}.credits img{height:8vh}.credits h2{font-size:28px}.credits p{font-size:10px}.credits-line{margin:8px}.credits h3{font-size:16px}.credits p.credits-names{font-size:10px}.credits button{padding:9px 14px;margin-top:8px}
+}
+
+.qa-mode .film[data-phase='credits'][data-paused='true'] .credits{transition:none}
+
+/* One large encounter per skill; supporting data no longer competes with its silhouette. */
+.film[data-phase='underwater'] .holo-cluster{display:none}
+.film[data-phase='underwater'][data-side='right'] .chapter-copy{left:55%;width:37vw}
+.film[data-phase='underwater'][data-side='right'] .data-caption{left:16%;right:auto}
+.film[data-phase='underwater'][data-side='left'] .data-caption{right:16%}
+.film[data-phase='underwater'] .data-caption{bottom:22%}
+.film[data-phase='underwater'] .footer-center{display:none}
+.skill-nav{position:absolute;z-index:21;left:50%;bottom:28px;transform:translateX(-50%);display:flex;gap:8px}
+.skill-nav button{background:transparent;border:0;border-bottom:1px solid #aacbd84d;color:#a1bfce;font:10px monospace;min-width:32px;min-height:32px;cursor:pointer}
+.skill-nav button[aria-current='step']{color:#ffe7c2;border-color:#e6c8a2}
+.film:not([data-phase='underwater']) .skill-nav{display:none}
+.film[data-phase='underwater'][data-visual='conch'] .world-object{display:block!important;opacity:1;left:70%;top:45%;width:min(29vw,420px);transform:translate(-50%,-50%)}
+.film[data-phase='underwater'][data-visual='conch'] .world-object .object-glow,.film[data-phase='underwater'][data-visual='conch'] .world-object .object-orbit{display:none}
+@media(max-width:620px){
+ .film[data-phase='underwater'][data-side='right'] .chapter-copy{left:24px;width:85vw}
+ .skill-nav{bottom:82px;gap:8px}.skill-nav button{font-size:9px;min-width:30px;min-height:28px}
+ .film[data-phase='underwater'][data-visual='conch'] .world-object{left:50%;top:38%;width:55vw}
+}
+@media(max-width:620px) and (max-height:660px){
+ .chapter-copy,.film[data-phase='underwater'][data-side='right'] .chapter-copy{left:20px;width:88vw;bottom:20%}
+ .skill-nav{bottom:64px;gap:6px}.skill-nav button{min-height:24px}
+}
+
+.film:not([data-phase='underwater']) .holo-cluster,.film:not([data-phase='underwater']) .floor-portal{visibility:hidden}
+
+.film[data-phase='underwater'] .floor-portal{display:none}
+
+/* The film is a viewport; the document below it is the actual dive timeline. */
+.film{position:fixed}
+#dive-scroll-space{height:0;pointer-events:none;overflow-anchor:none}
+html.dive-scroll,html.dive-scroll body{height:auto;min-height:100%;overflow-x:clip;overflow-y:visible}
+html.dive-scroll{overflow-y:auto;overscroll-behavior-y:none}
+html.dive-scroll .film{touch-action:pan-y pinch-zoom}
+html.dive-paused,html.dive-paused body{overflow-y:hidden}
+html.dive-paused .film{touch-action:none}
+html{scrollbar-width:none}html::-webkit-scrollbar{display:none}
+.film[data-phase='underwater'] .chapter-copy{transition:none}
+
+/* Warm shell lettering, coral navigation, and enough quiet space to read. */
+:root{--ink:#f4f1e5;--muted:#c5e1da;--gold:#f1ce9e;--aqua:#b7ede0}
+.chapter-copy h2{color:#f5efe1;text-wrap:balance}
+.chapter-copy #chapter-kicker{color:#b7ede0;letter-spacing:.2em}
+.chapter-copy #chapter-cn{color:#ffe6bc;text-wrap:balance;line-height:1.6}
+.chapter-copy #chapter-desc{color:#deece6;text-wrap:pretty;line-height:1.95;max-width:365px}
+.chapter-line{background:linear-gradient(90deg,#ffbe99,transparent);width:86px}
+.skill-nav button{min-width:36px;min-height:44px;transition:color .2s,border-color .2s,background .2s}
+.skill-nav button[aria-current='step']{color:#ffd9ba;border-color:#f3ab88;background:#163a4133}
+.skill-nav button:hover{color:#fff2db;border-color:#fff2db}
+.skill-nav button:active,.credits button:active{scale:.97}
+.credits{background:radial-gradient(ellipse at 50% 65%,#104c4755,#031c2be6)}
+.credits-growth{max-width:480px;text-wrap:balance;color:#c7e8db!important}
+.credits button{border-color:#a4d8ca77;color:#f6dfbb;letter-spacing:.08em;min-height:44px;transition:background .25s}
+.readout strong{font-variant-numeric:tabular-nums}
+@media(max-width:620px){
+ .chapter-copy #chapter-desc{font-size:12px;line-height:1.85;max-width:100%}
+ .chapter-copy h2{font-size:clamp(30px,8.7vw,38px);line-height:1.07}
+ .chapter-copy #chapter-cn{font-size:14px;letter-spacing:.04em}
+ .chapter-copy #chapter-kicker{font-size:9px;letter-spacing:.14em}
+ .skill-nav{bottom:78px;gap:6px}
+ .credits-growth{font-size:12px;letter-spacing:.03em;line-height:1.9;max-width:88vw}
+}
+@media(max-width:620px) and (max-height:660px){
+ .chapter-copy,.film[data-phase='underwater'][data-side='right'] .chapter-copy{bottom:24%;}
+ .chapter-copy h2{font-size:26px;margin-bottom:9px}
+ .chapter-copy #chapter-cn{font-size:12px}
+ .chapter-copy #chapter-desc{font-size:10px;line-height:1.65}
+ .chapter-copy #chapter-kicker{font-size:8px;letter-spacing:.1em}
+ .chapter-line{margin:8px 0}
+ .skill-nav{bottom:57px}
+ .skill-nav button{min-width:30px;min-height:44px}
+ .credits-growth{font-size:10px}
+}
+@media(max-width:620px) and (max-height:660px){.hud{top:80px!important}}
+
+/* The first island is a visible 3D destination with a clear entrance and return. */
+.island-screen{position:absolute;z-index:18;left:7vw;top:40%;width:min(430px,38vw);color:#f7f1df;text-shadow:0 2px 25px #052b3866}
+.island-eyebrow{font:10px/1.6 monospace;letter-spacing:.2em;color:#efdbb7}
+.island-screen h1{font:400 clamp(40px,4.2vw,64px)/1.15 'Songti SC','STSong',serif;margin:18px 0 24px;letter-spacing:.08em}
+.island-lead{font-size:20px;line-height:1.6;letter-spacing:.04em;text-wrap:balance}
+.island-intro{font-size:13px;line-height:2;color:#e2ede2}
+.island-screen button{display:block;margin-top:30px;padding:15px 22px;border:1px solid #e6d9b99c;background:#12393b99;backdrop-filter:blur(8px);color:#fff0d1;min-height:48px;font-size:13px;letter-spacing:.06em;transition:background .25s,transform .25s}
+.island-screen button:hover{background:#174b49cc}.island-screen button:active{transform:translateY(2px)}
+.island-screen small{display:block;margin-top:16px;font-size:10px;letter-spacing:.04em;color:#d1e5da}
+.film:not([data-phase='island']) .island-screen{display:none}
+.film[data-phase='island'] .hud,.film[data-phase='island'] .footer,.film[data-phase='island'] .hatch-anchor,.film[data-phase='island'] #island-home{display:none}
+.film[data-phase='island'] .vignette{background:linear-gradient(90deg,#04282c77,transparent 55%),linear-gradient(0deg,#052d3544,transparent 40%)}
+@media(max-width:620px){
+ .toolbar{gap:0}.toolbar button{padding:7px}.toolbar button span{font-size:7px;letter-spacing:0}
+ .top{padding-left:14px;padding-right:8px}.logo-dot{width:22px;height:22px}.logo{gap:6px}.logo b{font-size:17px}
+ .island-screen{left:24px;right:24px;top:auto;bottom:max(38px,env(safe-area-inset-bottom));width:auto}
+ .island-screen h1{font-size:36px;margin:9px 0 16px}.island-eyebrow{font-size:9px}
+ .island-lead{font-size:16px;margin:0 0 12px}.island-intro{font-size:12px;margin:0;line-height:1.85}
+ .island-screen button{margin-top:21px}.island-screen small{font-size:9px;margin-top:13px}
+ .film[data-phase='island'] .vignette{background:linear-gradient(0deg,#052733d9,transparent 67%)}
+ .guide small{font-size:11px;line-height:1.6}.film[data-phase='underwater'] .guide{max-width:68%;font-size:8px}
+}
+@media(max-width:620px) and (max-height:660px){
+ .island-screen{bottom:25px;left:20px;right:20px}.island-screen h1{font-size:30px;margin:7px 0 9px}.island-lead{font-size:14px}.island-intro{font-size:10px}.island-screen button{margin-top:14px;padding:12px 16px}.island-screen small{font-size:8px}
+ .toolbar button span{display:none}
+ .guide small{font-size:9px}
+}
+.chapter-copy h2{font-family:'Songti SC','STSong','Noto Serif CJK SC',serif;font-size:clamp(38px,3.8vw,56px);line-height:1.2;letter-spacing:.03em}
+.chapter-copy #chapter-cn{font-size:clamp(15px,1.3vw,20px);line-height:1.75}
+@media(max-width:620px){.chapter-copy h2{font-size:32px;margin-bottom:13px}.chapter-copy #chapter-cn{font-size:14px}.guide small{max-width:200px}.progress{min-width:72px;width:72px}}
+@media(max-width:620px) and (max-height:660px){.chapter-copy h2{font-size:25px;margin-bottom:9px}.chapter-copy #chapter-cn{font-size:12px}.chapter-copy #chapter-desc{font-size:11px}}
+
+/* A task, its execution, and the usable result: the four real credit scenarios. */
+.chapter-workflow{margin:18px 0 0;max-width:410px;font-size:13px;line-height:1.9;color:#deece6}
+.chapter-workflow[hidden]{display:none}
+.chapter-workflow>div{display:flex;gap:14px;margin-top:10px}
+.chapter-workflow dt{flex:0 0 2em;color:#b7ede0;font-size:11px;padding-top:2px;letter-spacing:.08em}
+.chapter-workflow dd{margin:0;text-wrap:pretty}
+.chapter-copy #chapter-desc{margin-bottom:0}
+@media(max-width:620px){
+ .chapter-workflow{font-size:12px;line-height:1.7;margin-top:12px;max-width:100%}
+ .chapter-workflow>div{gap:12px;margin-top:7px}.chapter-workflow dt{font-size:10px}
+ .chapter-copy,.film[data-phase='underwater'][data-side='right'] .chapter-copy{bottom:18%;}
+ .chapter-copy h2{font-size:30px;line-height:1.15;margin-bottom:8px}
+ .chapter-copy #chapter-cn{margin:8px 0;font-size:14px}
+ .chapter-copy #chapter-kicker{margin-bottom:12px;letter-spacing:.08em}
+ .chapter-line{margin:10px 0}
+}
+@media(max-width:620px) and (max-height:660px){
+ .chapter-copy,.film[data-phase='underwater'][data-side='right'] .chapter-copy{bottom:20%;}
+ .chapter-copy h2{font-size:23px;margin-bottom:6px;line-height:1.12}
+ .chapter-copy #chapter-cn{font-size:12px;margin:6px 0}
+ .chapter-copy #chapter-desc,.chapter-workflow{font-size:10px;line-height:1.6}
+ .chapter-workflow{margin-top:7px}.chapter-workflow>div{gap:8px;margin-top:4px}.chapter-workflow dt{font-size:9px}
+ .chapter-copy #chapter-kicker{font-size:8px;margin-bottom:8px}
+ .chapter-line{margin:7px 0}
+}
+.chapter-workflow dt{white-space:nowrap;flex-basis:28px}
+.film[data-phase='island'] .top{text-shadow:0 1px 6px #073040b3}

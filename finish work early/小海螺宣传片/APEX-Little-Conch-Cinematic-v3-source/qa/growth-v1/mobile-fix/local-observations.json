@@ -1,0 +1,89 @@
+{
+  "fixBefore": {
+    "data": {
+      "audioState": "not-started",
+      "diveProgress": "0.1800",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "1",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "depth": "062"
+  },
+  "fixAfter": {
+    "canvas": [
+      [
+        390,
+        844
+      ],
+      [
+        300,
+        150
+      ]
+    ],
+    "data": {
+      "audioState": "not-started",
+      "diveProgress": "0.2106",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "1",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "depth": "081",
+    "overflow": false,
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  "narrowBefore": {
+    "depth": "113",
+    "p": "0.3200"
+  },
+  "narrowAfter": {
+    "depth": "122",
+    "overflow": false,
+    "p": "0.3349",
+    "size": [
+      320,
+      568
+    ]
+  },
+  "reverseBefore": {
+    "depth": "152",
+    "p": "0.3845"
+  },
+  "reverseAfter": {
+    "depth": "146",
+    "p": "0.3700"
+  },
+  "desktopRead": {
+    "data": {
+      "audioState": "not-started",
+      "diveProgress": "0.4600",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "3",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true"
+    },
+    "overflow": false,
+    "size": [
+      1440,
+      900
+    ]
+  },
+  "logs": [],
+  "limit": "Desktop Chrome viewport and mouse drag; physical iOS/Android and high-DPR browser not tested."
+}

@@ -1,0 +1,574 @@
+[
+  {
+    "door": "0.0000",
+    "overflow": false,
+    "phase": "waiting",
+    "qaHidden": true,
+    "t": "0.00 s",
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  {
+    "door": "0.2500",
+    "overflow": false,
+    "phase": "opening",
+    "qaHidden": true,
+    "t": "0.84 s",
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  {
+    "door": "0.5000",
+    "overflow": false,
+    "phase": "opening",
+    "qaHidden": true,
+    "t": "1.17 s",
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "2.35 s",
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "3.50 s",
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "6.60 s",
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "10.55 s",
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "10.78 s",
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "impact",
+    "qaHidden": true,
+    "t": "10.80 s",
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "impact",
+    "qaHidden": true,
+    "t": "10.82 s",
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "impact",
+    "qaHidden": true,
+    "t": "10.94 s",
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "descending",
+    "qaHidden": true,
+    "t": "13.60 s",
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "underwater",
+    "qaHidden": true,
+    "t": "19.00 s",
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  {
+    "door": "0.0000",
+    "overflow": false,
+    "phase": "waiting",
+    "qaHidden": true,
+    "t": "0.00 s",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "door": "0.2500",
+    "overflow": false,
+    "phase": "opening",
+    "qaHidden": true,
+    "t": "0.84 s",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "door": "0.5000",
+    "overflow": false,
+    "phase": "opening",
+    "qaHidden": true,
+    "t": "1.17 s",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "2.35 s",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "3.50 s",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "6.60 s",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "10.55 s",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "10.78 s",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "impact",
+    "qaHidden": true,
+    "t": "10.80 s",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "impact",
+    "qaHidden": true,
+    "t": "10.82 s",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "impact",
+    "qaHidden": true,
+    "t": "10.94 s",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "descending",
+    "qaHidden": true,
+    "t": "13.60 s",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "underwater",
+    "qaHidden": true,
+    "t": "19.00 s",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "door": "0.0000",
+    "overflow": false,
+    "phase": "waiting",
+    "qaHidden": true,
+    "t": "0.00 s",
+    "viewport": [
+      320,
+      568
+    ]
+  },
+  {
+    "door": "0.2500",
+    "overflow": false,
+    "phase": "opening",
+    "qaHidden": true,
+    "t": "0.84 s",
+    "viewport": [
+      320,
+      568
+    ]
+  },
+  {
+    "door": "0.5000",
+    "overflow": false,
+    "phase": "opening",
+    "qaHidden": true,
+    "t": "1.17 s",
+    "viewport": [
+      320,
+      568
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "2.35 s",
+    "viewport": [
+      320,
+      568
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "3.50 s",
+    "viewport": [
+      320,
+      568
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "6.60 s",
+    "viewport": [
+      320,
+      568
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "10.55 s",
+    "viewport": [
+      320,
+      568
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "10.78 s",
+    "viewport": [
+      320,
+      568
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "impact",
+    "qaHidden": true,
+    "t": "10.80 s",
+    "viewport": [
+      320,
+      568
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "impact",
+    "qaHidden": true,
+    "t": "10.82 s",
+    "viewport": [
+      320,
+      568
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "impact",
+    "qaHidden": true,
+    "t": "10.94 s",
+    "viewport": [
+      320,
+      568
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "descending",
+    "qaHidden": true,
+    "t": "13.60 s",
+    "viewport": [
+      320,
+      568
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "underwater",
+    "qaHidden": true,
+    "t": "19.00 s",
+    "viewport": [
+      320,
+      568
+    ]
+  },
+  {
+    "door": "0.0000",
+    "overflow": false,
+    "phase": "waiting",
+    "qaHidden": true,
+    "t": "0.00 s",
+    "viewport": [
+      844,
+      390
+    ]
+  },
+  {
+    "door": "0.2500",
+    "overflow": false,
+    "phase": "opening",
+    "qaHidden": true,
+    "t": "0.84 s",
+    "viewport": [
+      844,
+      390
+    ]
+  },
+  {
+    "door": "0.5000",
+    "overflow": false,
+    "phase": "opening",
+    "qaHidden": true,
+    "t": "1.17 s",
+    "viewport": [
+      844,
+      390
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "2.35 s",
+    "viewport": [
+      844,
+      390
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "3.50 s",
+    "viewport": [
+      844,
+      390
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "6.60 s",
+    "viewport": [
+      844,
+      390
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "10.55 s",
+    "viewport": [
+      844,
+      390
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "falling",
+    "qaHidden": true,
+    "t": "10.78 s",
+    "viewport": [
+      844,
+      390
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "impact",
+    "qaHidden": true,
+    "t": "10.80 s",
+    "viewport": [
+      844,
+      390
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "impact",
+    "qaHidden": true,
+    "t": "10.82 s",
+    "viewport": [
+      844,
+      390
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "impact",
+    "qaHidden": true,
+    "t": "10.94 s",
+    "viewport": [
+      844,
+      390
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "descending",
+    "qaHidden": true,
+    "t": "13.60 s",
+    "viewport": [
+      844,
+      390
+    ]
+  },
+  {
+    "door": "1.0000",
+    "overflow": false,
+    "phase": "underwater",
+    "qaHidden": true,
+    "t": "19.00 s",
+    "viewport": [
+      844,
+      390
+    ]
+  }
+]

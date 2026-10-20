@@ -1,0 +1,34 @@
+
+> apex-little-conch-cinematic@3.2.0 build
+> vite build
+
+vite v6.4.2 building for production...
+transforming...
+✓ 53 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/ads.txt                                        0.06 kB │ gzip:   0.08 kB
+dist/about.html                                     3.02 kB │ gzip:   1.80 kB
+dist/privacy.html                                   3.61 kB │ gzip:   2.08 kB
+dist/index.html                                    10.73 kB │ gzip:   4.45 kB
+dist/assets/pov-hands-Bl4YwPtD.webp                30.33 kB
+dist/assets/conch-T3VfRMdu.svg                     54.79 kB │ gzip:  11.84 kB
+dist/assets/opt_island1-DKmcz8kP.webp              71.89 kB
+dist/assets/opt_island2-CbEEN0ev.webp              81.18 kB
+dist/assets/opt_abyss-BYZt8YpN.webp                97.33 kB
+dist/assets/cabin-D3ZjJoXf.webp                   197.09 kB
+dist/assets/sky-zc8RQARw.webp                     314.40 kB
+dist/assets/seabed-D0X4eqFv.webp                  342.32 kB
+dist/assets/hatch-xvuc-sZl.webp                   617.63 kB
+dist/assets/cloud-bank-v1-B9Td_7zy.png          2,068.83 kB
+dist/assets/ocean-life-atlas-v1-Bm97vu34.png    2,471.88 kB
+dist/assets/AdSenseConfig-CyN4N4J0.css              1.78 kB │ gzip:   0.84 kB
+dist/assets/film-DHXj_OqX.css                      47.77 kB │ gzip:  11.79 kB
+dist/assets/privacy-DiQ2D4VS.js                     0.41 kB │ gzip:   0.37 kB
+dist/assets/modulepreload-polyfill-B5Qt9EMX.js      0.71 kB │ gzip:   0.40 kB
+dist/assets/AdSenseConfig-5mEmssTs.js               0.73 kB │ gzip:   0.45 kB
+dist/assets/about-DAm0Ze2j.js                       1.18 kB │ gzip:   0.70 kB
+dist/assets/StoryChapters-BVFyuYA7.js               3.09 kB │ gzip:   1.65 kB
+dist/assets/film-DA6XH3Bn.js                      153.13 kB │ gzip:  58.29 kB
+dist/assets/three-CUqMvPXD.js                     515.14 kB │ gzip: 129.61 kB
+✓ built in 761ms

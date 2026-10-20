@@ -1,0 +1,230 @@
+[
+  {
+    "action": "risk",
+    "depth": "072",
+    "navCount": 4,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.2143",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "1",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true",
+      "visual": "query"
+    },
+    "scrollY": 2532,
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "action": "finance",
+    "depth": "153",
+    "navCount": 4,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.4286",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "2",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true",
+      "visual": "finance"
+    },
+    "scrollY": 5064,
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "action": "equity",
+    "depth": "233",
+    "navCount": 4,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.6429",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "3",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true",
+      "visual": "equity"
+    },
+    "scrollY": 7596,
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "action": "beneficial-owner",
+    "depth": "268",
+    "navCount": 4,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.7857",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "4",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true",
+      "visual": "ownership"
+    },
+    "scrollY": 9284,
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "action": "reverse-to-equity",
+    "depth": "191",
+    "navCount": 4,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.5714",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "3",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true",
+      "visual": "equity"
+    },
+    "scrollY": 6752,
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "action": "paused-before",
+    "depth": "191",
+    "navCount": 4,
+    "phase": {
+      "audioState": "suspended",
+      "diveProgress": "0.5714",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "3",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true",
+      "visual": "equity"
+    },
+    "scrollY": 6752,
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "action": "paused-after",
+    "depth": "191",
+    "navCount": 4,
+    "phase": {
+      "audioState": "suspended",
+      "diveProgress": "0.5714",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "3",
+      "paused": "true",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true",
+      "visual": "equity"
+    },
+    "scrollY": 6752,
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "action": "credits",
+    "depth": "320",
+    "navCount": 4,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "1.0000",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "6",
+      "paused": "false",
+      "phase": "credits",
+      "shot": "underwater",
+      "side": "right",
+      "soundEnabled": "true",
+      "visual": "conch"
+    },
+    "scrollY": 11816,
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "action": "reverse-from-credits",
+    "depth": "268",
+    "navCount": 4,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.7857",
+      "doorProgress": "1.0000",
+      "humanForeground": "hidden",
+      "milestone": "4",
+      "paused": "false",
+      "phase": "underwater",
+      "shot": "underwater",
+      "side": "left",
+      "soundEnabled": "true",
+      "visual": "ownership"
+    },
+    "scrollY": 9284,
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "action": "return-island",
+    "depth": "268",
+    "navCount": 4,
+    "phase": {
+      "audioState": "running",
+      "diveProgress": "0.0000",
+      "doorProgress": "0.0000",
+      "humanForeground": "asset-pending",
+      "paused": "false",
+      "phase": "island",
+      "shot": "waiting",
+      "side": "left",
+      "soundEnabled": "true"
+    },
+    "scrollY": 0,
+    "viewport": [
+      390,
+      844
+    ]
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "path": "?v=20261018-m2",
+    "status": 200,
+    "type": "text/html; charset=utf-8",
+    "ownerMatches": true,
+    "build": "gemini-m2-integrated-v4",
+    "bundleMatches": true
+  },
+  {
+    "path": "about.html",
+    "status": 200,
+    "type": "text/html; charset=utf-8",
+    "ownerMatches": true,
+    "bundleMatches": true
+  },
+  {
+    "path": "privacy.html",
+    "status": 200,
+    "type": "text/html; charset=utf-8",
+    "ownerMatches": true,
+    "bundleMatches": true
+  },
+  {
+    "path": "ads.txt",
+    "status": 200,
+    "type": "text/plain; charset=utf-8",
+    "ownerMatches": true
+  }
+]
