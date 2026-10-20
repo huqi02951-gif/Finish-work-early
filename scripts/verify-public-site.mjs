@@ -51,7 +51,8 @@ for(const match of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)){
 for(const file of await readdir(resolve(output,'assets'))){
   if(!/\.(?:js|json|html|txt)$/.test(file))continue;
   const source=await readFile(resolve(output,'assets',file),'utf8');
-  assert.doesNotMatch(source,/AIza[0-9A-Za-z_-]{35}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|postgres(?:ql)?:\/\/[^\s"']+:[^\s"']+@/,
-    `Do not publish private service credentials in ${file}.`);
+  if(/AIza[0-9A-Za-z_-]{35}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|postgres(?:ql)?:\/\/[^\s"']+:[^\s"']+@/.test(source)){
+    throw new Error(`Do not publish private service credentials in ${file}. Credential values are not logged.`);
+  }
 }
 console.log(`Public content verified: 8 HTML pages, ${checkedLinks} local references, 8 sitemap URLs, consistent ownership, no ad SDK.`);
